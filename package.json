@@ -1,0 +1,54 @@
+{
+  "name": "pos-system",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Multi-domain POS system monorepo",
+  "workspaces": [
+    "apps/docs",
+    "apps/web/*",
+    "apps/server/*",
+    "apps/worker/*",
+    "apps/mobile/*",
+    "apps/desktop/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "dev:all": "turbo run dev --parallel",
+    "dev:frontend": "turbo run dev --filter=@pos/web-*",
+    "dev:backend": "turbo run dev --filter=@pos/server-api",
+    "build": "turbo run build",
+    "build:apps": "turbo run build --filter=@pos/*",
+    "build:packages": "turbo run build --filter=@repo/*",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "type-check": "turbo run type-check",
+    "test": "turbo run test",
+    "test:watch": "turbo run test:watch",
+    "clean": "turbo run clean",
+    "clean:all": "turbo run clean && rm -rf node_modules",
+    "reset": "npm run clean:all && npm install",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "turbo run build --filter=@repo/* && changeset publish"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.27.1",
+    "@repo/eslint-config": "*",
+    "@repo/typescript-config": "*",
+    "@types/eslint-config-prettier": "^6.11.3",
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.5",
+    "turbo": "^2.0.0",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "packageManager": "npm@10.2.4",
+  "dependencies": {
+    "@repo/email": "^1.0.0"
+  }
+}

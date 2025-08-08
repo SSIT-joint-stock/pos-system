@@ -1,0 +1,51 @@
+{
+  "name": "@repo/database",
+  "type": "module",
+  "scripts": {
+    "build": "npm run clean && npm run db:generate && tsup && tsc-alias",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "clean": "rimraf dist",
+    "clear:force": "rimraf *.js --force",
+    "postinstall": "prisma generate",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push --skip-generate",
+    "db:push:generate": "prisma db push",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate:dev": "prisma migrate dev",
+    "prisma:migrate:reset": "prisma migrate reset --force",
+    "prisma:migrate:deploy": "prisma migrate deploy",
+    "prisma:migrate:status": "prisma migrate status",
+    "prisma:studio": "prisma studio",
+    "prisma:db:seed": "node ./dist/seed.js",
+    "prisma:format": "prisma format"
+  },
+  "files": [
+    "dist/**"
+  ],
+  "exports": {
+    ".": {
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      },
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "dependencies": {
+    "@faker-js/faker": "^9.3.0",
+    "@prisma/client": "^6.0.1"
+  },
+  "devDependencies": {
+    "prisma": "^6.0.1",
+    "@repo/typescript-config": "*",
+    "rimraf": "^6.0.1",
+    "tsc-alias": "^1.8.10",
+    "tsup": "^8.2.4",
+    "typescript": "latest",
+    "ts-node": "^10.9.2"
+  }
+}

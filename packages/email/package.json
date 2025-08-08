@@ -1,0 +1,53 @@
+{
+    "name": "@repo/email",
+    "version": "1.0.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "npm run clean && tsup && tsc-alias",
+        "dev": "tsup --watch",
+        "clean": "rimraf dist",
+        "clear:force": "rimraf *.js --force"
+    },
+    "exports": {
+        ".": {
+            "import": {
+                "types": "./dist/index.d.ts",
+                "default": "./dist/index.js"
+            },
+            "require": {
+                "types": "./dist/index.d.cts",
+                "default": "./dist/index.cjs"
+            }
+        }
+    },  
+    
+    "dependencies": {
+        "@repo/dto": "*",
+        "@repo/types": "*",
+        "@repo/utils": "*",
+        "bullmq": "^5.7.9",
+        "nodemailer": "^6.9.1",
+        "nodemailer-express-handlebars": "^7.0.0",
+        "nodemailer-smtp-transport": "^2.7.4",
+        "dotenv": "^16.3.1",
+        "marked": "^11.1.1"
+    },
+    "devDependencies": {
+        "@repo/typescript-config": "*",
+        "@types/node": "^18.0.0",
+        "@types/nodemailer": "6.4.17",
+        "@types/nodemailer-express-handlebars": "^4.0.5",
+        "@types/nodemailer-smtp-transport": "^2.7.8",
+        "@types/marked": "^5.0.2",
+        "typescript": "^5.0.0",
+        "eslint": "latest",
+        "rimraf": "^6.0.1",
+        "tsc-alias": "^1.8.10",
+        "tsup": "^8.2.4",
+        "ts-node": "^10.9.2"
+    },
+    "publishConfig": {
+        "access": "restricted"
+    }
+}

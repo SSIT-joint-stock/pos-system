@@ -1,0 +1,50 @@
+@import "@repo/tailwind-config";
+
+/* POS Blue Theme Tokens */
+:root {
+  /* POS primary blue and scale */
+  --pos-blue-50: #eff6ff;
+  --pos-blue-100: #dbeafe;
+  --pos-blue-200: #bfdbfe;
+  --pos-blue-300: #93c5fd;
+  --pos-blue-400: #60a5fa;
+  --pos-blue-500: #3b82f6;
+  --pos-blue-600: #2563eb;
+  --pos-blue-700: #1d4ed8;
+  --pos-blue-800: #1e40af;
+  --pos-blue-900: #1e3a8a;
+
+  /* Semantic colors backed by POS blue */
+  --color-primary: var(--pos-blue-600);
+  --color-primary-foreground: #ffffff;
+  --color-accent: var(--pos-blue-500);
+  --color-accent-foreground: #ffffff;
+}
+
+.dark {
+  --color-primary: var(--pos-blue-500);
+  --color-primary-foreground: #ffffff;
+  --color-accent: var(--pos-blue-400);
+  --color-accent-foreground: #0b1220;
+}
+
+/* Common component utilities */
+@layer utilities {
+  .container {
+    margin-inline: auto;
+    padding-inline: 1rem;
+    max-width: 1280px;
+  }
+
+  .btn-primary {
+    @apply bg-[--color-primary] text-[--color-primary-foreground] hover:bg-[--pos-blue-700] active:bg-[--pos-blue-800] disabled:opacity-60 disabled:cursor-not-allowed;
+  }
+
+  .text-muted {
+    @apply text-gray-600 dark:text-gray-400;
+  }
+
+  .card {
+    @apply rounded-lg border border-gray-200/60 bg-white shadow-sm dark:border-gray-800/60 dark:bg-gray-900;
+  }
+}

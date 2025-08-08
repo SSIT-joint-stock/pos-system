@@ -1,0 +1,46 @@
+{
+  "name": "@repo/types",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Shared TypeScript type definitions for the POS system",
+  "scripts": {
+    "build": "npm run clean && tsup && tsc-alias",
+    "dev": "tsup --watch",
+    "clean": "rimraf dist",
+    "type-check": "tsc --noEmit"
+  },
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./response": {
+      "import": {
+        "types": "./dist/response/index.d.ts",
+        "default": "./dist/response/index.js"
+      },
+      "require": {
+        "types": "./dist/response/index.d.cts",
+        "default": "./dist/response/index.cjs"
+      }
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "devDependencies": {
+    "@repo/typescript-config": "*",
+    "@types/node": "^20.11.24",
+    "typescript": "^5.3.3",
+    "rimraf": "^6.0.1",
+    "tsc-alias": "^1.8.10",
+    "tsup": "^8.2.4"
+  }
+}

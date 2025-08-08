@@ -1,0 +1,9 @@
+{
+  "extends": "@repo/typescript-config/base.json", // Kế thừa từ tsconfig gốc của monorepo nếu có
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

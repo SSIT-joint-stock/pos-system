@@ -1,0 +1,88 @@
+{
+    "name": "@repo/dto",
+    "version": "1.0.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "npm run clean && tsup && tsc-alias",
+        "dev": "tsup --watch",
+        "clean": "rimraf dist",
+        "clear:force": "rimraf *.js --force"
+    },
+    "dependencies": {
+        "@repo/types": "*",
+        "@repo/utils": "*",
+        "@prisma/client": "^6.0.1",
+        "bullmq": "^5.7.9",
+        "nodemailer": "^6.9.1",
+        "nodemailer-express-handlebars": "^7.0.0",
+        "nodemailer-smtp-transport": "^2.7.4",
+        "dotenv": "^16.3.1",
+        "marked": "^11.1.1"
+    },
+    "devDependencies": {
+        "@repo/typescript-config": "*",
+        "@types/node": "^20.0.0",
+        "typescript": "^5.0.0",
+        "eslint": "latest",
+        "rimraf": "^6.0.1",
+        "tsc-alias": "^1.8.10",
+        "tsup": "^8.2.4",
+        "ts-node": "^10.9.2"
+    },
+    "files": [
+        "dist/**"
+    ],
+    "exports": {
+        ".": {
+            "import": {
+                "types": "./dist/index.d.ts",
+                "default": "./dist/index.js"
+            },
+            "require": {
+                "types": "./dist/index.d.cts",
+                "default": "./dist/index.cjs"
+            }
+        },
+        "./api/*": {
+            "import": {
+                "types": "./dist/api/*.d.ts",
+                "default": "./dist/api/*.js"
+            },
+            "require": {
+                "types": "./dist/api/*.d.cts",
+                "default": "./dist/api/*.cjs"
+            }
+        },
+        "./email": {
+            "import": {
+                "types": "./dist/email/index.d.ts",
+                "default": "./dist/email/index.js"
+            },
+            "require": {
+                "types": "./dist/email/index.d.cts",
+                "default": "./dist/email/index.cjs"
+            }
+        },
+        "./messaging": {
+            "import": {
+                "types": "./dist/messaging/index.d.ts",
+                "default": "./dist/messaging/index.js"
+            },
+            "require": {
+                "types": "./dist/messaging/index.d.cts",
+                "default": "./dist/messaging/index.cjs"
+            }
+        },
+        "./telegram": {
+            "import": {
+                "types": "./dist/telegram/index.d.ts",
+                "default": "./dist/telegram/index.js"
+            },
+            "require": {
+                "types": "./dist/telegram/index.d.cts",
+                "default": "./dist/telegram/index.cjs"
+            }
+        }
+    }
+}

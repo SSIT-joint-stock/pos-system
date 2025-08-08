@@ -1,0 +1,47 @@
+{
+  "name": "@repo/telegram",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "npm run clean && tsup && tsc-alias",
+    "dev": "tsup --watch",
+    "clean": "rimraf dist",
+    "clear:force": "rimraf *.js --force"
+  },
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "dependencies": {
+    "@repo/dto": "*",
+    "@repo/types": "*",
+    "@repo/utils": "*",
+    "bullmq": "^5.7.9",
+    "telegraf": "^4.15.3",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "*",
+    "@types/node": "^20.0.0",
+    "@telegraf/types": "^8.3.1",
+    "typescript": "^5.0.0",
+    "eslint": "latest",
+    "rimraf": "^6.0.1",
+    "tsc-alias": "^1.8.10",
+    "tsup": "^8.2.4",
+    "ts-node": "^10.9.2"
+  },
+  "publishConfig": {
+    "access": "restricted"
+  }
+}

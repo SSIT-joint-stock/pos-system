@@ -1,0 +1,24 @@
+{
+  "extends": "@repo/typescript-config/base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "outDir": "dist",
+    "rootDir": "src",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@shared/*": ["./src/shared/*"],
+      "@modules/*": ["./src/modules/*"],
+      "@loaders/*": ["./src/loaders/*"],
+      "@repo/shared": ["../../packages/shared"],
+      "@repo/types": ["../../packages/types"],
+      "@repo/utils": ["../../packages/utils"],
+      "@repo/database": ["../../packages/database"],
+      "@repo/email": ["../../packages/email"],
+      "@repo/logger": ["../../packages/logger"],
+      "@repo/telegram": ["../../packages/telegram"],
+      "@repo/dto": ["../../packages/dto"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
+}

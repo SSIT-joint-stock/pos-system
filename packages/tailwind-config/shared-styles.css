@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+/* Import tw-animate-css */
+@import "tw-animate-css";
+
+@source "../../packages/design-system";
+@source "../../packages/core-ui";
+@source "../../apps/web/main";
+@source "../../apps/web/retail";
+
+/* Custom variant for dark mode */
+@custom-variant dark (&:is(.dark *));
+
+:root {
+    --color-primary: #000000;
+    --color-secondary: #000000;
+    --color-tertiary: #000000;
+    --color-quaternary: #000000;
+    --color-quinary: #000000;
+    --color-senary: #000000;
+    --color-septenary: #000000;
+}
+
+.dark {
+    --color-primary: #000000;
+    --color-secondary: #000000;
+    --color-tertiary: #000000;
+    --color-quaternary: #000000;
+    --color-quinary: #000000;
+    --color-senary: #000000;
+    --color-septenary: #000000;
+}
+
