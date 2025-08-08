@@ -93,7 +93,7 @@ jobs:
   notify:
     name: Send Webhook Notification
     runs-on: ubuntu-latest
-    needs: [lint, type-check, test]
+    needs: [build]
     if: always()
     steps:
       - name: Send notification
