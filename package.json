@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Multi-domain POS system monorepo",
   "workspaces": [
-    "apps/docs",
+
     "apps/web/*",
     "apps/server/*",
     "apps/worker/*",

@@ -6,9 +6,9 @@
   "type": "module",
   "exports": {
     "./styles/styles.css": "./src/styles/styles.css",
-    "./components/*": "./src/components/*.tsx",
-    "./components/typography": "./src/components/ui/typography/index.ts",
-    "./components/typography/*": "./src/components/ui/typography/*.tsx",
+    "./components/ui/typography": "./src/components/ui/typography/index.ts",
+    "./components/ui/typography/*": "./src/components/ui/typography/*.tsx",
+    "./components/ui/*": "./src/components/ui/*.tsx",
     "./contexts": "./src/contexts/index.ts",
     "./contexts/*": "./src/contexts/*.tsx"
   },
@@ -36,6 +36,7 @@
     "jotai": "2.13.0",
     "@mantine/core": "^7.11.2",
     "@mantine/hooks": "^7.11.2",
+    "next": "^14.2.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "tailwindcss": "^4",

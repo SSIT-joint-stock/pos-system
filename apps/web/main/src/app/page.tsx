@@ -1,4 +1,4 @@
-import { Heading, Text } from "@repo/design-system/src/components/typography";
+import { Heading, Text } from "@repo/design-system/components/ui/typography";
 
 export default function Page() {
   return (

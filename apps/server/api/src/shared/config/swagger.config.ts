@@ -1,5 +1,5 @@
 import { Options } from 'swagger-jsdoc';
-import config from 'config/app.config';
+import config from '@shared/config/app.config';
 
 /**
  * Swagger configuration options

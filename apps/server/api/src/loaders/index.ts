@@ -10,6 +10,7 @@ import DatabaseSeeder from '@loaders/database-seeder.loader';
 
 // shared
 import logger from '@shared/utils/logger';
+import RedisService from '@shared/services/redis.service';
 
 /**
  * @function
@@ -31,6 +32,9 @@ export default async () => {
     } catch (error) {
         logger.error('Error during database seeding:', error);
     }
+
+    // connect redis
+    await RedisService.connect();
 
     // start express
     const expressServer = new ExpressServer();
@@ -55,8 +59,10 @@ export default async () => {
     process.on('exit', () => {
         expressServer.close();
         socketServer.close();
+        RedisService.disconnect();
     }).on('SIGINT', () => {
         expressServer.close();
         socketServer.close();
+        RedisService.disconnect();
     });
 }

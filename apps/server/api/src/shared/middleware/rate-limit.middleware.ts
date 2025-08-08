@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
-import { RedisService } from 'services/cache/redis.service';
-import { createContextLogger } from 'shared/utils/logger';
-import appConfig from 'config/app.config';
-import TooManyRequests from 'responses/client-errors/too-many-requests';
-import { delay } from 'shared/utils/delay';
-import { randomInteger } from 'shared/utils/chance';
+
+// shared
+import RedisService, { RedisServiceSingleton } from '@shared/services/redis.service';
+import { createContextLogger } from '@shared/utils/logger';
+import { RateLimitError } from '@repo/types/response';
+import delayUtil from '@shared/utils/delay';
+import chanceUtil from '@shared/utils/chance';
 
 
 const logger = createContextLogger('RateLimitMiddleware');
@@ -30,19 +31,12 @@ const defaultOptions: Required<Pick<RateLimitOptions, 'keyPrefix' | 'message' | 
 };
 
 export class RateLimitMiddleware {
-    private redisService: RedisService;
+    private redisService: RedisServiceSingleton;
     private options: Required<RateLimitOptions>;
 
     constructor(options: RateLimitOptions) {
         this.options = { ...defaultOptions, ...options } as Required<RateLimitOptions>;
-        this.redisService = new RedisService({
-            host: appConfig.redisHost,
-            port: appConfig.redisPort,
-            retryStrategy: (times) => {
-                const delay = Math.min(times * 50, 2000);
-                return delay;
-            }
-        }, this.options.keyPrefix);
+        this.redisService = RedisService;
     }
 
     private getKey(identifier: string): string {
@@ -59,8 +53,8 @@ export class RateLimitMiddleware {
 
             if (currentCount >= this.options.max) {
                 // Get TTL of the key
-                const ttl = await this.redisService.getTtl(key);
-                
+                const ttl = await this.redisService.getClient().ttl(key);
+
                 logger.warn('Rate limit exceeded', {
                     identifier,
                     currentCount,
@@ -68,14 +62,19 @@ export class RateLimitMiddleware {
                     remainingTime: ttl
                 });
 
-                await delay(randomInteger(1000, 3000)); // Simulate some processing time
+                await delayUtil.delay(chanceUtil.randomInteger(1000, 3000)); // Simulate some processing time
                 if (this.options.customResponse) {
                     this.options.customResponse(req, res, next);
                 } else {
-                    throw new TooManyRequests(
-                        'RATE_LIMIT_EXCEEDED',
+                    throw new RateLimitError(
                         this.options.message,
-                        'Quá nhiều yêu cầu, vui lòng thử lại sau.',
+                        'RATE_LIMIT_EXCEEDED',
+                        {
+                            identifier,
+                            currentCount,
+                            max: this.options.max,
+                            remainingTime: ttl
+                        }
                     );
                 }
             }
@@ -83,16 +82,16 @@ export class RateLimitMiddleware {
             // Increment counter
             if (currentCount === 0) {
                 // First request in window, set with expiry
-                await this.redisService.set(key, 1, this.options.windowSizeInSeconds);
+                await this.redisService.set(key, '1', this.options.windowSizeInSeconds);
             } else {
                 // Increment existing counter
-                await this.redisService.increment(key);
+                await this.redisService.getClient().incr(key);
             }
 
             // Add rate limit info to response headers
             res.setHeader('X-RateLimit-Limit', this.options.max);
             res.setHeader('X-RateLimit-Remaining', Math.max(0, this.options.max - (currentCount + 1)));
-            res.setHeader('X-RateLimit-Reset', await this.redisService.getTtl(key));
+            res.setHeader('X-RateLimit-Reset', await this.redisService.getClient().ttl(key));
 
             next();
         } catch (error) {
