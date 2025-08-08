@@ -136,18 +136,25 @@ jobs:
           else
             echo "📡 Sending webhook notification..."
             echo "🔗 Webhook URL: $WEBHOOK_URL"
-            
-            PAYLOAD='{
-              "workflow_name": "'$WORKFLOW'",
-              "repository": "'$REPO'",
-              "run_id": "'$RUN_ID'",
-              "run_url": "'$RUN_URL'",
-              "status": "'$STATUS'",
-              "branch": "'$BRANCH'",
-              "commit_sha": "'$COMMIT_SHA'",
-              "commit_message": "'$COMMIT_MESSAGE'",
-              "actor": "'$ACTOR'"
-            }'
+            # Ensure jq is available for safe JSON construction
+            if ! command -v jq >/dev/null 2>&1; then
+              echo "Installing jq..."
+              sudo apt-get update -y >/dev/null 2>&1 || true
+              sudo apt-get install -y jq >/dev/null 2>&1 || true
+            fi
+
+            # Build JSON payload safely (handles newlines and quotes)
+            PAYLOAD=$(jq -n \
+              --arg workflow "$WORKFLOW" \
+              --arg repo "$REPO" \
+              --arg run_id "$RUN_ID" \
+              --arg run_url "$RUN_URL" \
+              --arg status "$STATUS" \
+              --arg branch "$BRANCH" \
+              --arg commit_sha "$COMMIT_SHA" \
+              --arg commit_message "$COMMIT_MESSAGE" \
+              --arg actor "$ACTOR" \
+              '{workflow_name:$workflow, repository:$repo, run_id:$run_id, run_url:$run_url, status:$status, branch:$branch, commit_sha:$commit_sha, commit_message:$commit_message, actor:$actor}')
 
             echo ""
             echo "📋 Webhook payload to be sent:"
