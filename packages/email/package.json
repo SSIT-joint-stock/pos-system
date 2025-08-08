@@ -26,6 +26,7 @@
         "@repo/dto": "*",
         "@repo/types": "*",
         "@repo/utils": "*",
+        "@repo/logger": "*",
         "bullmq": "^5.7.9",
         "nodemailer": "^6.9.1",
         "nodemailer-express-handlebars": "^7.0.0",
