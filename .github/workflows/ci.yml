@@ -96,10 +96,8 @@ jobs:
     needs: [build]
     if: always()
     steps:
-      - name: Send notification
-        env:
-          WEBHOOK_URL: ${{ secrets.CI_WEBHOOK_URL }}
-          WEBHOOK_SECRET: ${{ secrets.CI_WEBHOOK_SECRET }}
+      - name: Send CI notification
+        if: always()
         run: |
           STATUS="${{ job.status }}"
           REPO="${{ github.repository }}"
@@ -110,19 +108,70 @@ jobs:
           COMMIT_MESSAGE="${{ github.event.head_commit.message }}"
           ACTOR="${{ github.actor }}"
           RUN_URL="https://github.com/$REPO/actions/runs/$RUN_ID"
+          
+          echo "CI completed for $REPO on branch $BRANCH with status: $STATUS"
+          echo "Run URL: $RUN_URL"
+          echo "Commit: $COMMIT_SHA"
+          echo "Commit Message: $COMMIT_MESSAGE"
+          
+          # Check webhook configuration - Try both naming conventions
+          WEBHOOK_URL="${{ secrets.WEBHOOK_URL }}"
+          WEBHOOK_SECRET="${{ secrets.WEBHOOK_SECRET }}"
+          
+          # Fallback to CI_WEBHOOK_URL if WEBHOOK_URL is not set
+          if [ -z "$WEBHOOK_URL" ]; then
+            WEBHOOK_URL="${{ secrets.CI_WEBHOOK_URL }}"
+          fi
+          
+          if [ -z "$WEBHOOK_URL" ] || [ -z "$WEBHOOK_SECRET" ]; then
+            echo "⚠️  Webhook not configured"
+            echo "📝 To enable webhook notifications, add these to repository secrets:"
+            echo "  - WEBHOOK_URL or CI_WEBHOOK_URL (webhook endpoint)"
+            echo "  - WEBHOOK_SECRET (webhook secret key)"
+            echo ""
+            echo "🔍 Current secrets status:"
+            echo "  WEBHOOK_URL: ${{ secrets.WEBHOOK_URL != '' && 'SET' || 'NOT SET' }}"
+            echo "  WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET != '' && 'SET' || 'NOT SET' }}"
+            echo "  CI_WEBHOOK_URL: ${{ secrets.CI_WEBHOOK_URL != '' && 'SET' || 'NOT SET' }}"
+          else
+            echo "📡 Sending webhook notification..."
+            echo "🔗 Webhook URL: $WEBHOOK_URL"
+            
+            PAYLOAD='{
+              "workflow_name": "'$WORKFLOW'",
+              "repository": "'$REPO'",
+              "run_id": "'$RUN_ID'",
+              "run_url": "'$RUN_URL'",
+              "status": "'$STATUS'",
+              "branch": "'$BRANCH'",
+              "commit_sha": "'$COMMIT_SHA'",
+              "commit_message": "'$COMMIT_MESSAGE'",
+              "actor": "'$ACTOR'"
+            }'
 
-          PAYLOAD='{
-            "workflow_name": "$WORKFLOW",
-            "repository": "$REPO",
-            "run_id": "$RUN_ID",
-            "run_url": "$RUN_URL",
-            "status": "$STATUS",
-            "branch": "$BRANCH",
-            "commit_sha": "$COMMIT_SHA",
-            "commit_message": "$COMMIT_MESSAGE",
-            "actor": "$ACTOR"
-          }'
+            echo ""
+            echo "📋 Webhook payload to be sent:"
+            echo "==============================="
+            echo "$PAYLOAD" | jq '.' 2>/dev/null || echo "$PAYLOAD"
+            echo "==============================="
+            echo ""
 
-          curl -X POST -H "Content-Type: application/json" \
-               -H "X-Webhook-Secret: $WEBHOOK_SECRET" \
-               -d "$PAYLOAD" "$WEBHOOK_URL"
+            # Send webhook with error handling
+            WEBHOOK_RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+                 -H "Content-Type: application/json" \
+                 -H "X-Webhook-Secret: $WEBHOOK_SECRET" \
+                 -d "$PAYLOAD" "$WEBHOOK_URL")
+            
+            # Extract HTTP status code (last line)
+            HTTP_STATUS=$(echo "$WEBHOOK_RESPONSE" | tail -n1)
+            RESPONSE_BODY=$(echo "$WEBHOOK_RESPONSE" | head -n -1)
+            
+            if [ "$HTTP_STATUS" = "200" ]; then
+              echo "✅ Webhook notification sent successfully!"
+              echo "📊 Response: $RESPONSE_BODY"
+            else
+              echo "❌ Webhook notification failed with status: $HTTP_STATUS"
+              echo "📊 Response: $RESPONSE_BODY"
+              echo "🔗 Webhook URL: $WEBHOOK_URL"
+            fi
+          fi
