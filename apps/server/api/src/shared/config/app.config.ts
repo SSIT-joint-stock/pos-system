@@ -8,7 +8,7 @@ console.log('process.env.NODE_ENV', process.env.NODE_ENV);
 
 // Skip .env file loading in test environment
 if (process.env.NODE_ENV !== 'test') {
-    const ENV_FILE_PATH = join(process.cwd(), process.env.NODE_ENV === "production" ? "../../.env.production" : "../../.env");
+    const ENV_FILE_PATH = join(process.cwd(), process.env.NODE_ENV === "production" ? "../../.env" : "../../.env.local");
     const isEnvFound = dotenv.config({ path: ENV_FILE_PATH });
     if (isEnvFound.error) {
         throw new Error(`Cannot find ${process.env.NODE_ENV === "production" ? ENV_FILE_PATH : ENV_FILE_PATH} file.`);

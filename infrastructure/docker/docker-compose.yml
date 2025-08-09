@@ -1,0 +1,30 @@
+services:
+  mongodb:
+    container_name: mongodb_pos
+    image: mongo:latest
+    ports:
+      - "127.0.0.1:27018:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    command: mongod --auth 
+    networks:
+      - pos_network
+  redis:
+    container_name: redis_pos
+    image: redis:latest
+    ports:
+      - "127.0.0.1:6319:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - pos_network
+
+volumes:
+  mongodb_data:
+  redis_data:
+networks:
+  pos_network:
+    driver: bridge
