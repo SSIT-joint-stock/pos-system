@@ -17,57 +17,59 @@ datasource db {
 // User table - Quản lý người dùng của hệ thống
 // Một user có thể thuộc nhiều tenants với các roles khác nhau
 model User {
-  id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  email           String   @unique
-  passwordHash    String   // BCrypt hashed password
-  firstName       String
-  lastName        String
-  phone           String?
-  avatar          String?
-  isActive        Boolean  @default(true)
-  emailVerified   Boolean  @default(false)
-  lastLoginAt     DateTime?
+  id                String       @id @default(auto()) @map("_id") @db.ObjectId
+  email             String       @unique
+  username          String       @unique
+  passwordHash      String? // BCrypt hashed password
+  provider          UserProvider @default(LOCAL)
+  firstName         String?
+  lastName          String?
+  phone             String?
+  avatar            String?
+  isActive          Boolean      @default(true)
+  emailVerified     Boolean      @default(false)
+  lastLoginAt       DateTime?
   passwordChangedAt DateTime?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
 
   // Relationships
-  userTenants     UserTenant[]     // User có thể thuộc nhiều tenants
-  ownedTenants    Tenant[]         // Tenants mà user này là owner  
-  createdSales    Sale[]           // Sales được tạo bởi user này
-  
+  userTenants  UserTenant[] // User có thể thuộc nhiều tenants
+  ownedTenants Tenant[] // Tenants mà user này là owner  
+  createdSales Sale[] // Sales được tạo bởi user này
+
   @@map("users")
 }
 
 // Tenant table - Đại diện cho mỗi business (cửa hàng, nhà hàng, hiệu thuốc)
 // MVP focus: Retail tenants only
 model Tenant {
-  id           String      @id @default(auto()) @map("_id") @db.ObjectId
-  name         String      // Tên cửa hàng/business
-  subdomain    String      @unique // retail, restaurant-abc, pharmacy-xyz
-  domainType   DomainType  // RETAIL, RESTAURANT, PHARMACY
-  status       TenantStatus @default(TRIAL)
-  ownerId      String      @db.ObjectId // User là chủ sở hữu tenant
-  logo         String?     // Logo của tenant
-  settings     Json        @default("{}") // Tenant-specific settings (currency, timezone, etc.)
-  meta         Json        @default("{}") // Meta data của tenant (address, phone, email, etc.)
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  id         String       @id @default(auto()) @map("_id") @db.ObjectId
+  name       String // Tên cửa hàng/business
+  subdomain  String       @unique // retail, restaurant-abc, pharmacy-xyz
+  domainType DomainType // RETAIL, RESTAURANT, PHARMACY
+  status     TenantStatus @default(TRIAL)
+  ownerId    String       @db.ObjectId // User là chủ sở hữu tenant
+  logo       String? // Logo của tenant
+  settings   Json         @default("{}") // Tenant-specific settings (currency, timezone, etc.)
+  meta       Json         @default("{}") // Meta data của tenant (address, phone, email, etc.)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
 
   // Relationships
-  owner           User             @relation(fields: [ownerId], references: [id])
-  userTenants     UserTenant[]     // Users thuộc tenant này
-  subscription    Subscription?    // Tenant subscription plan
-  
+  owner        User          @relation(fields: [ownerId], references: [id])
+  userTenants  UserTenant[] // Users thuộc tenant này
+  subscription Subscription? // Tenant subscription plan
+
   // Retail Domain relationships
-  products        Product[]        // Sản phẩm của tenant (retail)
-  categories      Category[]       // Danh mục sản phẩm (retail)
-  customers       Customer[]       // Khách hàng (retail)
-  sales           Sale[]           // Đơn hàng bán (retail)
-  inventories     Inventory[]      // Quản lý tồn kho (retail)
-  unitCategories  UnitCategory[]   // Nhóm đơn vị
-  units           Unit[]           // Đơn vị tính
-  stockMovements  StockMovement[]  // Stock movements của tenant
+  products       Product[] // Sản phẩm của tenant (retail)
+  categories     Category[] // Danh mục sản phẩm (retail)
+  customers      Customer[] // Khách hàng (retail)
+  sales          Sale[] // Đơn hàng bán (retail)
+  inventories    Inventory[] // Quản lý tồn kho (retail)
+  unitCategories UnitCategory[] // Nhóm đơn vị
+  units          Unit[] // Đơn vị tính
+  stockMovements StockMovement[] // Stock movements của tenant
 
   @@map("tenants")
 }
@@ -85,8 +87,8 @@ model UserTenant {
   isActive    Boolean  @default(true)
 
   // Relationships
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@unique([userId, tenantId]) // Một user chỉ có 1 role per tenant
   @@map("user_tenants")
@@ -95,20 +97,20 @@ model UserTenant {
 // Subscription - Quản lý gói dịch vụ của từng tenant
 // MVP: Basic subscription model cho retail tenants
 model Subscription {
-  id                   String           @id @default(auto()) @map("_id") @db.ObjectId
-  tenantId             String           @unique @db.ObjectId
-  planType             PlanType         @default(TRIAL)
-  status               SubscriptionStatus @default(TRIAL)
-  features             Json             @default("[]") // Array of enabled features
-  limits               Json             @default("{}") // Usage limits (maxUsers, maxProducts, etc.)
-  currentPeriodStart   DateTime         @default(now())
-  currentPeriodEnd     DateTime         // End date of current billing period
-  canceledAt           DateTime?        // When subscription was canceled
-  createdAt            DateTime         @default(now())
-  updatedAt            DateTime         @updatedAt
+  id                 String             @id @default(auto()) @map("_id") @db.ObjectId
+  tenantId           String             @unique @db.ObjectId
+  planType           PlanType           @default(TRIAL)
+  status             SubscriptionStatus @default(TRIAL)
+  features           Json               @default("[]") // Array of enabled features
+  limits             Json               @default("{}") // Usage limits (maxUsers, maxProducts, etc.)
+  currentPeriodStart DateTime           @default(now())
+  currentPeriodEnd   DateTime // End date of current billing period
+  canceledAt         DateTime? // When subscription was canceled
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
 
   // Relationships
-  tenant               Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@map("subscriptions")
 }
@@ -122,8 +124,8 @@ model Subscription {
 model Category {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   tenantId    String   @db.ObjectId // Multi-tenant isolation
-  name        String   // Tên danh mục
-  description String?  // Mô tả danh mục
+  name        String // Tên danh mục
+  description String? // Mô tả danh mục
   parentId    String?  @db.ObjectId // Self-referencing for hierarchical categories
   isActive    Boolean  @default(true)
   sortOrder   Int      @default(0) // Thứ tự hiển thị
@@ -131,10 +133,10 @@ model Category {
   updatedAt   DateTime @updatedAt
 
   // Relationships
-  tenant      Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  children    Category[] @relation("CategoryHierarchy")
-  products    Product[]  // Sản phẩm thuộc danh mục này
+  tenant   Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  children Category[] @relation("CategoryHierarchy")
+  products Product[] // Sản phẩm thuộc danh mục này
 
   @@unique([tenantId, name]) // Tên category unique trong 1 tenant
   @@index([tenantId, isActive]) // Index cho queries thường dùng
@@ -144,29 +146,29 @@ model Category {
 // Product - Sản phẩm trong cửa hàng retail
 // Core entity cho retail business
 model Product {
-  id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  tenantId        String   @db.ObjectId // Multi-tenant isolation
-  name            String   // Tên sản phẩm
-  description     String?  // Mô tả sản phẩm
-  sku             String   // Stock Keeping Unit - mã sản phẩm
-  barcode         String?  // Mã vạch sản phẩm
-  categoryId      String   @db.ObjectId // Danh mục sản phẩm
-  basePrice       Float    // Giá bán cơ bản - không cần specify unit vì sẽ có trong ProductUnit
-  baseCost        Float?   // Giá vốn cơ bản - không cần specify unit vì sẽ có trong ProductUnit
-  trackInventory  Boolean  @default(true) // Có theo dõi tồn kho không
-  isActive        Boolean  @default(true)
-  imageUrl        String?  // URL hình ảnh sản phẩm
-  tags            Json     @default("[]") // Array of tags for searching
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  tenantId       String   @db.ObjectId // Multi-tenant isolation
+  name           String // Tên sản phẩm
+  description    String? // Mô tả sản phẩm
+  sku            String // Stock Keeping Unit - mã sản phẩm
+  barcode        String? // Mã vạch sản phẩm
+  categoryId     String   @db.ObjectId // Danh mục sản phẩm
+  basePrice      Float // Giá bán cơ bản - không cần specify unit vì sẽ có trong ProductUnit
+  baseCost       Float? // Giá vốn cơ bản - không cần specify unit vì sẽ có trong ProductUnit
+  trackInventory Boolean  @default(true) // Có theo dõi tồn kho không
+  isActive       Boolean  @default(true)
+  imageUrl       String? // URL hình ảnh sản phẩm
+  tags           Json     @default("[]") // Array of tags for searching
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   // Relationships
-  tenant          Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  category        Category   @relation(fields: [categoryId], references: [id])
-  productUnits    ProductUnit[] // Các đơn vị bán của sản phẩm với giá riêng
-  inventory       Inventory? // Thông tin tồn kho (1-to-1)
-  saleItems       SaleItem[] // Các lần bán sản phẩm này
-  stockMovements  StockMovement[] // Lịch sử xuất nhập kho
+  tenant         Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  category       Category        @relation(fields: [categoryId], references: [id])
+  productUnits   ProductUnit[] // Các đơn vị bán của sản phẩm với giá riêng
+  inventory      Inventory? // Thông tin tồn kho (1-to-1)
+  saleItems      SaleItem[] // Các lần bán sản phẩm này
+  stockMovements StockMovement[] // Lịch sử xuất nhập kho
 
   @@unique([tenantId, sku]) // SKU unique trong 1 tenant
   @@unique([tenantId, barcode]) // Barcode unique trong 1 tenant (nếu có)
@@ -178,24 +180,24 @@ model Product {
 // Inventory - Quản lý tồn kho cho từng sản phẩm
 // Quan trọng cho retail business để track stock levels
 model Inventory {
-  id                String   @id @default(auto()) @map("_id") @db.ObjectId
-  tenantId          String   @db.ObjectId // Multi-tenant isolation
-  productId         String   @unique @db.ObjectId // 1-to-1 với Product
-  quantity          Int      @default(0) // Số lượng hiện tại
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  tenantId         String   @db.ObjectId // Multi-tenant isolation
+  productId        String   @unique @db.ObjectId // 1-to-1 với Product
+  quantity         Int      @default(0) // Số lượng hiện tại
   // Mục đích: khi có đơn hàng, sẽ reserve số lượng này để tránh trùng lặp
   // ví dụ: khi có 10 sản phẩm trong kho, và có 1 đơn hàng với 5 sản phẩm, thì số lượng trong kho sẽ là 5 và số lượng đã reserve sẽ là 5
   // khi đơn hàng được thanh toán, số lượng đã reserve sẽ được trừ đi
-  reservedQuantity  Int      @default(0) // Số lượng đã reserve (đang trong đơn hàng)
-  reorderLevel      Int      @default(10) // Mức cảnh báo hết hàng
+  reservedQuantity Int      @default(0) // Số lượng đã reserve (đang trong đơn hàng)
+  reorderLevel     Int      @default(10) // Mức cảnh báo hết hàng
   // Mục đích: khi hết sản phẩm, sẽ đặt hàng lại với số lượng này
-  reorderQuantity   Int      @default(100) // Số lượng đặt hàng khi hết
-  lastStockUpdate   DateTime @default(now()) // Lần cập nhật stock cuối
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  reorderQuantity  Int      @default(100) // Số lượng đặt hàng khi hết
+  lastStockUpdate  DateTime @default(now()) // Lần cập nhật stock cuối
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   // Relationships
-  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  product           Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  tenant  Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@index([tenantId, quantity]) // Index cho low stock queries
   @@map("inventories")
@@ -208,18 +210,18 @@ model StockMovement {
   tenantId    String            @db.ObjectId // Multi-tenant isolation
   productId   String            @db.ObjectId // Sản phẩm liên quan
   type        StockMovementType // SALE, PURCHASE, ADJUSTMENT, RETURN
-  quantity    Float             // Số lượng thay đổi (+/-) - Float để support decimal quantities
+  quantity    Float // Số lượng thay đổi (+/-) - Float để support decimal quantities
   unitId      String            @db.ObjectId // Đơn vị của quantity này
-  reason      String?           // Lý do thay đổi
-  notes       String?           // Ghi chú thêm
+  reason      String? // Lý do thay đổi
+  notes       String? // Ghi chú thêm
   referenceId String?           @db.ObjectId // ID tham chiếu (sale_id, purchase_id, etc.)
   performedBy String            @db.ObjectId // User ID thực hiện
   createdAt   DateTime          @default(now())
 
   // Relationships
-  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  product     Product  @relation(fields: [productId], references: [id])
-  unit        Unit     @relation(fields: [unitId], references: [id])
+  tenant  Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+  unit    Unit    @relation(fields: [unitId], references: [id])
 
   @@index([tenantId, productId, createdAt]) // Index cho product history
   @@index([tenantId, type, createdAt]) // Index cho movement type queries
@@ -235,15 +237,15 @@ model StockMovement {
 model UnitCategory {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   tenantId    String   @db.ObjectId // Multi-tenant isolation
-  name        String   // Tên nhóm đơn vị (Weight, Volume, Length, Count)
-  description String?  // Mô tả nhóm đơn vị
+  name        String // Tên nhóm đơn vị (Weight, Volume, Length, Count)
+  description String? // Mô tả nhóm đơn vị
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   // Relationships
-  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  units       Unit[]   // Các đơn vị thuộc nhóm này
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  units  Unit[] // Các đơn vị thuộc nhóm này
 
   @@unique([tenantId, name]) // Tên category unique trong 1 tenant
   @@index([tenantId, isActive])
@@ -253,23 +255,23 @@ model UnitCategory {
 // Unit - Đơn vị cơ bản (kg, gram, liter, ml, piece, box, etc.)
 // Kho đơn vị của từng tenant - chỉ chứa thông tin cơ bản
 model Unit {
-  id              String       @id @default(auto()) @map("_id") @db.ObjectId
-  tenantId        String       @db.ObjectId // Multi-tenant isolation
-  categoryId      String       @db.ObjectId // Nhóm đơn vị
-  name            String       // Tên đơn vị (kilogram, gram, liter, piece)
-  symbol          String       // Ký hiệu (kg, g, l, pcs)
-  description     String?      // Mô tả đơn vị
-  isActive        Boolean      @default(true)
-  sortOrder       Int          @default(0) // Thứ tự hiển thị
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  tenantId    String   @db.ObjectId // Multi-tenant isolation
+  categoryId  String   @db.ObjectId // Nhóm đơn vị
+  name        String // Tên đơn vị (kilogram, gram, liter, piece)
+  symbol      String // Ký hiệu (kg, g, l, pcs)
+  description String? // Mô tả đơn vị
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0) // Thứ tự hiển thị
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // Relationships
-  tenant          Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  category        UnitCategory @relation(fields: [categoryId], references: [id])
-  productUnits    ProductUnit[] // ProductUnit sử dụng đơn vị này
-  stockMovements  StockMovement[] // Stock movements với đơn vị
-  baseUnitFor     ProductUnit[] @relation("ProductUnitBaseUnit") // Units that use this as base unit
+  tenant         Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  category       UnitCategory    @relation(fields: [categoryId], references: [id])
+  productUnits   ProductUnit[] // ProductUnit sử dụng đơn vị này
+  stockMovements StockMovement[] // Stock movements với đơn vị
+  baseUnitFor    ProductUnit[]   @relation("ProductUnitBaseUnit") // Units that use this as base unit
 
   @@unique([tenantId, symbol]) // Symbol unique trong 1 tenant
   @@unique([tenantId, categoryId, name]) // Name unique trong 1 category của tenant
@@ -280,23 +282,23 @@ model Unit {
 // ProductUnit - Đơn vị bán của sản phẩm với giá riêng và logic conversion
 // Chứa tất cả business logic về pricing và unit conversion
 model ProductUnit {
-  id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  productId       String   @db.ObjectId // Sản phẩm
-  unitId          String   @db.ObjectId // Đơn vị bán
-  baseUnitId      String?  @db.ObjectId // Base unit cho conversion (nullable - base unit sẽ null)
-  conversionRate  Float?   // Tỷ lệ chuyển đổi từ unit này về base unit (nullable - base unit sẽ null)
-  price           Float    // Giá bán cho đơn vị này
-  cost            Float?   // Giá vốn cho đơn vị này (optional)
-  isBaseUnit      Boolean  @default(false) // Đây có phải base unit của product không
-  isActive        Boolean  @default(true)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId      String   @db.ObjectId // Sản phẩm
+  unitId         String   @db.ObjectId // Đơn vị bán
+  baseUnitId     String?  @db.ObjectId // Base unit cho conversion (nullable - base unit sẽ null)
+  conversionRate Float? // Tỷ lệ chuyển đổi từ unit này về base unit (nullable - base unit sẽ null)
+  price          Float // Giá bán cho đơn vị này
+  cost           Float? // Giá vốn cho đơn vị này (optional)
+  isBaseUnit     Boolean  @default(false) // Đây có phải base unit của product không
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   // Relationships
-  product         Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
-  unit            Unit       @relation(fields: [unitId], references: [id])
-  baseUnit        Unit?      @relation("ProductUnitBaseUnit", fields: [baseUnitId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  saleItems       SaleItem[] // Các lần bán với ProductUnit này
+  product   Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  unit      Unit       @relation(fields: [unitId], references: [id])
+  baseUnit  Unit?      @relation("ProductUnitBaseUnit", fields: [baseUnitId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  saleItems SaleItem[] // Các lần bán với ProductUnit này
 
   @@unique([productId, unitId]) // Một sản phẩm không thể có cùng unit 2 lần
   @@index([productId, isActive])
@@ -307,24 +309,24 @@ model ProductUnit {
 // Customer - Quản lý thông tin khách hàng retail
 // Core cho CRM và loyalty programs
 model Customer {
-  id            String       @id @default(auto()) @map("_id") @db.ObjectId
-  tenantId      String       @db.ObjectId // Multi-tenant isolation
-  name          String       // Tên khách hàng
-  email         String?      // Email (optional)
-  phone         String?      // Số điện thoại (optional)
-  address       Json?        // Địa chỉ (JSON object)
-  loyaltyTier   LoyaltyTier  @default(BRONZE) // Tier khách hàng thân thiết
-  totalSpent    Float        @default(0) // Tổng tiền đã mua - MongoDB uses Float
-  visitCount    Int          @default(0) // Số lần mua hàng
-  lastPurchase  DateTime?    // Lần mua cuối
-  notes         String?      // Ghi chú về khách hàng
-  isActive      Boolean      @default(true)
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  id           String      @id @default(auto()) @map("_id") @db.ObjectId
+  tenantId     String      @db.ObjectId // Multi-tenant isolation
+  name         String // Tên khách hàng
+  email        String? // Email (optional)
+  phone        String? // Số điện thoại (optional)
+  address      Json? // Địa chỉ (JSON object)
+  loyaltyTier  LoyaltyTier @default(BRONZE) // Tier khách hàng thân thiết
+  totalSpent   Float       @default(0) // Tổng tiền đã mua - MongoDB uses Float
+  visitCount   Int         @default(0) // Số lần mua hàng
+  lastPurchase DateTime? // Lần mua cuối
+  notes        String? // Ghi chú về khách hàng
+  isActive     Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 
   // Relationships
-  tenant        Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  sales         Sale[]       // Các đơn hàng của khách hàng
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  sales  Sale[] // Các đơn hàng của khách hàng
 
   @@unique([tenantId, email]) // Email unique trong 1 tenant (nếu có)
   @@unique([tenantId, phone]) // Phone unique trong 1 tenant (nếu có)
@@ -335,28 +337,28 @@ model Customer {
 // Sale - Đơn hàng bán hàng (Invoice/Receipt)
 // Core transaction entity cho retail business
 model Sale {
-  id              String        @id @default(auto()) @map("_id") @db.ObjectId
-  tenantId        String        @db.ObjectId // Multi-tenant isolation
-  saleNumber      String        // Số hóa đơn (auto-generated)
-  customerId      String?       @db.ObjectId // Khách hàng (optional - có thể là guest)
-  cashierId       String        @db.ObjectId // User bán hàng
-  subtotal        Float         // Tổng tiền hàng - MongoDB uses Float
-  discountAmount  Float         @default(0) // Tiền giảm giá
-  taxAmount       Float         @default(0) // Tiền thuế
-  total           Float         // Tổng cộng
-  paymentMethod   PaymentMethod @default(CASH) // Phương thức thanh toán
-  status          SaleStatus    @default(COMPLETED) // Trạng thái đơn hàng
-  notes           String?       // Ghi chú đơn hàng
-  refundedAmount  Float         @default(0) // Số tiền đã hoàn
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  id             String        @id @default(auto()) @map("_id") @db.ObjectId
+  tenantId       String        @db.ObjectId // Multi-tenant isolation
+  saleNumber     String // Số hóa đơn (auto-generated)
+  customerId     String?       @db.ObjectId // Khách hàng (optional - có thể là guest)
+  cashierId      String        @db.ObjectId // User bán hàng
+  subtotal       Float // Tổng tiền hàng - MongoDB uses Float
+  discountAmount Float         @default(0) // Tiền giảm giá
+  taxAmount      Float         @default(0) // Tiền thuế
+  total          Float // Tổng cộng
+  paymentMethod  PaymentMethod @default(CASH) // Phương thức thanh toán
+  status         SaleStatus    @default(COMPLETED) // Trạng thái đơn hàng
+  notes          String? // Ghi chú đơn hàng
+  refundedAmount Float         @default(0) // Số tiền đã hoàn
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
   // Relationships
-  tenant          Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  customer        Customer?     @relation(fields: [customerId], references: [id])
-  cashier         User          @relation(fields: [cashierId], references: [id])
-  items           SaleItem[]    // Chi tiết các sản phẩm trong đơn hàng
-  refunds         Refund[]      // Các lần hoàn tiền
+  tenant   Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customer Customer?  @relation(fields: [customerId], references: [id])
+  cashier  User       @relation(fields: [cashierId], references: [id])
+  items    SaleItem[] // Chi tiết các sản phẩm trong đơn hàng
+  refunds  Refund[] // Các lần hoàn tiền
 
   @@unique([tenantId, saleNumber]) // Sale number unique trong 1 tenant
   @@index([tenantId, status, createdAt]) // Index cho sale queries
@@ -367,19 +369,19 @@ model Sale {
 // SaleItem - Chi tiết sản phẩm trong từng đơn hàng
 // Line items của mỗi sale với đơn vị và giá cụ thể
 model SaleItem {
-  id            String      @id @default(auto()) @map("_id") @db.ObjectId
-  saleId        String      @db.ObjectId // Đơn hàng chứa item này
-  productId     String      @db.ObjectId // Sản phẩm được bán
-  productUnitId String      @db.ObjectId // ProductUnit được bán (chứa thông tin unit + price)
-  quantity      Float       // Số lượng bán - Float để support decimal quantities
-  unitPrice     Float       // Giá bán tại thời điểm đó (từ ProductUnit)
-  total         Float       // Thành tiền (quantity * unitPrice)
-  discount      Float       @default(0) // Giảm giá cho item này
+  id            String @id @default(auto()) @map("_id") @db.ObjectId
+  saleId        String @db.ObjectId // Đơn hàng chứa item này
+  productId     String @db.ObjectId // Sản phẩm được bán
+  productUnitId String @db.ObjectId // ProductUnit được bán (chứa thông tin unit + price)
+  quantity      Float // Số lượng bán - Float để support decimal quantities
+  unitPrice     Float // Giá bán tại thời điểm đó (từ ProductUnit)
+  total         Float // Thành tiền (quantity * unitPrice)
+  discount      Float  @default(0) // Giảm giá cho item này
 
   // Relationships
-  sale          Sale        @relation(fields: [saleId], references: [id], onDelete: Cascade)
-  product       Product     @relation(fields: [productId], references: [id])
-  productUnit   ProductUnit @relation(fields: [productUnitId], references: [id])
+  sale        Sale        @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  product     Product     @relation(fields: [productId], references: [id])
+  productUnit ProductUnit @relation(fields: [productUnitId], references: [id])
 
   @@index([saleId]) // Index cho sale items
   @@index([productId]) // Index cho product sales
@@ -390,16 +392,16 @@ model SaleItem {
 // Refund - Quản lý hoàn tiền
 // Tracking refunds cho customer service và accounting
 model Refund {
-  id         String    @id @default(auto()) @map("_id") @db.ObjectId
-  saleId     String    @db.ObjectId // Đơn hàng được hoàn
-  amount     Float     // Số tiền hoàn - MongoDB uses Float
-  reason     String    // Lý do hoàn tiền
-  notes      String?   // Ghi chú thêm
-  approvedBy String    @db.ObjectId // User approve hoàn tiền
-  createdAt  DateTime  @default(now())
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  saleId     String   @db.ObjectId // Đơn hàng được hoàn
+  amount     Float // Số tiền hoàn - MongoDB uses Float
+  reason     String // Lý do hoàn tiền
+  notes      String? // Ghi chú thêm
+  approvedBy String   @db.ObjectId // User approve hoàn tiền
+  createdAt  DateTime @default(now())
 
   // Relationships
-  sale       Sale      @relation(fields: [saleId], references: [id])
+  sale Sale @relation(fields: [saleId], references: [id])
 
   @@index([saleId]) // Index cho sale refunds
   @@map("refunds")
@@ -410,71 +412,79 @@ model Refund {
 // ===============================
 
 enum DomainType {
-  RETAIL     // Bán lẻ - MVP focus
+  RETAIL // Bán lẻ - MVP focus
   RESTAURANT // Nhà hàng - Post-MVP
-  SERVICE    // Dịch vụ - Future
+  SERVICE // Dịch vụ - Future
 }
 
 enum TenantStatus {
-  TRIAL      // Đang dùng thử
-  ACTIVE     // Hoạt động
-  SUSPENDED  // Bị tạm ngưng
-  CANCELLED  // Đã hủy
+  TRIAL // Đang dùng thử
+  ACTIVE // Hoạt động
+  SUSPENDED // Bị tạm ngưng
+  CANCELLED // Đã hủy
 }
 
 enum UserRole {
-  USER         // Người dùng cơ bản
-  MEMBER       // Thành viên
-  CASHIER      // Thu ngân
-  MANAGER      // Quản lý
-  ADMIN        // Quản trị tenant
-  SUPER_ADMIN  // Quản trị hệ thống
+  USER // Người dùng cơ bản
+  MEMBER // Thành viên
+  CASHIER // Thu ngân
+  MANAGER // Quản lý
+  ADMIN // Quản trị tenant
+  SUPER_ADMIN // Quản trị hệ thống
+}
+
+enum UserProvider {
+  LOCAL // Local
+  EMAIL // Email
+  GOOGLE // Google
+  FACEBOOK // Facebook
+  APPLE // Apple
 }
 
 enum PlanType {
-  TRIAL        // Gói dùng thử miễn phí
-  BASIC        // Gói cơ bản
+  TRIAL // Gói dùng thử miễn phí
+  BASIC // Gói cơ bản
   PROFESSIONAL // Gói chuyên nghiệp
-  ENTERPRISE   // Gói doanh nghiệp
+  ENTERPRISE // Gói doanh nghiệp
 }
 
 enum SubscriptionStatus {
-  TRIAL        // Đang dùng thử
-  ACTIVE       // Đang hoạt động
-  PAST_DUE     // Quá hạn thanh toán
-  CANCELLED    // Đã hủy
-  PAUSED       // Tạm dừng
+  TRIAL // Đang dùng thử
+  ACTIVE // Đang hoạt động
+  PAST_DUE // Quá hạn thanh toán
+  CANCELLED // Đã hủy
+  PAUSED // Tạm dừng
 }
 
 enum StockMovementType {
-  SALE         // Xuất kho do bán hàng
-  PURCHASE     // Nhập kho do mua hàng
-  ADJUSTMENT   // Điều chỉnh kho
-  RETURN       // Nhập kho do trả hàng
-  TRANSFER     // Chuyển kho (future)
-  DAMAGE       // Hỏng hóc
+  SALE // Xuất kho do bán hàng
+  PURCHASE // Nhập kho do mua hàng
+  ADJUSTMENT // Điều chỉnh kho
+  RETURN // Nhập kho do trả hàng
+  TRANSFER // Chuyển kho (future)
+  DAMAGE // Hỏng hóc
 }
 
 enum PaymentMethod {
-  CASH           // Tiền mặt
-  CARD           // Thẻ tín dụng/ghi nợ
+  CASH // Tiền mặt
+  CARD // Thẻ tín dụng/ghi nợ
   DIGITAL_WALLET // Ví điện tử (MoMo, ZaloPay, etc.)
-  BANK_TRANSFER  // Chuyển khoản
-  CREDIT         // Trả sau
+  BANK_TRANSFER // Chuyển khoản
+  CREDIT // Trả sau
 }
 
 enum LoyaltyTier {
-  BRONZE   // Khách hàng đồng
-  SILVER   // Khách hàng bạc
-  GOLD     // Khách hàng vàng
+  BRONZE // Khách hàng đồng
+  SILVER // Khách hàng bạc
+  GOLD // Khách hàng vàng
   PLATINUM // Khách hàng bạch kim
-  VIP      // Khách hàng VIP
+  VIP // Khách hàng VIP
 }
 
 enum SaleStatus {
-  PENDING    // Đang xử lý
-  COMPLETED  // Hoàn thành
-  CANCELLED  // Đã hủy
-  REFUNDED   // Đã hoàn tiền
+  PENDING // Đang xử lý
+  COMPLETED // Hoàn thành
+  CANCELLED // Đã hủy
+  REFUNDED // Đã hoàn tiền
   PARTIAL_REFUND // Hoàn tiền một phần
 }
