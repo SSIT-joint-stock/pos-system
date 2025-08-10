@@ -1,9 +1,8 @@
 {
-  "name": "@repo/telegram",
-  "version": "1.0.0",
+  "name": "@repo/config-env",
+  "version": "0.0.0",
   "private": true,
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "type": "module",
   "scripts": {
     "build": "npm run clean && tsup && tsc-alias",
     "dev": "tsup --watch",
@@ -22,20 +21,17 @@
       }
     }
   },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "dependencies": {
-    "@repo/dto": "*",
-    "@repo/types": "*",
-    "@repo/utils": "*",
-    "@repo/config-env": "*",
-    "bullmq": "^5.7.9",
-    "telegraf": "^4.15.3",
+    "dotenv": "^16.4.5",
     "zod": "^3.24.2"
   },
   "devDependencies": {
     "@repo/typescript-config": "*",
-    "@types/node": "^20.0.0",
-    "@telegraf/types": "^8.3.1",
-    "typescript": "^5.0.0",
+    "@types/node": "^18.0.0",
+    "typescript": "^5.6.3",
     "eslint": "latest",
     "rimraf": "^6.0.1",
     "tsc-alias": "^1.8.10",
@@ -46,3 +42,5 @@
     "access": "restricted"
   }
 }
+
+

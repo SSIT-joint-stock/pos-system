@@ -1,13 +1,7 @@
-import { config } from 'dotenv';
-import type { QueueConfig, WorkerConfig } from '@repo/dto';
-import type { LoggerConfigOptions } from '@repo/logger';
 
-// Load .env file (only for local development)
-if (process.env.NODE_ENV !== 'production') {
-    config({ path: '../../.env.production' });
-} else {
-    config({ path: '../../.env.production' });
-}
+import type { QueueConfig, WorkerConfig } from '@repo/dto';
+import { createLogger, LoggerConfigOptions } from '@repo/logger';
+import { env } from '@repo/config-env';
 
 export interface TelegramWorkerConfig {
     botToken: string;
@@ -23,13 +17,13 @@ export interface TelegramWorkerConfig {
 }
 
 export const defaultConfig: TelegramWorkerConfig = {
-    botToken: process.env.TELEGRAM_BOT_TOKEN || '',
-    defaultRecipientId: process.env.TELEGRAM_RECIPIENT_ID || '',
-    adminChatId: process.env.TELEGRAM_ADMIN_CHAT_ID ? parseInt(process.env.TELEGRAM_ADMIN_CHAT_ID, 10) : undefined,
+    botToken: env.TELEGRAM_BOT_TOKEN || '',
+    defaultRecipientId: env.TELEGRAM_RECIPIENT_ID || '',
+    adminChatId: env.TELEGRAM_RECIPIENT_ID ? parseInt(env.TELEGRAM_RECIPIENT_ID, 10) : undefined,
     redis: {
-        host: process.env.REDIS_HOST || 'localhost',
-        port: parseInt(process.env.REDIS_PORT || '6379', 10),
-        password: process.env.REDIS_PASSWORD
+        host: env.REDIS_HOST || 'localhost',
+        port: env.REDIS_PORT || 6379,
+        password: env.REDIS_PASSWORD
     },
     queue: {
         name: 'telegram-notifications',
@@ -55,26 +49,30 @@ export const defaultConfig: TelegramWorkerConfig = {
     }
 };
 
-export const loggerConfig: LoggerConfigOptions = { 
-    serviceName: 'TelegramWorkerApp',
+export const logger = createLogger({ 
+    serviceName: 'TelegramWorker',
     enableConsole: true,
-    enableLoki: true,
-    logLevel: 'debug',
-    env: process.env.NODE_ENV || 'development',
+    enableLoki: env.ENABLE_LOKI === 'true',
+    logLevel: env.LOG_LEVEL || 'info' as LoggerConfigOptions['logLevel'],
+    env: env.NODE_ENV || 'development' as LoggerConfigOptions['env'],
     defaultMeta: {
         component: 'worker',
         version: process.env.npm_package_version
     },
+    enableFile: false,
+    filePath: './logs/telegram-worker.log',
     loki: {
-        url: process.env.LOKI_URL || 'http://localhost:7100',
-        username: process.env.LOKI_USERNAME,
-        password: process.env.LOKI_PASSWORD,
+        url: env.LOKI_URL || 'http://localhost:7100',
+        username: env.LOKI_USERNAME,
+        password: env.LOKI_PASSWORD,
         labels: {
             service: 'telegram-workers',
-            environment: process.env.NODE_ENV || 'development'
-        }
+            environment: env.NODE_ENV || 'development'
+        },
+        batchInterval: 5000,
+        batchSize: 100,
     }
-}
+});
 
 export function createWorkerConfig(config: Partial<TelegramWorkerConfig> = {}): TelegramWorkerConfig {
     return {

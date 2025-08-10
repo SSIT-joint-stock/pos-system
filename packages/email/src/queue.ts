@@ -1,5 +1,4 @@
 import { Queue, ConnectionOptions, Job } from 'bullmq';
-import { createLogger, LoggerInstance } from '@repo/logger';
 import { 
     EmailQueueData, 
     EmailPayload,
@@ -56,14 +55,10 @@ export class EmailQueueService {
     private queue: Queue<EmailQueueData, DtoEmailResponse>; // Worker returns DtoEmailResponse
     private config: EmailQueueServiceConfig;
     private internalQueueConfig: InternalQueueConfig;
-    private logger: LoggerInstance;
 
     constructor(config: EmailQueueServiceConfig) {
         this.config = config;
-        this.logger = createLogger({ 
-            serviceName: 'EmailQueueService',
-            ...(this.config.logLevel && { logLevel: this.config.logLevel }) 
-        });
+        
         
         this.internalQueueConfig = {
             ...DEFAULT_EMAIL_QUEUE_CONFIG,
@@ -71,7 +66,7 @@ export class EmailQueueService {
         };
 
         if (!this.config.user || !this.config.password) { // Basic check for email service auth
-            this.logger.warn('Email service user/password might not be fully configured for EmailQueueService init.');
+            console.warn('Email service user/password might not be fully configured for EmailQueueService init.');
             // Not throwing an error as the queue service itself only needs Redis mostly.
         }
 
@@ -95,7 +90,7 @@ export class EmailQueueService {
             // prefix: this.internalQueueConfig.prefix
         });
 
-        this.logger.info('Email Queue Service initialized', {
+        console.info('Email Queue Service initialized', {
             queueName: this.internalQueueConfig.name,
             redisHost: this.config.redis.host,
         });
@@ -147,7 +142,7 @@ export class EmailQueueService {
                 priority: options.priority ? this.mapPriority(options.priority) : undefined,
             });
 
-            this.logger.info('Email enqueued successfully', {
+            console.info('Email enqueued successfully', {
                 jobId: job.id,
                 recipient: options.to,
                 subject: options.subject,
@@ -158,7 +153,7 @@ export class EmailQueueService {
                 jobId: job.id,
             };
         } catch (error: any) {
-            this.logger.error('Failed to enqueue email', {
+            console.error('Failed to enqueue email', {
                 error: error.message,
                 stack: error.stack,
             });
@@ -187,7 +182,7 @@ export class EmailQueueService {
         try {
             const job = await this.queue.getJob(jobId);
             if (!job) {
-                this.logger.warn('Email job not found', { jobId });
+                console.warn('Email job not found', { jobId });
                 return null;
             }
 
@@ -197,13 +192,13 @@ export class EmailQueueService {
                 return job.returnvalue as DtoEmailResponse; 
             }
             
-            this.logger.info('Current email job state', { jobId, state });
+            console.info('Current email job state', { jobId, state });
             // For non-completed states, you might want to return partial info or just null
             // For example, if failed, job.failedReason would be available.
             // For now, only returning result for completed jobs.
             return null; 
         } catch (error: any) {
-            this.logger.error('Failed to get email job status', {
+            console.error('Failed to get email job status', {
                 jobId,
                 error: error.message,
             });
@@ -217,9 +212,9 @@ export class EmailQueueService {
     public async close(): Promise<void> {
         try {
             await this.queue.close();
-            this.logger.info('Email Queue Service closed successfully');
+            console.info('Email Queue Service closed successfully');
         } catch (error: any) {
-            this.logger.error('Failed to close Email Queue Service', {
+            console.error('Failed to close Email Queue Service', {
                 error: error.message,
             });
             throw error;

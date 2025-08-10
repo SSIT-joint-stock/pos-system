@@ -2,7 +2,6 @@ import { Telegraf } from 'telegraf';
 
 import { TelegramConfig, MessageOptions, TelegramResponse, NotificationOptions, ExtraReplyMessage } from './types';
 import { createTelegramConfig } from './config';
-import { LoggerInstance, createLogger } from '@repo/logger';
 import { } from 'telegraf/types';
 export * from './types';
 export * from './config';
@@ -11,15 +10,9 @@ export * from './queue';
 export class TelegramService {
   private bot: Telegraf;
   private config: TelegramConfig;
-  private logger: LoggerInstance;
 
   constructor(config: Partial<TelegramConfig> = {}, bot?: Telegraf) {
     this.config = createTelegramConfig(config);
-    this.logger = createLogger({ 
-      serviceName: 'TelegramService',
-      enableConsole: true,
-      enableLoki: true,
-    });
     this.initializeBot(bot);
   }
 
@@ -58,7 +51,7 @@ export class TelegramService {
         extra
       );
 
-      this.logger.info('Telegram message sent successfully', {
+      console.info('Telegram message sent successfully', {
         messageId: response.message_id,
         chatId: response.chat.id,
       });
@@ -69,7 +62,7 @@ export class TelegramService {
         timestamp: Date.now(),
       };
     } catch (error) {
-      this.logger.error('Failed to send Telegram message', {
+      console.error('Failed to send Telegram message', {
         error,
         recipientId: this.config.recipientId,
       });
@@ -109,7 +102,7 @@ export class TelegramService {
       await this.bot.telegram.getMe();
       return true;
     } catch (error) {
-      this.logger.error('Failed to verify Telegram connection', { error });
+      console.error('Failed to verify Telegram connection', { error });
       return false;
     }
   }
@@ -117,18 +110,18 @@ export class TelegramService {
   public async launch(onLaunch?: () => void): Promise<void> {
     try {
       // Chỉ launch nếu thực sự cần polling cho instance này
-      this.logger.info('Attempting to launch Telegram bot (polling or webhook)...');
+      console.info('Attempting to launch Telegram bot (polling or webhook)...');
       await this.bot.launch(onLaunch); // Truyền launchOptions nếu có
-      this.logger.info('Telegram bot launched successfully (polling or webhook mode).');
+      console.info('Telegram bot launched successfully (polling or webhook mode).');
     } catch (error) {
-      this.logger.error('Failed to launch Telegram bot', { error });
+      console.error('Failed to launch Telegram bot', { error });
       throw error;
     }
   }
 
   public stop(reason?: string): void {
-    this.logger.info('Attempting to stop Telegram bot polling/webhook...');
+    console.info('Attempting to stop Telegram bot polling/webhook...');
     this.bot.stop(reason);
-    this.logger.info('Telegram bot stopped.', { reason });
+    console.info('Telegram bot stopped.', { reason });
   }
 } 

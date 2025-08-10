@@ -1,5 +1,5 @@
 import { EmailWorker } from './worker';
-import { createWorkerConfig } from './config';
+import { createWorkerConfig, logger } from './config';
 
 async function main() {
     const workerConfig = createWorkerConfig();
@@ -7,21 +7,21 @@ async function main() {
 
     try {
         await emailWorker.start();
-        emailWorker.logger.info('Email Worker service started successfully.');
+        logger.info('Email Worker service started successfully.');
 
         // Graceful shutdown handling
         const signals: NodeJS.Signals[] = ['SIGINT', 'SIGTERM', 'SIGQUIT'];
         signals.forEach((signal) => {
             process.on(signal, async () => {
-                emailWorker.logger.info(`Received ${signal}, shutting down Email Worker...`);
+                logger.info(`Received ${signal}, shutting down Email Worker...`);
                 await emailWorker.stop();
-                emailWorker.logger.info('Email Worker shutdown complete.');
+                logger.info('Email Worker shutdown complete.');
                 process.exit(0);
             });
         });
 
     } catch (error: any) {
-        emailWorker.logger.error('Failed to start Email Worker service', {
+        logger.error('Failed to start Email Worker service', {
             error: error.message,
             stack: error.stack,
         });
@@ -29,7 +29,7 @@ async function main() {
         try {
             await emailWorker.stop();
         } catch (stopError: any) {
-            emailWorker.logger.error('Failed to stop worker during error handling:', {
+            logger.error('Failed to stop worker during error handling:', {
                 error: stopError.message,
                 stack: stopError.stack,
             });
@@ -42,7 +42,7 @@ async function main() {
 if (require.main === module) {
     main().catch(err => {
         // Fallback logger if worker logger isn't available or failed early
-        console.error('Unhandled error in main execution:', err);
+        logger.error('Unhandled error in main execution:', err);
         process.exit(1);
     });
 }

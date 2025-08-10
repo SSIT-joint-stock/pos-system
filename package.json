@@ -5,7 +5,6 @@
   "type": "module",
   "description": "Multi-domain POS system monorepo",
   "workspaces": [
-
     "apps/web/*",
     "apps/server/*",
     "apps/worker/*",
@@ -14,10 +13,14 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "turbo run dev",
-    "dev:all": "turbo run dev --parallel",
-    "dev:frontend": "turbo run dev --filter=@pos/web-*",
-    "dev:backend": "turbo run dev --filter=@pos/server-api",
+    "dev": "dotenv -e .env.development -- turbo run dev",
+    "dev:all": "dotenv -e .env.development -- turbo run dev --filter=@pos/*",
+    "dev:frontend": "dotenv -e .env.development -- turbo run dev --filter=@pos/web-*",
+    "dev:backend": "dotenv -e .env.development -- turbo run dev --filter=@pos/server-api",
+    "dev:workers": "cross-env-shell dotenv -e ./.env.development -- turbo run dev --parallel --filter=@pos/worker-*",
+    "dev:worker:email": "cross-env-shell dotenv -e ./.env.development -- turbo run dev --filter=@pos/worker-email",
+    "dev:mobile": "dotenv -e .env.development -- turbo run dev --filter=@pos/mobile-*",
+    "dev:desktop": "dotenv -e .env.development -- turbo run dev --filter=@pos/desktop-*",
     "build": "turbo run build",
     "build:apps": "turbo run build --filter=@pos/*",
     "build:packages": "turbo run build --filter=@repo/*",
@@ -50,8 +53,9 @@
   "packageManager": "npm@10.2.4",
   "dependencies": {
     "@repo/email": "^1.0.0",
+    "cross-env": "^10.0.0",
+    "next": "^14.2.31",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "next": "^14.2.31"
+    "react-dom": "^18.3.1"
   }
 }

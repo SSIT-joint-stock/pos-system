@@ -1,22 +1,38 @@
 import winston from 'winston';
+import { z } from 'zod';
 
-export interface LoggerConfigOptions {
-  serviceName: string; // Tên service, ví dụ: 'frontend-app', 'user-service'
-  logLevel?: string;    // 'error', 'warn', 'info', 'http', 'verbose', 'debug', 'silly'
-  env?: string;         // 'development', 'production', 'staging'
-  loki?: {
-    url?: string;
-    username?: string;
-    password?: string;
-    batchInterval?: number;
-    batchSize?: number;
-    labels?: Record<string, string>; // Các label mặc định cho Loki
-  };
-  enableConsole?: boolean;
-  enableLoki?: boolean;
-  enableFile?: boolean; // Tùy chọn
-  filePath?: string;    // Tùy chọn
-  defaultMeta?: Record<string, any>; // Metadata mặc định cho mọi log entry
-}
+// Schema cho Loki configuration
+const LokiConfigSchema = z.object({
+  url: z.string().url().optional(),
+  username: z.string().optional(),
+  password: z.string().optional(),
+  batchInterval: z.number().positive().default(5000),
+  batchSize: z.number().positive().default(100),
+  labels: z.record(z.string()).optional().default({}),
+}).optional();
+
+// Schema cho Logger configuration
+export const LoggerConfigSchema = z.object({
+  serviceName: z.string().min(1, 'Service name is required'),
+  logLevel: z.enum(['error', 'warn', 'info', 'http', 'verbose', 'debug', 'silly']).default('info'),
+  env: z.enum(['development', 'test', 'production', 'staging']).default('development'),
+  loki: LokiConfigSchema,
+  enableConsole: z.boolean().default(true),
+  enableLoki: z.boolean().default(false),
+  enableFile: z.boolean().default(false),
+  filePath: z.string().default('./logs/app.log'),
+  defaultMeta: z.record(z.any()).default({}),
+}).refine((data) => {
+  if (data.enableLoki && !data.loki?.url && !data.loki?.username && !data.loki?.password) {
+    return false;
+  }
+  return true;
+}, {
+  message: 'Loki URL or username and password are required when enableLoki is true',
+});
+
+
+export type LoggerConfigOptions = z.infer<typeof LoggerConfigSchema>;
+
 
 export type LoggerInstance = winston.Logger;

@@ -1,5 +1,9 @@
 import Redis, { type Redis as RedisClient, type RedisOptions } from "ioredis";
 import config from "@shared/config/app.config";
+import { createContextLogger } from "@shared/utils/logger";
+
+export const logger = createContextLogger('RedisService');
+
 
 export class RedisServiceSingleton {
   private static instance: RedisServiceSingleton | null = null;
@@ -15,31 +19,32 @@ export class RedisServiceSingleton {
     return RedisServiceSingleton.instance;
   }
 
-  private initialize(): void {
-    const options: RedisOptions = {
-      host: config.redisHost,
-      port: config.redisPort,
+  private initialize(options?: RedisOptions): void {
+    const initializedOptions: RedisOptions = {
+      host: config.REDIS_HOST,
+      port: config.REDIS_PORT,
       lazyConnect: true,
       maxRetriesPerRequest: 3,
       enableReadyCheck: true,
+      ...options,
     };
 
-    this.client = new Redis(options);
+    this.client = new Redis(initializedOptions);
 
     this.client.on("connect", () => {
-      console.info(new Date(), "[Redis]: Connected");
+      logger.info("[Redis]: Connected");
     });
     this.client.on("ready", () => {
-      console.info(new Date(), "[Redis]: Ready");
+      logger.info("[Redis]: Ready");
     });
     this.client.on("error", (err) => {
-      console.error(new Date(), "[Redis]: Error", err);
+      logger.error("[Redis]: Error", err);
     });
     this.client.on("reconnecting", () => {
-      console.warn(new Date(), "[Redis]: Reconnecting...");
+      logger.warn("[Redis]: Reconnecting...");
     });
     this.client.on("end", () => {
-      console.info(new Date(), "[Redis]: Connection closed");
+      logger.info("[Redis]: Connection closed");
     });
   }
 

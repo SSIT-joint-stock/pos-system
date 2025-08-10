@@ -1,20 +1,29 @@
-import { config } from 'dotenv';
+import { env } from '@repo/config-env';
 import { TelegramConfig } from './types';
-
-// Load .env file (only for local development)
-if (process.env.NODE_ENV !== 'production') {
-    config({ path: '../../.env' });
-}
+import { z } from 'zod';
 
 export const defaultConfig: TelegramConfig = {
-    botToken: process.env.TELEGRAM_BOT_TOKEN || '',
-    recipientId: process.env.TELEGRAM_RECIPIENT_ID || '',
+    botToken: env.TELEGRAM_BOT_TOKEN || '',
+    recipientId: env.TELEGRAM_RECIPIENT_ID || '',
     defaultParseMode: 'HTML',
 };
 
+const validateConfig = (config: TelegramConfig) => {
+    const schema = z.object({
+        botToken: z.string().min(1),
+        recipientId: z.string().min(1),
+        defaultParseMode: z.enum(['HTML', 'Markdown', 'MarkdownV2']).default('HTML'),
+    });
+    const result = schema.safeParse(config);
+    if (!result.success) {
+        throw new Error('Invalid telegram config: ' + result.error.message);
+    }
+    return result.data;
+};
+
 export function createTelegramConfig(config: Partial<TelegramConfig> = {}): TelegramConfig {
-    return {
+    return validateConfig({
         ...defaultConfig,
         ...config,
-    };
+    });
 } 

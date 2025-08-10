@@ -1,4 +1,6 @@
-import { createLogger, LoggerConfigOptions, LoggerInstance } from "@repo/logger";
+import { LoggerConfigOptions } from "@repo/logger";
+import { env } from "@repo/config-env";
+import { logger } from "./config";
 
 export interface ParsedToken {
     random1: string;       // Số ngẫu nhiên đầu tiên (2 ký tự)
@@ -17,16 +19,17 @@ export interface ValidateToken {
 }
 
 export class DecodeUaService {
-    private readonly logger: LoggerInstance;
-    constructor(logger?: LoggerInstance) {
+    constructor() {
         const loggerConfig: LoggerConfigOptions = {
             serviceName: 'secure-endpoints',
             enableConsole: true,
-            enableLoki: true,
+            enableLoki: false,
+            logLevel: 'error',
+            env: env.NODE_ENV || 'development',
+            enableFile: false,
+            filePath: '',
+            defaultMeta: {},
         };
-
-        
-        this.logger = logger || createLogger(loggerConfig);
     }
 
     decodeToken(token: string): string {
@@ -107,7 +110,7 @@ export class DecodeUaService {
 
         if (parsedDate.getTime() > currentDate.getTime()) {
             console.log('parsed.date > new Date()');
-            this.logger.error('INVALID_TOKEN', {
+            logger.error('INVALID_TOKEN', {
                 token: validateToken.token,
             });
             throw new Error('INVALID_TOKEN');
@@ -120,7 +123,7 @@ export class DecodeUaService {
             console.log('parsed.random1 !== validateToken.random1', parsed.random1, validateToken.random1);
             console.log('parsed.random2 !== validateToken.random2', parsed.random2, validateToken.random2);
             console.log('parsed.date.getTime() !== validateToken.date.getTime()', parsedDate.getTime(), validateToken.date.getTime());
-            this.logger.error('INVALID_TOKEN', {
+            logger.error('INVALID_TOKEN', {
                 token: validateToken.token,
                 date: validateToken.date.getTime(),
             });
@@ -133,7 +136,7 @@ export class DecodeUaService {
         console.log('validateToken.endpoint', validateToken.endpoint);
         if (transpileEndpoint !== parsed.endpoint) {
             console.log('transpileEndpoint !== parsed.endpoint');
-            this.logger.error('INVALID_TOKEN', {
+            logger.error('INVALID_TOKEN', {
                 token: validateToken.token,
             });
             throw new Error('INVALID_TOKEN');

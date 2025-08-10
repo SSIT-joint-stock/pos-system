@@ -127,3 +127,9 @@ build/
 .turbo
 
 .cursor
+
+.cursorignore
+
+.env.development
+.env.test
+.env

@@ -21,7 +21,7 @@ const swaggerOptions: Options = {
         },
         servers: [
             {
-                url: `http://${config.baseUrl}/api/v1`,
+                url: `http://${config.BASE_URL}/api/v1`,
                 description: 'Development server',
             },
             {

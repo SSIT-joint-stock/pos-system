@@ -49,7 +49,6 @@ export class TelegramQueueService {
     private queue: Queue<TelegramQueueData>;
     private config: TelegramQueueConfig;
     private queueConfig: QueueConfig;
-    private logger = createLogger({ serviceName: 'TelegramQueueService' });
 
     constructor(config: TelegramQueueConfig) {
         this.config = config;
@@ -59,7 +58,7 @@ export class TelegramQueueService {
         };
 
         if (!this.config.botToken) {
-            this.logger.error('Telegram Bot Token is not configured');
+            console.error('Telegram Bot Token is not configured');
             throw new Error('Telegram Bot Token is required');
         }
 
@@ -84,7 +83,7 @@ export class TelegramQueueService {
             }
         });
 
-        this.logger.info('Telegram Queue Service initialized', {
+        console.info('Telegram Queue Service initialized', {
             queueName: this.queueConfig.name,
             redisHost: this.config.redis.host
         });
@@ -122,7 +121,7 @@ export class TelegramQueueService {
                 jobId: queueData.jobId
             });
 
-            this.logger.info('Message enqueued successfully', {
+            console.info('Message enqueued successfully', {
                 jobId: job.id,
                 recipientId: effectiveRecipientId
             });
@@ -132,7 +131,7 @@ export class TelegramQueueService {
                 jobId: job.id
             };
         } catch (error) {
-            this.logger.error('Failed to enqueue message', {
+            console.error('Failed to enqueue message', {
                 error: error instanceof Error ? error.message : 'Unknown error'
             });
 
@@ -163,7 +162,7 @@ export class TelegramQueueService {
 
             return null;
         } catch (error) {
-            this.logger.error('Failed to get message status', {
+            console.error('Failed to get message status', {
                 jobId,
                 error: error instanceof Error ? error.message : 'Unknown error'
             });
@@ -177,9 +176,9 @@ export class TelegramQueueService {
     public async close(): Promise<void> {
         try {
             await this.queue.close();
-            this.logger.info('Queue service closed successfully');
+            console.info('Queue service closed successfully');
         } catch (error) {
-            this.logger.error('Failed to close queue service', {
+            console.error('Failed to close queue service', {
                 error: error instanceof Error ? error.message : 'Unknown error'
             });
             throw error;

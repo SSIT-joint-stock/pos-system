@@ -1,12 +1,6 @@
 
 import { TelegramWorker } from './worker';
-import { createLogger } from '@repo/logger';
-import { createWorkerConfig, loggerConfig } from './config';
-
-// Initialize logger with detailed configuration
-const logger = createLogger(loggerConfig);
-
-console.log(loggerConfig);
+import { createWorkerConfig, logger } from './config';
 
 
 process.on('uncaughtException', (error) => {
@@ -32,7 +26,7 @@ async function main() {
     try {
         const workerConfig = createWorkerConfig();
 
-        logger.info('Worker configuration loaded', {
+            logger.info('Worker configuration loaded', {
             redisHost: workerConfig.redis.host,
             redisPort: workerConfig.redis.port,
             hasAdminChat: !!workerConfig.adminChatId

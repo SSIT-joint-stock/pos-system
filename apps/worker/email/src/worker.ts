@@ -1,11 +1,9 @@
 import { Worker, Job, ConnectionOptions } from 'bullmq';
 import { EmailService, EmailOptions } from '@repo/email';
-import { createLogger, LoggerInstance } from '@repo/logger';
-import { EmailQueueData, EmailWorkerResult, EmailPayload, EmailOptions as DtoEmailOptions } from '@repo/dto';
-import { EmailWorkerConfig, createWorkerConfig } from './config';
+import { EmailQueueData, EmailWorkerResult } from '@repo/dto';
+import { EmailWorkerConfig, createWorkerConfig, logger } from './config';
 
-export class EmailWorker {
-    public logger: LoggerInstance;
+export class EmailWorker {;
     private worker: Worker<EmailQueueData, EmailWorkerResult>;
     private emailService: EmailService;
     private config: EmailWorkerConfig;
@@ -13,20 +11,7 @@ export class EmailWorker {
 
     constructor(config: Partial<EmailWorkerConfig> = {}) {
         this.config = createWorkerConfig(config);
-        this.logger = createLogger({
-            serviceName: 'EmailWorker',
-            enableConsole: true,
-            enableLoki: !!this.config.loki?.url,
-            logLevel: this.config.logLevel || 'info',
-            env: process.env.NODE_ENV || 'development',
-            defaultMeta: {
-                component: 'email-worker-core',
-                version: process.env.npm_package_version,
-            },
-            loki: this.config.loki,
-        });
-
-        console.log("this.config.emailService", this.config);
+        logger.info("this.config.emailService", this.config);
 
         this.emailService = new EmailService(this.config.emailService);
 
@@ -50,12 +35,12 @@ export class EmailWorker {
         );
 
         this.setupWorkerHandlers();
-        this.logger.info('Email Worker initialized');
+        logger.info('Email Worker initialized');
     }
 
     private setupWorkerHandlers(): void {
         this.worker.on('completed', (job, result) => {
-            this.logger.info('Email job completed successfully', {
+            logger.info('Email job completed successfully', {
                 jobId: job.id,
                 recipient: job.data.payload.options.to,
                 subject: job.data.payload.options.subject,
@@ -64,7 +49,7 @@ export class EmailWorker {
         });
 
         this.worker.on('failed', async (job, error) => {
-            this.logger.error('Email job failed', {
+            logger.error('Email job failed', {
                 jobId: job?.id,
                 recipient: job?.data.payload.options.to,
                 subject: job?.data.payload.options.subject,
@@ -88,9 +73,9 @@ export class EmailWorker {
                         subject: subject,
                         text: body, // Send as plain text for admin notifications for simplicity
                     });
-                    this.logger.info('Sent failure notification to admin email', { adminEmail: this.config.adminEmail, jobId: job.id });
+                    logger.info('Sent failure notification to admin email', { adminEmail: this.config.adminEmail, jobId: job.id });
                 } catch (notifyError: any) {
-                    this.logger.error('Failed to send error notification to admin email', {
+                    logger.error('Failed to send error notification to admin email', {
                         error: notifyError.message,
                         originalJobId: job.id,
                     });
@@ -99,7 +84,7 @@ export class EmailWorker {
         });
 
         this.worker.on('error', (error) => {
-            this.logger.error('Email worker encountered an error', { 
+            logger.error('Email worker encountered an error', { 
                 error: error.message,
                 stack: error.stack 
             });
@@ -108,7 +93,7 @@ export class EmailWorker {
 
     private async processJob(job: Job<EmailQueueData>): Promise<EmailWorkerResult> {
         const { payload } = job.data;
-        this.logger.info('Processing email job', {
+        logger.info('Processing email job', {
             jobId: job.id,
             recipient: payload.options.to,
             subject: payload.options.subject,
@@ -121,8 +106,6 @@ export class EmailWorker {
             bcc: payload.options.bcc,
             subject: payload.options.subject,
             attachments: payload.options.attachments,
-            template: payload.options.template,
-            context: payload.options.context,
         };
 
         if (payload.options.isHtml) {
@@ -149,7 +132,7 @@ export class EmailWorker {
                 };
             }
             const error = serviceCallResult.error || new Error('Email sending failed as reported by EmailService without specific error object');
-            this.logger.error('Email sending failed as reported by EmailService', {
+            logger.error('Email sending failed as reported by EmailService', {
                 jobId: job.id,
                 error: error.message,
                 messageId: serviceCallResult.messageId, 
@@ -160,7 +143,7 @@ export class EmailWorker {
             };
 
         } catch (error: any) {
-            this.logger.error('Exception during email job processing', {
+            logger.error('Exception during email job processing', {
                 jobId: job.id,
                 error: error.message,
                 stack: error.stack,
@@ -175,22 +158,22 @@ export class EmailWorker {
 
     public async start(): Promise<void> {
         if (this.isRunning) {
-            this.logger.warn('Email Worker is already running.');
+            logger.warn('Email Worker is already running.');
             return;
         }
         try {
             if (typeof this.emailService.verifyConnection === 'function') {
                 const connected = await this.emailService.verifyConnection();
                 if (!connected) {
-                    this.logger.error('Failed to verify connection to email service. Worker will start but may not send emails.');
+                    logger.error('Failed to verify connection to email service. Worker will start but may not send emails.');
                 } else {
-                    this.logger.info('Successfully connected to the email service.');
+                    logger.info('Successfully connected to the email service.');
                 }
             }            
             this.isRunning = true;
-            this.logger.info(`Email Worker started. Listening to queue: ${this.config.worker.name}`);
+            logger.info(`Email Worker started. Listening to queue: ${this.config.worker.name}`);
         } catch (error: any) {
-            this.logger.error('Failed to start Email Worker', {
+            logger.error('Failed to start Email Worker', {
                 error: error.message,
                 stack: error.stack,
             });
@@ -200,15 +183,15 @@ export class EmailWorker {
 
     public async stop(): Promise<void> {
         if (!this.isRunning) {
-            this.logger.warn('Email Worker is not running or already stopped.');
+            logger.warn('Email Worker is not running or already stopped.');
             return;
         }
         try {
             await this.worker.close();
             this.isRunning = false;
-            this.logger.info('Email Worker stopped successfully.');
+            logger.info('Email Worker stopped successfully.');
         } catch (error: any) {
-            this.logger.error('Failed to stop Email Worker', { 
+            logger.error('Failed to stop Email Worker', { 
                 error: error.message,
                 stack: error.stack 
             });

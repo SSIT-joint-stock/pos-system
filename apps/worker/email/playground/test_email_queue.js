@@ -1,6 +1,6 @@
 // Test script for EmailQueueService
 const dotenv = require('dotenv');
-dotenv.config({ path: '../../.env' });
+dotenv.config({ path: '../../../.env.development' });
 
 const { EmailQueueService } = require('@repo/email');
 
@@ -33,7 +33,7 @@ async function testEmailQueue() {
   // Enqueue a test email
   const htmlBody = '<h1>Test Email</h1><p>This is a test email from test_email_queue.js</p>';
   const textBody = 'Test Email - This is a test email from test_email_queue.js';
-
+  const start = performance.now();
   const enqueueResult = await queueService.sendEmail(
     htmlBody,
     {
@@ -45,7 +45,11 @@ async function testEmailQueue() {
       category: 'TEST',
     },
     textBody
-  );
+  ).then((result) => {
+    const end = performance.now();
+    console.log('Time taken:', end - start, 'ms');
+    return result;
+  });
 
   console.log('Enqueue Result:', enqueueResult);
 

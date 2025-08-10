@@ -14,8 +14,8 @@ export interface EmailTemplate {
   subject: string;
   text?: string;
   html?: string;
-  template?: string;
-  context?: Record<string, any>;
+  // template?: string;
+  // context?: Record<string, any>;
 }
 
 export interface EmailOptions extends EmailTemplate {

@@ -1,39 +1,18 @@
 import { Worker, Job, ConnectionOptions } from 'bullmq';
-import { createLogger, LoggerInstance } from '@repo/logger';
 import { TelegramQueueData, TelegramWorkerResult } from '@repo/dto';
-import { TelegramWorkerConfig, createWorkerConfig } from './config';
+import { TelegramWorkerConfig, createWorkerConfig, logger } from './config';
 import { TelegramService } from '@repo/telegram';
 
 export class TelegramWorker {
     private worker: Worker<TelegramQueueData, TelegramWorkerResult>;
     private telegram: TelegramService;
-    public logger: LoggerInstance;
     private config: TelegramWorkerConfig;
     private isRunning: boolean = false;
     private isPolling: boolean = false;
 
     constructor(config: Partial<TelegramWorkerConfig> = {}) {
         this.config = createWorkerConfig(config);
-        this.logger = createLogger({
-            serviceName: 'TelegramWorker',
-            enableConsole: true,
-            enableLoki: true,
-            logLevel: 'debug',
-            env: process.env.NODE_ENV || 'development',
-            defaultMeta: {
-                component: 'worker-core',
-                version: process.env.npm_package_version
-            },
-            loki: {
-                url: process.env.LOKI_URL || 'http://localhost:7100',
-                username: process.env.LOKI_USERNAME,
-                password: process.env.LOKI_PASSWORD,
-                labels: {
-                    service: 'telegram-workers',
-                    subcomponent: 'worker-instance'
-                }
-            }
-        });
+
         this.initializeServices();
     }
 
@@ -72,19 +51,19 @@ export class TelegramWorker {
         );
 
         this.setupWorkerHandlers();
-        this.logger.info('Telegram Worker initialized');
+        logger.info('Telegram Worker initialized');
     }
 
     private setupWorkerHandlers() {
         this.worker.on('completed', (job) => {
-            this.logger.info('Job completed successfully', {
+            logger.info('Job completed successfully', {
                 jobId: job.id,
                 recipientId: job.data.payload.options.recipientId
             });
         });
 
         this.worker.on('failed', async (job, error) => {
-            this.logger.error('Job failed', {
+            logger.error('Job failed', {
                 jobId: job?.id,
                 error: error.message,
                 data: job?.data
@@ -96,7 +75,7 @@ export class TelegramWorker {
         });
 
         this.worker.on('error', (error) => {
-            this.logger.error('Worker error', { error: error.message });
+            logger.error('Worker error', { error: error.message });
         });
     }
 
@@ -111,12 +90,12 @@ export class TelegramWorker {
                 disable_notification: false
             });
 
-            this.logger.info('Error notification sent to admin', {
+            logger.info('Error notification sent to admin', {
                 adminChatId: this.config.adminChatId,
                 jobId: job.id
             });
         } catch (notifyError) {
-            this.logger.error('Failed to send error notification', {
+            logger.error('Failed to send error notification', {
                 error: notifyError instanceof Error ? notifyError.message : 'Unknown error'
             });
         }
@@ -145,7 +124,7 @@ export class TelegramWorker {
         const { payload } = job.data;
 
         try {
-            this.logger.info('Processing job', {
+            logger.info('Processing job', {
                 jobId: job.id,
                 recipientId: payload.options.recipientId
             });
@@ -163,7 +142,7 @@ export class TelegramWorker {
                 }
             };
         } catch (error) {
-            this.logger.error('Failed to process job', {
+            logger.error('Failed to process job', {
                 jobId: job.id,
                 error: error instanceof Error ? error.message : 'Unknown error'
             });
@@ -177,7 +156,7 @@ export class TelegramWorker {
 
     public async start(): Promise<void> {
         if (this.isRunning) {
-            this.logger.warn('Worker is already running');
+            logger.warn('Worker is already running');
             return;
         }
 
@@ -187,11 +166,11 @@ export class TelegramWorker {
             const bot = this.telegram.getBot(); // Lấy instance Telegraf
             try {
                 await bot.telegram.deleteWebhook({ drop_pending_updates: true });
-                this.logger.info('Attempted to delete any existing webhook.');
+                logger.info('Attempted to delete any existing webhook.');
             } catch (webhookError: any) {
                 // Lỗi có thể xảy ra nếu không có webhook nào được đặt, hoặc bot không có quyền
                 // Chúng ta có thể log lỗi này nhưng không nên làm dừng quá trình khởi động worker
-                this.logger.warn('Could not delete webhook (this might be normal if none was set)', { error: webhookError.message });
+                logger.warn('Could not delete webhook (this might be normal if none was set)', { error: webhookError.message });
             }
 
             // 2. KHÔNG launch bot ở đây. Worker này chỉ xử lý jobs từ queue.
@@ -202,7 +181,7 @@ export class TelegramWorker {
             //    Điều này đã được thực hiện trong TelegramService.verifyConnection() nếu bạn muốn dùng.
             //    Hoặc, một lệnh sendMessage đơn giản cũng có thể xác nhận điều này.
             const botInfo = await bot.telegram.getMe();
-            this.logger.info(`Successfully connected to Telegram as bot: ${botInfo.username}`);
+            logger.info(`Successfully connected to Telegram as bot: ${botInfo.username}`);
 
 
             // Chỉ cần worker chạy để lắng nghe queue
@@ -211,10 +190,10 @@ export class TelegramWorker {
             // Worker sẽ bắt đầu xử lý jobs ngay khi có job trong queue.
 
             this.isRunning = true;
-            this.logger.info('Telegram Worker started and is ready to process jobs from the queue.');
+            logger.info('Telegram Worker started and is ready to process jobs from the queue.');
 
         } catch (error: any) {
-            this.logger.error('Failed to start Telegram Worker', {
+            logger.error('Failed to start Telegram Worker', {
                 error: error.message,
                 stack: error.stack,
             });
@@ -224,16 +203,16 @@ export class TelegramWorker {
 
     public async stop(): Promise<void> {
         if (!this.isRunning) {
-            this.logger.warn('Worker is not running or already stopped.');
+            logger.warn('Worker is not running or already stopped.');
             return;
         }
         try {
             await this.worker.close(); // Đóng BullMQ worker
             // Không cần gọi this.telegram.stop() vì chúng ta không launch() nó trong worker này
             this.isRunning = false;
-            this.logger.info('Telegram Worker stopped successfully.');
+            logger.info('Telegram Worker stopped successfully.');
         } catch (error: any) {
-            this.logger.error('Failed to stop Telegram Worker', { error: error.message });
+            logger.error('Failed to stop Telegram Worker', { error: error.message });
             throw error;
         }
     }

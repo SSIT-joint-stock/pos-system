@@ -4,7 +4,7 @@ import SMTPTransport from 'nodemailer-smtp-transport';
 import { marked } from 'marked';
 import { EmailConfig, EmailOptions, EmailResponse } from './types';
 import { createEmailConfig } from './config';
-import { LoggerInstance, createLogger } from '@repo/logger';
+import Mail from 'nodemailer/lib/mailer';
 
 export * from './types';
 export * from './config';
@@ -13,15 +13,9 @@ export * from './queue';
 export class EmailService {
   private transporter: Transporter | undefined;
   private config: EmailConfig;
-  private logger: LoggerInstance;
 
   constructor(config: Partial<EmailConfig> = {}) {
     this.config = createEmailConfig(config);
-    this.logger = createLogger({ 
-      serviceName: 'EmailService',
-      enableConsole: true,
-      enableLoki: true,
-    });
     this.initializeTransporter();
   }
 
@@ -59,19 +53,16 @@ export class EmailService {
 
   public async sendMail(options: EmailOptions): Promise<EmailResponse> {
     try {
-      const mailOptions = {
+      const mailOptions: Mail.Options = {
         from: options.from || this.config.defaultFrom,
         to: options.to,
         cc: options.cc,
         bcc: options.bcc,
         subject: options.subject,
         attachments: options.attachments,
-      } as any;
+      };
 
-      if (options.template) {
-        mailOptions.template = options.template;
-        mailOptions.context = options.context || {};
-      } else if (options.text) {
+      if (options.text) {
         const html = await this.convertMarkdownToHtml(options.text);
         mailOptions.text = options.text;
         mailOptions.html = html;
@@ -80,24 +71,14 @@ export class EmailService {
       }
 
       const info = await this.transporter?.sendMail(mailOptions);
-      
-      this.logger.info('Email sent successfully', {
-        messageId: info.messageId,
-        to: options.to,
-        subject: options.subject,
-      });
 
       return {
         success: true,
-        messageId: info.messageId,
+        messageId: info?.messageId,
       };
-    } catch (error) {
-      this.logger.error('Failed to send email', {
-        error,
-        to: options.to,
-        subject: options.subject,
-      });
 
+    } catch (error) {
+      console.error('Failed to send email', error);
       return {
         success: false,
         error: error as Error,
@@ -118,7 +99,7 @@ export class EmailService {
       await this.transporter?.verify();
       return true;
     } catch (error) {
-      this.logger.error('Failed to verify email connection', { error });
+      console.error('Failed to verify email connection', error);
       return false;
     }
   }

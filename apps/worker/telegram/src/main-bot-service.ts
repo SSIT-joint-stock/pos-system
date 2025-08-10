@@ -1,8 +1,7 @@
-import { createLogger } from '@repo/logger';
+
 import { defaultConfig } from './config';
-import { Telegraf } from 'telegraf';
 import { TelegramService } from '@repo/telegram';
-const logger = createLogger({ serviceName: 'MainTelegramBot' });
+import { logger } from './config';
 let mainTelegramService: TelegramService;
 
 async function startMainBot() {

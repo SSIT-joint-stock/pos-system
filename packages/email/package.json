@@ -27,12 +27,13 @@
         "@repo/types": "*",
         "@repo/utils": "*",
         "@repo/logger": "*",
+        "@repo/config-env": "*",
         "bullmq": "^5.7.9",
         "nodemailer": "^6.9.1",
         "nodemailer-express-handlebars": "^7.0.0",
         "nodemailer-smtp-transport": "^2.7.4",
-        "dotenv": "^16.3.1",
-        "marked": "^11.1.1"
+        "marked": "^11.1.1",
+        "zod": "^3.24.2"
     },
     "devDependencies": {
         "@repo/typescript-config": "*",

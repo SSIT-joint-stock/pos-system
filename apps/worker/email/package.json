@@ -8,7 +8,8 @@
   "scripts": {
     "build": "tsup && tsc-alias",
     "start": "concurrently \"node dist/index.js\"",
-    "dev": "tsup --watch --onSuccess \"npm run start\"",
+    "start:dev": "dotenv -e ../../../.env.development -- node dist/index.js",
+    "dev": "tsup --watch --onSuccess \"npm run start:dev\"",
     "playground": "node playground/test_email_queue.js",
     "clean": "rm -rf dist",
     "clear:force": "rimraf *.js --force"
@@ -25,6 +26,7 @@
     "@repo/logger": "*",
     "@repo/dto": "*",
     "@repo/email": "*",
+    "@repo/config-env": "*",
     "dotenv": "^16.4.5"
   },
   "devDependencies": {

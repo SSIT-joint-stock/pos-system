@@ -17,7 +17,8 @@
     "dev": {
       "dependsOn": ["^build"],
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "env": ["NODE_ENV"]
     },
     "clean": {
       "cache": false

@@ -15,12 +15,19 @@ import { Server, createServer } from 'http';
 import { engine } from 'express-handlebars';
 import path from 'path/posix';
 
+// shared config
 import config from "@shared/config/app.config";
+import logger from "@shared/utils/logger";
+
+// shared middleware
 import errorHandler from "@shared/middleware/error-handle.middleware";
-// import route from '@modules/api/route';
 import routeNotFound from '@shared/middleware/route-not-found.middleware';
 import morganMiddleware from "@shared/middleware/morgan.middleware";
+
+// shared helpers
 import { helpers } from '@shared/helpers/views';
+
+// modules routes
 import { openapiRoutes } from '@modules/swagger';
 import { healthRoutes } from '@modules/health';
 
@@ -165,10 +172,10 @@ class ExpressServer {
         this._app.use(errorHandler);
 
         // start nodejs server
-        this._port = config.serverPort || ExpressServer.PORT;
+        this._port = config.SERVER_PORT || ExpressServer.PORT;
         this._server = createServer(this._app);
         this._server.listen(this._port, () => {
-            console.log('Running Express Server on port %s', this._port);
+            logger.info(`Running Express Server on port ${this._port}`);
         })
     }
 
@@ -180,7 +187,7 @@ class ExpressServer {
         this._server.close((err) => {
             if (err) throw Error();
 
-            console.info(new Date(), '[ExpressServer]: Stopped');
+            logger.info('[ExpressServer]: Stopped');
         });
     }
 
