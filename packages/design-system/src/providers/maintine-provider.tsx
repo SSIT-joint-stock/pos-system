@@ -1,5 +1,5 @@
 "use client";
-import { MantineProvider, createTheme } from "@mantine/core";
+import { MantineProvider as MantineProviderCore, MantineProviderProps as MantineProviderPropsCore, createTheme } from "@mantine/core";
 import type { ReactNode } from "react";
 
 const posTheme = createTheme({
@@ -21,21 +21,18 @@ const posTheme = createTheme({
   },
 });
 
-export type ThemeProviderProps = {
+export interface MantineProviderProps extends MantineProviderPropsCore {
   children: ReactNode;
-  withGlobalStyles?: boolean;
-  withNormalizeCSS?: boolean;
-};
+}
 
-export function ThemeProvider({
+export function MantineProvider({
   children,
-  withGlobalStyles = true,
-  withNormalizeCSS = false,
-}: ThemeProviderProps) {
+  ...props
+}: MantineProviderProps) {
   return (
-    <MantineProvider theme={posTheme}>
+    <MantineProviderCore theme={posTheme} {...props}>
       {children}
-    </MantineProvider>
+    </MantineProviderCore>
   );
 }
 

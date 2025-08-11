@@ -27,6 +27,7 @@
     "@repo/types": "*",
     "@repo/utils": "*",
     "@repo/config-env": "*",
+    "@repo/global": "*",
     "bullmq": "^5.7.9",
     "telegraf": "^4.15.3",
     "zod": "^3.24.2"

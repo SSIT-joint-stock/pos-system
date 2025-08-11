@@ -3,14 +3,22 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"],
-      "@repo/*": ["../../../packages/*"]
+      "@retail/*": [
+        "./src/*"
+      ],
+      "@repo/design-system/*": [
+        "../../../packages/design-system/src/*"
+      ],
+      "@repo/*": [
+        "../../../packages/*"
+      ]
     },
     "plugins": [
       {
         "name": "next"
       }
-    ]
+    ],
+    "strictNullChecks": true
   },
   "include": [
     "next-env.d.ts",
@@ -19,5 +27,7 @@
     "**/*.tsx",
     ".next/types/**/*.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }

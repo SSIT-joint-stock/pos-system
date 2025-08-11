@@ -6,6 +6,8 @@ const config = {
    ...env,
 };
 
-console.log('config', config);
+if (config.NODE_ENV === 'development') {
+//   console.log('config', config);
+}
 
 export default config;

@@ -7,6 +7,8 @@ services:
     volumes:
       - mongodb_data:/data/db
       - mongodb_logs:/var/log/mongodb
+    env_file:
+      - ../../.env.development
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGODB_ROOT_USERNAME:-admin}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_ROOT_PASSWORD:-password}
@@ -29,11 +31,13 @@ services:
 
   # Init replica set for MongoDB (run once)
   mongodb-init:
-    container_name: mongodb_init
+    container_name: mongodb_pos_init
     image: mongo:8.0
     depends_on:
       mongodb:
         condition: service_healthy
+    env_file:
+      - ../../.env.development
     environment:
       - MONGODB_ROOT_USERNAME=${MONGODB_ROOT_USERNAME:-admin}
       - MONGODB_ROOT_PASSWORD=${MONGODB_ROOT_PASSWORD:-password}
@@ -70,6 +74,8 @@ services:
       - "${REDIS_PORT:-6379}:6379"
     volumes:
       - redis_data:/data
+    env_file:
+      - ../../.env.development
     networks:
       - pos_network
     healthcheck:
@@ -80,12 +86,14 @@ services:
 
   minio:
     container_name: minio_pos
-    7image: minio/minio:latest
+    image: minio/minio:latest
     ports:
       - "${MINIO_PORT:-9000}:9000"
       - "${MINIO_CONSOLE_PORT:-9001}:9001"
     volumes:
       - minio_data:/data
+    env_file:
+      - ../../.env.development
     environment:
       - MINIO_ROOT_USER=${MINIO_ACCESS_KEY:-minioadmin}
       - MINIO_ROOT_PASSWORD=${MINIO_SECRET_KEY:-minioadmin}
@@ -97,6 +105,8 @@ services:
       interval: 30s
       timeout: 20s
       retries: 3
+    profiles:
+      - dev-storage
 
 volumes:
   mongodb_data:

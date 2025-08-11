@@ -62,12 +62,12 @@ export function createLogger(options: LoggerConfigOptions): LoggerInstance {
     logger.info(`Logger initialized for service: ${config.serviceName} in ${config.env} environment. Log level: ${config.logLevel}`);
     if (config.enableLoki && config.loki.url) {
       console.log(`Loki transport configured for ${config.loki.url}`);
+      logger.info('Test log for Loki', { test: true });
     }
     if (config.enableConsole) {
       console.log(`Console transport enabled.`);
     }
 
-    logger.info('Test log for Loki', { test: true });
 
     return logger;
   } catch (error) {

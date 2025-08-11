@@ -41,6 +41,9 @@ export class HealthController extends BaseController {
       case 'status':
         await this.getStatus(req, res);
         break;
+      case 'database':
+        await this.getDatabaseStatus(req, res);
+        break;
       default:
         await this.performHealthCheck(req, res);
         break;
@@ -144,6 +147,29 @@ export class HealthController extends BaseController {
         ApiResponse.success(
           status,
           'System status retrieved successfully'
+        )
+      );
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Get database status
+   */
+  private async getDatabaseStatus(req: Request, res: Response): Promise<void> {
+    try {
+      const result = await this.healthService.performHealthCheck({
+        includeMetrics: false,
+        timeout: 2000,
+        checks: ['database']
+      });
+      
+      this.sendResponse(
+        res,
+        ApiResponse.success(
+          result,
+          'Database status retrieved successfully'
         )
       );
     } catch (error) {

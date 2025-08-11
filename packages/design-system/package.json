@@ -6,11 +6,13 @@
   "type": "module",
   "exports": {
     "./styles/styles.css": "./src/styles/styles.css",
-    "./components/ui/typography": "./src/components/ui/typography/index.ts",
-    "./components/ui/typography/*": "./src/components/ui/typography/*.tsx",
-    "./components/ui/*": "./src/components/ui/*.tsx",
-    "./contexts": "./src/contexts/index.ts",
-    "./contexts/*": "./src/contexts/*.tsx"
+    "./components/*": "./src/components/**/*.tsx",
+    "./hooks/*": "./src/hooks/*.ts",
+    "./stores/*": "./src/stores/*.ts",
+    "./types/*": "./src/types/*.ts",
+    "./routes/*": "./src/routes/*.ts",
+    "./providers": "./src/providers/index.ts",
+    "./providers/*": "./src/providers/*.tsx"
   },
   "scripts": {
     "clean": "git clean -xdf .cache .turbo dist node_modules",
@@ -18,34 +20,40 @@
     "lint": "eslint src --max-warnings 0"
   },
   "devDependencies": {
-    "@repo/tailwind-config": "*",
     "@repo/eslint-config": "*",
+    "@repo/tailwind-config": "*",
+    "@repo/typescript-config": "*",
+    "@tailwindcss/cli": "^4.1.5",
+    "@tailwindcss/postcss": "4.1.11",
     "@types/react": "^18.2.61",
     "@types/react-dom": "^18.2.19",
     "eslint": "^8.57.0",
-    "@repo/typescript-config": "*",
+    "postcss-preset-mantine": "^1.18.0",
+    "postcss-simple-vars": "^7.0.1",
+    "tailwindcss": "^4.1.5",
     "tsup": "^8.0.2",
-    "typescript": "5.5.4",
-    "@tailwindcss/postcss": "4.1.11",
-    "@tailwindcss/cli": "^4.1.5",
-    "tailwindcss": "^4.1.5"
+    "typescript": "5.5.4"
   },
   "dependencies": {
-    "@repo/utils": "*",
-    "@repo/types": "*",
-    "jotai": "2.13.0",
     "@mantine/core": "^7.11.2",
     "@mantine/hooks": "^7.11.2",
+    "@repo/types": "*",
+    "@repo/utils": "*",
+    "@tabler/icons-react": "^3.24.0",
+    "dayjs": "^1.11.13",
+    "framer-motion": "^12.23.12",
+    "jotai": "2.13.0",
+    "lucide-react": "^0.460.0",
     "next": "^14.2.3",
+    "next-themes": "^0.4.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "tailwindcss": "^4",
-    "tw-animate-css": "1.3.6",
-    "dayjs": "^1.11.13",
-    "zod": "^3.24.2",
     "react-hook-form": "^7.54.2",
     "react-icons": "^5.3.0",
-    "lucide-react": "^0.460.0",
-    "@tabler/icons-react": "^3.24.0"
+    "react-toastify": "^11.0.2",
+    "tailwindcss": "^4",
+    "tw-animate-css": "1.3.6",
+    "worker-timers": "^8.0.3",
+    "zod": "^3.24.2"
   }
 }

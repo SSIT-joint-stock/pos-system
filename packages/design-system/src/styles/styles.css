@@ -1,8 +1,11 @@
 @import "@repo/tailwind-config";
+@import "@mantine/core/styles.css";
 
 /* POS Blue Theme Tokens */
 :root {
   /* POS primary blue and scale */
+  /* example using with tailwind */
+  /* <div class="text-pos-blue-500">Hello</div> */
   --pos-blue-50: #eff6ff;
   --pos-blue-100: #dbeafe;
   --pos-blue-200: #bfdbfe;

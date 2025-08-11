@@ -33,6 +33,17 @@ router.get('/status', (req, res, next) => {
 });
 
 /**
+ * @route   GET /health/db
+ * @desc    Check database connectivity explicitly
+ * @access  Public
+ */
+router.get('/db', (req, res, next) => {
+  // Execute only database strategy via query param
+  req.query.action = 'database';
+  healthController.handle()(req, res, next);
+});
+
+/**
  * @route   GET /health/metrics
  * @desc    Get system metrics
  * @access  Public

@@ -1,0 +1,6 @@
+{
+  "name": "@repo/global",
+  "version": "0.0.0",
+  "private": true,
+  "types": "global.d.ts"
+}

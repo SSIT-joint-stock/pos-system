@@ -5,9 +5,11 @@
   "type": "module",
   "description": "Backend API server for the POS system",
   "scripts": {
-    "dev": "tsx watch src/server.ts",
     "build": "npm run clean && tsup && tsc-alias",
     "start": "node dist/server.js",
+    "start:dev": "dotenv -e ../../../.env.development -- node dist/server.js",
+    "dev": "tsup --watch --onSuccess \"npm run start:dev\"",
+    "playground": "node playground/test-health.js",
     "clean": "rimraf dist",
     "type-check": "tsc --noEmit",
     "lint": "eslint src --ext .ts",

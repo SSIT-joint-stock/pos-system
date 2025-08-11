@@ -23,7 +23,7 @@
         "resolveJsonModule": true,
         "downlevelIteration": true,
         "rootDir": "src",
-        "outDir": "dist",
+        "outDir": "dist"
     },
     "exclude": ["./dist", "./build", "./node_modules"]
   }

@@ -3,7 +3,8 @@ import {
   SystemMetrics, 
   HealthStatus,
   IHealthRepository 
-} from '../interfaces/health.interface';
+} from '@modules/health/interfaces/health.interface';
+import os from 'os';
 
 /**
  * Health Repository Implementation
@@ -35,8 +36,8 @@ export class HealthRepository implements IHealthRepository {
    */
   async getSystemMetrics(): Promise<SystemMetrics> {
     const memUsage = process.memoryUsage();
-    const totalMem = require('os').totalmem();
-    const freeMem = require('os').freemem();
+    const totalMem = os.totalmem();
+    const freeMem = os.freemem();
     const usedMem = totalMem - freeMem;
 
     return {
@@ -48,7 +49,7 @@ export class HealthRepository implements IHealthRepository {
       },
       cpu: {
         usage: 0, // Would need additional library for CPU usage
-        load: require('os').loadavg()
+        load: os.loadavg()
       },
       disk: {
         used: 0, // Would need additional library for disk usage

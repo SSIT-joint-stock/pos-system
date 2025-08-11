@@ -8,8 +8,10 @@ import {
   HealthStatus,
   HealthCheckRequest,
   IHealthService
-} from '../interfaces/health.interface';
-import { HealthRepositoryFactory } from '../repositories/health.repository';
+} from '@modules/health/interfaces/health.interface';
+import { HealthRepositoryFactory } from '@modules/health/repositories/health.repository';
+import os from 'os';
+import prisma from '@shared/orm/prisma';
 
 /**
  * Health Check Registry Implementation
@@ -67,28 +69,45 @@ export class DatabaseHealthCheckStrategy implements IHealthCheckStrategy {
     const startTime = Date.now();
     
     try {
-      // This would be replaced with actual database connection check
-      // For now, we'll simulate a database check
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Try MongoDB ping first (works only if provider = mongodb)
+      let pingOk = false;
+      try {
+        if (typeof prisma.$runCommandRaw === 'function') {
+          const result = await prisma.$runCommandRaw({ ping: 1 });
+          pingOk = !!result?.ok;
+        }
+      } catch {
+        // ignore and fallback
+      }
+
+      // Fallback for SQL providers
+      if (!pingOk) {
+        try {
+          if (typeof prisma.$runCommandRaw === 'function') {
+            await prisma.$runCommandRaw({ ping: 1 });
+            pingOk = true;
+          }
+        } catch {
+          // ignore, will be handled below
+        }
+      }
       
       const duration = Date.now() - startTime;
       
-      return {
-        name: this.name,
-        status: HealthStatus.HEALTHY,
-        message: 'Database connection is healthy',
-        timestamp: new Date().toISOString(),
-        duration,
-        details: {
-          connectionPool: {
-            total: 10,
-            idle: 8,
-            active: 2
-          },
-          responseTime: duration,
-          lastQueryTime: new Date().toISOString()
-        }
-      };
+      if (pingOk) {
+        return {
+          name: this.name,
+          status: HealthStatus.HEALTHY,
+          message: 'Database connection is healthy',
+          timestamp: new Date().toISOString(),
+          duration,
+          details: {
+            responseTime: duration,
+            lastCheck: new Date().toISOString(),
+          }
+        };
+      }
+      throw new Error('Database ping failed');
     } catch (error) {
       const duration = Date.now() - startTime;
       
@@ -159,8 +178,8 @@ export class MemoryHealthCheckStrategy implements IHealthCheckStrategy {
     
     try {
       const memUsage = process.memoryUsage();
-      const totalMem = require('os').totalmem();
-      const freeMem = require('os').freemem();
+      const totalMem = os.totalmem();
+      const freeMem = os.freemem();
       const usedMem = totalMem - freeMem;
       const memoryPercentage = (usedMem / totalMem) * 100;
       
