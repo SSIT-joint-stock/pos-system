@@ -133,3 +133,9 @@ build/
 .env.development
 .env.test
 .env
+
+# Infrastructure
+infrastructure/docker/secrets/*
+infrastructure/docker/logs/*
+
+secrets/*
