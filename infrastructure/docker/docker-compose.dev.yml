@@ -7,17 +7,17 @@ services:
     volumes:
       - mongodb_data:/data/db
       - mongodb_logs:/var/log/mongodb
+      - ./secrets/mongo-keyfile:/run/secrets/mongo-keyfile:ro
+      - ./mongo-entrypoint.sh:/usr/local/bin/mongo-entrypoint.sh:ro
     env_file:
       - ../../.env.development
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGODB_ROOT_USERNAME:-admin}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_ROOT_PASSWORD:-password}
-    command: >
-      mongod --auth 
-      --replSet ${MONGODB_REPLICA_SET:-rs0}
-      --bind_ip_all
     networks:
       - pos_network
+    entrypoint: ["/bin/bash","-lc"]
+    command: "/usr/local/bin/mongo-entrypoint.sh"
     healthcheck:
       test: >
         mongosh --host localhost:27017
@@ -36,33 +36,16 @@ services:
     depends_on:
       mongodb:
         condition: service_healthy
+    volumes:
+      - ./scripts/mongo-init.sh:/usr/local/bin/mongo-init.sh:ro
     env_file:
       - ../../.env.development
     environment:
       - MONGODB_ROOT_USERNAME=${MONGODB_ROOT_USERNAME:-admin}
       - MONGODB_ROOT_PASSWORD=${MONGODB_ROOT_PASSWORD:-password}
       - MONGODB_REPLICA_SET=${MONGODB_REPLICA_SET:-rs0}
-    entrypoint: ["/bin/sh","-lc"]
-    command: >
-      "
-      # wait for Mongo to be ready
-      for i in 1 2 3 4 5; do
-        mongosh --host mongodb:27017
-          -u ${MONGODB_ROOT_USERNAME:-admin}
-          -p ${MONGODB_ROOT_PASSWORD:-password}
-          --authenticationDatabase admin
-          --eval \"db.adminCommand('ping')\" && break
-        sleep 2 # wait for 2 seconds
-      done
-
-      RS='${MONGODB_REPLICA_SET:-rs0}';
-      # if not initiated, initiate; if already initiated, skip
-      mongosh --host mongodb:27017
-        -u ${MONGODB_ROOT_USERNAME:-admin}
-        -p ${MONGODB_ROOT_PASSWORD:-password}
-        --authenticationDatabase admin
-        --eval \"(rs.status().ok || rs.initiate({_id: RS, members: [{ _id: 0, host: 'mongodb:27017' }]}))\"
-      "
+    entrypoint: ["/bin/bash","-lc"]
+    command: "/usr/local/bin/mongo-init.sh"
     networks:
       - pos_network
     restart: "no"
