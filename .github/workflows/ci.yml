@@ -10,6 +10,10 @@ on:
       - '*.md'
       - '*.toml'
       - '.github/workflows/cd.yml'
+      - '.github/workflows/ci.yml'
+      - 'infrastructure/**'
+      - '.env*'
+      - '.gitignore'
   pull_request:
     branches:
       - main
@@ -19,7 +23,17 @@ on:
       - '*.md'
       - '*.toml'
       - '.github/workflows/cd.yml'
+      - '.github/workflows/ci.yml'
+      - 'infrastructure/**'
+      - '.env*'
+      - '.gitignore'
   workflow_dispatch:
+    # allow manual trigger
+    inputs:
+      branch:
+        description: 'Branch to build'
+        required: false
+        default: 'main'
 
 jobs:
   build:

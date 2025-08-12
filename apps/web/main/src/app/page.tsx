@@ -10,6 +10,7 @@ export default async function Page() {
         <Image src="/logo.png" alt="Logo" width={100} height={100} />
         <Typography size="h1" weight="semibold">Hello World</Typography>
         <Typography size="h2" color="dimmer">Welcome to the main domain</Typography>
+        <p className="text-pos-blue-600">This is a test</p>
       </div>
     </div>
   );

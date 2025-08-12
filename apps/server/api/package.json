@@ -18,6 +18,8 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.864.0",
+    "@aws-sdk/s3-request-presigner": "^3.864.0",
     "@repo/database": "*",
     "@repo/dto": "*",
     "@repo/email": "*",

@@ -31,6 +31,24 @@
   --color-accent-foreground: #0b1220;
 }
 
+@theme {
+  /* POS primary blue and scale */
+  --color-pos-blue-50: #eff6ff;
+  --color-pos-blue-100: #dbeafe;
+  --color-pos-blue-200: #bfdbfe;
+  --color-pos-blue-300: #93c5fd;
+  --color-pos-blue-400: #60a5fa;
+  --color-pos-blue-500: #3b82f6;
+  --color-pos-blue-600: #2563eb;
+  --color-pos-blue-700: #1d4ed8;
+  --color-pos-blue-800: #1e40af;
+  --color-pos-blue-900: #1e3a8a;
+
+  /* Semantic colors backed by POS blue */
+  --color-primary: var(--color-pos-blue-600);
+  --color-primary-foreground: #ffffff;
+}
+
 /* Common component utilities */
 @layer utilities {
   .container {

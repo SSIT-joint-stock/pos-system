@@ -79,22 +79,3 @@ export class EmailServiceSingleton {
 
 export const EmailService = EmailServiceSingleton.getInstance();
 export default EmailService;
-
-EmailService.sendEmail(
-  "askjjasdjk",
-  {
-    to: "xuanhoa0379367667@gmail.com",
-    subject: "asddsa",
-    cc: [],
-    bcc: [],
-    priority: "high",
-    category: "ERROR",
-  },
-  "kjadshkjasdhkjads"
-)
-  .then((res) => {
-    console.log("test email", res);
-  })
-  .catch((error) => {
-    console.log("test email error", error);
-  });

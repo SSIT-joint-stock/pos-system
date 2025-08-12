@@ -23,22 +23,28 @@ const logger = createLogger(loggerConfig);
 export default logger;
 
 // Export các helper functions để log theo context
-export const createContextLogger = (context: string) => {
+export const createContextLogger = (context: string, meta?: Record<string, any>) => {
     return {
         info: (message: string, meta?: Record<string, any>) => {
-            logger.info(message, { ...meta, context });
+            logger.info(message, { ...meta, context, ...meta });
         },
         error: (message: string, meta?: Record<string, any>) => {
-            logger.error(message, { ...meta, context });
+            logger.error(message, { ...meta, context, ...meta });
         },
         warn: (message: string, meta?: Record<string, any>) => {
-            logger.warn(message, { ...meta, context });
+            logger.warn(message, { ...meta, context, ...meta });
         },
         debug: (message: string, meta?: Record<string, any>) => {
-            logger.debug(message, { ...meta, context });
+            logger.debug(message, { ...meta, context, ...meta });
         }
     };
 };
 
 // Export types
 export type { LoggerInstance } from '@repo/logger';
+export interface ILogger {
+    info(message: string, meta?: Record<string, any>): void;
+    error(message: string, meta?: Record<string, any>): void;
+    warn(message: string, meta?: Record<string, any>): void;
+    debug(message: string, meta?: Record<string, any>): void;
+}
