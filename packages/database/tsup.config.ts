@@ -9,5 +9,8 @@ export default defineConfig((options: Options) => ({
 	outExtension: ({ format }) => ({
 		js: format === "cjs" ? ".cjs" : ".js",
 	}),
+	external: [
+		"@prisma/client",
+	],
 	...options,
 }));

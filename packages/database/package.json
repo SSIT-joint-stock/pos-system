@@ -2,7 +2,7 @@
   "name": "@repo/database",
   "type": "module",
   "scripts": {
-    "build": "npm run clean && npm run db:generate && tsup && tsc-alias",
+    "build": "npm run clean && tsup && tsc-alias",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
     "clean": "rimraf dist",
