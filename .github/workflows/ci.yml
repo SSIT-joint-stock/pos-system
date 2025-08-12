@@ -118,23 +118,26 @@ jobs:
     permissions:
       actions: read
       contents: read
-    needs: [build]
+    needs: [build, lint]
     if: always()
     steps:
       - name: Send CI notification
         if: always()
         env:
           BUILD_RESULT: ${{ needs.build.result }}
+          LINT_RESULT: ${{ needs.lint.result }}
           GITHUB_TOKEN: ${{ github.token }}
           GITHUB_API_URL: ${{ github.api_url }}
         run: |
           # Derive overall workflow status from needed jobs
-          if [ "$BUILD_RESULT" = "success" ]; then
+          if [ "$BUILD_RESULT" = "success" ] && [ "$LINT_RESULT" = "success" ]; then
             STATUS="success"
-          elif [ "$BUILD_RESULT" = "cancelled" ]; then
+          elif [ "$BUILD_RESULT" = "cancelled" ] || [ "$LINT_RESULT" = "cancelled" ]; then
             STATUS="cancelled"
-          else
+          elif [ "$BUILD_RESULT" = "failure" ] || [ "$LINT_RESULT" = "failure" ]; then
             STATUS="failure"
+          else
+            STATUS="cancelled"
           fi
           REPO="${{ github.repository }}"
           RUN_ID="${{ github.run_id }}"
@@ -147,6 +150,7 @@ jobs:
           
           echo "CI completed for $REPO on branch $BRANCH"
           echo "- build: $BUILD_RESULT"
+          echo "- lint: $LINT_RESULT"
           echo "- overall: $STATUS"
           echo "Run URL: $RUN_URL"
           echo "Commit: $COMMIT_SHA"
