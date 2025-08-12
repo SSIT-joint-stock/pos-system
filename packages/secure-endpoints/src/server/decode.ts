@@ -100,29 +100,20 @@ export class DecodeUaService {
         const decoded = this.decodeToken(validateToken.token);
         const parsed = this.parseDecodedToken(decoded);
         const parsedDate = new Date(parsed.date.getTime());
-        // convert current date to date with timezone ASIA/HANOI
-        const currentDate = new Date(new Date().getTime() + 7 * 60 * 60 * 1000);
-        console.log('parsed', parsedDate);
-        console.log('new Date()', currentDate);
-        console.log('parsed.date', parsedDate);
-        console.log('parsed.date.getTime()', parsedDate.getTime());
-        console.log('currentDate.getTime()', currentDate.getTime());
+        const now = new Date();
 
-        if (parsedDate.getTime() > currentDate.getTime()) {
-            console.log('parsed.date > new Date()');
-            logger.error('INVALID_TOKEN', {
-                token: validateToken.token,
-            });
+        // Reject tokens created in the future (strictly greater than now)
+        if (parsedDate.getTime() > now.getTime()) {
+            logger.error('INVALID_TOKEN', { token: validateToken.token });
             throw new Error('INVALID_TOKEN');
         }
 
-        if (parsed.random1 !== validateToken.random1
-            || parsed.random2 !== validateToken.random2
-            || parsedDate.getTime() !== validateToken.date.getTime()
+        // Validate integrity of payload
+        if (
+            parsed.random1 !== validateToken.random1 ||
+            parsed.random2 !== validateToken.random2 ||
+            parsedDate.getTime() !== validateToken.date.getTime()
         ) {
-            console.log('parsed.random1 !== validateToken.random1', parsed.random1, validateToken.random1);
-            console.log('parsed.random2 !== validateToken.random2', parsed.random2, validateToken.random2);
-            console.log('parsed.date.getTime() !== validateToken.date.getTime()', parsedDate.getTime(), validateToken.date.getTime());
             logger.error('INVALID_TOKEN', {
                 token: validateToken.token,
                 date: validateToken.date.getTime(),
@@ -130,15 +121,10 @@ export class DecodeUaService {
             throw new Error('INVALID_TOKEN');
         }
 
-        // transpile endpoint
-        const transpileEndpoint = this.transpileEndpoint(parsed.endpoint);
-        console.log('transpileEndpoint', transpileEndpoint);
-        console.log('validateToken.endpoint', validateToken.endpoint);
-        if (transpileEndpoint !== parsed.endpoint) {
-            console.log('transpileEndpoint !== parsed.endpoint');
-            logger.error('INVALID_TOKEN', {
-                token: validateToken.token,
-            });
+        // Validate endpoint format remains stable after transpile
+        const transpiled = this.transpileEndpoint(parsed.endpoint);
+        if (transpiled !== parsed.endpoint) {
+            logger.error('INVALID_TOKEN', { token: validateToken.token });
             throw new Error('INVALID_TOKEN');
         }
 

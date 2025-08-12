@@ -2,7 +2,9 @@
   "extends": "@repo/typescript-config/typescript-library.json", // Kế thừa từ tsconfig gốc của monorepo nếu có
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "dist"
+    "outDir": "dist",
+    "skipLibCheck": true,
+    "types": ["node"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
