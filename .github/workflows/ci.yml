@@ -163,12 +163,18 @@ jobs:
           else
             STATUS="cancelled"
           fi
+          
           REPO="${{ github.repository }}"
           RUN_ID="${{ github.run_id }}"
           WORKFLOW="${{ github.workflow }}"
           BRANCH="${{ github.ref_name }}"
           COMMIT_SHA="${{ github.sha }}"
-          COMMIT_MESSAGE="${{ github.event.head_commit.message }}"
+          # Safely read commit message/title from event payload to handle quotes/newlines
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            COMMIT_MESSAGE=$(jq -r '.pull_request.title // ""' "$GITHUB_EVENT_PATH")
+          else
+            COMMIT_MESSAGE=$(jq -r '.head_commit.message // ""' "$GITHUB_EVENT_PATH")
+          fi
           ACTOR="${{ github.actor }}"
           RUN_URL="https://github.com/$REPO/actions/runs/$RUN_ID"
           
@@ -178,7 +184,7 @@ jobs:
           echo "- overall: $STATUS"
           echo "Run URL: $RUN_URL"
           echo "Commit: $COMMIT_SHA"
-          echo "Commit Message: $COMMIT_MESSAGE"
+          echo "Commit Message (first line): $(echo "$COMMIT_MESSAGE" | head -n1)"
           
           # Check webhook configuration - Try both naming conventions
           WEBHOOK_URL="${{ secrets.WEBHOOK_URL }}"
@@ -208,6 +214,8 @@ jobs:
               sudo apt-get update -y >/dev/null 2>&1 || true
               sudo apt-get install -y jq >/dev/null 2>&1 || true
             fi
+
+            sleep 3 # Wait for jobs to be created
 
             # Fetch jobs for this run from GitHub API to include id and direct job URL
             JOBS_API_JSON=$(curl -s \
@@ -246,7 +254,7 @@ jobs:
               --argjson jobs "$JOBS_JSON" \
               --argjson jobs_full "$JOBS_API_JSON" \
               --arg workflow_duration_ms "$WORKFLOW_DURATION_MS" \
-              '{workflow_name:$workflow, repository:$repo, run_id:$run_id, run_url:$run_url, status:$status, jobs:$jobs, workflow_duration_ms: ($workflow_duration_ms|tonumber), branch:$branch, commit_sha:$commit_sha, commit_message:$commit_message, actor:$actor}')
+              '{workflow_name:$workflow, repository:$repo, run_id:$run_id, run_url:$run_url, status:$status, jobs:$jobs, full_jobs:$jobs_full, workflow_duration_ms: ($workflow_duration_ms|tonumber), branch:$branch, commit_sha:$commit_sha, commit_message:$commit_message, actor:$actor}')
 
 
             # Send webhook with error handling
