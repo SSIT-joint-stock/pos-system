@@ -37,7 +37,7 @@ on:
 
 jobs:
   build:
-    name: Build
+    name: Build & Type Check
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -58,6 +58,8 @@ jobs:
         run: npm ci
       - name: Run build
         run: npm run build
+      - name: Run type check
+        run: npm run type-check
 
   quality:
     name: Code Quality
@@ -74,8 +76,6 @@ jobs:
       - run: npm ci
       - name: Run lint
         run: npm run lint
-      - name: Run type check
-        run: npm run type-check
       - name: Run tests
         run: npm test
 
