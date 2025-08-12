@@ -60,6 +60,15 @@ const schema = z.object({
   MINIO_BUCKET_NAME: z.string().default('assets'),
   MINIO_URL: z.string().default('http://localhost:9000'),
 
+  // R2
+  R2_ENDPOINT: z.string().default('r2.cloudflarestorage.com'),
+  R2_PORT: z.coerce.number().default(443),
+  R2_USE_SSL: z.enum(['true', 'false']).default('true'),
+  R2_ACCESS_KEY: z.string().default('minio'),
+  R2_SECRET_KEY: z.string().default('minio123'),
+  R2_BUCKET_NAME: z.string().default('assets'),
+  R2_PUBLIC_URL: z.string().default('https://r2.cloudflarestorage.com'),
+
   // JWT/Session/Security
   AUTH_ACCESS_EXPIRE: z.coerce.number().default(3600),
   AUTH_REFRESH_EXPIRE: z.coerce.number().default(604800),
