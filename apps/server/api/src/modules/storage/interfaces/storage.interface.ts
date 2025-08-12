@@ -30,16 +30,10 @@ export interface StorageConnectionOptions {
 
 export abstract class StorageStrategy<T extends StorageConnectionOptions> {
     /**
-     * Initializes the storage provider
-     * @param options - Optional connection options
-     */
-    abstract init(options: T): Promise<void>;
-
-    /**
      * Validates the connection to the storage provider
      * @param options - Optional connection options
      */
-    abstract validateConnectionOptions(options: T): Promise<T>;
+    abstract validateConnectionOptions(options: T): T;
 
     /**
      * Uploads data to the storage provider

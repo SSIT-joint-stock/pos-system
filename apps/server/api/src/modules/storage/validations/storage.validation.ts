@@ -7,4 +7,5 @@ export const baseStorageConnectionOptionsSchema = z.object({
     accessKey: z.string(),
     secretKey: z.string(),
     bucketName: z.string(),
+    publicBaseUrl: z.string().url().optional(),
 });
