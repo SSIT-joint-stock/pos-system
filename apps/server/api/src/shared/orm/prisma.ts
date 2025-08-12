@@ -15,7 +15,7 @@ declare global {
 	}
 }
 
-BigInt.prototype.toJSON = function () {
+BigInt.prototype.toJSON = function (): string {
 	return this.toString();
 };
 
@@ -24,7 +24,7 @@ const prisma = globalThis.prisma ?? prismaClientSingleton();
 prisma.$use(async (params, next) => {
 	const before = Date.now();
 
-	const result = await next(params);
+	const result = await next(params) as unknown;
 
 	const after = Date.now();
 

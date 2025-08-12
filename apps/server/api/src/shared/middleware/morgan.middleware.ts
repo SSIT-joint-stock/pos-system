@@ -1,5 +1,5 @@
-import morgan, { TokenIndexer } from 'morgan';
-import { Request as ExpressRequest, Response as ExpressResponse } from 'express';
+import morgan, { type TokenIndexer } from 'morgan';
+import type { Request as ExpressRequest, Response as ExpressResponse } from 'express';
 import { createContextLogger } from '@shared/utils/logger';
 
 // Custom types for morgan's extended Request and Response

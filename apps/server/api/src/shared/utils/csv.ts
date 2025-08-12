@@ -12,7 +12,7 @@ export class CsvUtils {
      * @returns {Promise<DataLabel[]>} An array of objects representing the CSV data.
      * @template DataLabel - The type of data structure for each row.
      */
-    public async convertToArray<DataLabel extends Record<string, any>>(
+    public async convertToArray<DataLabel extends Record<string, unknown>>(
         filePath: string
     ): Promise<DataLabel[]> {
         try {
@@ -20,8 +20,9 @@ export class CsvUtils {
             return await new Promise<DataLabel[]>((resolve, reject) => {
                 const data: DataLabel[] = [];
                 fastCSV.parseStream(stream, { headers: true })
-                    .on('data', async (row) => {
+                    .on('data', (row) => {
                         data.push(row);
+                        return row;
                     })
                     .on('end', () => resolve(data))
                     .on('error', reject);

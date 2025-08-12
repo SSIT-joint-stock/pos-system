@@ -3,7 +3,7 @@
  * It ensures that default roles and other required data exist in the database before the application starts.
  */
 
-import { PrismaClient } from '@repo/database';
+import type { PrismaClient } from '@repo/database';
 import prisma from '@shared/orm/prisma';
 import logger from '@shared/utils/logger';
 

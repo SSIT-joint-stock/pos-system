@@ -6,13 +6,13 @@
 export abstract class BaseServerError extends Error {
   public readonly statusCode: number;
   public readonly code: string;
-  public details?: any;
+  public details?: Record<string, unknown>;
 
   constructor(
     message: string,
     statusCode: number,
     code: string,
-    details?: any
+    details?: Record<string, unknown>
   ) {
     super(message);
     this.name = this.constructor.name;
@@ -63,7 +63,7 @@ export abstract class BaseServerError extends Error {
   /**
    * Add additional details to the error
    */
-  addDetails(details: any): this {
+  addDetails(details: Record<string, unknown>): this {
     this.details = { ...this.details, ...details };
     return this;
   }

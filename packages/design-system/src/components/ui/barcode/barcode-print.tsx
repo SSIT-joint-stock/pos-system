@@ -31,6 +31,15 @@ function MinimalBarcode({
 	const [columns, setColumns] = useState<number>(1);
 	const [rows, setRows] = useState<number>(10);
 	const [unit, setUnit] = useState<BarcodeProps['units'][number] | null>(units[0] || null);
+
+	const unitsSelectData = useMemo(() => {
+		return units?.map((unit) => ({ label: unit.name, value: unit.id })) || [];
+	}, [units]);
+
+	const handleSetUnit = useCallback((value: string) => {
+		setUnit(units.find(unit => unit.id === value) || null);
+	}, [units]);
+
 	// Tạo ref list để lưu trữ các SVG elements
 	const barcodeRefs = useRef<SVGSVGElement[]>([]);
 
@@ -66,7 +75,7 @@ function MinimalBarcode({
 				</div>
 			);
 		},
-		[productName, price, columns, unit],
+		[ price, columns, unit],
 	);
 
 	// Tạo nội dung in với layout tùy chỉnh sử dụng Grid
@@ -275,8 +284,8 @@ function MinimalBarcode({
 					<Select
 						label='Đơn vị'
 						value={unit?.id || ''}
-						onChange={value => setUnit(units.find(unit => unit.id === value) || null)}
-						data={units?.map((unit, index) => ({ label: unit.name, value: unit.id })) || []}
+						onChange={handleSetUnit}
+						data={unitsSelectData}
 					/>
 
 					<Group justify='flex-end' mt='md'>

@@ -14,10 +14,10 @@ export class DelayUtils {
      * @param ms - The number of milliseconds to delay
      * @returns A promise that resolves after the given number of milliseconds
      */
-    public delayFn<T extends (...args: any[]) => any>(fn: T, ms: number): (...args: Parameters<T>) => Promise<ReturnType<T>> {
+    public delayFn<T extends (...args: unknown[]) => unknown>(fn: T, ms: number): (...args: Parameters<T>) => Promise<ReturnType<T>> {
         return async (...args: Parameters<T>) => {
             await this.delay(ms);
-            return fn(...args);
+            return fn(...args) as ReturnType<T>;
         }
     }
 }

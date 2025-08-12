@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import { ForbiddenError } from '@repo/types/response';
 
 const routeNotFound = (req: Request, res: Response, next: NextFunction) => {
