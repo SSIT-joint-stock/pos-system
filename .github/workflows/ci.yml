@@ -47,6 +47,39 @@ jobs:
       - name: Run build
         run: npm run build
 
+  # Lint filenames
+  lint-filenames:
+    name: Lint Filenames
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Collect changed files
+        id: cf
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git diff --name-only --diff-filter=ACMRT origin/${{ github.base_ref }}...HEAD > changed.txt
+          else
+            git diff --name-only --diff-filter=ACMRT HEAD~1 > changed.txt
+          fi
+          echo "count=$(wc -l < changed.txt)" >> $GITHUB_OUTPUT
+      - name: Validate names (kebab-case .ts/.tsx in src/, no space/special characters)
+        if: steps.cf.outputs.count != '0'
+        run: |          
+          bad=$(grep -E '^src/' changed.txt | grep -Ev '^[^[:space:]]+$' -n || true)
+          if [ -n "$bad" ]; then
+            echo "❌ File names have spaces:"
+            echo "$bad"; exit 1
+          fi
+
+          bad=$(grep -E '^src/' changed.txt | grep -Ev '^src/([a-z0-9-]+/)*[a-z0-9-]+(\.test)?\.(ts|tsx)$' -n || true)
+          if [ -n "$bad" ]; then
+            echo "❌ File names are not valid (kebab-case .ts|.tsx, allow *.test.tsx):"
+            echo "$bad"; exit 1
+          fi
+
+          echo "✅ All file names are valid."
   # lint:
   #   name: Lint
   #   runs-on: ubuntu-latest
@@ -107,7 +140,7 @@ jobs:
   notify:
     name: Send Webhook Notification
     runs-on: ubuntu-latest
-    needs: [build]
+    needs: [build, lint-filenames]
     if: always()
     steps:
       - name: Send CI notification
