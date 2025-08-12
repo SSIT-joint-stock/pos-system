@@ -195,8 +195,22 @@ jobs:
               -H "Accept: application/vnd.github+json" \
               "$GITHUB_API_URL/repos/$REPO/actions/runs/$RUN_ID/jobs?per_page=100")
 
-            # Build jobs array: [{id, name, result, url}]
-            JOBS_JSON=$(echo "$JOBS_API_JSON" | jq '[.jobs[] | {id: .id, name: .name, result: (.conclusion // .status), url: .html_url}]')
+            # Build jobs array: [{id, name, result, url, started_at, completed_at, duration_ms}]
+            JOBS_JSON=$(echo "$JOBS_API_JSON" | jq '[.jobs[]
+              | { id: .id,
+                  name: .name,
+                  result: (.conclusion // .status),
+                  url: .html_url,
+                  started_at: .started_at,
+                  completed_at: .completed_at,
+                  duration_ms: (if (.started_at and .completed_at)
+                                then ((.completed_at | fromdateiso8601) - (.started_at | fromdateiso8601)) * 1000
+                                else null end)
+                }
+            ]')
+
+            # Compute total workflow job duration (sum of job durations)
+            WORKFLOW_DURATION_MS=$(echo "$JOBS_JSON" | jq '([.[] | select(.duration_ms != null) | .duration_ms] | add) // 0')
 
             # Build JSON payload safely (handles newlines and quotes)
             PAYLOAD=$(jq -n \
@@ -210,14 +224,10 @@ jobs:
               --arg commit_message "$COMMIT_MESSAGE" \
               --arg actor "$ACTOR" \
               --argjson jobs "$JOBS_JSON" \
-              '{workflow_name:$workflow, repository:$repo, run_id:$run_id, run_url:$run_url, status:$status, jobs:$jobs, branch:$branch, commit_sha:$commit_sha, commit_message:$commit_message, actor:$actor}')
+              --argjson jobs_full "$JOBS_API_JSON" \
+              --arg workflow_duration_ms "$WORKFLOW_DURATION_MS" \
+              '{workflow_name:$workflow, repository:$repo, run_id:$run_id, run_url:$run_url, status:$status, jobs:$jobs, workflow_duration_ms: ($workflow_duration_ms|tonumber), branch:$branch, commit_sha:$commit_sha, commit_message:$commit_message, actor:$actor}')
 
-            echo ""
-            echo "📋 Webhook payload to be sent:"
-            echo "==============================="
-            echo "$PAYLOAD" | jq '.' 2>/dev/null || echo "$PAYLOAD"
-            echo "==============================="
-            echo ""
 
             # Send webhook with error handling
             WEBHOOK_RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
