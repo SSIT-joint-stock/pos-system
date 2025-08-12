@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 
 // shared
-import RedisService, { RedisServiceSingleton } from '@shared/services/redis.service';
+import RedisService, { type RedisServiceSingleton } from '@shared/services/redis.service';
 import { createContextLogger } from '@shared/utils/logger';
 import { RateLimitError } from '@repo/types/response';
 import delayUtil from '@shared/utils/delay';
@@ -145,7 +145,7 @@ export const rateLimitEmailVerificationMiddleware = RateLimitMiddleware.create({
     windowSizeInSeconds: 3600,
     keyPrefix: 'email-verification-rate-limit:',
     message: 'Quá nhiều lần gửi email xác thực, vui lòng thử lại sau 1 giờ.',
-    customResponse: (req, res, next) => {
+    customResponse: (req, res) => {
         res.status(429).send('Quá nhiều lần gửi email xác thực, vui lòng thử lại sau 1 giờ.');
     }
 }); // - 10 attempts per hour

@@ -56,7 +56,7 @@ export class HealthController extends BaseController {
   private async performHealthCheck(req: Request, res: Response): Promise<void> {
     try {
       // Validate request parameters
-      const requestData = this.validate(req.query, healthCheckSchema);
+      const requestData = this.validate<HealthCheckRequest>(req.body, healthCheckSchema);
       
       // Perform health check
       const result = await this.healthService.performHealthCheck(requestData);

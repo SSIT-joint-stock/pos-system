@@ -12,13 +12,12 @@ declare global {
 	}
 	namespace Express {
 		export interface Request {
-			// jwtPayload?: Record<string, any> & { id: string; type: 'MEMBERSHIP' | 'USER' | 'ADMIN' };
 			file?: Express.Multer.File;
 			image?: Express.Multer.File;
-			userId?: string;
-			username?: string;
-			userRoles?: string[];
 			deviceId?: string;
+			user?: {
+				id: string;
+			};
 		}
 	}
 }

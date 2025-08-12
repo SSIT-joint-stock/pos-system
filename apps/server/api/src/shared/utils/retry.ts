@@ -62,13 +62,17 @@ export class RetryUtils {
             return result;
         } catch (error) {
             if (retryIndex < maxRetry) {
-                failAction && failAction();
+                if (failAction) {
+                    failAction();
+                }
                 logger.alert(`[${name}] Attempt ${retryIndex + 1} failed. Retrying in ${(retryWait / 1000)} seconds...`);
                 await new Promise((resolve) => setTimeout(resolve, retryWait));
                 return this.retryWrapper(fn, name, { ...retryOpt, retryIndex: retryIndex + 1 });
             }
-            logger.alert(`[${name}] Failed after ${maxRetry} attempts:`, error);
-            fallbackAction && fallbackAction();
+            logger.alert(`[${name}] Failed after ${maxRetry} attempts:`, { error: error.message });
+            if (fallbackAction) {
+                fallbackAction();
+            }
             return null;
         }
     }
