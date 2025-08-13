@@ -1,16 +1,9 @@
 import bcrypt from "bcryptjs";
 import { ILoginStrategy } from "@modules/auth/strategies/ILoginStrategy";
 import { ILoginBase } from "@modules/auth/interfaces/login";
-
-import { PrismaClient } from "@prisma/client";
+import prisma from "@shared/orm/prisma";
 import { IManualLogin } from "@modules/auth/interfaces/login";
-import { error } from "console";
-import {
-  signAccessToken,
-  signRefreshToken,
-} from "@modules/auth/utils/jwt.utils";
-
-const prisma = new PrismaClient();
+import { signAccessToken, signRefreshToken } from "@/shared/utils/jwt.utils";
 
 export class ManualLoginStrategy implements ILoginStrategy<ILoginBase, any> {
   async findUser(data: IManualLogin): Promise<any> {

@@ -1,7 +1,13 @@
-import { Request, Response, NextFunction } from 'express';
-import { ZodSchema } from 'zod';
-import { ApiResponse, BadRequestError, NotFoundError, UnauthorizedError, ValidationError } from '@repo/types/response';
-import AsyncMiddleware from '@shared/utils/async-handler';
+import { Request, Response, NextFunction } from "express";
+import { ZodSchema } from "zod";
+import {
+  ApiResponse,
+  BadRequestError,
+  NotFoundError,
+  UnauthorizedError,
+  ValidationError,
+} from "@repo/types/response";
+import AsyncMiddleware from "@shared/utils/async-handler";
 
 /**
  * Base Controller Interface
@@ -75,13 +81,15 @@ export abstract class BaseController implements IBaseController {
    * Implements the Template Method pattern
    */
   public handle(): (req: Request, res: Response, next: NextFunction) => void {
-    return AsyncMiddleware.asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-      // Validate tenant context
-      this.getTenantId(req);
+    return AsyncMiddleware.asyncHandler(
+      async (req: Request, res: Response, next: NextFunction) => {
+        // Validate tenant context
+        this.getTenantId(req);
 
-      // Execute the specific controller logic
-      await this.execute(req, res, next);
-    });
+        // Execute the specific controller logic
+        await this.execute(req, res, next);
+      }
+    );
   }
 
   /**
@@ -98,7 +106,9 @@ export abstract class BaseController implements IBaseController {
   public validate<T>(data: T, schema: ZodSchema<T>): T {
     const result = schema.safeParse(data);
     if (!result.success) {
-      throw new ValidationError(result.error.flatten().fieldErrors as Record<string, string[]>);
+      throw new ValidationError(
+        result.error.flatten().fieldErrors as Record<string, string[]>
+      );
     }
     return result.data;
   }
@@ -112,7 +122,10 @@ export abstract class BaseController implements IBaseController {
     offset: number;
   } {
     const page = Math.max(1, parseInt(req.query.page as string) || 1);
-    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
+    const limit = Math.min(
+      100,
+      Math.max(1, parseInt(req.query.limit as string) || 20)
+    );
     const offset = (page - 1) * limit;
 
     return { page, limit, offset };
@@ -122,9 +135,9 @@ export abstract class BaseController implements IBaseController {
    * Extracts tenant ID from request headers
    */
   public getTenantId(req: Request): string {
-    const tenantId = req.headers['x-tenant-id'] as string;
+    const tenantId = req.headers["x-tenant-id"] as string;
     if (!tenantId) {
-      throw new UnauthorizedError('Tenant ID is required', 'TENANT_REQUIRED');
+      throw new UnauthorizedError("Tenant ID is required", "TENANT_REQUIRED");
     }
     return tenantId;
   }
@@ -135,7 +148,7 @@ export abstract class BaseController implements IBaseController {
   public getUserId(req: Request): string {
     const userId = req.user?.id;
     if (!userId) {
-      throw new UnauthorizedError('User ID is required', 'USER_REQUIRED');
+      throw new UnauthorizedError("User ID is required", "USER_REQUIRED");
     }
     return userId;
   }
@@ -176,34 +189,34 @@ export interface ICrudController<T> extends IBaseController {
  * Abstract CRUD Controller
  * Provides default implementation for common CRUD operations
  */
-export abstract class BaseCrudController<T> extends BaseController implements ICrudController<T> {
+export abstract class BaseCrudController<T>
+  extends BaseController
+  implements ICrudController<T>
+{
   /**
    * Execute method that routes to appropriate CRUD operation
    */
   async execute(req: Request, res: Response): Promise<void> {
     switch (req.method) {
-      case 'GET':
+      case "GET":
         if (req.params.id) {
           await this.getById(req, res);
         } else {
           await this.getAll(req, res);
         }
         break;
-      case 'POST':
+      case "POST":
         await this.create(req, res);
         break;
-      case 'PUT':
-      case 'PATCH':
+      case "PUT":
+      case "PATCH":
         await this.update(req, res);
         break;
-      case 'DELETE':
+      case "DELETE":
         await this.delete(req, res);
         break;
       default:
-        throw new BadRequestError(
-          'Method not allowed',
-          'METHOD_NOT_ALLOWED',
-        );
+        throw new BadRequestError("Method not allowed", "METHOD_NOT_ALLOWED");
     }
   }
 
@@ -211,22 +224,22 @@ export abstract class BaseCrudController<T> extends BaseController implements IC
    * Default implementations that can be overridden by subclasses
    */
   async getAll(req: Request, res: Response): Promise<void> {
-    throw new NotFoundError('Method not implemented', 'NOT_IMPLEMENTED');
+    throw new NotFoundError("Method not implemented", "NOT_IMPLEMENTED");
   }
 
   async getById(req: Request, res: Response): Promise<void> {
-    throw new NotFoundError('Method not implemented', 'NOT_IMPLEMENTED');
+    throw new NotFoundError("Method not implemented", "NOT_IMPLEMENTED");
   }
 
   async create(req: Request, res: Response): Promise<void> {
-    throw new NotFoundError('Method not implemented', 'NOT_IMPLEMENTED');
+    throw new NotFoundError("Method not implemented", "NOT_IMPLEMENTED");
   }
 
   async update(req: Request, res: Response): Promise<void> {
-    throw new NotFoundError('Method not implemented', 'NOT_IMPLEMENTED');
+    throw new NotFoundError("Method not implemented", "NOT_IMPLEMENTED");
   }
 
   async delete(req: Request, res: Response): Promise<void> {
-    throw new NotFoundError('Method not implemented', 'NOT_IMPLEMENTED');
+    throw new NotFoundError("Method not implemented", "NOT_IMPLEMENTED");
   }
-} 
+}
