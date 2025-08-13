@@ -51,11 +51,25 @@ jobs:
       TURBO_REMOTE_ONLY: true
     steps:
       - name: Resolve ref to use
-        uses: ./.github/actions/checkout-ref
+        run: |
+          echo "inputs.sha=${{ github.event.inputs.sha }}"
+          echo "inputs.branch=${{ github.event.inputs.branch }}"
+          echo "=> Using REF: $REF"
+      - name: Checkout ref
+        uses: actions/checkout@v4
         with:
-          sha: ${{ github.event.inputs.sha }}
-          branch: ${{ github.event.inputs.branch }}
-          fetch-depth: 0
+          ref: ${{ env.REF }}
+          fetch-depth: 0   # để có thể git log, so sánh, v.v.
+      - name: Validate SHA (if provided)
+        if: ${{ github.event.inputs.sha != '' }}
+        run: |
+            git cat-file -e "${{ github.event.inputs.sha }}^{commit}" || {
+              echo "❌ SHA không hợp lệ hoặc không có trên remote."
+              exit 1
+            }
+            echo "✅ SHA hợp lệ: ${{ github.event.inputs.sha }}"
+            echo "HEAD at:"
+            git log -1 --pretty=oneli
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -74,11 +88,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Resolve ref to use
-        uses: ./.github/actions/checkout-ref
+        run: |
+          echo "inputs.sha=${{ github.event.inputs.sha }}"
+          echo "inputs.branch=${{ github.event.inputs.branch }}"
+          echo "=> Using REF: $REF"
+      - name: Checkout ref
+        uses: actions/checkout@v4
         with:
-          sha: ${{ github.event.inputs.sha }}
-          branch: ${{ github.event.inputs.branch }}
-          fetch-depth: 0
+          ref: ${{ env.REF }}
+          fetch-depth: 0   # để có thể git log, so sánh, v.v.
+      - name: Validate SHA (if provided)
+        if: ${{ github.event.inputs.sha != '' }}
+        run: |
+            git cat-file -e "${{ github.event.inputs.sha }}^{commit}" || {
+              echo "❌ SHA không hợp lệ hoặc không có trên remote."
+              exit 1
+            }
+            echo "✅ SHA hợp lệ: ${{ github.event.inputs.sha }}"
+            echo "HEAD at:"
+            git log -1 --pretty=oneli
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
