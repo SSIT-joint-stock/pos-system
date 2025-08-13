@@ -30,6 +30,7 @@ export abstract class BaseClientError extends Error {
       success: false,
       error: {
         code: this.code,
+        statusCode: this.statusCode,
         message: this.message,
         details: this.details
       },

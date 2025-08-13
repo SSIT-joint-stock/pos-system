@@ -53,13 +53,9 @@ const reportCustomError = (
   res: Response
 ) => {
   const { statusCode = 500 } = err;
+  const response = err.toResponse();
   return res
     .status(statusCode)
-    .json({
-      statusCode,
-      code: err.code,
-      message: err.message,
-      details: err.details,
-    })
+    .json(response)
     .end();
 };

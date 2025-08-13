@@ -1,15 +1,23 @@
 import type { Request } from 'express';
+import type { UserEntity } from '@shared/repositories/user.repository';
 
 export interface LoginCredentials {
     usernameOrEmail: string;
     password: string;
 }
 
+export interface RegisterCredentials {
+    email: string;
+    password: string;
+}
+
 export interface AuthResult {
-    userId: string;
+    user: Pick<UserEntity, (typeof PickUserFields)[number]>;
     accessToken: string;
     refreshToken?: string;
 }
+
+export const PickUserFields = ['id', 'email', 'username', 'isActive', 'emailVerified', 'firstName', 'lastName', 'avatar', 'lastLoginAt', 'createdAt', 'updatedAt'] as const;
 
 export interface OAuthInitParams {
     provider: 'google' | 'facebook' | 'github';
@@ -32,6 +40,7 @@ export interface AuthStrategy {
 export interface ManualAuthStrategy extends AuthStrategy {
     name: 'manual';
     login(credentials: LoginCredentials): Promise<AuthResult>;
+    register(credentials: RegisterCredentials): Promise<AuthResult>;
 }
 
 export interface OAuthAuthStrategy extends AuthStrategy {

@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { ZodSchema } from 'zod';
 import { ApiResponse, BadRequestError, NotFoundError, UnauthorizedError, ValidationError } from '@repo/types/response';
 import AsyncMiddleware from '@shared/utils/async-handler';
+import { RequestWithTenant } from '@shared/types/request';
 
 /**
  * Base Controller Interface
@@ -76,9 +77,6 @@ export abstract class BaseController implements IBaseController {
    */
   public handle(): (req: Request, res: Response, next: NextFunction) => void {
     return AsyncMiddleware.asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-      // Validate tenant context
-      this.getTenantId(req);
-
       // Execute the specific controller logic
       await this.execute(req, res, next);
     });
@@ -141,6 +139,47 @@ export abstract class BaseController implements IBaseController {
   }
 }
 
+export abstract class BaseControllerWithTenant extends BaseController {
+  /**
+   * Creates Express middleware with error handling and tenant validation
+   */
+  public handle(): (req: RequestWithTenant, res: Response, next: NextFunction) => void {
+    return AsyncMiddleware.asyncHandler(async (req: RequestWithTenant, res: Response, next: NextFunction) => {
+      this.getTenantId(req);
+      await this.execute(req, res, next);
+    });
+  }
+
+  /**
+   * Extracts tenant ID from request headers
+   * Throws AuthenticationError if tenant ID is missing
+   */
+  public getTenantId(req: RequestWithTenant): string {
+    const tenantId = req.headers['x-tenant-id'] as string;
+    if (!tenantId) {
+      throw new UnauthorizedError('Tenant ID is required', 'TENANT_REQUIRED');
+    }
+    const { subdomain, domainName, tld } = this.getDomain(req);
+    req.tenantId = tenantId;
+    req.domain = subdomain;
+    return tenantId;
+  }
+
+  /**
+   * Extracts domain from request headers
+   */
+  public getDomain(req: RequestWithTenant): { subdomain: string; domainName: string; tld: string } {
+    const domain = req.hostname;
+    // extract subdomain (example: www, api, etc.)
+    const subdomain = domain.split('.')[0];
+    // extract domain name (example: google)
+    const domainName = domain.split('.')[1];
+    // extract tld (top level domain). example: com, org, net, etc.
+    const tld = domain.split('.')[2];
+    return { subdomain, domainName, tld };
+  }
+}
+
 /**
  * CRUD Controller Interface
  * Extends base controller with common CRUD operations
@@ -176,11 +215,11 @@ export interface ICrudController<T> extends IBaseController {
  * Abstract CRUD Controller
  * Provides default implementation for common CRUD operations
  */
-export abstract class BaseCrudController<T> extends BaseController implements ICrudController<T> {
+export abstract class BaseCrudController<T> extends BaseControllerWithTenant implements ICrudController<T> {
   /**
    * Execute method that routes to appropriate CRUD operation
    */
-  async execute(req: Request, res: Response): Promise<void> {
+  async execute(req: RequestWithTenant, res: Response): Promise<void> {
     switch (req.method) {
       case 'GET':
         if (req.params.id) {
@@ -210,23 +249,23 @@ export abstract class BaseCrudController<T> extends BaseController implements IC
   /**
    * Default implementations that can be overridden by subclasses
    */
-  async getAll(req: Request, res: Response): Promise<void> {
+  async getAll(req: RequestWithTenant, res: Response): Promise<void> {
     throw new NotFoundError('Method not implemented', 'NOT_IMPLEMENTED');
   }
 
-  async getById(req: Request, res: Response): Promise<void> {
+  async getById(req: RequestWithTenant, res: Response): Promise<void> {
     throw new NotFoundError('Method not implemented', 'NOT_IMPLEMENTED');
   }
 
-  async create(req: Request, res: Response): Promise<void> {
+  async create(req: RequestWithTenant, res: Response): Promise<void> {
     throw new NotFoundError('Method not implemented', 'NOT_IMPLEMENTED');
   }
 
-  async update(req: Request, res: Response): Promise<void> {
+  async update(req: RequestWithTenant, res: Response): Promise<void> {
     throw new NotFoundError('Method not implemented', 'NOT_IMPLEMENTED');
   }
 
-  async delete(req: Request, res: Response): Promise<void> {
+  async delete(req: RequestWithTenant, res: Response): Promise<void> {
     throw new NotFoundError('Method not implemented', 'NOT_IMPLEMENTED');
   }
-} 
+}

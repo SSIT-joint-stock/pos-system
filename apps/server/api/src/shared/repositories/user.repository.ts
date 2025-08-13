@@ -1,8 +1,11 @@
 import prisma, { User } from '@shared/orm/prisma';
+import { nanoid, customAlphabet } from 'nanoid';
 
 export type UserEntity = User;
 
 export class UserRepository {
+
+    static readonly excludedFields = ['passwordHash'];
 
     // find user by email or username
     async findByEmailOrUsername(identifier: string): Promise<UserEntity | null> {
@@ -14,7 +17,7 @@ export class UserRepository {
                 ],
             },
         });
-        return user as unknown as UserEntity;
+        return user;
     }
 
     // check if user is active
@@ -39,7 +42,7 @@ export class UserRepository {
     }
 
     // create user
-    async create(user: UserEntity): Promise<UserEntity> {
+    async create(user: Omit<UserEntity, 'id' | 'createdAt' | 'updatedAt' | 'lastLoginAt' | 'passwordChangedAt' | 'emailVerified' | 'isActive'>): Promise<UserEntity> {
         const newUser = await prisma.user.create({
             data: user,
         });
@@ -84,6 +87,18 @@ export class UserRepository {
             where: { username },
         });
         return user as unknown as UserEntity;
+    }
+
+    // generate username from email
+    async generateUsername(email: string): Promise<string> {
+        // name with meaning from email with nanoid
+        const username = email.split('@')[0];
+        const user = await this.findByUsername(username);
+        if (user) {
+            const randomSuffix = nanoid(4);
+            return `${username}_${randomSuffix}`;
+        }
+        return username;
     }
 }
 

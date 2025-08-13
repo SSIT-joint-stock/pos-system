@@ -4,7 +4,7 @@ import {
   type StorageStrategy,
   type StorageProvider,
   type StorageConnectionOptions,
-} from '../interfaces/storage.interface';
+} from '@modules/storage/interfaces/storage.interface';
 
 export class StorageStrategyFactory {
   private static strategies = new Map<
