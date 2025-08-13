@@ -19,7 +19,8 @@ export default class RequestValidation extends BaseValidation {
                 if (!validatedData.success) {
                     throw new ValidationError(validatedData.error.flatten().fieldErrors, "Invalid request");
                 }
-                req[type] = validatedData;
+                // Attach parsed value back to request
+                req[type] = validatedData.data as any;
                 next();
             } catch (error) {
                 next(error);

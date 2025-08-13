@@ -1,5 +1,7 @@
 import { PrismaClient } from "@repo/database";
 
+export * from '@repo/database';
+
 const prismaClientSingleton = (): PrismaClient => {
 	return new PrismaClient({
 		...(process.env.NODE_ENV === "development" && {
