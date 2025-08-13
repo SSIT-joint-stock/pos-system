@@ -86,6 +86,11 @@ jobs:
   quality:
     name: Code Quality
     runs-on: ubuntu-latest
+    env:
+      REF: ${{ github.event.inputs.sha != '' && github.event.inputs.sha || github.event.inputs.branch != '' && github.event.inputs.branch || github.sha }}
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+      TURBO_REMOTE_ONLY: true
     steps:
       - name: Resolve ref to use
         run: |
