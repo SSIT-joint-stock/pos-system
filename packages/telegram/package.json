@@ -8,7 +8,8 @@
     "build": "npm run clean && tsup && tsc-alias",
     "dev": "tsup --watch",
     "clean": "rimraf dist",
-    "clear:force": "rimraf *.js --force"
+    "clear:force": "rimraf *.js --force",
+    "type-check": "tsc --noEmit"
   },
   "exports": {
     ".": {

@@ -4,7 +4,6 @@
   "scripts": {
     "build": "npm run clean && tsup && tsc-alias",
     "dev": "tsup --watch",
-    "typecheck": "tsc --noEmit",
     "clean": "rimraf dist",
     "clear:force": "rimraf *.js --force",
     "postinstall": "prisma generate",
@@ -18,7 +17,8 @@
     "prisma:migrate:status": "prisma migrate status",
     "prisma:studio": "prisma studio",
     "prisma:db:seed": "node ./dist/seed.js",
-    "prisma:format": "prisma format"
+    "prisma:format": "prisma format",
+    "type-check": "tsc --noEmit"
   },
   "files": [
     "dist/**"
