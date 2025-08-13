@@ -30,8 +30,11 @@ on:
   workflow_dispatch:
     # allow manual trigger
     inputs:
+      sha:
+        description: 'Commit SHA (ưu tiên nếu có)'
+        required: false
       branch:
-        description: 'Branch to build'
+        description: 'Branch (fallback nếu không nhập SHA)'
         required: false
         default: 'main'
 
@@ -42,12 +45,17 @@ jobs:
     permissions:
       contents: read
     env:
+      REF: ${{ github.event.inputs.sha != '' && github.event.inputs.sha || github.event.inputs.branch != '' && github.event.inputs.branch || github.sha }}
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
       TURBO_TEAM: ${{ vars.TURBO_TEAM }}
       TURBO_REMOTE_ONLY: true
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Resolve ref to use
+        uses: ./.github/actions/checkout-ref
+        with:
+          sha: ${{ github.event.inputs.sha }}
+          branch: ${{ github.event.inputs.branch }}
+          fetch-depth: 0
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -65,8 +73,12 @@ jobs:
     name: Code Quality
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Resolve ref to use
+        uses: ./.github/actions/checkout-ref
+        with:
+          sha: ${{ github.event.inputs.sha }}
+          branch: ${{ github.event.inputs.branch }}
+          fetch-depth: 0
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:

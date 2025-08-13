@@ -1,0 +1,47 @@
+name: Checkout a ref (sha/branch) and validate
+description: Resolve REF from inputs, checkout, and optionally validate SHA
+inputs:
+  sha:
+    description: Commit SHA (ưu tiên)
+    required: false
+  branch:
+    description: Branch fallback (nếu không nhập SHA)
+    required: false
+    default: main
+  fetch-depth:
+    description: Fetch depth for checkout
+    required: false
+    default: "0"
+runs:
+  using: composite
+  steps:
+    - name: Resolve ref
+      id: resolve
+      shell: bash
+      run: |
+        REF="${{ inputs.sha }}"
+        if [ -z "$REF" ]; then
+          REF="${{ inputs.branch }}"
+        fi
+        echo "sha=${{ inputs.sha }}"
+        echo "branch=${{ inputs.branch }}"
+        echo "=> Using REF: $REF"
+        echo "ref=$REF" >> "$GITHUB_OUTPUT"
+
+    - name: Checkout ref
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ steps.resolve.outputs.ref }}
+        fetch-depth: ${{ inputs.fetch-depth }}
+
+    - name: Validate SHA (if provided)
+      if: ${{ inputs.sha != '' }}
+      shell: bash
+      run: |
+        git cat-file -e "${{ inputs.sha }}^{commit}" || {
+          echo "❌ SHA không hợp lệ hoặc không có trên remote."
+          exit 1
+        }
+        echo "✅ SHA hợp lệ: ${{ inputs.sha }}"
+        echo "HEAD at:"
+        git log -1 --pretty=oneline
