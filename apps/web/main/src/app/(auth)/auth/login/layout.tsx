@@ -30,7 +30,7 @@ export default function SigninLayout({
           className="object-cover rounded-full"
         />
         <div className="flex gap-2 flex-col text-xs mt-2">
-          <h2 className="text-blue-500 font-medium  uppercase">
+          <h2 className="text-pos-blue-500 font-medium  uppercase">
             Công ty cổ phần đầu tư công nghệ và truyền thông SS-IT{" "}
           </h2>
           <span className="text-gray-500 flex items-center gap-2">
@@ -52,11 +52,11 @@ export default function SigninLayout({
             Website:
             <Link
               href={"https://ssit.company"}
-              className="hover:text-blue-500 border-r border-r-gray-300 pr-2">
+              className="hover:text-pos-blue-500 border-r border-r-gray-300 pr-2">
               ssit.company
             </Link>
             <Link
-              className="hover:text-blue-500"
+              className="hover:text-pos-blue-500"
               href={"https://ss-it-joint-stock-company.vercel.app/"}>
               ss-it-joint-stock
             </Link>

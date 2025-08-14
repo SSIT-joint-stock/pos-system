@@ -58,7 +58,7 @@ export function FormBusinessInfo({
         <button
           type="button"
           onClick={() => setActive(0)}
-          className="flex items-center gap-2 cursor-pointer text-gray-500 group transition-all duration-300 hover:text-blue-500  ">
+          className="flex items-center gap-2 cursor-pointer text-gray-500 group transition-all duration-300 hover:text-pos-blue-500  ">
           <MoveLeft
             size={16}
             className=" group-hover:-translate-x-2 transition-all duration-300"

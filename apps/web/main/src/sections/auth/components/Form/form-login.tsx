@@ -69,7 +69,7 @@ export function FormLogin() {
           <button
             onClick={() => setIsOpenModal(true)}
             type="button"
-            className="text-blue-500 cursor-pointer hover:underline">
+            className="text-pos-blue-500 cursor-pointer hover:underline">
             Quên mật khẩu
           </button>
         </div>
@@ -97,7 +97,7 @@ export function FormLogin() {
           Bạn chưa có tài khoản?{" "}
           <RouterLink
             href="/auth/register"
-            className="text-blue-500 hover:underline">
+            className="text-pos-blue-500 hover:underline">
             Đăng ký
           </RouterLink>
         </p>

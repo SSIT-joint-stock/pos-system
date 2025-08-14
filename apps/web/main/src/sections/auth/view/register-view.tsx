@@ -41,7 +41,7 @@ export function RegisterView() {
         <div className="py-8 px-10">
           {/* Logo */}
           <RouterLink href={"/"} className="flex items-center gap-2">
-            <span className="text-blue-500 font-bold text-xl w-10 h-10 flex items-center justify-center bg-blue-100 rounded-full">
+            <span className="text-pos-blue-500 font-bold text-xl w-10 h-10 flex items-center justify-center bg-blue-100 rounded-full">
               ★
             </span>
             <span className="text-xl font-medium text-pos-blue-400">

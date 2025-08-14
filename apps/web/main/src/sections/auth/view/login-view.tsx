@@ -6,10 +6,10 @@ export function LoginView() {
     <>
       {/* Logo */}
       <RouterLink href={"/"} className="flex items-center gap-2">
-        <span className="text-blue-500 font-bold text-xl w-10 h-10 flex items-center justify-center bg-blue-100 rounded-full">
+        <span className="text-pos-blue-500 font-bold text-xl w-10 h-10 flex items-center justify-center bg-blue-100 rounded-full">
           ★
         </span>
-        <span className="text-xl font-medium text-blue-400">POS-SYSTEM</span>
+        <span className="text-xl font-medium text-pos-blue-400">POS-SYSTEM</span>
       </RouterLink>
       {/* Title & description */}
       <h1 className="md:text-2xl text-xl text-pos-blue-500 font-semibold text-center mt-4">

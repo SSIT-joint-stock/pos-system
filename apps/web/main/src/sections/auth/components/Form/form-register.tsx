@@ -98,7 +98,7 @@ export function FormRegister({
         Bạn đã có tài khoản?{" "}
         <RouterLink
           href="/auth/login"
-          className="text-blue-500 hover:underline">
+          className="text-pos-blue-500 hover:underline">
           Đăng nhập
         </RouterLink>
       </p>
