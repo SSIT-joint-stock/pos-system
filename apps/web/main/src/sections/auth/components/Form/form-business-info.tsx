@@ -1,8 +1,8 @@
-import { Button, Input } from "@repo/design-system/components/ui";
-import { MapPin, MoveLeft, User, Warehouse } from "lucide-react";
+import { Button, Input, Select } from "@repo/design-system/components/ui";
+import { Component, MapPin, MoveLeft, User, Warehouse } from "lucide-react";
 import React from "react";
 
-export default function FormBusiness({
+export function FormBusinessInfo({
   setActive,
 }: {
   setActive: (active: number) => void;
@@ -13,6 +13,14 @@ export default function FormBusiness({
   };
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full ">
+      <Select
+        leftSection={<Component size={16} />}
+        size="sm"
+        radius="xl"
+        data={["Doanh nghiệp A", "Doanh nghiệp B", "Doanh nghiệp C"]}
+        placeholder="Chọn mô hình kinh doạnh"
+        label="Mô hình kinh doạnh"
+      />
       <Input
         size="sm"
         type="text"

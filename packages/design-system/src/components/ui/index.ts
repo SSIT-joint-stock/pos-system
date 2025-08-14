@@ -4,3 +4,4 @@ export * from "./button";
 export * from "./checkbox";
 export * from "./stepper";
 export * from "./modal";
+export * from "./select";

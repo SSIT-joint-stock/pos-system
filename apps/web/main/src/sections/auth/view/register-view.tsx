@@ -3,8 +3,11 @@ import React, { useState } from "react";
 import { Building2, Check, MailCheck, User } from "lucide-react";
 import { RouterLink } from "@repo/design-system/routes/components";
 import { Button, Stepper } from "@repo/design-system/components/ui";
-import { FormActiveAccount, FormRegister } from "../components/Form";
-import FormBusiness from "../components/Form/FormBusiness";
+import {
+  FormActiveAccount,
+  FormRegister,
+  FormBusinessInfo,
+} from "../components/form";
 
 const steps = [
   {
@@ -41,7 +44,7 @@ export function RegisterView() {
             <span className="text-blue-500 font-bold text-xl w-10 h-10 flex items-center justify-center bg-blue-100 rounded-full">
               ★
             </span>
-            <span className="text-xl font-medium text-blue-400">
+            <span className="text-xl font-medium text-pos-blue-400">
               POS-SYSTEM
             </span>
           </RouterLink>
@@ -60,17 +63,19 @@ export function RegisterView() {
       <div className="flex flex-col items-center justify-center w-full max-w-md mx-auto p-6 ">
         {/* Steps */}
         <div className="flex flex-col items-center text-center mb-6">
-          <div className="mb-3 p-4 bg-blue-50  text-blue-500 rounded-full">
+          <div className="mb-3 p-3 bg-pos-blue-50  text-pos-blue-500 rounded-full">
             {steps[active].icon}
           </div>
-          <h2 className="text-xl font-semibold">{steps[active].label}</h2>
+          <h2 className="text-xl font-semibold text-pos-blue-500">
+            {steps[active].label}
+          </h2>
           <p className="text-gray-500 text-xs mt-1">
             {steps[active].description}
           </p>
         </div>
         {active === 0 && <FormRegister setActive={setActive} />}
         {active === 1 && <FormActiveAccount setActive={setActive} />}
-        {active === 2 && <FormBusiness setActive={setActive} />}
+        {active === 2 && <FormBusinessInfo setActive={setActive} />}
         {active === 3 && (
           <div className="w-full">
             <RouterLink className="w-full flex" href="/auth/login">

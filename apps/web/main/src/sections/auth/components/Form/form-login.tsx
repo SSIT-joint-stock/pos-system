@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import React, { useState } from "react";
 import GoogleIC from "@/../../../web/main/src/public/icons/google.svg";
 
@@ -10,14 +11,38 @@ import {
 } from "@repo/design-system/components/ui/";
 import { Lock, Mail } from "lucide-react";
 import { RouterLink } from "@repo/design-system/routes/components";
-import Image from "next/image";
+
+import useToast from "@repo/design-system/hooks/client/use-toast-notification";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema, type LoginData } from "../../data";
+import { FormResetPassword, FormRetryPassword } from "./index";
 
 export function FormLogin() {
   const [isOpenModal, setIsOpenModal] = useState(false);
+  const [modalSteps, setModalSteps] = useState(1);
+  const toast = useToast();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginData>({
+    resolver: zodResolver(loginSchema),
+  });
+
+  const handleSignIn = (data: LoginData) => {
+    console.log(data);
+    toast.showSuccessToast("Đăng nhập thanh cong!");
+  };
   return (
     <>
-      <form className="flex flex-col gap-4 w-full ">
+      <form
+        onSubmit={handleSubmit(handleSignIn)}
+        className="flex flex-col gap-4 w-full ">
         <Input
+          {...register("email")}
+          name="email"
+          error={errors.email?.message}
           size="sm"
           type="email"
           label="Email"
@@ -26,6 +51,9 @@ export function FormLogin() {
           leftSection={<Mail size={16} />}
         />
         <Input
+          {...register("passwordHash")}
+          name="passwordHash"
+          error={errors.passwordHash?.message}
           isInputPassword
           size="sm"
           type="password"
@@ -47,9 +75,16 @@ export function FormLogin() {
         </div>
 
         {/* Sign in button */}
-        <Button size="sm" radius="xl" title="Đăng nhập" variant="filled" />
+        <Button
+          type="submit"
+          size="sm"
+          radius="xl"
+          title="Đăng nhập"
+          variant="filled"
+        />
         {/* Google sign in */}
         <Button
+          type="button"
           size="sm"
           radius="xl"
           variant="default"
@@ -68,28 +103,22 @@ export function FormLogin() {
         </p>
       </form>
       <Modal
+        radius="xl"
+        padding="lg"
         size="md"
         opened={isOpenModal}
         onClose={() => setIsOpenModal(false)}>
         <>
-          <div className="flex flex-col gap-2 pb-1 border-b border-b-blue-600">
-            <h2 className="text-xl font-semibold text-center">
-              Quên mật khẩu?
-            </h2>
-            <p className="text-sm text-gray-400 text-center">
-              Đừng lo lắng, chúng tôi sẽ gửi cho bạn hướng dẫn thiết lập lại.
-            </p>
-          </div>
-          <form className="mt-6 flex flex-col gap-4" action="">
-            <Input
-              type="email"
-              radius="xl"
-              label="Email"
-              placeholder="Nhập email"
-              size="sm"
-            />
-            <Button title="Tiếp tục" radius="xl" size="sm" />
-          </form>
+          <h1 className="text-2xl font-semibold text-center text-gray-900">
+            Quên mật khẩu
+          </h1>
+          <p className="mt-1 text-sm text-gray-400 text-center font-medium">
+            Vui lòng nhập email bạn đăng ký trên hệ thống
+          </p>
+
+          {modalSteps === 1 && <FormRetryPassword />}
+          {modalSteps === 2 && <FormResetPassword />}
+          {modalSteps === 3 && <>Done</>}
         </>
       </Modal>
     </>

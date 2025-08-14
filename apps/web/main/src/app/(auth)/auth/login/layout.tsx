@@ -12,7 +12,7 @@ export default function SigninLayout({
       <div className="flex flex-col items-center justify-center w-full max-w-xl mx-auto p-6  ">
         {children}
       </div>
-      <div className="flex flex-col gap-2 items-center justify-center">
+      <div className="md:flex flex-col gap-2 items-center justify-center hidden">
         <Image
           width={420}
           height={420}

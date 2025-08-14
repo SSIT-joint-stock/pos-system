@@ -62,8 +62,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className="h-full overscroll-contain scroll-smooth"
-    >
+      className="h-full overscroll-contain scroll-smooth">
       <body className={`${fontSans.variable} min-h-dvh font-sans antialiased`}>
         <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID} />
         <MantineProvider>
@@ -71,8 +70,7 @@ export default function RootLayout({
             attribute="class"
             defaultTheme="light"
             disableTransitionOnChange
-            forcedTheme={"light"}
-          >
+            forcedTheme={"light"}>
             {children}
           </ThemeProvider>
         </MantineProvider>
