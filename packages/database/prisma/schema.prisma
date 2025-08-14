@@ -33,6 +33,11 @@ model User {
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
 
+  //opt
+  verificationCode        String?
+  verificationCodeExpired DateTime?
+  resetToken              String?
+
   // Relationships
   userTenants  UserTenant[] // User có thể thuộc nhiều tenants
   ownedTenants Tenant[] // Tenants mà user này là owner  

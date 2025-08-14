@@ -1,13 +1,13 @@
-import { ManualStrategy } from './strategies/manual.strategy';
-import { OAuthStrategy } from './strategies/oauth.strategy';
-import type { AuthProvider, AuthStrategy } from '../interfaces/auth.interface';
+import { ManualStrategy } from "./strategies/manual.strategy";
+import { OAuthStrategy } from "./strategies/oauth.strategy";
+import type { AuthProvider, AuthStrategy } from "../interfaces/auth.interface";
 
 export class AuthStrategyFactory {
   private static strategies = new Map<AuthProvider, () => AuthStrategy>();
 
   static {
-    AuthStrategyFactory.register('manual', () => new ManualStrategy());
-    AuthStrategyFactory.register('oauth', () => new OAuthStrategy());
+    AuthStrategyFactory.register("manual", () => new ManualStrategy());
+    AuthStrategyFactory.register("oauth", () => new OAuthStrategy());
   }
 
   static create(provider: AuthProvider): AuthStrategy {
@@ -26,5 +26,3 @@ export class AuthStrategyFactory {
     return Array.from(this.strategies.keys()) as AuthProvider[];
   }
 }
-
-
