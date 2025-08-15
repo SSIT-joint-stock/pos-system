@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer";
 
-const email = "";
-const password = "";
+const email = "xuanhoa0379367667@gmail.com";
+const password = "dsjfhksdhfkdfhs";
 
 // Kiểm tra biến môi trường
 if (!email || !password) {

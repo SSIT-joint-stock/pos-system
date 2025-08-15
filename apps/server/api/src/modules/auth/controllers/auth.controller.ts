@@ -1,4 +1,4 @@
-import type { Request, Response, NextFunction } from "express";
+import type { Response, NextFunction } from "express";
 import { BaseController } from "@shared/interfaces/controller-base.interface";
 import { AuthService } from "@modules/auth/services/auth.service";
 import {

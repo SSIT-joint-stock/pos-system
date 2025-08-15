@@ -60,8 +60,8 @@ export class ManualStrategy implements ManualAuthStrategy {
       throw new BadRequestError(
         this.errorMessages.USER_NOT_ACTIVE,
         "EMAIL_NOT_VERIFIED", // code
-        { reason: "EMAIL_NOT_VERIFIED" }, // details (tùy chọn)
-        "/api/v1/auth/verify-code"
+        { reason: "EMAIL_NOT_VERIFIED" } // details (tùy chọn)
+        // "/api/v1/auth/verify-code"
       );
     }
 
