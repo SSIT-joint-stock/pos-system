@@ -1,3 +1,4 @@
+import { RegisterWithAuth } from "@/shared/types/request";
 import {
   type LoginCredentials,
   type AuthResult,
@@ -9,11 +10,27 @@ import {
   OAuthInitParams,
   OAuthCallbackParams,
   AuthStrategy,
+  IBusinessInfor,
 } from "../interfaces/auth.interface";
+import { BusinessInforService } from "./auth.business.builder";
 import { AuthStrategyFactory } from "./auth.factory";
+import { UserRepository } from "@/shared/repositories/user.repository";
+import { ForbiddenError } from "@repo/types/response";
 export class AuthService implements IAuthService {
   private readonly manual: ManualAuthStrategy;
   private readonly oauth: OAuthAuthStrategy;
+  private readonly businessInforService = new BusinessInforService
+  private readonly users = new UserRepository();
+
+  private readonly errorMessages = {
+    INVALID_CREDENTIALS: "Email hoặc mật khẩu không chính xác",
+    USER_NOT_FOUND: "Tài khoản không tồn tại",
+    USER_NOT_ACTIVE: "Tài khoản chưa được kích hoạt",
+    USER_ALREADY_EXISTS: "Tài khoản đã tồn tại",
+    USER_WRONG_CODE: "Mã OTP không đúng.",
+    USER_CODE_EXPIRED: "Mã otp quá hạn ",
+    USER_TOO_FAST: "Người dùng thao tác quá nhanh, Doi 5s de gui lai",
+  };
 
   constructor() {
     this.manual = AuthStrategyFactory.create("manual") as ManualAuthStrategy;
@@ -62,18 +79,32 @@ export class AuthService implements IAuthService {
     return this.oauth.callback(params);
   }
 
+  async addBusinessInfor(businessInfor: IBusinessInfor, req: RegisterWithAuth) {
+    const existingUser = await this.users.findByEmail(req.userId);
+    if (existingUser) {
+      throw new ForbiddenError(this.errorMessages.USER_ALREADY_EXISTS);
+    }
+    // add tenant cho user here 
+    return this.businessInforService.builder()
+      .withAddress(businessInfor.address)
+      .withName(businessInfor.name)
+      .withPhone(businessInfor.phone)
+      .withTaxCode(businessInfor.taxCode)
+      .build()
+  }
+
   getStrategy<T extends AuthProvider>(
     strategy: T
   ): T extends "manual"
     ? ManualAuthStrategy
     : T extends "oauth"
-      ? OAuthAuthStrategy
-      : never {
+    ? OAuthAuthStrategy
+    : never {
     return AuthStrategyFactory.create(strategy) as T extends "manual"
       ? ManualAuthStrategy
       : T extends "oauth"
-        ? OAuthAuthStrategy
-        : never;
+      ? OAuthAuthStrategy
+      : never;
   }
 }
 

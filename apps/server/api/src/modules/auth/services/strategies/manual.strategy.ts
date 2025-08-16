@@ -96,21 +96,7 @@ export class ManualStrategy implements ManualAuthStrategy {
 
     const otp = this.createCode.createCode();
     const otpExpired = this.createCode.setCodeExpiry;
-    const user = await this.users.create({
-      email: credentials.email,
-      username: await this.users.generateUsername(credentials.email),
-      passwordHash: await this.bcrypt.hash(credentials.password),
-      provider: UserProvider.EMAIL,
-      firstName: null,
-      lastName: null,
-      phone: null,
-      avatar: null,
-      verificationCode: otp,
-      verificationCodeExpired: otpExpired(),
-      resetToken: null,
-    });
 
-    console.log("user: " + user);
     await sendVerificationCode(
       credentials.email,
       // 'xuanhoa0379367667@gmail.com',
@@ -125,6 +111,21 @@ export class ManualStrategy implements ManualAuthStrategy {
             <p style="font-size: 12px; color: #777;">Nếu bạn không yêu cầu đăng ký tài khoản này, vui lòng bỏ qua email này.</p>
         `
     );
+
+    const user = await this.users.create({
+      email: credentials.email,
+      username: await this.users.generateUsername(credentials.email),
+      passwordHash: await this.bcrypt.hash(credentials.password),
+      provider: UserProvider.EMAIL,
+      firstName: null,
+      lastName: null,
+      phone: null,
+      avatar: null,
+      verificationCode: otp,
+      verificationCodeExpired: otpExpired(),
+      resetToken: null,
+    });
+
     return {
       user: _.pick(user, PickUserFields),
       accessToken: "",

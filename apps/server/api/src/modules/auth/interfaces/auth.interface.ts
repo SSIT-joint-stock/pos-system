@@ -74,3 +74,10 @@ export interface IAuthService {
   ): Promise<{ authUrl: string; state?: string }>;
   oauthCallback?(params: OAuthCallbackParams): Promise<AuthResult>;
 }
+
+export interface IBusinessInfor {
+  phone: string;
+  address: string;
+  taxCode: string;
+  name: string;
+}

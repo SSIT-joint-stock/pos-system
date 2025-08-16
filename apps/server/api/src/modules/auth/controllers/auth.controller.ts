@@ -16,13 +16,13 @@ import {
   ResetPasswordInput,
 } from "@modules/auth/validations/auth.validation";
 import { ApiResponse, BadRequestError } from "@repo/types/response";
-import { RequestWithTenant } from "@shared/types/request";
+import { RegisterWithAuth, RequestWithTenant } from "@shared/types/request";
 
 export class ManualAuthController extends BaseController {
   private service = new AuthService();
 
   async execute(
-    req: RequestWithTenant,
+    req: RegisterWithAuth,
     res: Response,
     next: NextFunction
   ): Promise<void> {
@@ -52,7 +52,7 @@ export class ManualAuthController extends BaseController {
   }
 
   private async handleLogin(
-    req: RequestWithTenant,
+    req: RegisterWithAuth,
     res: Response,
     next: NextFunction
   ): Promise<void> {
@@ -62,7 +62,7 @@ export class ManualAuthController extends BaseController {
   }
 
   private async handleRegister(
-    req: RequestWithTenant,
+    req: RegisterWithAuth,
     res: Response,
     next: NextFunction
   ): Promise<void> {
@@ -73,7 +73,7 @@ export class ManualAuthController extends BaseController {
     res.status(200).json(result);
   }
   private async handleVerifyCode(
-    req: RequestWithTenant,
+    req: RegisterWithAuth,
     res: Response,
     next: NextFunction
   ): Promise<void> {
@@ -89,7 +89,7 @@ export class ManualAuthController extends BaseController {
   }
 
   private async handleReSendVerificationCode(
-    req: RequestWithTenant,
+    req: RegisterWithAuth,
     res: Response,
     next: NextFunction
   ): Promise<void> {
@@ -110,7 +110,7 @@ export class ManualAuthController extends BaseController {
   }
 
   private async handleForgotPassword(
-    req: RequestWithTenant,
+    req: RegisterWithAuth,
     res: Response,
     next: NextFunction
   ): Promise<void> {
@@ -126,7 +126,7 @@ export class ManualAuthController extends BaseController {
   }
 
   private async handleResetPassword(
-    req: RequestWithTenant,
+    req: RegisterWithAuth,
     res: Response,
     next: NextFunction
   ): Promise<void> {
@@ -148,7 +148,7 @@ export class ManualAuthController extends BaseController {
 export class OAuthAuthController extends BaseController {
   private service = new AuthService();
 
-  async execute(req: RequestWithTenant, res: Response): Promise<void> {
+  async execute(req: RegisterWithAuth, res: Response): Promise<void> {
     const { action } = req;
     switch (action) {
       case "oauth_init":
@@ -163,7 +163,7 @@ export class OAuthAuthController extends BaseController {
   }
 
   private async handleOAuthInit(
-    req: RequestWithTenant,
+    req: RegisterWithAuth,
     res: Response
   ): Promise<void> {
     // TODO: Implement OAuth init
@@ -171,7 +171,7 @@ export class OAuthAuthController extends BaseController {
   }
 
   private async handleOAuthCallback(
-    req: RequestWithTenant,
+    req: RegisterWithAuth,
     res: Response
   ): Promise<void> {
     // TODO: Implement OAuth callback
