@@ -1,3 +1,4 @@
+import { IBaseController } from "./../../../shared/interfaces/controller-base.interface";
 import type { Response, NextFunction } from "express";
 import { BaseController } from "@shared/interfaces/controller-base.interface";
 import { AuthService } from "@modules/auth/services/auth.service";
@@ -8,15 +9,18 @@ import {
   type LoginInput,
   verifyCodeSchema,
   reSendVerificationCodeSchema,
+  businessSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
   VerifyCodeInput,
   ReSendVerifyInput,
   ForgotPasswordInput,
   ResetPasswordInput,
+  BusinessInfoInput,
 } from "@modules/auth/validations/auth.validation";
 import { ApiResponse, BadRequestError } from "@repo/types/response";
 import { RegisterWithAuth, RequestWithTenant } from "@shared/types/request";
+import { jwtAccessUtils } from "@/shared/middleware/auth.middleware";
 
 export class ManualAuthController extends BaseController {
   private service = new AuthService();
@@ -46,11 +50,12 @@ export class ManualAuthController extends BaseController {
       case "reset-password":
         await this.handleResetPassword(req, res, next);
         break;
+      case "refresh":
+        await this.handleRefresh(req, res, next);
       default:
         throw new BadRequestError("Invalid action");
     }
   }
-
   private async handleLogin(
     req: RegisterWithAuth,
     res: Response,
@@ -58,7 +63,26 @@ export class ManualAuthController extends BaseController {
   ): Promise<void> {
     const data = this.validate<LoginInput>(req.body, loginSchema);
     const result = await this.service.login(data);
+
+    res.setHeader("Authorization", `Bearer ${result.accessToken}`);
+
+    res.cookie("refreshToken", result.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: Number(process.env.JWT_REFRESH_EXPIRY),
+    });
+
     this.sendResponse(res, ApiResponse.success(result, "Login successful"));
+  }
+
+  private async handleRefresh(
+    req: RegisterWithAuth,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    const accessToken = jwtAccessUtils.generateToken({ id: req.userId }, {});
+    res.status(200).json({ accessToken });
   }
 
   private async handleRegister(
@@ -178,6 +202,32 @@ export class OAuthAuthController extends BaseController {
     this.sendResponse(
       res,
       ApiResponse.success(null, "OAuth callback successful")
+    );
+  }
+}
+
+export class BusinessController extends BaseController {
+  private service = new AuthService();
+  async execute(req: RegisterWithAuth, res: Response): Promise<void> {
+    // Validate request body
+    const businessInfo = this.validate<BusinessInfoInput>(
+      req.body,
+      businessSchema
+    );
+
+    // Lấy userId từ request (AuthMiddleware đã set)
+    const userId = this.getUserId(req);
+
+    // Thêm business info
+    const result = await this.service.addBusinessInfor(
+      businessInfo,
+      req.userId
+    );
+
+    // Gửi response chuẩn
+    this.sendResponse(
+      res,
+      ApiResponse.success(result, "Business info added successfully")
     );
   }
 }

@@ -1,35 +1,30 @@
 import { IBusinessInfor } from "../interfaces/auth.interface";
 
 export class BusinessBuilder<T extends IBusinessInfor> {
-  private phone?: string;
-  private taxCode?: string;
-  private address?: string;
-  private name?: string;
+  private data = {} as T;
 
   withPhone(phone: string) {
-    this.phone = phone;
+    this.data.phone = phone as T["phone"];
     return this;
   }
+
   withTaxCode(taxCode: string) {
-    this.taxCode = taxCode;
+    this.data.taxCode = taxCode as T["taxCode"];
     return this;
   }
+
   withAddress(address: string) {
-    this.address = address;
+    this.data.address = address as T["address"];
     return this;
   }
+
   withName(name: string) {
-    this.name = name;
+    this.data.name = name as T["name"];
     return this;
   }
-  build() {
-    const phone = this.phone
-    const taxCode = this.taxCode
-    const address = this.address
-    const name = this.name
-    return {
-      name, phone, taxCode, address
-    }
+
+  build(): T {
+    return this.data;
   }
 }
 

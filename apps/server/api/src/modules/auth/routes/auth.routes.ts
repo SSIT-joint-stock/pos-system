@@ -1,13 +1,20 @@
 import { Router } from "express";
 import {
+  BusinessController,
   ManualAuthController,
   OAuthAuthController,
 } from "../controllers/auth.controller";
 import actionMiddleware from "@/shared/middleware/action.middleware";
+import {
+  AuthMiddleware,
+  jwtAccessUtils,
+} from "@/shared/middleware/auth.middleware";
 
 const router = Router();
+const authMiddleware = new AuthMiddleware();
 const manualAuthController = new ManualAuthController();
 const oauthAuthController = new OAuthAuthController();
+const businessController = new BusinessController();
 
 router.post("/login", actionMiddleware("login"), manualAuthController.handle());
 router.post(
@@ -46,5 +53,16 @@ router.post(
   actionMiddleware("oauth_callback"),
   oauthAuthController.handle()
 );
+router.post(
+  "/refresh",
+  authMiddleware.verifyRefreshToken(),
+  actionMiddleware("refresh"),
+  manualAuthController.handle()
+);
+router.post(
+  "business",
+  authMiddleware.verifyAccessToken(),
+  businessController.handle()
+)
 
 export { router as authRoutes };
