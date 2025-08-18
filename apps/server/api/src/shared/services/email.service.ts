@@ -9,7 +9,7 @@ export class EmailServiceSingleton {
   private static instance: EmailServiceSingleton | null = null;
   private client!: EmailQueueService;
 
-  private constructor() {}
+  private constructor() { }
 
   public static getInstance(): EmailServiceSingleton {
     if (!EmailServiceSingleton.instance) {
@@ -34,15 +34,6 @@ export class EmailServiceSingleton {
       },
       logLevel: "debug",
       ...options,
-      // Optional: queue overrides
-      // queue: {
-      //   name: process.env.EMAIL_QUEUE_NAME,
-      //   prefix: process.env.EMAIL_QUEUE_PREFIX,
-      //   attempts: parseInt(process.env.EMAIL_QUEUE_ATTEMPTS || '3', 10),
-      //   backoffDelay: parseInt(process.env.EMAIL_QUEUE_BACKOFF || '10000', 10),
-      //   removeOnComplete: parseInt(process.env.EMAIL_QUEUE_REMOVE_ON_COMPLETE || '200', 10),
-      //   removeOnFail: parseInt(process.env.EMAIL_QUEUE_REMOVE_ON_FAIL || '2000', 10),
-      // },
     };
 
     console.log("env", config);

@@ -38,9 +38,16 @@ export const resetPasswordSchema = z.object({
   resetToken: z.string().min(10),
 });
 
+export const businessSchema = z.object({
+  name: z.string().min(1),
+  phone: z.string().min(1),
+  address: z.string().min(1),
+  taxCode: z.string().min(1),
+});
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type VerifyCodeInput = z.infer<typeof verifyCodeSchema>;
 export type ReSendVerifyInput = z.infer<typeof reSendVerificationCodeSchema>;
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
+export type BusinessInfoInput = z.infer<typeof businessSchema>;

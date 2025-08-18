@@ -17,8 +17,9 @@ import {
   PickUserFields,
 } from "@modules/auth/interfaces/auth.interface";
 import { sendVerificationCode } from "@/shared/utils/sendEmail";
-import { CreateCodeUtils } from "@/shared/utils/createCode";
+import { CreateCodeUtils } from "@/shared/utils/code";
 import { log } from "console";
+import { EmailServiceSingleton } from "@/shared/services/email.service";
 
 export class ManualStrategy implements ManualAuthStrategy {
   public readonly name = "manual" as const;
@@ -96,11 +97,8 @@ export class ManualStrategy implements ManualAuthStrategy {
 
     const otp = this.createCode.createCode();
     const otpExpired = this.createCode.setCodeExpiry;
-
-    await sendVerificationCode(
-      credentials.email,
-      // 'xuanhoa0379367667@gmail.com',
-      "Xác thực đăng nhập",
+    const emailQueueService = EmailServiceSingleton.getInstance()
+    const htmlBody =
       `
             <b>Chào mừng bạn đến với hệ thống của chúng tôi!</b><br><br>
             <p>Vui lòng sử dụng mã OTP dưới đây để xác thực tài khoản của bạn:</p>
@@ -109,8 +107,20 @@ export class ManualStrategy implements ManualAuthStrategy {
             <p>Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!</p>
             <hr>
             <p style="font-size: 12px; color: #777;">Nếu bạn không yêu cầu đăng ký tài khoản này, vui lòng bỏ qua email này.</p>
-        `
-    );
+    `
+    const textBody = "Đây là email được gửi từ eraPos"
+    await emailQueueService.sendEmail(
+      htmlBody,
+      {
+        // to: process.env.EMAIL_TEST_RECIPIENT,
+        to: credentials.email,
+        subject: 'Xác thực đăng nhập',
+        cc: [],
+        bcc: [],
+        priority: 'high',
+      },
+      textBody
+    )
 
     const user = await this.users.create({
       email: credentials.email,
