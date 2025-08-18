@@ -19,24 +19,22 @@ export class AuthMiddleware {
   verifyAccessToken() {
     return async (req: RegisterWithAuth, res: Response, next: NextFunction) => {
       try {
-        const authHeader = req.headers["authorization"];
-
+        const authHeader = req.headers.authorization;
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
           return res.status(401).json({ message: "No access token provided" });
         }
 
         const token = authHeader.split(" ")[1];
         const payload = jwtAccessUtils.verifyToken(token); // ✅ dùng access secret
-        req.userId = (payload as any).id;
+        console.log(payload);
+        req.userId = (payload as any).sub;
         const isActive = await this.useRepo.isActive(req.userId);
         if (!isActive) {
           return res.status(403).json({ message: "User not active" });
         }
         next();
       } catch (err) {
-        return res
-          .status(401)
-          .json({ message: "Invalid or expired access token" });
+        return res.status(401).json({ message: "Invalid or Expired Token" });
       }
     };
   }
@@ -50,7 +48,7 @@ export class AuthMiddleware {
         }
 
         const payload = jwtRefreshUtils.verifyToken(token);
-        req.userId = (payload as any).id;
+        req.userId = (payload as any).sub;
         next();
       } catch (err) {
         return res

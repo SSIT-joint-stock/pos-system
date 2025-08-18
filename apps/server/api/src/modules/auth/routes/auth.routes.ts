@@ -60,9 +60,9 @@ router.post(
   manualAuthController.handle()
 );
 router.post(
-  "business",
+  "/business",
   authMiddleware.verifyAccessToken(),
   businessController.handle()
-)
+);
 
 export { router as authRoutes };

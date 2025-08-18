@@ -2,6 +2,7 @@ import { IBaseController } from "./../../../shared/interfaces/controller-base.in
 import type { Response, NextFunction } from "express";
 import { BaseController } from "@shared/interfaces/controller-base.interface";
 import { AuthService } from "@modules/auth/services/auth.service";
+import ms from "ms";
 import {
   loginSchema,
   registerSchema,
@@ -65,12 +66,12 @@ export class ManualAuthController extends BaseController {
     const result = await this.service.login(data);
 
     res.setHeader("Authorization", `Bearer ${result.accessToken}`);
-
+    
     res.cookie("refreshToken", result.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: Number(process.env.JWT_REFRESH_EXPIRY),
+      maxAge: ms(process.env.JWT_REFRESH_EXPIRY),
     });
 
     this.sendResponse(res, ApiResponse.success(result, "Login successful"));
@@ -214,9 +215,6 @@ export class BusinessController extends BaseController {
       req.body,
       businessSchema
     );
-
-    // Lấy userId từ request (AuthMiddleware đã set)
-    const userId = this.getUserId(req);
 
     // Thêm business info
     const result = await this.service.addBusinessInfor(
