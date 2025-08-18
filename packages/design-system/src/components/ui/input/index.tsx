@@ -58,7 +58,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       <div className={`flex flex-col gap-1 ${className ?? ""}`} style={style}>
         {label && (
           <span
-            className={`${error ? "text-red-500" : "text-gray-900"} text-sm font-medium`}>
+            className={`${error ? "text-red-500" : "text-gray-500"} text-sm font-medium`}>
             {label}
           </span>
         )}

@@ -16,7 +16,6 @@ export function FormBusinessInfo({
       <Select
         leftSection={<Component size={16} />}
         size="sm"
-        radius="xl"
         data={["Doanh nghiệp A", "Doanh nghiệp B", "Doanh nghiệp C"]}
         placeholder="Chọn mô hình kinh doạnh"
         label="Mô hình kinh doạnh"
@@ -26,7 +25,6 @@ export function FormBusinessInfo({
         type="text"
         label="Tên doanh nghiệp"
         placeholder="Doanh nghiệp ABC"
-        radius="xl"
         leftSection={<Warehouse size={16} />}
       />
       <Input
@@ -34,21 +32,21 @@ export function FormBusinessInfo({
         type="text"
         label="Tên người đại diện"
         placeholder="Nguyen Van A"
-        radius="xl"
+       
         leftSection={<User size={16} />}
       />
       <Input
         leftSection={<MapPin size={16} />}
         size="sm"
         label="Địa chỉ"
-        radius="xl"
+        
         placeholder="Địa chỉ doanh ngiệp"
       />
       {/* Sign up button */}
       <Button
         type="submit"
         size="sm"
-        radius="xl"
+        
         title="Tiếp tục"
         variant="filled"
       />

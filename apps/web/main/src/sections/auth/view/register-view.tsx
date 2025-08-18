@@ -7,7 +7,7 @@ import {
   FormActiveAccount,
   FormRegister,
   FormBusinessInfo,
-} from "../components/form";
+} from "../components/Form";
 
 const steps = [
   {
@@ -81,7 +81,6 @@ export function RegisterView() {
             <RouterLink className="w-full flex" href="/auth/login">
               <Button
                 className="flex-1"
-                radius="xl"
                 size="sm"
                 type="submit"
                 title="Tiếp tục"

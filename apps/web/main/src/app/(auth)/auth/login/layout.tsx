@@ -12,13 +12,13 @@ export default function SigninLayout({
       <div className="flex flex-col items-center justify-center w-full max-w-xl mx-auto p-6  ">
         {children}
       </div>
-      <div className="md:flex flex-col gap-2 items-center justify-center hidden">
+      <div className="md:flex flex-col gap-2 items-center justify-center hidden select-none pointer-events-none ">
         <Image
           width={420}
           height={420}
           src={"https://app.easyposs.vn/content/img/login/background.png"}
           alt="Background"
-          className="object-cover"
+          className="object-cover "
         />
         <Image
           src={
@@ -30,7 +30,7 @@ export default function SigninLayout({
           className="object-cover rounded-full"
         />
         <div className="flex gap-2 flex-col text-xs mt-2">
-          <h2 className="text-pos-blue-500 font-medium  uppercase">
+          <h2 className="text-pos-blue-500 font-medium  uppercase ">
             Công ty cổ phần đầu tư công nghệ và truyền thông SS-IT{" "}
           </h2>
           <span className="text-gray-500 flex items-center gap-2">

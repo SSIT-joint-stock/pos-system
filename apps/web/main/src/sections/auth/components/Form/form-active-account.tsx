@@ -22,7 +22,6 @@ export function FormActiveAccount({
         type="email"
         value="tranhuuthanhcp@gmail.com"
         label="Email"
-        radius="xl"
         leftSection={<Mail size={16} />}
       />
 
@@ -31,7 +30,6 @@ export function FormActiveAccount({
         type="text"
         label="Code"
         placeholder="Nhập code"
-        radius="xl"
         leftSection={<Barcode size={16} />}
       />
 
@@ -39,7 +37,7 @@ export function FormActiveAccount({
       <Button
         type="submit"
         size="sm"
-        radius="xl"
+        
         title="Xác thực tài khoản"
         variant="filled"
       />

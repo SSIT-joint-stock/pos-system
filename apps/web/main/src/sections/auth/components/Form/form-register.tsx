@@ -37,7 +37,6 @@ export function FormRegister({
         size="sm"
         type="text"
         label="Họ và tên"
-        radius="xl"
         placeholder="Nguyen Van A"
         leftSection={<User size={16} />}
       />
@@ -48,7 +47,6 @@ export function FormRegister({
         size="sm"
         type="email"
         label="Email"
-        radius="xl"
         placeholder="example@gmail.com"
         leftSection={<Mail size={16} />}
       />
@@ -59,7 +57,6 @@ export function FormRegister({
         size="sm"
         type="tel"
         label="Số điện thoại"
-        radius="xl"
         placeholder="0123456789"
         leftSection={<Phone size={16} />}
       />
@@ -70,24 +67,16 @@ export function FormRegister({
         size="sm"
         type="password"
         label="Password"
-        radius="xl"
         placeholder="**********"
         leftSection={<Lock size={16} />}
       />
 
       {/* Sign in button */}
-      <Button
-        type="submit"
-        size="sm"
-        radius="xl"
-        title="Tiếp tục"
-        variant="filled"
-      />
+      <Button type="submit" size="sm" title="Tiếp tục" variant="filled" />
       {/* Google sign in */}
       <Button
         type="button"
         size="sm"
-        radius="xl"
         variant="default"
         icon={<Image src={GoogleIC} alt="google-ic" />}
         title="Tiếp tục với Google"
