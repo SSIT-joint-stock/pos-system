@@ -16,54 +16,20 @@ export function DashboardView() {
   return (
     <div className="h-full ">
       <div className="grid grid-cols-4 gap-5 ">
-        <ItemBoxChart title="Doanh Thu Hôm Nay" reveneu={"500.000.000d"} percent={"55"} icon={<Wallet />} />
-        <ItemBoxChart
-          title="Tiền Nhập Hàng Tháng Này"
-          reveneu={"900.000.000d"}
-          percent={"36"}
-          icon={<CloudDownload />}
-        />
-        <ItemBoxChart title="Tổng Tiền Lãi Tháng Này" reveneu={"30.102.005"} percent={"10"} icon={<HandCoins />} />
-        <ItemBoxChart title="Tổng Doanh Thu Tháng" reveneu={"500.000.000.000d"} percent={"5"} icon={<PiggyBank />} />
+        <ItemBoxChart title="Doanh Thu Hôm Nay" reveneu={500000000} percent={55} icon={<Wallet />} />
+        <ItemBoxChart title="Tiền Nhập Hàng Tháng Này" reveneu={900000000} percent={36} icon={<CloudDownload />} />
+        <ItemBoxChart title="Tổng Tiền Lãi Tháng Này" reveneu={30102005} percent={10} icon={<HandCoins />} />
+        <ItemBoxChart title="Tổng Doanh Thu Tháng" reveneu={500000000000} percent={5} icon={<PiggyBank />} />
       </div>
-      <div className="flex items-center gap-4 py-3 px-1mt-4 h-[75%]">
-        <div className="w-[74.5%] h-full bg-white rounded-md drop-shadow-md">
+      <div className="flex items-center gap-4  mt-5   h-[75%]">
+        <div className="w-[74.5%] h-full bg-white rounded-xl drop-shadow-md py-3 px-1">
           <LineChart />
         </div>
-        <div className="w-[24%] ml-1.5 h-full drop-shadow-md">
-          {/* Tiêu đề */}
-          <div className="w-[98%] h-full bg-white rounded-b-md overflow-y-auto scrollbar-thin scrollbar-thumb-blue-50 scrollbar-track-transparent">
-            <div className=" bg-pos-blue-400 text-white text-center py-3 rounded-t-md ">
-              <h2 className="font-bold text-lg flex justify-center items-center gap-2">
-                <TrendingUp size={20} /> Top 7 Sản Phẩm Bán Chạy
-              </h2>
-            </div>
-
-            {/* Danh sách */}
-            <div className=" flex flex-col gap-3  rounded-b-md p-4 ">
-              {topProducts.map((item, index) => (
-                <div
-                  key={index}
-                  className="flex justify-between items-center bg-gray-50 hover:bg-blue-50 transition-all duration-300 p-3 rounded-lg shadow-sm hover:shadow-md cursor-pointer transform hover:-translate-y-1"
-                >
-                  <div className="flex items-center gap-3">
-                    {index === 0 && <Award className="text-yellow-400" size={20} />}
-                    {index === 1 && <Award className="text-gray-400" size={20} />}
-                    {index === 2 && <Award className="text-orange-500" size={20} />}
-                    {index > 2 && item.icon}
-                    <span className="font-medium text-sm truncate whitespace-nowrap overflow-hidden max-w-[120px]">
-                      {item.name}
-                    </span>
-                  </div>
-                  <span className="text-gray-600 font-semibold text-xs">{item.orders.toLocaleString()} đơn</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
       </div>
 
+      {/* <div className="w-full h-full"> */}
       <PieChart />
+      {/* </div> */}
     </div>
   );
 }
