@@ -7,51 +7,13 @@ import {
 } from "lucide-react";
 import React from "react";
 
-const productItems = [
-  {
-    id: 1,
-    productName: "nuoc tang luc",
-    stock: 299,
-    price: "13.000d",
-  },
-  {
-    id: 2,
-    productName: "nuoc tang luc",
-    stock: 299,
-    price: "13.000d",
-  },
-  {
-    id: 3,
-    productName: "nuoc tang luc",
-    stock: 299,
-    price: "13.000d",
-  },
-  {
-    id: 4,
-    productName: "nuoc tang luc",
-    stock: 299,
-    price: "13.000d",
-  },
-  {
-    id: 5,
-    productName: "nuoc tang luc",
-    stock: 299,
-    price: "13.000d",
-  },
-  {
-    id: 6,
-    productName: "nuoc tang luc",
-    stock: 299,
-    price: "13.000d",
-  },
-];
 const products = [
   {
     name: "Casual Sunglass",
     category: "Sunglass",
     stock: 124,
     stockStatus: "Low Stock",
-    price: "$47",
+    price: "400000",
     status: "Published",
   },
   {
@@ -59,7 +21,7 @@ const products = [
     category: "Clothes",
     stock: 124,
     stockStatus: "",
-    price: "$47",
+    price: "400000",
     status: "Published",
   },
   {
@@ -67,7 +29,7 @@ const products = [
     category: "Beauty",
     stock: 0,
     stockStatus: "Out of Stock",
-    price: "$47",
+    price: "400000",
     status: "Draft List",
   },
   {
@@ -75,7 +37,7 @@ const products = [
     category: "Clothes",
     stock: 124,
     stockStatus: "Low Stock",
-    price: "$47",
+    price: "200000000",
     status: "Inactive",
   },
   {
@@ -83,7 +45,7 @@ const products = [
     category: "Clothes",
     stock: 0,
     stockStatus: "Out of Stock",
-    price: "$47",
+    price: "400000",
     status: "Stock Out",
   },
   {
@@ -91,7 +53,7 @@ const products = [
     category: "Cap",
     stock: 124,
     stockStatus: "",
-    price: "$47",
+    price: "400000",
     status: "Published",
   },
   {
@@ -99,7 +61,7 @@ const products = [
     category: "Shoes",
     stock: 124,
     stockStatus: "",
-    price: "$47",
+    price: "400000",
     status: "Inactive",
   },
   {
@@ -107,7 +69,7 @@ const products = [
     category: "Electronic",
     stock: 124,
     stockStatus: "Low Stock",
-    price: "$47",
+    price: "400000",
     status: "Stock Out",
   },
   {
@@ -115,7 +77,7 @@ const products = [
     category: "Watch",
     stock: 124,
     stockStatus: "Low Stock",
-    price: "$47",
+    price: "400000",
     status: "Stock Out",
   },
 ];
@@ -147,7 +109,7 @@ export function ManageView() {
           </button>
         </div>
       </div>
-      <div className="bg-white mt-10 rounded-md p-4">
+      <div className="bg-white mt-8 rounded-md p-4">
         <div className="flex items-center justify-between w-full">
           <input
             type="search"
@@ -193,7 +155,7 @@ export function ManageView() {
               {products.map((product, idx) => (
                 <tr
                   key={idx}
-                  className="border-b border-b-gray-100 hover:bg-gray-50">
+                  className="border-b border-b-gray-100 hover:bg-gray-50 transition-colors duration-300">
                   <td className="py-4 px-2 flex items-center gap-2">
                     {/* Placeholder for image */}
                     <div className="w-8 h-8 bg-gray-200 rounded" />
@@ -219,7 +181,10 @@ export function ManageView() {
                     )}
                   </td>
                   <td className="py-4 px-2 text-sm text-gray-500">
-                    {product.price}
+                    {Intl.NumberFormat("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    }).format(Number(product.price))}
                   </td>
                   <td>
                     <span
@@ -228,7 +193,7 @@ export function ManageView() {
                     </span>
                   </td>
                   <td>
-                    <button className="cursor-pointer bg-white rounded-full ">
+                    <button className="cursor-pointer hover:bg-white p-2 transition-colors duration-300 rounded-full ">
                       <Ellipsis size={18} />
                     </button>
                   </td>
@@ -236,6 +201,11 @@ export function ManageView() {
               ))}
             </tbody>
           </table>
+        </div>
+        <div className="mt-8">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-800 font-medium">Hiển thị: </span>
+          </div>
         </div>
       </div>
     </div>
