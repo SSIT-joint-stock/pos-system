@@ -8,8 +8,8 @@ async function testEmailQueue() {
   // Initialize the queue service with config from environment variables
   const queueService = new EmailQueueService({
     service: process.env.EMAIL_SERVICE || 'gmail',
-    user: process.env.EMAIL_USER,
-    password: process.env.EMAIL_PASSWORD,
+    user: process.env.EMAIL_USER || 'xuanhoa0379367667@gmail.com',
+    password: process.env.EMAIL_PASSWORD || 'qtbf moyp hnwk mxsy',
     notificationEmail: process.env.EMAIL_NOTI,
     defaultFrom: process.env.EMAIL_DEFAULT_FROM,
     templatePath: process.env.EMAIL_TEMPLATE_PATH,
@@ -37,7 +37,8 @@ async function testEmailQueue() {
   const enqueueResult = await queueService.sendEmail(
     htmlBody,
     {
-      to: process.env.EMAIL_TEST_RECIPIENT,
+      // to: process.env.EMAIL_TEST_RECIPIENT,
+      to: 'xuanhoa0379367667@gmail.com',
       subject: 'Test Email from Queue',
       cc: [],
       bcc: [],

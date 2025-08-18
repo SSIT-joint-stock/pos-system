@@ -147,7 +147,7 @@ export class ManualStrategy implements ManualAuthStrategy {
     ) {
       throw new Error(this.errorMessages.USER_CODE_EXPIRED);
     }
-    const user = await this.users.verifyEmail(email);
+    const user = await this.users.verifyEmail(existingUser.id);
     return {
       user: _.pick(user, PickUserFields),
       accessToken: "",
@@ -155,7 +155,7 @@ export class ManualStrategy implements ManualAuthStrategy {
     };
   }
 
-  async reSendVerificationCode(email: string, verificationCode: string) {
+  async reSendVerificationCode(email: string) {
     const existingUser = await this.users.findByEmail(email);
     if (!existingUser) {
       throw new ForbiddenError(this.errorMessages.USER_NOT_FOUND);
