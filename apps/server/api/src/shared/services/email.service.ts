@@ -68,5 +68,7 @@ export class EmailServiceSingleton {
   }
 }
 
+
+
 export const EmailService = EmailServiceSingleton.getInstance();
 export default EmailService;

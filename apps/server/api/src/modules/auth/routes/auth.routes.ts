@@ -27,6 +27,11 @@ router.post(
   actionMiddleware("verify-code"),
   manualAuthController.handle()
 );
+router.get(
+  "/verify-code-by-email-link",
+  actionMiddleware("verify-code-by-email-link"),
+  manualAuthController.handle()
+);
 router.post(
   "/resend-code",
   actionMiddleware("resend-code"),

@@ -5,7 +5,7 @@ export class CreateCodeUtils {
   private static readonly EXPIRY_MS =
     CreateCodeUtils.EXPIRY_MINUTES * 60 * 1000;
 
-  constructor(private readonly saltRounds: number = 10) {}
+  constructor(private readonly saltRounds: number = 10) { }
 
   createCode(): string {
     return Math.floor(
@@ -21,5 +21,8 @@ export class CreateCodeUtils {
     return Math.floor(
       CreateCodeUtils.OTP_MIN + Math.random() * CreateCodeUtils.OTP_RANGE
     ).toString();
+  }
+  getExpiryMinutes(): number {
+    return CreateCodeUtils.EXPIRY_MINUTES;
   }
 }

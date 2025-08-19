@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import _, { now } from "lodash";
+import jwt from 'jsonwebtoken';
 // repo
 import { env } from "@repo/config-env";
 import { UserProvider } from "@repo/database";
@@ -16,10 +17,11 @@ import {
   RegisterCredentials,
   PickUserFields,
 } from "@modules/auth/interfaces/auth.interface";
-import { sendVerificationCode } from "@/shared/utils/sendEmail";
 import { CreateCodeUtils } from "@/shared/utils/code";
 import { log } from "console";
-import { EmailServiceSingleton } from "@/shared/services/email.service";
+import EmailService from "@/shared/services/email.service";
+import { buildVerifyLink } from "@/shared/utils/verify-link";
+import { buildEmailTemplate } from "@/shared/services/email/email-template";
 
 export class ManualStrategy implements ManualAuthStrategy {
   public readonly name = "manual" as const;
@@ -27,6 +29,7 @@ export class ManualStrategy implements ManualAuthStrategy {
   private readonly bcrypt = new BcryptUtils();
   private readonly tokenService = new TokenService();
   private readonly createCode = new CreateCodeUtils();
+  private readonly tokenBuilder;
 
   private readonly errorMessages = {
     INVALID_CREDENTIALS: "Email hoặc mật khẩu không chính xác",
@@ -37,6 +40,18 @@ export class ManualStrategy implements ManualAuthStrategy {
     USER_CODE_EXPIRED: "Mã otp quá hạn ",
     USER_TOO_FAST: "Người dùng thao tác quá nhanh, Doi 5s de gui lai",
   };
+
+  constructor() {
+    this.tokenBuilder = new TokenService().builder()
+      .withIssuer(env.JWT_ISSUER)
+      .withAudience(env.JWT_AUDIENCE)
+      .withAccessSecret(env.JWT_ACCESS_SECRET)
+      .withAccessExpiresIn(env.JWT_ACCESS_EXPIRY)
+      .withRefreshSecret(env.JWT_REFRESH_SECRET)
+      .withRefreshExpiresIn(env.JWT_REFRESH_EXPIRY)
+      .withVerifySecret(env.JWT_VERIFY_SECRET)
+      .withVerifyExpiresIn(env.JWT_VERIFY_EXPIRY)
+  }
 
   canHandle(): boolean {
     return true;
@@ -67,15 +82,8 @@ export class ManualStrategy implements ManualAuthStrategy {
     }
 
     // generate token
-    const { accessToken, refreshToken } = this.tokenService
-      .builder()
-      .withIssuer(env.JWT_ISSUER)
-      .withAudience(env.JWT_AUDIENCE)
-      .withSubject(user.id)
-      .withAccessSecret(env.JWT_ACCESS_SECRET)
-      .withAccessExpiresIn(env.JWT_ACCESS_EXPIRY)
-      .withRefreshSecret(env.JWT_REFRESH_SECRET)
-      .withRefreshExpiresIn(env.JWT_REFRESH_EXPIRY)
+    const { accessToken, refreshToken } = this.tokenBuilder
+      .withSubject(user.id) // chỉ thay đổi subject động
       .buildPair({});
 
     // update user last login at
@@ -96,25 +104,22 @@ export class ManualStrategy implements ManualAuthStrategy {
     }
 
     const otp = this.createCode.createCode();
-    const otpExpired = this.createCode.setCodeExpiry;
-    const emailQueueService = EmailServiceSingleton.getInstance()
-    const htmlBody =
-      `
-            <b>Chào mừng bạn đến với hệ thống của chúng tôi!</b><br><br>
-            <p>Vui lòng sử dụng mã OTP dưới đây để xác thực tài khoản của bạn:</p>
-            <h2 style="text-align: center; color: #4CAF50;">${otp}</h2>
-            <p>Mã OTP này sẽ hết hạn trong ${otpExpired} phút.</p>
-            <p>Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!</p>
-            <hr>
-            <p style="font-size: 12px; color: #777;">Nếu bạn không yêu cầu đăng ký tài khoản này, vui lòng bỏ qua email này.</p>
-    `
-    const textBody = "Đây là email được gửi từ eraPos"
-    await emailQueueService.sendEmail(
+    const otpExpired = this.createCode.setCodeExpiry();
+    const expiryMinutes = this.createCode.getExpiryMinutes()
+
+    const signEmailVerifyToken = this.tokenBuilder
+      .withSubject(credentials.email) // chỉ thay đổi subject động
+      .buildEmailVerifyToken({});
+    const link = buildVerifyLink(signEmailVerifyToken)
+
+    // const { subject, htmlBody, textBody } = emailVerifyTemplate(otp, expiryMinutes, link)
+    const { subject, htmlBody, textBody } = buildEmailTemplate({ type: "verify", otp, minutes: expiryMinutes, link })
+
+    await EmailService.sendEmail(
       htmlBody,
       {
-        // to: process.env.EMAIL_TEST_RECIPIENT,
         to: credentials.email,
-        subject: 'Xác thực đăng nhập',
+        subject: subject,
         cc: [],
         bcc: [],
         priority: 'high',
@@ -132,7 +137,7 @@ export class ManualStrategy implements ManualAuthStrategy {
       phone: null,
       avatar: null,
       verificationCode: otp,
-      verificationCodeExpired: otpExpired(),
+      verificationCodeExpired: otpExpired,
       resetToken: null,
     });
 
@@ -141,6 +146,26 @@ export class ManualStrategy implements ManualAuthStrategy {
       accessToken: "",
       refreshToken: "",
     };
+  }
+
+  async verifyCodeByEmailLink(token: string) {
+    const payload = jwt.verify(token, env.JWT_VERIFY_SECRET)
+    const email = String(payload.sub).trim().toLowerCase();
+    const existingUser = await this.users.findByEmail(email);
+    if (!payload?.sub) {
+      throw new BadRequestError("Token không hợp lệ (thiếu email)", "INVALID_TOKEN");
+    }
+    if (!existingUser) {
+      throw new ForbiddenError(this.errorMessages.USER_NOT_FOUND);
+    }
+    if (existingUser.emailVerified) {
+      throw new BadRequestError("Tài khoản đã được xác thực trước đó", "ALREADY_VERIFIED");
+    }
+
+    if (!existingUser.isActive) {
+      throw new BadRequestError("Tài khoản đã bị khóa", "USER_NOT_ACTIVE");
+    }
+    await this.users.verifyEmail(existingUser.id);
   }
 
   async verifyCode(email: string, verificationCode: string) {
@@ -171,7 +196,8 @@ export class ManualStrategy implements ManualAuthStrategy {
       throw new ForbiddenError(this.errorMessages.USER_NOT_FOUND);
     }
     const otp = this.createCode.createCode();
-    const otpExpired = this.createCode.setCodeExpiry;
+    const otpExpired = this.createCode.setCodeExpiry();
+    const expiryMinutes = this.createCode.getExpiryMinutes()
 
     const prevSent = existingUser.verificationCodeExpired
       ? new Date(existingUser.verificationCodeExpired).getTime()
@@ -186,31 +212,33 @@ export class ManualStrategy implements ManualAuthStrategy {
 
     await this.users.update(existingUser.id, {
       verificationCode: otp,
-      verificationCodeExpired: otpExpired(),
+      verificationCodeExpired: otpExpired,
     });
-    await sendVerificationCode(
-      email,
-      // 'xuanhoa0379367667@gmail.com',
-      "Xác thực đăng nhập",
-      `
-            <b>Chào mừng bạn đến với hệ thống của chúng tôi!</b><br><br>
-            <p>Vui lòng sử dụng mã OTP dưới đây để xác thực tài khoản của bạn:</p>
-            <h2 style="text-align: center; color: #4CAF50;">${otp}</h2>
-            <p>Mã OTP này sẽ hết hạn trong ${otpExpired} phút.</p>
-            <p>Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!</p>
-            <hr>
-            <p style="font-size: 12px; color: #777;">Nếu bạn không yêu cầu đăng ký tài khoản này, vui lòng bỏ qua email này.</p>
-        `
-    );
+
+    const signEmailVerifyToken = this.tokenBuilder
+      .withSubject(email) // chỉ thay đổi subject động
+      .buildEmailVerifyToken({});
+    const link = buildVerifyLink(signEmailVerifyToken)
+
+    // const { subject, htmlBody, textBody } = emailVerifyTemplate(otp, expiryMinutes, link)
+    const { subject, htmlBody, textBody } = buildEmailTemplate({ type: "verify", otp, minutes: expiryMinutes, link })
+
+    await EmailService.sendEmail(
+      htmlBody,
+      {
+        to: email,
+        subject: subject,
+        cc: [],
+        bcc: [],
+        priority: 'high',
+      },
+      textBody
+    )
     return {
       user: _.pick(existingUser, PickUserFields),
       accessToken: "",
       refreshToken: "",
     };
-
-    // async forgotPassword(email: string) {
-
-    // }
   }
   async forgotPassword(email: string) {
     const existingUser = await this.users.findByEmail(email);
@@ -221,29 +249,21 @@ export class ManualStrategy implements ManualAuthStrategy {
 
     await this.users.update(existingUser.id, { resetToken: resetTokenValue });
     const resetLink = `${env.BASE_URL}/api/v1/auth/resetPassword?resetToken=${resetTokenValue}`;
-    await sendVerificationCode(
-      email,
-      // 'xuanhoa0379367667@gmail.com',
-      "Yêu cầu đổi mật khẩu",
-      `
-        <b>Xin chào!</b><br><br>
-        <p>Bạn vừa yêu cầu đặt lại mật khẩu cho tài khoản của mình.</p>
-        <p>Vui lòng nhấp vào liên kết dưới đây để thay đổi mật khẩu:</p>
-        <p style="text-align: center;">
-          <a href="${resetLink}" 
-            style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; 
-                    color: white; text-decoration: none; border-radius: 5px;">
-            Đổi mật khẩu
-          </a>
-        </p>
-        <p>Liên kết này sẽ hết hạn sau <strong>15 phút</strong>.</p>
-        <p>Nếu bạn không yêu cầu đổi mật khẩu, hãy bỏ qua email này.</p>
-        <hr>
-        <p style="font-size: 12px; color: #777;">
-          Đây là email tự động, vui lòng không trả lời.
-        </p>
-      `
-    );
+    const link = resetLink;
+
+    const { subject, htmlBody, textBody } = buildEmailTemplate({ type: "reset", link })
+
+    await EmailService.sendEmail(
+      htmlBody,
+      {
+        to: email,
+        subject: subject,
+        cc: [],
+        bcc: [],
+        priority: 'high',
+      },
+      textBody
+    )
     return {
       user: _.pick(existingUser, PickUserFields),
       accessToken: "",

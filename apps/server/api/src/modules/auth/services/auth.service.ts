@@ -54,6 +54,10 @@ export class AuthService implements IAuthService {
     return this.manual.verifyCode(email, verificationCode);
   }
 
+  async verifyCodeByEmailLink(token: string) {
+    this.manual.verifyCodeByEmailLink(token)
+  }
+
   //resend otp
   async reSendVerificationCode(email: string, verificationCode: string) {
     return this.manual.reSendVerificationCode(email, verificationCode);
@@ -102,13 +106,13 @@ export class AuthService implements IAuthService {
   ): T extends "manual"
     ? ManualAuthStrategy
     : T extends "oauth"
-      ? OAuthAuthStrategy
-      : never {
+    ? OAuthAuthStrategy
+    : never {
     return AuthStrategyFactory.create(strategy) as T extends "manual"
       ? ManualAuthStrategy
       : T extends "oauth"
-        ? OAuthAuthStrategy
-        : never;
+      ? OAuthAuthStrategy
+      : never;
   }
 }
 

@@ -22,6 +22,7 @@ import {
 import { ApiResponse, BadRequestError } from "@repo/types/response";
 import { RegisterWithAuth, RequestWithTenant } from "@shared/types/request";
 import { jwtAccessUtils } from "@/shared/middleware/auth.middleware";
+import { env } from "@repo/config-env";
 
 export class ManualAuthController extends BaseController {
   private service = new AuthService();
@@ -41,6 +42,9 @@ export class ManualAuthController extends BaseController {
         break;
       case "verify-code":
         await this.handleVerifyCode(req, res, next);
+        break;
+      case "verify-code-by-email-link":
+        await this.handleVerifyCodeByEmailLink(req, res, next);
         break;
       case "resend-code":
         await this.handleReSendVerificationCode(req, res, next);
@@ -66,7 +70,7 @@ export class ManualAuthController extends BaseController {
     const result = await this.service.login(data);
 
     res.setHeader("Authorization", `Bearer ${result.accessToken}`);
-    
+
     res.cookie("refreshToken", result.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -102,7 +106,9 @@ export class ManualAuthController extends BaseController {
     res: Response,
     next: NextFunction
   ): Promise<void> {
-    const data = this.validate<VerifyCodeInput>(req.body, verifyCodeSchema);
+    const email = String(req.query.email);
+    const verificationCode = req.body.verificationCode
+    const data = this.validate<VerifyCodeInput>({ email, verificationCode }, verifyCodeSchema);
     const result = await this.service.verifyCode(
       data.email,
       data.verificationCode
@@ -111,6 +117,19 @@ export class ManualAuthController extends BaseController {
       res,
       ApiResponse.success(result, "Verify code successful")
     );
+  }
+
+  private async handleVerifyCodeByEmailLink(
+    req: RegisterWithAuth,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    const token = req.query.token;
+    if (typeof token !== "string") {
+      throw new BadRequestError("Invalid or missing token");
+    }
+    await this.service.verifyCodeByEmailLink(token);
+    return res.redirect(`${env.BASE_URL}/api/v1/auth/login`);                          // fix this: redirect to login page
   }
 
   private async handleReSendVerificationCode(

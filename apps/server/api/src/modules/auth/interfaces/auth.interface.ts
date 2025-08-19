@@ -54,6 +54,7 @@ export interface ManualAuthStrategy extends AuthStrategy {
   login(credentials: LoginCredentials): Promise<AuthResult>;
   register(credentials: RegisterCredentials): Promise<AuthResult>;
   verifyCode(email: string, verificationCode: string);
+  verifyCodeByEmailLink(token: string): Promise<void>;
   reSendVerificationCode(email: string, verificationCode: string);
   forgotPassword(email: string);
   resetPassword(newPassword: string, resetToken: string);

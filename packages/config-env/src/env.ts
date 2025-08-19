@@ -36,11 +36,11 @@ const schema = z.object({
   MONGODB_REPLICA_SET: z.string().default('rs0'),
   MONGODB_URI: z.string().min(1).default(
     resolvedMongoUrl ||
-      'mongodb://admin:password@127.0.0.1:27017/pos?replicaSet=rs0&authSource=admin'
+    'mongodb://admin:password@127.0.0.1:27017/pos?replicaSet=rs0&authSource=admin'
   ),
   DATABASE_URL: z.string().min(1).default(
     resolvedMongoUrl ||
-      'mongodb://admin:password@127.0.0.1:27017/pos?replicaSet=rs0&authSource=admin'
+    'mongodb://admin:password@127.0.0.1:27017/pos?replicaSet=rs0&authSource=admin'
   ),
   // Legacy support
   DB_MONGO_URI: z.string().optional(),
@@ -77,8 +77,10 @@ const schema = z.object({
   REFRESH_SECRET: z.string().default('example'),
   JWT_ACCESS_SECRET: z.string().default('example'),
   JWT_REFRESH_SECRET: z.string().default('example'),
+  JWT_VERIFY_SECRET: z.string().default('example'),
   JWT_ACCESS_EXPIRY: z.string().default('1d'),
   JWT_REFRESH_EXPIRY: z.string().default('7d'),
+  JWT_VERIFY_EXPIRY: z.string().default('5m'),
   JWT_ISSUER: z.string().default('localhost:8080'),
   JWT_AUDIENCE: z.string().default('localhost:8080'),
   HASH_SECRET: z.string().default('example'),

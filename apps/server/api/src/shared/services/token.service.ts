@@ -1,4 +1,5 @@
 import jwt, { type SignOptions, type JwtPayload } from "jsonwebtoken";
+import { string } from "zod";
 
 type Primitive = string | number | boolean | null;
 
@@ -16,8 +17,10 @@ export interface TokenPair {
 export class JwtBuilder<TPayload extends object = JwtPayload> {
   private accessSecret?: string; // secret for the access token
   private refreshSecret?: string; // secret for the refresh token
+  private verifySecret?: string;
   private accessExpiresIn?: string; // expires in for the access token
   private refreshExpiresIn?: string; // expires in for the refresh token
+  private verifyExpiresIn?: string;
   private issuer?: string; // issuer of the token (e.g. "https://api.example.com")
   private audience?: string | string[]; // audience of the token (e.g. "https://api.example.com")
   private subject?: string; // subject of the token (e.g. "user_id")
@@ -31,12 +34,20 @@ export class JwtBuilder<TPayload extends object = JwtPayload> {
     this.refreshSecret = secret;
     return this;
   }
+  withVerifySecret(secret: string): this {
+    this.verifySecret = secret;
+    return this;
+  }
   withAccessExpiresIn(expiresIn: string): this {
     this.accessExpiresIn = expiresIn;
     return this;
   }
   withRefreshExpiresIn(expiresIn: string): this {
     this.refreshExpiresIn = expiresIn;
+    return this;
+  }
+  withVerifyExpiresIn(expiresIn: string): this {
+    this.verifyExpiresIn = expiresIn;
     return this;
   }
   withIssuer(issuer: string): this {
@@ -88,6 +99,19 @@ export class JwtBuilder<TPayload extends object = JwtPayload> {
       ? this.buildRefreshToken(payload)
       : undefined;
     return { accessToken, refreshToken };
+  }
+
+  buildEmailVerifyToken(payload: TPayload): string {
+    if (!this.verifySecret)
+      throw new Error("VERIFY_SECRET_MISSING");
+    return jwt.sign(payload, this.verifySecret, {
+      algorithm: "HS256",
+      expiresIn: this.accessExpiresIn,
+      issuer: this.issuer,
+      audience: this.audience,
+      subject: this.subject,
+      ...this.additionalOptions,
+    }) as string;
   }
 }
 
