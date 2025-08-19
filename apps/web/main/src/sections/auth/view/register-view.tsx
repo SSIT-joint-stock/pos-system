@@ -7,7 +7,7 @@ import {
   FormActiveAccount,
   FormRegister,
   FormBusinessInfo,
-} from "../components/Form";
+} from "../components/form";
 
 const steps = [
   {

@@ -1,4 +1,4 @@
-import { FormLogin } from "@main/sections/auth/components/Form";
+import { FormLogin } from "@main/sections/auth/components/form";
 import { RouterLink } from "@repo/design-system/routes/components";
 
 export function LoginView() {
