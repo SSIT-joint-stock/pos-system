@@ -18,7 +18,7 @@ export class AsyncMiddleware {
      * @param fn - The middleware function
      * @returns The middleware function
      */
-    public asyncHandler(fn: (req: Request, res: Response, next: NextFunction) => Promise<any>) {
+    public asyncHandler(fn: (req: Request, res: Response, next: NextFunction) => Promise<unknown>) {
         return (req: Request, res: Response, next: NextFunction) => {
             fn(req, res, next).catch(next);
         };

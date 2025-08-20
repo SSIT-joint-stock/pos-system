@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Text, Anchor } from '@mantine/core';
+import { Text, Anchor, TextProps } from '@mantine/core';
 import { cn } from '@repo/utils';
 import { RouterLink } from '@repo/design-system/routes/components';
 
@@ -15,7 +15,7 @@ export type TypographyProps = React.PropsWithChildren & {
   variant?: StyleVariant;
   href?: string;
   className?: string;
-} & Omit<React.ComponentProps<'p'>, 'color'>;
+} & Omit<TextProps, 'color' | 'className'>;
 
 const fontSizePx: Record<SizeVariant, number> = {
   h1: 42,
@@ -68,21 +68,14 @@ export function Typography({
 
   if (href) {
     return (
-      <RouterLink href={href} passHref>
-        <Anchor
-          c={c}
-          underline={variant === 'link' ? 'hover' : 'never'}
-          className={cn(
-            'inline-block transition-colors',
-            variant === 'link' && 'cursor-pointer',
-            className,
-          )}
-          style={style}
-          {...rest as any}
-        >
-          {children}
-        </Anchor>
-      </RouterLink>
+      <Anchor
+        component={RouterLink}
+        href={href}
+        className={cn('inline-block transition-colors', className || '', variant === 'link' && 'cursor-pointer')}
+        style={style}
+      >
+        {children}
+      </Anchor>
     );
   }
 
@@ -91,7 +84,7 @@ export function Typography({
       c={c}
       className={cn('inline-block', className)}
       style={style}
-      {...rest as any}
+      {...rest}
     >
       {children}
     </Text>

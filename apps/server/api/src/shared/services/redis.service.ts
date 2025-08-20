@@ -1,4 +1,4 @@
-import Redis, { type Redis as RedisClient, type RedisOptions } from "ioredis";
+import Redis, { type RedisKey, type Redis as RedisClient, type RedisOptions } from "ioredis";
 import config from "@shared/config/app.config";
 import { createContextLogger } from "@shared/utils/logger";
 
@@ -38,7 +38,7 @@ export class RedisServiceSingleton {
       logger.info("[Redis]: Ready");
     });
     this.client.on("error", (err) => {
-      logger.error("[Redis]: Error", err);
+      logger.error("[Redis]: Error", { error: err.message });
     });
     this.client.on("reconnecting", () => {
       logger.warn("[Redis]: Reconnecting...");
@@ -64,21 +64,21 @@ export class RedisServiceSingleton {
   // Convenience helpers
   public async set(key: string, value: string, expireSeconds?: number): Promise<"OK" | null> {
     if (typeof expireSeconds === "number" && expireSeconds > 0) {
-      return this.client.set(key, value, "EX", expireSeconds);
+      return await this.client.set(key, value, "EX", expireSeconds);
     }
-    return this.client.set(key, value);
+    return await this.client.set(key, value);
   }
 
   public async get<T>(key: string): Promise<T | null> {
-    return this.client.get(key) as unknown as T;
+    return await this.client.get(key) as unknown as T;
   }
 
   public async del(key: string | string[]): Promise<number> {
-    return this.client.del(key as any);
+    return await this.client.del(key as RedisKey);
   }
 
   public async expire(key: string, seconds: number): Promise<number> {
-    return this.client.expire(key, seconds);
+    return await this.client.expire(key, seconds);
   }
 
   public async disconnect(): Promise<void> {

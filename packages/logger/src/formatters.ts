@@ -5,7 +5,7 @@ const { combine, timestamp, printf, errors, json, splat, metadata, simple } = wi
 
 // Custom formatter để có thể thêm các trường tùy ý và xử lý Error object
 const customFormat = (config: Required<LoggerConfigOptions>) => printf(({ level, message, timestamp, service, env, ...meta }) => {
-  let logObject: Record<string, any> = {
+  let logObject: Record<string, unknown> = {
     timestamp,
     level,
     message,
@@ -20,7 +20,7 @@ const customFormat = (config: Required<LoggerConfigOptions>) => printf(({ level,
       message: meta.error.message,
       stack: meta.error.stack,
       name: meta.error.name,
-      ...(meta.error as any), // Ghi thêm các properties khác của error (nếu có)
+      ...(meta.error as unknown as Record<string, unknown>), // Ghi thêm các properties khác của error (nếu có)
     };
   } else if (typeof meta.error === 'object' && meta.error !== null) {
      // Nếu error là object nhưng không phải Error instance (ví dụ từ JSON.parse)

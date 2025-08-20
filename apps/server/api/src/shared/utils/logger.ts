@@ -1,4 +1,4 @@
-import { createLogger, LoggerConfigOptions } from '@repo/logger';
+import { createLogger, type LoggerConfigOptions } from '@repo/logger';
 import config from '@shared/config/app.config';
 
 // Cấu hình logger cho server app
@@ -23,19 +23,19 @@ const logger = createLogger(loggerConfig);
 export default logger;
 
 // Export các helper functions để log theo context
-export const createContextLogger = (context: string, meta?: Record<string, any>) => {
+export const createContextLogger = (context: string, contextMeta?: Record<string, unknown>) => {
     return {
-        info: (message: string, meta?: Record<string, any>) => {
-            logger.info(message, { ...meta, context, ...meta });
+        info: (message: string, meta?: Record<string, unknown>) => {
+            logger.info(message, { ...meta, context, ...contextMeta });
         },
-        error: (message: string, meta?: Record<string, any>) => {
-            logger.error(message, { ...meta, context, ...meta });
+        error: (message: string, meta?: Record<string, unknown>) => {
+            logger.error(message, { ...meta, context, ...contextMeta });
         },
-        warn: (message: string, meta?: Record<string, any>) => {
-            logger.warn(message, { ...meta, context, ...meta });
+        warn: (message: string, meta?: Record<string, unknown>) => {
+            logger.warn(message, { ...meta, context, ...contextMeta });
         },
-        debug: (message: string, meta?: Record<string, any>) => {
-            logger.debug(message, { ...meta, context, ...meta });
+        debug: (message: string, meta?: Record<string, unknown>) => {
+            logger.debug(message, { ...meta, context, ...contextMeta });
         }
     };
 };
@@ -43,8 +43,8 @@ export const createContextLogger = (context: string, meta?: Record<string, any>)
 // Export types
 export type { LoggerInstance } from '@repo/logger';
 export interface ILogger {
-    info(message: string, meta?: Record<string, any>): void;
-    error(message: string, meta?: Record<string, any>): void;
-    warn(message: string, meta?: Record<string, any>): void;
-    debug(message: string, meta?: Record<string, any>): void;
+    info(message: string, meta?: Record<string, unknown>): void;
+    error(message: string, meta?: Record<string, unknown>): void;
+    warn(message: string, meta?: Record<string, unknown>): void;
+    debug(message: string, meta?: Record<string, unknown>): void;
 }

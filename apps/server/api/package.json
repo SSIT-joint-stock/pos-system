@@ -11,11 +11,7 @@
     "dev": "tsup --watch --onSuccess \"npm run start:dev\"",
     "playground": "node playground/test-health.js",
     "clean": "rimraf dist",
-    "type-check": "tsc --noEmit",
-    "lint": "eslint src --ext .ts",
-    "lint:fix": "eslint src --ext .ts --fix",
-    "test": "jest",
-    "test:watch": "jest --watch"
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.864.0",

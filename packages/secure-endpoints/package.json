@@ -33,10 +33,8 @@
         "dev": "tsup --watch",
         "clean": "rimraf dist",
         "test": "jest",
-        "test:watch": "jest --watch",
-        "test:coverage": "jest --coverage",
-        "lint": "eslint src --ext .ts",
-        "clear:force": "rimraf *.js --force"
+        "clear:force": "rimraf *.js --force",
+        "type-check": "tsc --noEmit"
     },
     "dependencies": {
         "@repo/dto": "*",

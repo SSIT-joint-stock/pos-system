@@ -1,10 +1,9 @@
 import { useCallback, useState } from "react";
-import { DoctorSchema } from '@schema/doctor-schema.ts';
 
 export type FilterString = string;
 export type FilterKey = string;
 
-export type UseFilterStringReturn<Schema extends Record<string, any>> = {
+export type UseFilterStringReturn<Schema extends Record<string, string>> = {
 	filter: FilterString,
 	editFilter: (key: keyof Schema, value: string) => void,
 	editMultipleFilter: (filter: Partial<Record<keyof Schema, string>>) => void,
@@ -14,7 +13,7 @@ export type UseFilterStringReturn<Schema extends Record<string, any>> = {
 	resetFilter: () => void
 };
 
-export const useFilterString = <Schema extends Record<string, any>>(filterString: string): UseFilterStringReturn<Schema> => {
+export const useFilterString = <Schema extends Record<string, string>>(filterString: string): UseFilterStringReturn<Schema> => {
 	const [filter, setFilter] = useState<string>(filterString);
 
 	const editFilter = useCallback((key: keyof Schema, value: string) => {
@@ -30,17 +29,10 @@ export const useFilterString = <Schema extends Record<string, any>>(filterString
 		setFilter(parse.join(","));
 	}, [filter]);
 
-	const editMultipleFilter = useCallback((filter: Partial<Record<keyof Schema, string>>) => {
-		const parse = getFilter();
-		Object.assign(parse, filter);
-
-		setFilter(parseToFilter(parse));
-	}, [filter]);
-
-	const parseToFilter = (filter: Record<keyof Schema, string>) => {
+	const parseToFilter = useCallback((filter: Record<keyof Schema, string>) => {
 		const parse = Object.entries(filter).map(([key, value]) => `${key}:${value}`);
 		return parse.join(",");
-	}
+	}, []);
 
 	const removeFilter = useCallback((key: keyof Schema) => {
 		const parse = filter.split(",");
@@ -65,6 +57,14 @@ export const useFilterString = <Schema extends Record<string, any>>(filterString
 		return result as Record<keyof Schema, string>;
 	}, [filter]);
 
+	const editMultipleFilter = useCallback((filter: Partial<Record<keyof Schema, string>>) => {
+		const parse = getFilter();
+		Object.assign(parse, filter);
+
+		setFilter(parseToFilter(parse));
+	}, [getFilter, parseToFilter]);
+
+
 	const setFilterString = useCallback((filterString: string) => {
 		setFilter(filterString);
 	}, []);
@@ -76,9 +76,9 @@ export const useFilterString = <Schema extends Record<string, any>>(filterString
 	return {
 		filter,
 		editFilter,
-		getFilter,
-		removeFilter,
 		editMultipleFilter,
+		removeFilter,
+		getFilter,
 		setFilterString,
 		resetFilter
 	};

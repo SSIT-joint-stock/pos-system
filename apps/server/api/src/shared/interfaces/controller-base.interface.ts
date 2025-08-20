@@ -30,7 +30,7 @@ export interface IBaseController {
    * Validates request data against a Zod schema
    * Throws ValidationError if validation fails
    */
-  validate<T>(data: any, schema: ZodSchema<T>): T;
+  validate<T>(data: T, schema: ZodSchema<T>): T;
 
   /**
    * Extracts and validates pagination parameters from query
@@ -95,7 +95,7 @@ export abstract class BaseController implements IBaseController {
    * Validates data against Zod schema
    * Throws ValidationError if validation fails
    */
-  public validate<T>(data: any, schema: ZodSchema<T>): T {
+  public validate<T>(data: T, schema: ZodSchema<T>): T {
     const result = schema.safeParse(data);
     if (!result.success) {
       throw new ValidationError(result.error.flatten().fieldErrors as Record<string, string[]>);
@@ -133,7 +133,7 @@ export abstract class BaseController implements IBaseController {
    * Extracts user ID from request (after authentication)
    */
   public getUserId(req: Request): string {
-    const userId = (req as any).user?.id;
+    const userId = req.user?.id;
     if (!userId) {
       throw new UnauthorizedError('User ID is required', 'USER_REQUIRED');
     }
