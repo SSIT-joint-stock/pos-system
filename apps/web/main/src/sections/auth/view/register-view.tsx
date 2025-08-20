@@ -17,7 +17,7 @@ const steps = [
   },
   {
     label: "Xác thực tài khoản",
-    description: "Xác minh mã được gửi đến hộp thư đến của bạn.",
+    description: "Xác minh mã được gửi đến email của bạn.",
     icon: <MailCheck size={16} />,
   },
   {

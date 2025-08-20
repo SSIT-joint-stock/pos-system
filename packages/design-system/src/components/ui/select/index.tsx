@@ -19,6 +19,8 @@ export type SelectProps = React.PropsWithChildren & {
   color?: string;
   checkIconPosition?: "left" | "right";
   data: string[];
+  defaultValue?: string;
+  clearable?: boolean;
 };
 export function Select({
   size = "md",
@@ -36,6 +38,8 @@ export function Select({
   color,
   checkIconPosition = "right",
   data,
+  defaultValue,
+  clearable,
 }: SelectProps) {
   return (
     <div className={`flex flex-col gap-1 ${className ?? ""}`} style={style}>
@@ -46,9 +50,10 @@ export function Select({
         </span>
       )}
       <MantineSelect
+        defaultValue={defaultValue}
         radius={radius}
         size={size}
-        clearable
+        clearable={clearable}
         placeholder={placeholder}
         checkIconPosition={checkIconPosition}
         data={data}

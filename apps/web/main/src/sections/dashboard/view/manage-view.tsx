@@ -1,11 +1,18 @@
 "use client";
 import {
+  AutoComplete,
+  DatePickerInput,
+  Pagination,
+  Select,
+} from "@repo/design-system/components/ui";
+import {
   ChevronDown,
   Download,
   Edit,
   Eye,
   ListFilter,
   Plus,
+  Search,
   Trash,
 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
@@ -163,7 +170,7 @@ export function ManageView() {
     }
     const observer = new ResizeObserver((entries) => {
       const { height } = entries[0].contentRect;
-      setSize(`${height * 0.72}px`);
+      setSize(`${height * 0.7}px`);
     });
     observer.observe(refContainer.current);
     return () => observer.disconnect();
@@ -177,31 +184,45 @@ export function ManageView() {
       <div className="flex items-center bg-white p-5 rounded-md">
         <div className="flex items-center w-full gap-2">
           {/* SEARCH */}
-          <input
-            type="search"
-            placeholder="Tìm kiếm sản phẩm..."
-            className=" border border-gray-200 rounded-md py-1 text-xs text-gray-800 placeholder:text-xs placeholder:text-gray-400 px-4 w-[36%] outline-none"
-          />
+          <div className="w-[30%] border border-gray-200 rounded-md   outline-none">
+            <AutoComplete
+              radius="md"
+              size="xs"
+              leftSection={<Search size={16} />}
+              variant="unstyled"
+              placeholder="Tìm kiếm sản phẩm"
+              data={["T-Shirt", "Cap", "Shoes", "Watch", "Sunglass"]}
+              comboboxProps={{
+                transitionProps: { transition: "pop", duration: 200 },
+              }}
+              className="w-full  py-[1px] text-sm text-gray-900 font-medium placeholder:font-normal"
+            />
+          </div>
           {/* FILTER */}
           <div className="flex items-center gap-2 ">
-            <button className="bg-white border border-gray-200 rounded-md flex items-center gap-2 py-2 px-4  cursor-pointer hover:opacity-80 transition-opacity duration-300">
+            <button className="bg-white border text-nowrap border-gray-200 rounded-md flex items-center gap-2 py-2 px-4  cursor-pointer hover:opacity-80 transition-opacity duration-300">
               <span className="text-gray-900 font-medium text-xs">
                 Trạng thái
               </span>
               <ChevronDown size={16} />
             </button>
-            <button className="bg-white border border-gray-200 rounded-md flex items-center gap-2 py-2 px-4  cursor-pointer hover:opacity-80 transition-opacity duration-300">
+            <button className="bg-white text-nowrap border border-gray-200 rounded-md flex items-center gap-2 py-2 px-4  cursor-pointer hover:opacity-80 transition-opacity duration-300">
               <span className="text-gray-900 font-medium text-xs">
                 Danh mục
               </span>
               <ChevronDown size={16} />
             </button>
-            <button className="bg-white border border-gray-200 rounded-md flex items-center gap-2 py-2 px-4  cursor-pointer hover:opacity-80 transition-opacity duration-300">
-              <ListFilter size={16} />
-              <span className="text-gray-900 font-medium text-xs">
-                Lọc sản phẩm
-              </span>
-            </button>
+            <div className="w-[21ch] border border-gray-200 rounded-md   outline-none">
+              <DatePickerInput
+                type="range"
+                variant="unstyled"
+                radius="md"
+                clearable
+                placeholder="VD: 15/08/2025-22/08/2025"
+                size="xs"
+                className="w-fit text-nowrap  py-[1px] px-2 text-sm text-gray-900 font-medium placeholder:font-normal placeholder:text-gray-700"
+              />
+            </div>
           </div>
         </div>
         <div className="flex items-center gap-2 justify-end w-fit">
@@ -218,8 +239,9 @@ export function ManageView() {
           </button>
         </div>
       </div>
-      {/* TABLE */}
+      {/* TABLE AND PAGINATION */}
       <div className="bg-white rounded-md p-5 mt-5">
+        {/* TABLE */}
         <div
           style={{ height: size }}
           className={`overflow-y-auto scrollbar-thin scrollbar-thumb-gray-50 scrollbar-track-transparent`}>
@@ -279,12 +301,23 @@ export function ManageView() {
           </table>
         </div>
         {/* PAGINATION */}
-        <div className="mt-5 ">
+        <div className="mt-5 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-800 font-medium">
+            <span className="text-sm text-gray-800 font-medium">
               Hiển thị:{" "}
             </span>
+            <div className="w-fit">
+              <Select
+                defaultValue="10"
+                size="xs"
+                radius="sm"
+                data={["10", "20", "30", "40", "50"]}
+                className="w-[10ch]"
+              />
+            </div>
           </div>
+
+          <Pagination size="sm" total={10} />
         </div>
       </div>
     </div>

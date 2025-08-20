@@ -50,7 +50,6 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       children,
       isInputPassword,
       error,
-      ...rest
     },
     ref: ForwardedRef<HTMLInputElement>
   ) => {
@@ -76,7 +75,6 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             radius={radius}
             leftSection={leftSection}
             rightSection={rightSection}
-            {...(rest as any)}
           />
         ) : (
           <TextInput
@@ -92,7 +90,6 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             radius={radius}
             leftSection={leftSection}
             rightSection={rightSection}
-            {...(rest as any)}
           />
         )}
         {children}

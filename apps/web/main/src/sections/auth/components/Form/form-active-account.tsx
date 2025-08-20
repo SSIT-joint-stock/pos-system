@@ -1,5 +1,5 @@
-import { Button, Input } from "@repo/design-system/components/ui";
-import { Barcode, Mail, MoveLeft } from "lucide-react";
+import { Button, PinInput } from "@repo/design-system/components/ui";
+import { MoveLeft } from "lucide-react";
 import React from "react";
 
 export function FormActiveAccount({
@@ -15,7 +15,7 @@ export function FormActiveAccount({
     <form
       onSubmit={handleActiveAccount}
       className="flex flex-col gap-4 w-full ">
-      <Input
+      {/* <Input
         disabled
         variant="filled"
         size="sm"
@@ -23,21 +23,16 @@ export function FormActiveAccount({
         value="tranhuuthanhcp@gmail.com"
         label="Email"
         leftSection={<Mail size={16} />}
-      />
+      /> */}
 
-      <Input
-        size="sm"
-        type="text"
-        label="Code"
-        placeholder="Nhập code"
-        leftSection={<Barcode size={16} />}
-      />
+      <div className="flex items-center justify-center">
+        <PinInput length={6} size="sm" radius="md" />
+      </div>
 
       {/* Sign in button */}
       <Button
         type="submit"
         size="sm"
-        
         title="Xác thực tài khoản"
         variant="filled"
       />
