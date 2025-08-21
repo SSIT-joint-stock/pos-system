@@ -1,6 +1,6 @@
 @import "@repo/tailwind-config";
 @import "@mantine/core/styles.css";
-
+@plugin 'tailwind-scrollbar';
 /* POS Blue Theme Tokens */
 :root {
   /* POS primary blue and scale */
@@ -66,6 +66,10 @@
   }
 
   .card {
-    @apply rounded-lg border border-gray-200/60 bg-white shadow-sm dark:border-gray-800/60 dark:bg-gray-900;
+    @apply rounded-lg border border-gray-200/60 bg-white shadow-md dark:border-gray-800/80 dark:bg-gray-900;
+  }
+  .scrollbar-fixed::-webkit-scrollbar {
+    width: 6px; /* fixed width for vertical scrollbars */
+    height: 6px; /* fixed height for horizontal scrollbars */
   }
 }
