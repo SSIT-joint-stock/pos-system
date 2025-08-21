@@ -1,3 +1,5 @@
+import { ProductEntity } from "@/shared/repositories/product.repository";
+
 export interface CreateProductDTO {
     tenantId: string;
     name: string;
@@ -15,19 +17,17 @@ export interface CreateProductDTO {
 }
 
 export interface UpdateProductDTO {
-    id: string,
-    tenantId: string,
-    name: string,// Tên sản phẩm
+    tenantId?: string,
+    name?: string,// Tên sản phẩm
     description?: string, // Mô tả sản phẩm
-    sku: string,// Stock Keeping Unit - mã sản phẩm
+    sku?: string,// Stock Keeping Unit - mã sản phẩm
     barcode?: string, // Mã vạch sản phẩm
-    categoryId: string,
-    basePrice: number, // Giá bán cơ bản - không cần specify unit vì sẽ có trong ProductUnit
+    categoryId?: string,
+    basePrice?: number, // Giá bán cơ bản - không cần specify unit vì sẽ có trong ProductUnit
     baseCost?: number, // Giá vốn cơ bản - không cần specify unit vì sẽ có trong ProductUnit
-    trackInventory: boolean,  // Có theo dõi tồn kho không
     isActive?: boolean,
     imageUrl?: string, // URL hình ảnh sản phẩm
-    tags: object,      // Array of tags for searching
+    tags?: string[],      // Array of tags for searching
     createdAt?: Date,
     updatedAt?: Date,
 }
@@ -41,13 +41,30 @@ export interface GetProductDTO {
 }
 
 export interface productServiceResult {
-    message: string
-    status: number
+    product: Pick<ProductEntity, (typeof PickProductFields)[number]>,
 }
 
+export const PickProductFields = [
+    "id",
+    "tenantId",
+    "name",
+    "description",
+    "sku",
+    "barcode",
+    "categoryId",
+    "basePrice",
+    "baseCost",
+    "trackInventory",
+    "isActive",
+    "imageUrl",
+    "tags",
+    "createdAt",
+    "updatedAt",
+] as const;
+
 export interface IProductService {
-    createProduct(data: CreateProductDTO): Promise<string>
-    updateProduct(data: UpdateProductDTO): Promise<string>
-    deleteProduct(data: DeleteProductDTO): Promise<string>
-    getProduct(data: GetProductDTO): Promise<string>
+    createProduct(data: CreateProductDTO): Promise<productServiceResult>
+    updateProduct(id: string, data: UpdateProductDTO): Promise<productServiceResult>
+    deleteProduct(id: string): Promise<void>
+    getProduct(id: string): Promise<productServiceResult>
 }

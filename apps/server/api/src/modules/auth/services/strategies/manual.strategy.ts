@@ -143,8 +143,6 @@ export class ManualStrategy implements ManualAuthStrategy {
 
     return {
       user: _.pick(user, PickUserFields),
-      // accessToken: "",
-      // refreshToken: "",
     };
   }
 
