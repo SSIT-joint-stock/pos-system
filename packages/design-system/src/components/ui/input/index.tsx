@@ -84,6 +84,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             disabled={disabled}
             placeholder={placeholder}
             type={type}
+            
             onChange={onChange}
             value={value}
             size={size}

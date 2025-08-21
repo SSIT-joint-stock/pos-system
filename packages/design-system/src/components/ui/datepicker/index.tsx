@@ -21,6 +21,7 @@ export type DatePickerProps = React.PropsWithChildren & {
   leftSection?: React.ReactNode;
   variant?: SizeVariant;
   clearable?: boolean;
+  rightSection?: React.ReactNode;
 };
 
 export function DatePickerInput({
@@ -36,6 +37,7 @@ export function DatePickerInput({
   leftSection,
   variant = "default",
   clearable,
+  rightSection,
 }: DatePickerProps) {
   return (
     <MantineDatePicker
@@ -55,6 +57,7 @@ export function DatePickerInput({
       valueFormat="DD/MM/YYYY"
       monthLabelFormat={(month) => dayjs(month).format("MMMM")}
       weekdayFormat={(day) => dayjs(day).format("dd")}
+      rightSection={rightSection}
     />
   );
 }
