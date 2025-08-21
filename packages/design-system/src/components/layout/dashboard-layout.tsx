@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { SideBar } from "../shared/dashboard-screen";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const [isExpand, setIsExpand] = useState(true);
+  const [isExpand, setIsExpand] = useState(false  );
 
   return (
     <div className="flex h-screen overflow-hidden">

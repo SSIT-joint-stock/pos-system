@@ -41,7 +41,7 @@ export function SalesProducts() {
         <div className="card aspect-[3/4]">
           <div className="relative bg-white w-full h-[65%] overflow-hidden ">
             <Image
-              src={"/bo-huc-redbull-nuoc-giai-khat-thuc-pham-viet-o-nhat-vietmart-500x500.jpg"}
+              src={"/bo-huc.jpg"}
               alt=""
               width={500}
               height={500}
@@ -61,7 +61,7 @@ export function SalesProducts() {
         <div className="card aspect-[3/4]">
           <div className="relative bg-white w-full h-[65%] overflow-hidden ">
             <Image
-              src={"/bo-huc-redbull-nuoc-giai-khat-thuc-pham-viet-o-nhat-vietmart-500x500.jpg"}
+              src={"/bo-huc.jpg"}
               alt=""
               width={500}
               height={500}
@@ -81,7 +81,7 @@ export function SalesProducts() {
         <div className="card aspect-[3/4]">
           <div className="relative bg-white w-full h-[65%] overflow-hidden ">
             <Image
-              src={"/bo-huc-redbull-nuoc-giai-khat-thuc-pham-viet-o-nhat-vietmart-500x500.jpg"}
+              src={"/bo-huc.jpg"}
               alt=""
               width={500}
               height={500}
@@ -101,7 +101,7 @@ export function SalesProducts() {
         <div className="card aspect-[3/4]">
           <div className="relative bg-white w-full h-[65%] overflow-hidden ">
             <Image
-              src={"/bo-huc-redbull-nuoc-giai-khat-thuc-pham-viet-o-nhat-vietmart-500x500.jpg"}
+              src={"/bo-huc.jpg"}
               alt=""
               width={500}
               height={500}
@@ -121,7 +121,7 @@ export function SalesProducts() {
         <div className="card aspect-[3/4]">
           <div className="relative bg-white w-full h-[65%] overflow-hidden ">
             <Image
-              src={"/bo-huc-redbull-nuoc-giai-khat-thuc-pham-viet-o-nhat-vietmart-500x500.jpg"}
+              src={"/bo-huc.jpg"}
               alt=""
               width={500}
               height={500}
@@ -141,7 +141,7 @@ export function SalesProducts() {
         <div className="card aspect-[3/4]">
           <div className="relative bg-white w-full h-[65%] overflow-hidden ">
             <Image
-              src={"/bo-huc-redbull-nuoc-giai-khat-thuc-pham-viet-o-nhat-vietmart-500x500.jpg"}
+              src={"/bo-huc.jpg"}
               alt=""
               width={500}
               height={500}
@@ -161,7 +161,7 @@ export function SalesProducts() {
         <div className="card aspect-[3/4]">
           <div className="relative bg-white w-full h-[65%] overflow-hidden ">
             <Image
-              src={"/bo-huc-redbull-nuoc-giai-khat-thuc-pham-viet-o-nhat-vietmart-500x500.jpg"}
+              src={"/bo-huc.jpg"}
               alt=""
               width={500}
               height={500}

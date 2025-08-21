@@ -77,7 +77,7 @@ export function CartDetails() {
               <NumberInput
                 hideControls
                 suffix="₫"
-                className="w-[7ch]"
+       
                 onChange={(value: number) => {
                   handleDiscountChange(product.id, value);
                 }}
@@ -94,10 +94,7 @@ export function CartDetails() {
       <div className="grid grid-cols-5 gap-4 font-bold mt-4 pt-2 ">
         <div className="col-span-4 text-right">Tổng cộng:</div>
         <div className="text-right">{totalPrice.toLocaleString("vi-VN")}₫</div>
-        <div className="flex items-center border gap-3">
-          <div className="w-16 h-16 bg-black"></div>
-          <span className="text-4xl ">DCMM</span>
-        </div>
+        
       </div>
     </div>
   );

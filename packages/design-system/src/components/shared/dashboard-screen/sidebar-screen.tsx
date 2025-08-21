@@ -37,7 +37,7 @@ export function SideBar({
   setIsExpand: (isExpand: boolean) => void;
 }) {
   const pathName = usePathname();
-  console.log(isExpand);
+  
   return (
     <div
       className={`h-full relative  flex flex-col bg-white overflow-x-none shadow-[4px_0_6px_rgba(0,0,0,0.1)] transition-all duration-200 ${isExpand ? "w-64" : "w-20"} }`}
@@ -64,7 +64,7 @@ export function SideBar({
             <Link
               key={idx}
               href={item.path}
-              className={`flex items-center font-medium group text-base gap-5 p-2 rounded-lg transition-all duration-200 ${
+              className={`flex items-center  font-medium group text-base gap-5 p-2 rounded-lg transition-all duration-200 ${
                 pathName === item.path
                   ? "bg-pos-blue-50 text-pos-blue-400"
                   : "text-gray-500 hover:bg-pos-blue-50 hover:text-pos-blue-400"
