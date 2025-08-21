@@ -143,8 +143,8 @@ export class ManualStrategy implements ManualAuthStrategy {
 
     return {
       user: _.pick(user, PickUserFields),
-      accessToken: "",
-      refreshToken: "",
+      // accessToken: "",
+      // refreshToken: "",
     };
   }
 
@@ -174,19 +174,17 @@ export class ManualStrategy implements ManualAuthStrategy {
       throw new ForbiddenError(this.errorMessages.USER_NOT_FOUND);
     }
     if (existingUser.verificationCode !== verificationCode) {
-      throw new Error(this.errorMessages.USER_WRONG_CODE);
+      throw new BadRequestError(this.errorMessages.USER_WRONG_CODE);
     }
     if (
       !existingUser.verificationCodeExpired ||
       Date.now() > new Date(existingUser.verificationCodeExpired).getTime()
     ) {
-      throw new Error(this.errorMessages.USER_CODE_EXPIRED);
+      throw new BadRequestError(this.errorMessages.USER_CODE_EXPIRED);
     }
-    const user = await this.users.verifyEmail(existingUser.id);
+    await this.users.verifyEmail(existingUser.id);
     return {
-      user: _.pick(user, PickUserFields),
-      accessToken: "",
-      refreshToken: "",
+      user: _.pick(existingUser, PickUserFields)
     };
   }
 
@@ -207,7 +205,7 @@ export class ManualStrategy implements ManualAuthStrategy {
 
     // Nếu đã từng gửi và chưa qua 5 giây thì chặn
     if (prevSent !== null && now - prevSent < 5000) {
-      throw new Error(this.errorMessages.USER_TOO_FAST);
+      throw new BadRequestError(this.errorMessages.USER_TOO_FAST);
     }
 
     await this.users.update(existingUser.id, {
@@ -248,7 +246,7 @@ export class ManualStrategy implements ManualAuthStrategy {
     const resetTokenValue = this.createCode.setResetToken();
 
     await this.users.update(existingUser.id, { resetToken: resetTokenValue });
-    const resetLink = `${env.BASE_URL}/api/v1/auth/resetPassword?resetToken=${resetTokenValue}`;
+    const resetLink = `${env.BASE_URL}/api/v1/auth/reset-password?resetToken=${resetTokenValue}`;
     const link = resetLink;
 
     const { subject, htmlBody, textBody } = buildEmailTemplate({ type: "reset", link })
@@ -266,8 +264,6 @@ export class ManualStrategy implements ManualAuthStrategy {
     )
     return {
       user: _.pick(existingUser, PickUserFields),
-      accessToken: "",
-      refreshToken: "",
     };
   }
   async resetPassword(newPassword: string, resetToken: string) {
@@ -282,8 +278,6 @@ export class ManualStrategy implements ManualAuthStrategy {
     });
     return {
       user: _.pick(existingUser, PickUserFields),
-      accessToken: "",
-      refreshToken: "",
     };
   }
 }

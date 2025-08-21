@@ -31,6 +31,7 @@ import { helpers } from '@shared/helpers/views';
 import { openapiRoutes } from '@modules/swagger';
 import { healthRoutes } from '@modules/health';
 import { authRoutes } from '@modules/auth';
+import productRoutes from '../modules/product/routes/product.routes'
 
 
 /**
@@ -160,6 +161,7 @@ class ExpressServer {
 
         // Mount API and page routes
         this._app.use('/api/v1/auth', authRoutes);
+        this._app.use('/product', productRoutes)
         // this._app.use('/', route.pageRoutes);
         this._app.use('/health', healthRoutes);
         // Handle undefined routes (404)

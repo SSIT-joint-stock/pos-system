@@ -13,7 +13,7 @@ export interface RegisterCredentials {
 
 export interface AuthResult {
   user: Pick<UserEntity, (typeof PickUserFields)[number]>;
-  accessToken: string;
+  accessToken?: string;
   refreshToken?: string;
 }
 

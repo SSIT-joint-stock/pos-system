@@ -98,8 +98,8 @@ export class ManualAuthController extends BaseController {
     // res.json("asdsaasd");
     const data = this.validate<RegisterInput>(req.body, registerSchema);
     const result = await this.service.register(data);
-    // this.sendResponse(res, ApiResponse.success(result, "Register successful"));
-    res.status(200).json(result);
+    this.sendResponse(res, ApiResponse.success(result, "Register successful"));
+    // res.status(200).json(result);
   }
   private async handleVerifyCode(
     req: RegisterWithAuth,
@@ -129,7 +129,10 @@ export class ManualAuthController extends BaseController {
       throw new BadRequestError("Invalid or missing token");
     }
     await this.service.verifyCodeByEmailLink(token);
-    return res.redirect(`${env.BASE_URL}/api/v1/auth/login`);                          // fix this: redirect to login page
+
+    //fix this: redirect to login page FE
+    // return res.redirect(`${env.BASE_URL}/api/v1/auth/login`);
+    return res.redirect(`https://google.com`);
   }
 
   private async handleReSendVerificationCode(
@@ -137,8 +140,9 @@ export class ManualAuthController extends BaseController {
     res: Response,
     next: NextFunction
   ): Promise<void> {
+    const email = String(req.query.email)
     const data = this.validate<ReSendVerifyInput>(
-      req.body,
+      { email },
       reSendVerificationCodeSchema
     );
     // Service hiện nhận (email, verificationCode). Nếu bạn đổi service sang chỉ cần email, cập nhật dòng dưới:
@@ -174,8 +178,10 @@ export class ManualAuthController extends BaseController {
     res: Response,
     next: NextFunction
   ): Promise<void> {
+    const resetToken = String(req.query.resetToken)
+    const newPassword = req.body.newPassword
     const data = this.validate<ResetPasswordInput>(
-      req.body,
+      { resetToken, newPassword },
       resetPasswordSchema
     );
     const result = await this.service.resetPassword(

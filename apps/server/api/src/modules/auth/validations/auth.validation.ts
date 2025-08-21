@@ -26,7 +26,7 @@ export const verifyCodeSchema = z.object({
 export const reSendVerificationCodeSchema = z.object({
   email: z.string().email(),
   // Service của bạn hiện yêu cầu cả verificationCode; nếu không cần, bỏ field này
-  verificationCode: z.string().min(0).optional(),
+  // verificationCode: z.string().min(0).optional(),
 });
 
 export const forgotPasswordSchema = z.object({
@@ -34,8 +34,8 @@ export const forgotPasswordSchema = z.object({
 });
 
 export const resetPasswordSchema = z.object({
-  newPassword: z.string().min(8),
-  resetToken: z.string().min(10),
+  newPassword: z.string().min(6),
+  resetToken: z.string().min(6),
 });
 
 export const businessSchema = z.object({
