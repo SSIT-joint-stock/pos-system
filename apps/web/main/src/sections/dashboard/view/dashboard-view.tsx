@@ -17,7 +17,7 @@ export function DashboardView() {
 
   return (
     <div ref={containerRef} className="flex h-full w-full gap-5 flex-col">
-      <div className="flex gap-5  w-full overflow-x-auto max-h-fit pb-[2px] scrollbar-none">
+      <div className="flex gap-5  w-full overflow-x-auto min-h-fit pb-[2px] scrollbar-none">
         <ItemBoxChart title="Doanh Thu Hôm Nay" reveneu={500000000} percent={55} icon={<Wallet />} />
         <ItemBoxChart title="Tiền Nhập Hàng Tháng Này" reveneu={900000000} percent={36} icon={<CloudDownload />} />
         <ItemBoxChart title="Tổng Tiền Lãi Tháng Này" reveneu={30102005} percent={10} icon={<HandCoins />} />
