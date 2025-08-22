@@ -1,6 +1,8 @@
 @import "@repo/tailwind-config";
 @import "@mantine/core/styles.css";
-@import '@mantine/charts/styles.css';@plugin 'tailwind-scrollbar';
+@import "@mantine/charts/styles.css";
+@import '@mantine/dates/styles.css';
+@plugin 'tailwind-scrollbar';
 /* POS Blue Theme Tokens */
 :root {
   /* POS primary blue and scale */
@@ -70,6 +72,14 @@
   }
   .scrollbar-fixed::-webkit-scrollbar {
     width: 6px; /* fixed width for vertical scrollbars */
-    height: 6px; /* fixed height for horizontal scrollbars */
+  }
+
+  .scrollbar-fixed::-webkit-scrollbar-thumb {
+    background-color: #e3e8ef ; /* Tailwind gray-50 */
+    border-radius: 9999px;
+  }
+
+  .scrollbar-fixed::-webkit-scrollbar-track {
+    background: transparent;
   }
 }

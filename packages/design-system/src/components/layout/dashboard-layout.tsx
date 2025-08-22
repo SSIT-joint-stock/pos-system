@@ -11,7 +11,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <SideBar isExpand={isExpand} setIsExpand={setIsExpand} />
       </aside>
 
-      <main className="flex-1 p-4 overflow-auto bg-gray-50 scrollbar-thin scrollbar-thumb-gray-50 scrollbar-track-transparent ">
+      <main className="flex-1 p-4 overflow-auto bg-gray-50 scrollbar-fixed ">
         {children}
       </main>
     </div>

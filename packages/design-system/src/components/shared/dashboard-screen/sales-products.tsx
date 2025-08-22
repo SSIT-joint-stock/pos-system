@@ -1,6 +1,6 @@
 "use-client";
-import React, { useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import  { useEffect, useRef, useState } from "react";
+import Image from "next/Image";
 export function SalesProducts() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [cols, setCols] = useState(3);
@@ -36,7 +36,7 @@ export function SalesProducts() {
           display: "grid",
           gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
         }}
-        className=" gap-5 w-full h-full p-5 overflow-y-scroll  scrollbar-thumb-gray-500 scrollbar-track-transparent "
+        className=" gap-5 w-full h-full p-5 overflow-y-scroll  scrollbar-fixed "
       >
         <div className="card aspect-[3/4]">
           <div className="relative bg-white w-full h-[65%] overflow-hidden ">
