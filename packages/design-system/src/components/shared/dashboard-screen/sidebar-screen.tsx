@@ -1,14 +1,7 @@
 "use client";
-import {
-  BadgeDollarSign,
-  LayoutDashboard,
-  ArrowLeft,
-  ArrowRight,
-  Settings,
-  LogOut,
-  ShoppingCart,
-} from "lucide-react";
+import { BadgeDollarSign, LayoutDashboard, ArrowLeft, ArrowRight, Settings, LogOut, ShoppingCart } from "lucide-react";
 import Link from "next/link";
+import Image from "next/Image";
 import { usePathname } from "next/navigation";
 
 const pageItems = [
@@ -29,22 +22,16 @@ const pageItems = [
   },
 ];
 
-export function SideBar({
-  isExpand,
-  setIsExpand,
-}: {
-  isExpand: boolean;
-  setIsExpand: (isExpand: boolean) => void;
-}) {
+export function SideBar({ isExpand, setIsExpand }: { isExpand: boolean; setIsExpand: (isExpand: boolean) => void }) {
   const pathName = usePathname();
-  
+
   return (
     <div
-      className={`h-full relative  flex flex-col bg-white overflow-x-none shadow-[4px_0_6px_rgba(0,0,0,0.1)] transition-all duration-200 ${isExpand ? "w-64" : "w-20"} }`}
+      className={`h-full relative  flex flex-col bg-white overflow-x-none shadow-[4px_0_6px_rgba(0,0,0,0.1)] transition-all duration-200 ${isExpand ? "w-56" : "w-20"} }`}
     >
       {/* Logo + toggle */}
 
-      <div className="w-full absolute top-1/2 -translate-y-1/2  -right-4 flex justify-end">
+      <div className="w-full absolute top-1/2 -translate-y-1/2  -right-3.5 flex justify-end">
         <button
           className="p-2 rounded-xl bg-pos-blue-50  group cursor-pointer duration-200  transition-all"
           onClick={() => setIsExpand(!isExpand)}
@@ -59,7 +46,11 @@ export function SideBar({
 
       {/* Menu items */}
       <div className=" h-full flex flex-col  p-4">
-        <div className="flex-1 flex flex-col items-center gap-4 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-50 scrollbar-track-transparent ">
+        <div className={`flex h-fit items-center overflow-hidden ${isExpand ? " gap-3" : "gap-100 "}`}>
+          <Image width={60} height={60} src={"/logo.jpg"} alt="logo" className="shrink-0" />
+          <p className="text-2xl font-semibold">EraPOS8</p>
+        </div>
+        <div className=" mt-5 flex-1 flex flex-col items-center gap-4 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-50 scrollbar-track-transparent ">
           {pageItems.map((item, idx) => (
             <Link
               key={idx}
@@ -76,9 +67,7 @@ export function SideBar({
           ))}
         </div>
         <hr className="border border-gray-100" />
-        <div
-          className={`flex flex-col gap-4 mt-4 font-medium text-base ${isExpand === false && "items-center"} `}
-        >
+        <div className={`flex flex-col gap-4 mt-4 font-medium text-base ${isExpand === false && "items-center"} `}>
           <button className="flex items-center font-medium cursor-pointer group text-base text-gray-500 gap-5 p-2 rounded-lg hover:bg-pos-blue-50 hover:text-pos-blue-400 transition-colors duration-200  ">
             <Settings />
             {isExpand && <span className="shrink-0">Cài đặt</span>}

@@ -1,69 +1,63 @@
 "use client";
 import { ItemBoxChart, LineChart, PieChart } from "@repo/design-system/components/shared/chart-screen";
-import { Wallet, PiggyBank, CloudDownload, HandCoins, ShoppingBag, TrendingUp, Award } from "lucide-react";
-import React from "react";
+import ItemNoti from "@repo/design-system/components/shared/chart-screen/item-noti";
+import { Wallet, PiggyBank, CloudDownload, HandCoins, Plus } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
 
-const topProducts = [
-  { name: "Bánh quy bơ", orders: 1200, icon: <ShoppingBag className="text-blue-500" size={20} /> },
-  { name: "Sữa tươi Vinamilk", orders: 950, icon: <ShoppingBag className="text-green-500" size={20} /> },
-  { name: "Mì gói Hảo Hảo", orders: 870, icon: <ShoppingBag className="text-orange-500" size={20} /> },
-  { name: "Nước ngọt Coca-Cola", orders: 820, icon: <ShoppingBag className="text-red-500" size={20} /> },
-  { name: "Gạo ST25", orders: 790, icon: <ShoppingBag className="text-yellow-500" size={20} /> },
-  { name: "Dầu ăn Neptune", orders: 760, icon: <ShoppingBag className="text-purple-500" size={20} /> },
-  { name: "Bánh mì tươi", orders: 700, icon: <ShoppingBag className="text-pink-500" size={20} /> },
-];
 export function DashboardView() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    if (containerRef.current) {
+      const { offsetWidth, offsetHeight } = containerRef.current;
+      setDimensions({ width: offsetWidth, height: offsetHeight });
+    }
+  }, []);
+
   return (
-    <div className="h-full ">
-      <div className="grid grid-cols-4 gap-5 ">
-        <ItemBoxChart title="Doanh Thu Hôm Nay" reveneu={"500.000.000d"} percent={"55"} icon={<Wallet />} />
-        <ItemBoxChart
-          title="Tiền Nhập Hàng Tháng Này"
-          reveneu={"900.000.000d"}
-          percent={"36"}
-          icon={<CloudDownload />}
-        />
-        <ItemBoxChart title="Tổng Tiền Lãi Tháng Này" reveneu={"30.102.005"} percent={"10"} icon={<HandCoins />} />
-        <ItemBoxChart title="Tổng Doanh Thu Tháng" reveneu={"500.000.000.000d"} percent={"5"} icon={<PiggyBank />} />
+    <div ref={containerRef} className="flex h-full w-full gap-5 flex-col">
+      <div className="flex gap-5  w-full overflow-x-auto min-h-fit pb-[2px] scrollbar-none">
+        <ItemBoxChart title="Doanh Thu Hôm Nay" reveneu={500000000} percent={55} icon={<Wallet />} />
+        <ItemBoxChart title="Tiền Nhập Hàng Tháng Này" reveneu={900000000} percent={36} icon={<CloudDownload />} />
+        <ItemBoxChart title="Tổng Tiền Lãi Tháng Này" reveneu={30102005} percent={10} icon={<HandCoins />} />
+        <ItemBoxChart title="Tổng Doanh Thu Tháng" reveneu={500000000000} percent={5} icon={<PiggyBank />} />
+        <ItemBoxChart title="Tổng Doanh Thu Tháng" reveneu={500000000000} percent={5} icon={<PiggyBank />} />
+        <ItemBoxChart title="Tổng Doanh Thu Tháng" reveneu={500000000000} percent={5} icon={<PiggyBank />} />
+        <ItemBoxChart title="Tổng Doanh Thu Tháng" reveneu={500000000000} percent={5} icon={<PiggyBank />} />
+        <ItemBoxChart title="Tổng Doanh Thu Tháng" reveneu={500000000000} percent={5} icon={<PiggyBank />} />
+        <div className="flex items-center justify-center  hover:bg-white transition-all duration-300 border-2 border-dashed border-pos-blue-500 bg-pos-blue-100 rounded-2xl">
+          <Plus className=" text-pos-blue-500 w-[250px] h-[36] text-center" strokeWidth={2} />
+        </div>
       </div>
-      <div className="flex items-center gap-4 py-3 px-1mt-4 h-[75%]">
-        <div className="w-[74.5%] h-full bg-white rounded-md drop-shadow-md">
+      <div className="flex w-full justify-between h-full">
+        <div className="w-[75%]  bg-white rounded-xl shadow-md py-3 px-1">
           <LineChart />
         </div>
-        <div className="w-[24%] ml-1.5 h-full drop-shadow-md">
-          {/* Tiêu đề */}
-          <div className="w-[98%] h-full bg-white rounded-b-md overflow-y-auto scrollbar-thin scrollbar-thumb-blue-50 scrollbar-track-transparent">
-            <div className=" bg-pos-blue-400 text-white text-center py-3 rounded-t-md ">
-              <h2 className="font-bold text-lg flex justify-center items-center gap-2">
-                <TrendingUp size={20} /> Top 7 Sản Phẩm Bán Chạy
-              </h2>
-            </div>
 
-            {/* Danh sách */}
-            <div className=" flex flex-col gap-3  rounded-b-md p-4 ">
-              {topProducts.map((item, index) => (
-                <div
-                  key={index}
-                  className="flex justify-between items-center bg-gray-50 hover:bg-blue-50 transition-all duration-300 p-3 rounded-lg shadow-sm hover:shadow-md cursor-pointer transform hover:-translate-y-1"
-                >
-                  <div className="flex items-center gap-3">
-                    {index === 0 && <Award className="text-yellow-400" size={20} />}
-                    {index === 1 && <Award className="text-gray-400" size={20} />}
-                    {index === 2 && <Award className="text-orange-500" size={20} />}
-                    {index > 2 && item.icon}
-                    <span className="font-medium text-sm truncate whitespace-nowrap overflow-hidden max-w-[120px]">
-                      {item.name}
-                    </span>
-                  </div>
-                  <span className="text-gray-600 font-semibold text-xs">{item.orders.toLocaleString()} đơn</span>
-                </div>
-              ))}
-            </div>
+        <div className="w-[23%] bg-white  rounded-2xl shadow-md  p-5 ">
+          <h2 className="text-xl font-semibold ">Thông Báo</h2>
+
+          <div className="mt-3">
+            <ItemNoti />
+            <ItemNoti />
+            <ItemNoti />
+            <ItemNoti />
+            <ItemNoti />
+            <ItemNoti />
           </div>
         </div>
       </div>
-
-      <PieChart />
+      <div className="w-full h-fit flex justify-between">
+        <div className="w-[75%] h-full shadow-xl rounded-2xl">
+          <PieChart />
+        </div>
+        <div className="w-[23%]   flex flex-col justify-between gap-2 ">
+          <ItemBoxChart title="Doanh Thu Hôm Nay" reveneu={500000000} percent={55} icon={<Wallet />} />
+          <ItemBoxChart title="Tổng Tiền Lãi Tháng Này" reveneu={30102005} percent={10} icon={<HandCoins />} />
+          <ItemBoxChart title="Tiền Nhập Hàng Tháng Này" reveneu={900000000} percent={36} icon={<CloudDownload />} />
+        </div>
+      </div>
     </div>
   );
 }

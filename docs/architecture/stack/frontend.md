@@ -7,6 +7,7 @@ Frontend stack cho hệ thống POS multi-domain sử dụng Next.js 14 với ar
 ## Core Technologies
 
 ### 1. Framework & Runtime
+
 ```json
 {
   "next": "^14.2.3",
@@ -17,24 +18,26 @@ Frontend stack cho hệ thống POS multi-domain sử dụng Next.js 14 với ar
 ```
 
 **Next.js 14 Features:**
+
 - App Router với Server Components
 - Streaming với Suspense
 - Edge Runtime support
 - Built-in optimizations (Image, Font, Bundle)
 
 ### 2. Styling & UI Framework
+
 ```json
 {
   "@tailwindcss/typography": "^0.5.13",
   "tailwindcss": "^3.4.1",
-  "@mantine/core": "^7.11.2",
-  "@mantine/hooks": "^7.11.2",
+  "@mantine/core": "^8.2.5",
+  "@mantine/hooks": "^8.2.5",
   "@mantine/form": "^7.8.1",
   "@mantine/dates": "^7.14.3",
-  "@mantine/notifications": "^7.11.2",
-  "@mantine/modals": "^7.11.2",
-  "@mantine/spotlight": "^7.11.2",
-  "@mantine/carousel": "^7.11.2",
+  "@mantine/notifications": "^8.2.5",
+  "@mantine/modals": "^8.2.5",
+  "@mantine/spotlight": "^8.2.5",
+  "@mantine/carousel": "^8.2.5",
   "@mantine/charts": "^7.14.3",
   "@mantine/dropzone": "^7.14.3",
   "@mantine/tiptap": "^7.14.3"
@@ -42,12 +45,14 @@ Frontend stack cho hệ thống POS multi-domain sử dụng Next.js 14 với ar
 ```
 
 **Tailwind CSS v3:**
+
 - Stable version with full feature set
 - Improved performance
 - Better IntelliSense
 - JIT (Just-In-Time) engine
 
 **Mantine v7:**
+
 - Complete UI component library
 - Built-in dark mode
 - Form management
@@ -57,13 +62,15 @@ Frontend stack cho hệ thống POS multi-domain sử dụng Next.js 14 với ar
 ## State Management
 
 ### 1. Local State
+
 ```json
 {
-  "jotai": "^2.9.0",
+  "jotai": "^2.9.0"
 }
 ```
 
 ### 2. Server State & API Client
+
 ```json
 {
   "axios": "^1.7.7"
@@ -71,6 +78,7 @@ Frontend stack cho hệ thống POS multi-domain sử dụng Next.js 14 với ar
 ```
 
 ### 3. Form State
+
 ```json
 {
   "react-hook-form": "^7.53.2",
@@ -82,22 +90,25 @@ Frontend stack cho hệ thống POS multi-domain sử dụng Next.js 14 với ar
 ## Utility Libraries
 
 ### 1. Date & Time
+
 ```json
 {
-  "dayjs": "^1.11.13",
+  "dayjs": "^1.11.13"
 }
 ```
 
 ### 2. Search & Data Processing
+
 ```json
 {
-//   "fuse.js": "^7.0.0",
+  //   "fuse.js": "^7.0.0",
   "lodash.isequal": "^4.5.0",
   "@types/lodash.isequal": "^4.5.0"
 }
 ```
 
 ### 3. Hooks Collections
+
 ```json
 {
   "usehooks-ts": "^3.1.0",
@@ -108,6 +119,7 @@ Frontend stack cho hệ thống POS multi-domain sử dụng Next.js 14 với ar
 ## Business Logic Libraries
 
 ### 1. Print & Barcode
+
 ```json
 {
   "react-to-print": "^3.0.2",
@@ -118,6 +130,7 @@ Frontend stack cho hệ thống POS multi-domain sử dụng Next.js 14 với ar
 ```
 
 ### 2. Vietnamese Number Processing
+
 ```json
 {
   "read-vietnamese-number": "^2.1.4"
@@ -125,6 +138,7 @@ Frontend stack cho hệ thống POS multi-domain sử dụng Next.js 14 với ar
 ```
 
 ### 3. Charts & Visualization
+
 ```json
 {
   "recharts": "^2.15.0"
@@ -132,6 +146,7 @@ Frontend stack cho hệ thống POS multi-domain sử dụng Next.js 14 với ar
 ```
 
 ### 4. Notifications
+
 ```json
 {
   "react-toastify": "^10.0.5"
@@ -143,9 +158,9 @@ Frontend stack cho hệ thống POS multi-domain sử dụng Next.js 14 với ar
 ```json
 {
   "lucide-react": "^0.460.0",
-//   "next-themes": "^0.3.0",
+  //   "next-themes": "^0.3.0",
   "@tabler/icons-react": "^3.24.0",
-  "react-icons": "^5.3.0",
+  "react-icons": "^5.3.0"
 }
 ```
 
@@ -178,14 +193,12 @@ packages/
 ## Package.json Configuration
 
 ### Root Package.json
+
 ```json
 {
   "name": "pos-system",
   "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
+  "workspaces": ["apps/*", "packages/*"],
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
@@ -202,6 +215,7 @@ packages/
 ```
 
 ### Restaurant App Package.json
+
 ```json
 {
   "name": "@pos/restaurant-web",
@@ -218,13 +232,13 @@ packages/
     "next": "^14.2.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "@mantine/core": "^7.11.2",
-    "@mantine/hooks": "^7.11.2",
+    "@mantine/core": "^8.2.5",
+    "@mantine/hooks": "^8.2.5",
     "@mantine/form": "^7.8.1",
     "@mantine/dates": "^7.14.3",
-    "@mantine/notifications": "^7.11.2",
-    "@mantine/modals": "^7.11.2",
-    "@mantine/carousel": "^7.11.2",
+    "@mantine/notifications": "^8.2.5",
+    "@mantine/modals": "^8.2.5",
+    "@mantine/carousel": "^8.2.5",
     "@mantine/charts": "^7.14.3",
     "@mantine/dropzone": "^7.14.3",
     "@mantine/tiptap": "^7.14.3",
@@ -271,6 +285,7 @@ packages/
 ```
 
 ### Retail App Package.json
+
 ```json
 {
   "name": "@pos/retail-web",
@@ -287,14 +302,14 @@ packages/
     "next": "^14.2.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "@mantine/core": "^7.11.2",
-    "@mantine/hooks": "^7.11.2",
+    "@mantine/core": "^8.2.5",
+    "@mantine/hooks": "^8.2.5",
     "@mantine/form": "^7.8.1",
     "@mantine/dates": "^7.14.3",
-    "@mantine/notifications": "^7.11.2",
-    "@mantine/modals": "^7.11.2",
-    "@mantine/spotlight": "^7.11.2",
-    "@mantine/carousel": "^7.11.2",
+    "@mantine/notifications": "^8.2.5",
+    "@mantine/modals": "^8.2.5",
+    "@mantine/spotlight": "^8.2.5",
+    "@mantine/carousel": "^8.2.5",
     "@mantine/charts": "^7.14.3",
     "@mantine/dropzone": "^7.14.3",
     "@mantine/tiptap": "^7.14.3",
@@ -348,6 +363,7 @@ packages/
 ## Shared UI Package Structure
 
 ### @repo/design-system Package
+
 ```typescript
 // packages/design-system/package.json
 {
@@ -358,8 +374,8 @@ packages/
   "types": "./index.tsx",
   "dependencies": {
     "react": "^18.2.0",
-    "@mantine/core": "^7.11.2",
-    "@mantine/hooks": "^7.11.2",
+    "@mantine/core": "^8.2.5",
+    "@mantine/hooks": "^8.2.5",
     "lucide-react": "^0.460.0",
     "tailwindcss": "^3.4.1"
   },
@@ -1004,21 +1020,20 @@ export * from './constants';
 ## State Management Configuration
 
 ### Jotai Store Setup
+
 ```typescript
 // packages/shared/store/atoms.ts
-import { atom } from 'jotai';
-import { User, Tenant } from '@repo/types';
+import { atom } from "jotai";
+import { User, Tenant } from "@repo/types";
 
 // Auth atoms
 export const userAtom = atom<User | null>(null);
 export const tenantAtom = atom<Tenant | null>(null);
-export const isAuthenticatedAtom = atom(
-  (get) => get(userAtom) !== null
-);
+export const isAuthenticatedAtom = atom((get) => get(userAtom) !== null);
 
 // UI atoms
 export const sidebarOpenAtom = atom(true);
-export const themeAtom = atom<'light' | 'dark'>('light');
+export const themeAtom = atom<"light" | "dark">("light");
 export const loadingAtom = atom(false);
 
 // Business-specific atoms
@@ -1027,14 +1042,15 @@ export const cartItemsAtom = atom<any[]>([]);
 export const currentOrderAtom = atom<any | null>(null);
 
 // Search atoms
-export const searchQueryAtom = atom('');
+export const searchQueryAtom = atom("");
 export const searchResultsAtom = atom<any[]>([]);
 ```
 
 ### React Query Configuration
+
 ```typescript
 // packages/shared/api/query-client.ts
-import { QueryClient } from '@tanstack/react-query';
+import { QueryClient } from "@tanstack/react-query";
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -1052,30 +1068,30 @@ export const queryClient = new QueryClient({
 });
 
 // packages/shared/api/axios.ts
-import axios from 'axios';
+import axios from "axios";
 
 export const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api",
   timeout: 30000,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
 // Request interceptor
 apiClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    
+
     // Add tenant header
-    const tenantId = localStorage.getItem('tenantId');
+    const tenantId = localStorage.getItem("tenantId");
     if (tenantId) {
-      config.headers['X-Tenant-ID'] = tenantId;
+      config.headers["X-Tenant-ID"] = tenantId;
     }
-    
+
     return config;
   },
   (error) => {
@@ -1088,9 +1104,9 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('tenantId');
-      window.location.href = '/login';
+      localStorage.removeItem("token");
+      localStorage.removeItem("tenantId");
+      window.location.href = "/login";
     }
     return Promise.reject(error);
   }
@@ -1100,6 +1116,7 @@ apiClient.interceptors.response.use(
 ## Configuration Files
 
 ### Tailwind CSS Configuration
+
 ```javascript
 // tailwind.config.js
 import type { Config } from 'tailwindcss';
@@ -1147,6 +1164,7 @@ export default config;
 ```
 
 ### TypeScript Configuration
+
 ```json
 // packages/typescript-config/base.json
 {
@@ -1205,20 +1223,18 @@ export default config;
 ```
 
 ### ESLint Configuration
+
 ```javascript
 // packages/eslint-config/next.js
 module.exports = {
-  extends: [
-    'next/core-web-vitals',
-    'prettier',
-  ],
+  extends: ["next/core-web-vitals", "prettier"],
   rules: {
-    '@next/next/no-html-link-for-pages': 'off',
-    'react/jsx-key': 'off',
+    "@next/next/no-html-link-for-pages": "off",
+    "react/jsx-key": "off",
   },
   parserOptions: {
     babelOptions: {
-      presets: [require.resolve('next/babel')],
+      presets: [require.resolve("next/babel")],
     },
   },
 };
@@ -1227,6 +1243,7 @@ module.exports = {
 ## Development Scripts
 
 ### Turbo Configuration
+
 ```json
 // turbo.json
 {
@@ -1257,18 +1274,21 @@ module.exports = {
 ## Key Features & Benefits
 
 ### 1. **Monorepo Architecture**
+
 - Shared components và utilities
 - Type safety across packages
 - Consistent development experience
 - Easy code reuse between domains
 
 ### 2. **Modern State Management**
+
 - Jotai cho local state (atomic)
 - React Query cho server state
 - Context API cho theme/auth
 - TypeScript type safety
 
 ### 3. **UI/UX Excellence**
+
 - Mantine component library
 - Tailwind CSS v4 styling
 - Dark/light mode support
@@ -1276,6 +1296,7 @@ module.exports = {
 - Accessibility built-in
 
 ### 4. **Business-Specific Features**
+
 - Print receipts với react-to-print
 - Barcode generation với jsBarcode
 - Vietnamese number reading
@@ -1283,6 +1304,7 @@ module.exports = {
 - Charts với Recharts
 
 ### 5. **Developer Experience**
+
 - TypeScript strict mode
 - ESLint + Prettier
 - Hot reload với Turbo
@@ -1290,6 +1312,7 @@ module.exports = {
 - Form validation với Zod
 
 ### 6. **Performance Optimizations**
+
 - Next.js 14 App Router
 - Server Components
 - Image optimization
