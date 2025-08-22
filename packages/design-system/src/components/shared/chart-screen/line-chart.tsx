@@ -4,7 +4,7 @@ import SlidingIndicator from "./sliding-line-chart";
 
 export type ChartPoint = {
   date: string;
-  Apples: number | null;
+  Apples: number;
 };
 export function LineChart() {
   const dataDefault = [
@@ -21,7 +21,11 @@ export function LineChart() {
   const [chartData, setChartData] = useState<ChartPoint[]>(dataDefault);
   const containerRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 800, height: 1000 });
-
+  const maxApples = Math.max(...chartData.map((item) => item.Apples));
+  // Cộng thêm 10%
+  const maxWith10Percent = Math.round(maxApples * 1.1);
+  const yProps = { domain: [0, maxWith10Percent] };
+  console.log(yProps);
   useEffect(() => {
     if (!containerRef.current) return;
 
@@ -29,7 +33,7 @@ export function LineChart() {
       // eslint-disable-next-line prefer-const
       for (let entry of entries) {
         const { width, height } = entry.contentRect;
-        setSize({ width: width - 20, height: height * 0.9 });
+        setSize({ width: width - 20, height: height * 0.8 });
       }
     });
 
@@ -40,6 +44,9 @@ export function LineChart() {
 
   return (
     <div ref={containerRef} className="relative w-full h-full  pt-20">
+      <div className="z-50 top-5 left-5 absolute w-full flex ">
+        <p className="text-2xl font-bold">Doanh Thu </p>
+      </div>
       <div className="z-50 top-5 right-5 absolute w-full flex justify-end ">
         <SlidingIndicator setState={setChartData} />
       </div>
@@ -50,6 +57,7 @@ export function LineChart() {
         data={chartData}
         dataKey="date"
         series={[{ name: "Apples", color: "#64B5F6" }]}
+        yAxisProps={yProps}
         curveType="bump"
         connectNulls
       />

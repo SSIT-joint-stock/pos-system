@@ -56,11 +56,27 @@
   },
   "packageManager": "npm@10.2.4",
   "dependencies": {
+    "@mantine/charts": "^8.2.5",
+    "@mantine/code-highlight": "^8.2.5",
+    "@mantine/core": "^8.2.5",
+    "@mantine/dates": "^8.2.5",
+    "@mantine/dropzone": "^8.2.5",
+    "@mantine/form": "^8.2.5",
+    "@mantine/hooks": "^8.2.5",
+    "@mantine/modals": "^8.2.5",
+    "@mantine/notifications": "^8.2.5",
+    "@mantine/tiptap": "^8.2.5",
     "@repo/email": "^1.0.0",
+    "@tiptap/extension-link": "^3.2.0",
+    "@tiptap/pm": "^3.2.0",
+    "@tiptap/react": "^3.2.0",
+    "@tiptap/starter-kit": "^3.2.0",
     "cross-env": "^10.0.0",
+    "dayjs": "^1.11.13",
     "next": "^14.2.31",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "tailwind-scrollbar": "^4.0.2"
+    "tailwind-scrollbar": "^4.0.2",
+    "recharts": "^2.15.4"
   }
 }

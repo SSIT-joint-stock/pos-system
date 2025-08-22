@@ -6,7 +6,7 @@ import { BaseClientError } from './base';
  */
 export class ValidationError extends BaseClientError {
   constructor(
-    details: Record<string, string[]> = {},
+    details: Record<string, unknown> = {},
     message: string = 'Validation failed',
     code: string = 'VALIDATION_ERROR'
   ) {
