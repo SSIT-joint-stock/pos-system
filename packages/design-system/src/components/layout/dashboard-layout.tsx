@@ -2,12 +2,8 @@
 import React, { useState } from "react";
 import { SideBar } from "../shared/dashboard-screen";
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const [isExpand, setIsExpand] = useState(true);
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const [isExpand, setIsExpand] = useState(false  );
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -15,7 +11,7 @@ export default function DashboardLayout({
         <SideBar isExpand={isExpand} setIsExpand={setIsExpand} />
       </aside>
 
-      <main className="flex-1 p-4 overflow-y-auto bg-gray-50  scrollbar-thin scrollbar-thumb-gray-50 scrollbar-track-transparent">
+      <main className="flex-1 p-4 overflow-auto bg-gray-50 scrollbar-thin scrollbar-thumb-gray-50 scrollbar-track-transparent ">
         {children}
       </main>
     </div>
