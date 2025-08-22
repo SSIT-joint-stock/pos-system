@@ -1,11 +1,14 @@
+"use client";
 import {
   ChevronDown,
   Download,
-  Ellipsis,
+  Edit,
+  Eye,
   ListFilter,
   Plus,
+  Trash,
 } from "lucide-react";
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 const products = [
   {
@@ -13,6 +16,55 @@ const products = [
     category: "Sunglass",
     stock: 124,
     stockStatus: "Low Stock",
+    price: "400000",
+    status: "Published",
+  },
+  {
+    name: "T-Shirt",
+    category: "Clothes",
+    stock: 124,
+    stockStatus: "",
+    price: "400000",
+    status: "Published",
+  },
+  {
+    name: "T-Shirt",
+    category: "Clothes",
+    stock: 124,
+    stockStatus: "",
+    price: "400000",
+    status: "Published",
+  },
+
+  {
+    name: "T-Shirt",
+    category: "Clothes",
+    stock: 124,
+    stockStatus: "",
+    price: "400000",
+    status: "Published",
+  },
+  {
+    name: "T-Shirt",
+    category: "Clothes",
+    stock: 124,
+    stockStatus: "",
+    price: "400000",
+    status: "Published",
+  },
+  {
+    name: "T-Shirt",
+    category: "Clothes",
+    stock: 124,
+    stockStatus: "",
+    price: "400000",
+    status: "Published",
+  },
+  {
+    name: "T-Shirt",
+    category: "Clothes",
+    stock: 124,
+    stockStatus: "",
     price: "400000",
     status: "Published",
   },
@@ -57,6 +109,14 @@ const products = [
     status: "Published",
   },
   {
+    name: "Cap",
+    category: "Cap",
+    stock: 124,
+    stockStatus: "",
+    price: "400000",
+    status: "Published",
+  },
+  {
     name: "Nike Cats",
     category: "Shoes",
     stock: 124,
@@ -81,73 +141,96 @@ const products = [
     status: "Stock Out",
   },
 ];
-
+const tableHeaders = [
+  "Sản Phẩm",
+  "Danh Mục",
+  "Số Lượng",
+  "Giá",
+  "Trạng Thái",
+  "Thao Tác",
+];
 const statusColors: Record<string, string> = {
-  Published: "bg-green-100 text-green-700",
-  "Draft List": "bg-gray-100 text-gray-700",
-  Inactive: "bg-red-100 text-red-700",
-  "Stock Out": "bg-yellow-100 text-yellow-700",
+  Published: " text-pos-blue-500",
+  Inactive: "text-gray-700",
+  "Stock Out": " text-orange-600",
 };
 export function ManageView() {
+  const [size, setSize] = useState("450px");
+  const refContainer = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!refContainer.current) {
+      return;
+    }
+    const observer = new ResizeObserver((entries) => {
+      const { height } = entries[0].contentRect;
+      setSize(`${height * 0.72}px`);
+    });
+    observer.observe(refContainer.current);
+    return () => observer.disconnect();
+  }, []);
+  useEffect(() => {
+    console.log(size);
+  }, [size]);
   return (
-    <div className="">
-      <div className="flex items-center justify-between">
-        <h1 className="font-semibold text-pos-blue-500 text-xl">
-          Danh sách sản phẩm
-        </h1>
-        <div className="flex items-center gap-3">
-          <button className="bg-white border border-gray-100 rounded-md flex items-center gap-2 py-2 px-4  cursor-pointer hover:opacity-80 transition-opacity duration-300">
-            <Download size={16} />
-            <span className="text-gray-900 font-medium text-sm">
-              {" "}
-              Xuất dữ liệu
-            </span>
-          </button>
-          <button className="bg-pos-blue-50 border border-pos-blue-50 rounded-md flex items-center gap-2 py-2 px-4  text-pos-blue-500 cursor-pointer hover:opacity-80 transition-opacity duration-300">
-            <Plus size={16} />
-            <span className="font-medium text-sm "> Thêm sản phẩm</span>
-          </button>
-        </div>
-      </div>
-      <div className="bg-white mt-8 rounded-md p-4">
-        <div className="flex items-center justify-between w-full">
+    <div ref={refContainer} className="max-w-full max-h-full">
+      {/* ACTION */}
+      <div className="flex items-center bg-white p-5 rounded-md">
+        <div className="flex items-center w-full gap-2">
+          {/* SEARCH */}
           <input
             type="search"
             placeholder="Tìm kiếm sản phẩm..."
-            className="border border-gray-200 rounded-md py-1 text-sm text-gray-800 placeholder:text-sm placeholder:text-gray-400 px-4 w-[26%] outline-none"
+            className=" border border-gray-200 rounded-md py-1 text-xs text-gray-800 placeholder:text-xs placeholder:text-gray-400 px-4 w-[36%] outline-none"
           />
-
-          <div className="flex items-center gap-3">
+          {/* FILTER */}
+          <div className="flex items-center gap-2 ">
             <button className="bg-white border border-gray-200 rounded-md flex items-center gap-2 py-2 px-4  cursor-pointer hover:opacity-80 transition-opacity duration-300">
-              <span className="text-gray-900 font-medium text-sm">
+              <span className="text-gray-900 font-medium text-xs">
                 Trạng thái
               </span>
               <ChevronDown size={16} />
             </button>
             <button className="bg-white border border-gray-200 rounded-md flex items-center gap-2 py-2 px-4  cursor-pointer hover:opacity-80 transition-opacity duration-300">
-              <span className="text-gray-900 font-medium text-sm">
+              <span className="text-gray-900 font-medium text-xs">
                 Danh mục
               </span>
               <ChevronDown size={16} />
             </button>
             <button className="bg-white border border-gray-200 rounded-md flex items-center gap-2 py-2 px-4  cursor-pointer hover:opacity-80 transition-opacity duration-300">
               <ListFilter size={16} />
-              <span className="text-gray-900 font-medium text-sm">
+              <span className="text-gray-900 font-medium text-xs">
                 Lọc sản phẩm
               </span>
             </button>
           </div>
         </div>
-        <div className="overflow-x-auto mt-8">
-          <table className="min-w-full ">
-            <thead className="py-4">
-              <tr className="text-left bg-gray-50 text-base text-gray-800 ">
-                <th className="px-2 py-4 font-semibold">Product Name</th>
-                <th className="px-2 py-4 font-semibold">Category</th>
-                <th className="px-2 py-4 font-semibold">Stock</th>
-                <th className="px-2 py-4 font-semibold">Price</th>
-                <th className="px-2 py-4 font-semibold">Status</th>
-                <th className="px-2 py-4 font-semibold">Action</th>
+        <div className="flex items-center gap-2 justify-end w-fit">
+          <button className="bg-white border text-nowrap border-gray-100 rounded-md flex items-center gap-2 py-2 px-4  cursor-pointer hover:opacity-80 transition-opacity duration-300">
+            <Download size={16} />
+            <span className="text-gray-900 font-medium text-xs">
+              {" "}
+              Xuất dữ liệu
+            </span>
+          </button>
+          <button className="bg-pos-blue-50 border text-nowrap  border-pos-blue-500 rounded-md flex items-center gap-2 py-2 px-4  text-pos-blue-500 cursor-pointer hover:opacity-80 transition-opacity duration-300">
+            <Plus size={16} />
+            <span className="font-medium text-xs "> Thêm sản phẩm</span>
+          </button>
+        </div>
+      </div>
+      {/* TABLE */}
+      <div className="bg-white rounded-md p-5 mt-5">
+        <div
+          style={{ height: size }}
+          className={`overflow-y-auto scrollbar-thin scrollbar-thumb-gray-50 scrollbar-track-transparent`}>
+          <table className="table-fixed w-full border-collapse">
+            <thead className="sticky top-0 z-10 bg-gray-50">
+              <tr className="text-left text-base text-gray-800">
+                {tableHeaders.map((item, idx) => (
+                  <th key={idx} className="px-4 py-2 font-semibold">
+                    {item}
+                  </th>
+                ))}
               </tr>
             </thead>
 
@@ -156,55 +239,51 @@ export function ManageView() {
                 <tr
                   key={idx}
                   className="border-b border-b-gray-100 hover:bg-gray-50 transition-colors duration-300">
-                  <td className="py-4 px-2 flex items-center gap-2">
-                    {/* Placeholder for image */}
-                    <div className="w-8 h-8 bg-gray-200 rounded" />
-                    <span className="text-sm font-medium text-gray-900">
-                      {" "}
-                      {product.name}
-                    </span>
+                  <td className="px-4 py-2 text-xs font-medium text-gray-900">
+                    {product.name}
                   </td>
-                  <td className="py-4 px-2 text-sm text-gray-500 font-medium">
+                  <td className="px-4 py-2 text-xs text-gray-500 font-medium">
                     {product.category}
                   </td>
-                  <td className="py-4 px-2 text-sm text-gray-500">
-                    {product.stock}{" "}
-                    {product.stockStatus && (
-                      <span
-                        className={
-                          product.stockStatus === "Out of Stock"
-                            ? "text-red-600"
-                            : "text-yellow-600"
-                        }>
-                        {product.stockStatus}
-                      </span>
-                    )}
+                  <td className="px-4 py-2 text-xs text-gray-500">
+                    {product.stock}
                   </td>
-                  <td className="py-4 px-2 text-sm text-gray-500">
+                  <td className="px-4 py-2 text-xs text-gray-500">
                     {Intl.NumberFormat("vi-VN", {
                       style: "currency",
                       currency: "VND",
                     }).format(Number(product.price))}
                   </td>
-                  <td>
+                  <td className="px-4 py-2">
                     <span
-                      className={`text-xs font-medium py-2 px-4 rounded-full ${statusColors[product.status]}`}>
+                      className={`text-xs font-medium rounded-xl ${statusColors[product.status]}`}>
                       {product.status}
                     </span>
                   </td>
                   <td>
-                    <button className="cursor-pointer hover:bg-white p-2 transition-colors duration-300 rounded-full ">
-                      <Ellipsis size={18} />
-                    </button>
+                    <div className="flex items-center gap-5 pl-4">
+                      <button className="flex justify-center items-center cursor-pointer w-[36px] h-[36px] bg-gray-50 text-gray-500 rounded-md hover:opacity-100 opacity-70 transition-opacity duration-200">
+                        <Eye size={16} />
+                      </button>
+                      <button className="flex justify-center items-center cursor-pointer w-[36px] h-[36px]  bg-pos-blue-50 text-pos-blue-500 rounded-md hover:opacity-100 opacity-70 transition-opacity duration-200">
+                        <Edit size={16} />
+                      </button>
+                      <button className="flex justify-center items-center cursor-pointer w-[36px] h-[36px]  bg-red-50 text-red-500 rounded-md hover:opacity-100 opacity-70 transition-opacity duration-200 ml-auto">
+                        <Trash size={16} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        <div className="mt-8">
+        {/* PAGINATION */}
+        <div className="mt-5 ">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-800 font-medium">Hiển thị: </span>
+            <span className="text-xs text-gray-800 font-medium">
+              Hiển thị:{" "}
+            </span>
           </div>
         </div>
       </div>
