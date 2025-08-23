@@ -5,29 +5,19 @@ import { Wallet, PiggyBank, CloudDownload, HandCoins, Plus } from "lucide-react"
 import React, { useEffect, useRef, useState } from "react";
 
 export function DashboardView() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-
-  useEffect(() => {
-    if (containerRef.current) {
-      const { offsetWidth, offsetHeight } = containerRef.current;
-      setDimensions({ width: offsetWidth, height: offsetHeight });
-    }
-  }, []);
-
   return (
-    <div ref={containerRef} className="flex h-full w-full gap-5 flex-col">
-      <div className="flex gap-5  w-full overflow-x-auto min-h-fit pb-[2px] scrollbar-none">
-        <ItemBoxChart title="Doanh Thu Hôm Nay" reveneu={500000000} percent={55} icon={<Wallet />} />
-        <ItemBoxChart title="Tiền Nhập Hàng Tháng Này" reveneu={900000000} percent={36} icon={<CloudDownload />} />
-        <ItemBoxChart title="Tổng Tiền Lãi Tháng Này" reveneu={30102005} percent={10} icon={<HandCoins />} />
-        <ItemBoxChart title="Tổng Doanh Thu Tháng" reveneu={500000000000} percent={5} icon={<PiggyBank />} />
-        <ItemBoxChart title="Tổng Doanh Thu Tháng" reveneu={500000000000} percent={5} icon={<PiggyBank />} />
-        <ItemBoxChart title="Tổng Doanh Thu Tháng" reveneu={500000000000} percent={5} icon={<PiggyBank />} />
-        <ItemBoxChart title="Tổng Doanh Thu Tháng" reveneu={500000000000} percent={5} icon={<PiggyBank />} />
-        <ItemBoxChart title="Tổng Doanh Thu Tháng" reveneu={500000000000} percent={5} icon={<PiggyBank />} />
-        <div className="flex items-center justify-center  hover:bg-white transition-all duration-300 border-2 border-dashed border-pos-blue-500 bg-pos-blue-100 rounded-2xl">
-          <Plus className=" text-pos-blue-500 w-[250px] h-[36] text-center" strokeWidth={2} />
+    <div className="flex h-full w-full gap-5 flex-col">
+      <div className="grid sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pb-2  w-full overflow-x-auto min-h-fit">
+        <ItemBoxChart title="Doanh Thu Hôm Nay" value={500000000} percent={55} />
+        <ItemBoxChart title="Tiền Nhập Hàng Tháng Này" value={900000000} percent={36} />
+        <ItemBoxChart title="Tổng Tiền Lãi Tháng Này" value={30102005} percent={10} />
+        <ItemBoxChart title="Tổng Doanh Thu Tháng" value={500000000000} percent={5} />
+        <ItemBoxChart title="Tổng Doanh Thu Tháng" value={500000000000} percent={5} />
+        <ItemBoxChart title="Tổng Doanh Thu Tháng" value={500000000000} percent={5} />
+        <ItemBoxChart title="Tổng Doanh Thu Tháng" value={500000000000} percent={5} />
+        <ItemBoxChart title="Tổng Doanh Thu Tháng" value={500000000000} percent={5} />
+        <div className="flex items-center justify-center h-full w-full   hover:bg-white transition-all duration-300 border-2 border-dashed border-pos-blue-500 bg-pos-blue-100 rounded-2xl">
+          <Plus className=" text-pos-blue-500  text-center" strokeWidth={2} />
         </div>
       </div>
       <div className="flex w-full justify-between h-full">
@@ -39,12 +29,12 @@ export function DashboardView() {
           <h2 className="text-xl font-semibold ">Thông Báo</h2>
 
           <div className="mt-3">
+            <ItemNoti isFirst={true} />
             <ItemNoti />
             <ItemNoti />
             <ItemNoti />
             <ItemNoti />
-            <ItemNoti />
-            <ItemNoti />
+            <ItemNoti isLast={true}/>
           </div>
         </div>
       </div>
@@ -53,9 +43,9 @@ export function DashboardView() {
           <PieChart />
         </div>
         <div className="w-[23%]   flex flex-col justify-between gap-2 ">
-          <ItemBoxChart title="Doanh Thu Hôm Nay" reveneu={500000000} percent={55} icon={<Wallet />} />
-          <ItemBoxChart title="Tổng Tiền Lãi Tháng Này" reveneu={30102005} percent={10} icon={<HandCoins />} />
-          <ItemBoxChart title="Tiền Nhập Hàng Tháng Này" reveneu={900000000} percent={36} icon={<CloudDownload />} />
+          <ItemBoxChart title="Doanh Thu Hôm Nay" value={500000000} percent={55} icon={<Wallet />} />
+          <ItemBoxChart title="Tổng Tiền Lãi Tháng Này" value={30102005} percent={10} icon={<HandCoins />} />
+          <ItemBoxChart title="Tiền Nhập Hàng Tháng Này" value={900000000} percent={36} icon={<CloudDownload />} />
         </div>
       </div>
     </div>

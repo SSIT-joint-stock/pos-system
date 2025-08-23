@@ -1,17 +1,27 @@
 interface IBoxProps {
   title?: string;
   icon?: React.ReactNode;
-  reveneu?: number;
+  value?: number;
   percent?: number;
 }
-export function ItemBoxChart({ title, reveneu, percent, icon }: IBoxProps) {
+export function ItemBoxChart({ title, value, percent, icon }: IBoxProps) {
+  function formatNumber(num) {
+    if (num >= 1_000_000_000) {
+      return (num / 1_000_000_000).toFixed(1).replace(/\.0$/, "") + " Tỷ";
+    } else if (num >= 1_000_000) {
+      return (num / 1_000_000).toFixed(1).replace(/\.0$/, "") + " Triệu";
+    } else if (num >= 1_000) {
+      return (num / 1_000).toFixed(1).replace(/\.0$/, "") + "K";
+    }
+    return num.toString();
+  }
   return (
     <div className="bg-white py-5 px-4 rounded-xl flex items-center gap-5 shadow">
       <div className="flex flex-col gap-2">
         <p className="text-gray-600 text-sm font-[500]">{title}</p>
         <div className="flex items-center gap-2">
           <p className="font-bold font-mono ">
-            {reveneu?.toLocaleString("vi-VN", {
+            {formatNumber(value)?.toLocaleString("vi-VN", {
               style: "currency",
               currency: "VND",
             })}
@@ -19,7 +29,6 @@ export function ItemBoxChart({ title, reveneu, percent, icon }: IBoxProps) {
           <p className="text-green-700 font-bold">+{percent}%</p>
         </div>
       </div>
-      <div className="p-2 bg-pos-blue-50 rounded-md text-pos-blue-400">{icon}</div>
     </div>
   );
 }
