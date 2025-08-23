@@ -65,11 +65,17 @@ export function SideBar({ isExpand, setIsExpand }: { isExpand: boolean; setIsExp
           />
           <p className={` ${isExpand === false && "hidden"} text-xl font-medium text-gray-800 `}>EraPOS8</p>
         </div>
+
         {/* User account management */}
         <div
-          className={`py-3 border-y border-y-gray-100 my-8 flex items-center gap-4   ${isExpand === true ? "hover:bg-gray-50" : ""} transition-colors duration-200 cursor-pointer`}
-        >
-          <Image src={"/avatar.png"} width={40} height={40} alt="avatar" className="w-10 h-10 rounded-full shrink-0" />
+          className={`py-3 border-y border-y-gray-100 mt-2 mb-4 flex items-center gap-4   ${isExpand === true ? "hover:bg-gray-50" : ""} transition-colors duration-200 cursor-pointer`}>
+          <Image
+            src={"/avatar.png"}
+            width={40}
+            height={40}
+            alt="avatar"
+            className="w-10 h-10 rounded-full shrink-0"
+          />
           <div
             className={`flex flex-col gap-1 transition-all duration-300 overflow-hidden ${
               isExpand ? "max-w-[156px] opacity-100" : "max-w-0 opacity-0"
@@ -84,23 +90,25 @@ export function SideBar({ isExpand, setIsExpand }: { isExpand: boolean; setIsExp
           />
         </div>
 
-        <div className=" flex-1 flex flex-col items-center gap-4 overflow-x-hidden overflow-y-auto scrollbar-fixed ">
+        {/* Menu */}
+        <div className="flex-1 flex flex-col items-center gap-4 overflow-x-hidden  overflow-y-auto scrollbar-fixed">
           {pageItems.map((item, idx) => (
             <Link
               key={idx}
+              title={item.title}
               href={item.path}
-              className={`flex items-center  font-medium group text-base gap-5 p-2 rounded-lg transition-all duration-200 ${
+              className={`flex items-center font-medium group text-base gap-5 p-2 rounded-lg transition-all duration-200 ${
                 pathName === item.path
                   ? "bg-pos-blue-50 text-pos-blue-400"
                   : "text-gray-500 hover:bg-pos-blue-50 hover:text-pos-blue-400"
-              } ${isExpand ? "w-full" : "w-[40px] justify-center"}`}
-            >
+              } ${isExpand ? "w-full" : "w-[40px] justify-center"}`}>
               <span>{item.icon}</span>
               {isExpand && <p className="shrink-0">{item.title}</p>}
             </Link>
           ))}
         </div>
 
+        {/* Settings */}
         <hr className="border border-gray-100" />
         <div className={`flex flex-col gap-4 mt-4 font-medium text-base ${isExpand === false && "items-center"} `}>
           <button className="flex items-center font-medium cursor-pointer group text-base text-gray-500 gap-5 p-2 rounded-lg hover:bg-pos-blue-50 hover:text-pos-blue-400 transition-colors duration-200  ">
