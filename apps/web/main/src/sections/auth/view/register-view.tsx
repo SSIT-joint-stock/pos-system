@@ -7,7 +7,8 @@ import {
   FormActiveAccount,
   FormRegister,
   FormBusinessInfo,
-} from "../components/form";
+} from "../components/Form";
+import useAuth from "@main/hooks/auth/useAuth";
 
 const steps = [
   {
@@ -33,7 +34,11 @@ const steps = [
   },
 ];
 export function RegisterView() {
-  const [active, setActive] = useState(0);
+  const [userId, setUserId] = useState<string>("");
+  const [isActive, setIsActive] = useState<number>(0);
+  const { handleSignup, handleActiveAccount, handleCreatedBusinessInfo } =
+    useAuth();
+
   return (
     <>
       {/* Left side */}
@@ -50,8 +55,8 @@ export function RegisterView() {
           </RouterLink>
           <div className="mt-10">
             <Stepper
-              active={active}
-              setActive={setActive}
+              active={isActive}
+              setActive={setIsActive}
               orientation="vertical"
               steps={steps}
               size="xs"
@@ -64,19 +69,44 @@ export function RegisterView() {
         {/* Steps */}
         <div className="flex flex-col items-center text-center mb-6">
           <div className="mb-3 p-3 bg-pos-blue-50  text-pos-blue-500 rounded-full">
-            {steps[active].icon}
+            {steps[isActive].icon}
           </div>
           <h2 className="text-xl font-semibold text-pos-blue-500">
-            {steps[active].label}
+            {steps[isActive].label}
           </h2>
           <p className="text-gray-500 text-xs mt-1">
-            {steps[active].description}
+            {steps[isActive].description}
           </p>
         </div>
-        {active === 0 && <FormRegister setActive={setActive} />}
-        {active === 1 && <FormActiveAccount setActive={setActive} />}
-        {active === 2 && <FormBusinessInfo setActive={setActive} />}
-        {active === 3 && (
+        {isActive === 0 && (
+          <FormRegister
+            onSubmit={async (data) => {
+              const success = await handleSignup(data, setUserId);
+              if (success) setIsActive(1);
+            }}
+          />
+        )}
+
+        {isActive === 1 && (
+          <FormActiveAccount
+            setActive={setIsActive}
+            onSubmit={async (data) => {
+              const success = await handleActiveAccount(data);
+              if (success) setIsActive(2);
+            }}
+          />
+        )}
+        {isActive === 2 && (
+          <FormBusinessInfo
+            onSubmit={async (data) => {
+              const success = await handleCreatedBusinessInfo(data);
+              if (success) setIsActive(3);
+            }}
+            userId={userId}
+            setActive={setIsActive}
+          />
+        )}
+        {isActive === 3 && (
           <div className="w-full">
             <RouterLink className="w-full flex" href="/auth/login">
               <Button

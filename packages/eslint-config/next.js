@@ -46,6 +46,7 @@ export default [
       // React + Hooks
       ...pluginReact.configs.flat.recommended.rules,
       ...pluginReactHooks.configs.recommended.rules,
+      "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-empty-object-type": "off",
       "@next/next/no-html-link-for-pages": "off",
       "react/react-in-jsx-scope": "off",
@@ -59,7 +60,10 @@ export default [
   {
     files: ["**/*.ts", "**/*.tsx"],
     rules: {
-      "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        { argsIgnorePattern: "^_" },
+      ],
       "filenames/match-regex": ["error", "^(index|[a-z0-9-]+)$", true],
     },
   },

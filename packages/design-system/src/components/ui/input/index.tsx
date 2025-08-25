@@ -24,7 +24,7 @@ export type InputProps = React.PropsWithChildren & {
   leftSection?: ReactNode;
   rightSection?: ReactNode;
   className?: string;
-  error?: string;
+  error?: string | boolean | ReactNode;
   style?: CSSProperties;
   disabled?: boolean;
   isInputPassword?: boolean;
@@ -50,48 +50,40 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       children,
       isInputPassword,
       error,
+      ...rest
     },
     ref: ForwardedRef<HTMLInputElement>
   ) => {
+    const commonProps = {
+      ref,
+      error,
+      variant,
+      disabled,
+      placeholder,
+      type,
+      onChange,
+      value,
+      size,
+      radius,
+      leftSection,
+      rightSection,
+      ...rest,
+    };
+
     return (
       <div className={`flex flex-col gap-1 ${className ?? ""}`} style={style}>
         {label && (
           <span
-            className={`${error ? "text-red-500" : "text-gray-500"} text-sm font-medium`}>
+            className={`${
+              error ? "text-red-500" : "text-gray-500"
+            } text-sm font-medium cursor-pointer hover:text-gray-700 transition-colors duration-300`}>
             {label}
           </span>
         )}
         {isInputPassword ? (
-          <PasswordInput
-            ref={ref}
-            error={error}
-            variant={variant}
-            disabled={disabled}
-            placeholder={placeholder}
-            type={type}
-            onChange={onChange}
-            value={value}
-            size={size}
-            radius={radius}
-            leftSection={leftSection}
-            rightSection={rightSection}
-          />
+          <PasswordInput {...commonProps} />
         ) : (
-          <TextInput
-            ref={ref}
-            error={error}
-            variant={variant}
-            disabled={disabled}
-            placeholder={placeholder}
-            type={type}
-            
-            onChange={onChange}
-            value={value}
-            size={size}
-            radius={radius}
-            leftSection={leftSection}
-            rightSection={rightSection}
-          />
+          <TextInput {...commonProps} />
         )}
         {children}
       </div>

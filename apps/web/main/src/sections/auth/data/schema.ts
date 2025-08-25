@@ -1,9 +1,12 @@
 import { z } from "zod";
 export const loginSchema = z.object({
-  email: z.string().email({ message: "Email không hợp lệ" }).nonempty({
-    message: "Vui lòng nhập email",
-  }),
-  passwordHash: z
+  usernameOrEmail: z
+    .string()
+    .email({ message: "Email không hợp lệ" })
+    .nonempty({
+      message: "Vui lòng nhập email hoặc tên đăng nhập",
+    }),
+  password: z
     .string()
     .min(6, {
       message: "Mật khẩu ít nhất phải 6 ký tự",
@@ -14,39 +17,31 @@ export const loginSchema = z.object({
 });
 export type LoginData = z.infer<typeof loginSchema>;
 
-export const registerSchema = z.object({
-  username: z
-    .string()
-    .min(3, {
-      message: "Tên tài khoản phải nhất 3 ký tự",
-    })
-    .max(20, {
-      message: "Ten tài khoản không quá 20 ký tự",
-    })
-    .nonempty({
-      message: "Vui lòng nhập tên tài khoản",
-    }),
-  email: z
-    .string()
-    .email({
-      message: "Email không hợp lệ",
-    })
-    .nonempty({
+export const registerSchema = z
+  .object({
+    email: z.string().email({ message: "Email không hợp lệ" }).nonempty({
       message: "Vui lòng nhập email",
     }),
-  passwordHash: z
-    .string()
-    .min(6, {
-      message: "Mật khẩu ít nhất phải 6 ký tự",
-    })
-    .nonempty({
-      message: "Vui lòng nhập mật khẻu",
+    password: z
+      .string()
+      .min(6, { message: "Mật khẩu ít nhất phải 6 ký tự" })
+      .nonempty({ message: "Vui lòng nhập mật khẩu" }),
+    confirmPassword: z.string().nonempty({
+      message: "Vui lòng nhập xác thực mật khẩu",
     }),
-  phone: z.string().nonempty({
-    message: "Vui lòng nhập số diện thoại",
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "Mật khẩu xác thực không khớp",
+  });
+export type RegisterData = z.infer<typeof registerSchema>;
+
+export const verifyAccountSchema = z.object({
+  verificationCode: z.string().nonempty({
+    message: "Vui lòng nhập mã xác thực",
   }),
 });
-export type RegisterData = z.infer<typeof registerSchema>;
+export type VerifyAccountData = z.infer<typeof verifyAccountSchema>;
 
 export const forgotPasswordSchema = z.object({
   email: z
@@ -72,3 +67,20 @@ export const resetPasswordSchema = z.object({
   }),
 });
 export type ResetPasswordData = z.infer<typeof resetPasswordSchema>;
+
+export const businessInfoSchema = z.object({
+  userId: z.string().nonempty({ message: "Vui lòng nhập userId" }),
+  name: z.string().nonempty({ message: "Vui lòng nhập tên doanh nghiệp" }),
+  domainType: z.enum(["RETAIL", "RESTAURANT", "SERVICE"], {
+    message: "Vui lòng chọn loại hình doanh nghiệp",
+  }),
+  phone: z.string().nonempty({
+    message: "Vui lòng nhập số điện thoại",
+  }),
+  address: z.string().optional(),
+  taxCode: z
+    .string()
+    .nonempty({ message: "Vui lòng nhập mã số thuế" })
+    .optional(),
+});
+export type BusinessInfoData = z.infer<typeof businessInfoSchema>;

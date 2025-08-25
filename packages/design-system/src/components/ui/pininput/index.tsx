@@ -12,7 +12,9 @@ export type PinInputProps = React.PropsWithChildren & {
   size?: SizePinInput;
   radius?: SizeRadius;
   variant?: SizeVariant;
-};
+  error?: string;
+} & Omit<React.ComponentProps<"input">, "onChange" | "value">;
+
 export function PinInput({
   length,
   value,
@@ -20,15 +22,23 @@ export function PinInput({
   size,
   variant,
   radius,
+  error,
+  ...rest
 }: PinInputProps) {
   return (
-    <MantinePinInput
-      length={length}
-      value={value}
-      radius={radius}
-      onChange={onChange}
-      variant={variant}
-      size={size}
-    />
+    <div className="flex flex-col gap-2">
+      <MantinePinInput
+        error={!!error}
+        length={length}
+        value={value}
+        radius={radius}
+        onChange={onChange}
+        variant={variant}
+        size={size}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        {...(rest as any)}
+      />
+      {error && <p className="text-xs text-red-500">{error}</p>}
+    </div>
   );
 }

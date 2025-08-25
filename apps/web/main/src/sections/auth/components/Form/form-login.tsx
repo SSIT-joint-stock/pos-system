@@ -1,47 +1,33 @@
 "use client";
 import React, { useState } from "react";
-import useToast from "@repo/design-system/hooks/client/use-toast-notification";
 // import GoogleIC from "@/../../../web/main/src/public/icons/google.svg";
 import {
   Input,
   Button,
   Checkbox,
   Modal,
+  Loading,
 } from "@repo/design-system/components/ui/";
 import { Lock, Mail } from "lucide-react";
 import { RouterLink } from "@repo/design-system/routes/components";
-
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { loginSchema, type LoginData } from "../../data";
 import { FormResetPassword, FormRetryPassword } from "./index";
+import useAuth from "@main/hooks/auth/useAuth";
 
 export function FormLogin() {
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [modalSteps, setModalSteps] = useState(1);
-  const toast = useToast();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LoginData>({
-    resolver: zodResolver(loginSchema),
-  });
+  const { handleLogin, loginForm, loading } = useAuth();
 
-  const handleSignIn = (data: LoginData) => {
-    console.log(data);
-    toast.showSuccessToast("Đăng nhập thanh cong!");
-    setModalSteps(1);
-  };
   return (
     <>
       <form
-        onSubmit={handleSubmit(handleSignIn)}
+        onSubmit={loginForm.handleSubmit(handleLogin)}
         className="flex flex-col gap-4 w-full ">
         <Input
-          {...register("email")}
-          name="email"
-          error={errors.email?.message}
+          disabled={loading}
+          {...loginForm.register("usernameOrEmail")}
+          name="usernameOrEmail"
+          error={loginForm.formState.errors.usernameOrEmail?.message}
           size="sm"
           type="email"
           label="Email"
@@ -49,9 +35,10 @@ export function FormLogin() {
           leftSection={<Mail size={16} />}
         />
         <Input
-          {...register("passwordHash")}
-          name="passwordHash"
-          error={errors.passwordHash?.message}
+          disabled={loading}
+          {...loginForm.register("password")}
+          name="password"
+          error={loginForm.formState.errors.password?.message}
           isInputPassword
           size="sm"
           type="password"
@@ -72,7 +59,13 @@ export function FormLogin() {
         </div>
 
         {/* Sign in button */}
-        <Button type="submit" size="sm" title="Đăng nhập" variant="filled" />
+        <Button
+          disabled={loading}
+          type="submit"
+          size="sm"
+          title={loading ? <Loading /> : "Đăng nhập"}
+          variant="filled"
+        />
         {/* Google sign in */}
         <Button
           type="button"

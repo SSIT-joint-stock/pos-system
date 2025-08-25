@@ -1,36 +1,38 @@
+import useAuth from "@main/hooks/auth/useAuth";
 import { Button, PinInput } from "@repo/design-system/components/ui";
 import { MoveLeft } from "lucide-react";
 import React from "react";
+import { VerifyAccountData } from "../../data";
 
 export function FormActiveAccount({
   setActive,
+  onSubmit,
 }: {
-  setActive: (active: number) => void;
+  setActive: (step: number) => void;
+  onSubmit: (data: VerifyAccountData) => void;
 }) {
-  const handleActiveAccount = (e: React.FormEvent) => {
-    e.preventDefault();
-    setActive(2);
-  };
+  const {
+    handleVerificationCodeChange,
+    verifyEmailForm,
+    handleResendCode,
+    loading,
+  } = useAuth();
   return (
     <form
-      onSubmit={handleActiveAccount}
+      onSubmit={verifyEmailForm.handleSubmit(onSubmit)}
       className="flex flex-col gap-4 w-full ">
-      {/* <Input
-        disabled
-        variant="filled"
-        size="sm"
-        type="email"
-        value="tranhuuthanhcp@gmail.com"
-        label="Email"
-        leftSection={<Mail size={16} />}
-      /> */}
-
       <div className="flex items-center justify-center">
-        <PinInput length={6} size="sm" radius="md" />
+        <PinInput
+          name="verificationCode"
+          onChange={handleVerificationCodeChange}
+          error={verifyEmailForm.formState.errors.verificationCode?.message}
+          length={6}
+          radius="md"
+        />
       </div>
 
-      {/* Sign in button */}
       <Button
+        disabled={loading}
         type="submit"
         size="sm"
         title="Xác thực tài khoản"
@@ -41,7 +43,10 @@ export function FormActiveAccount({
       {/* Sign up link */}
       <p className="text-center text-xs font-medium text-gray-400">
         Chưa nhận được mã xác thức?{" "}
-        <button className="text-pos-blue-500 hover:underline cursor-pointer">
+        <button
+          onClick={handleResendCode}
+          type="button"
+          className="text-pos-blue-500 hover:underline cursor-pointer">
           Gửi lại mã
         </button>
       </p>

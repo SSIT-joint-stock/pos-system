@@ -16,7 +16,7 @@ type SizeRadius = "xs" | "sm" | "md" | "lg" | "xl";
 type SizeButton = "xs" | "sm" | "md" | "lg" | "xl";
 type TypeButton = "submit" | "reset" | "button";
 export type ButtonProps = React.PropsWithChildren & {
-  title?: string;
+  title?: string | React.ReactNode;
   variant?: SizeVariant;
   radius?: SizeRadius;
   size?: SizeButton;
@@ -25,6 +25,7 @@ export type ButtonProps = React.PropsWithChildren & {
   className?: string;
   style?: React.CSSProperties;
   color?: string;
+  disabled?: boolean;
 } & Omit<
     React.ComponentProps<typeof MantineButton>,
     "title" | "variant" | "size" | "radius" | "type"
@@ -40,11 +41,13 @@ export function Button({
   className,
   style,
   children,
-  color = "#3b82f6",  
+  color = "#3b82f6",
+  disabled,
   ...rest
 }: ButtonProps) {
   return (
     <MantineButton
+      loading={disabled}
       color={color}
       variant={variant}
       radius={radius}

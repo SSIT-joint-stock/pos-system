@@ -10,3 +10,4 @@ export * from "./pininput";
 export * from "./datepicker";
 export * from "./pagination";
 export * from "./table";
+export * from "./loading";
