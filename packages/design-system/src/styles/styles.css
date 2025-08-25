@@ -1,7 +1,7 @@
 @import "@repo/tailwind-config";
 @import "@mantine/core/styles.css";
 @import "@mantine/charts/styles.css";
-@import '@mantine/dates/styles.css';
+@import "@mantine/dates/styles.css";
 @plugin 'tailwind-scrollbar';
 /* POS Blue Theme Tokens */
 :root {
@@ -75,11 +75,32 @@
   }
 
   .scrollbar-fixed::-webkit-scrollbar-thumb {
-    background-color: #e3e8ef ; /* Tailwind gray-50 */
+    background-color: #e3e8ef; /* Tailwind gray-50 */
     border-radius: 9999px;
   }
 
   .scrollbar-fixed::-webkit-scrollbar-track {
     background: transparent;
+  }
+}
+
+@layer base {
+  /* Custom Scrollbar - Toàn cục */
+  ::-webkit-scrollbar {
+    width: 3px;
+    height: 5px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Màu nền track */
+    margin: 40px 40px; /* Cắt bớt trên và dưới */
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #4f46e5, #9333ea); /* Gradient */
+    border-radius: 10px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #6366f1, #a855f7);
   }
 }

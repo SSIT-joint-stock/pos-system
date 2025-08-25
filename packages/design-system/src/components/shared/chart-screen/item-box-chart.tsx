@@ -1,10 +1,9 @@
 interface IBoxProps {
   title?: string;
-  icon?: React.ReactNode;
   value?: number;
   percent?: number;
 }
-export function ItemBoxChart({ title, value, percent, icon }: IBoxProps) {
+export function ItemBoxChart({ title, value, percent }: IBoxProps) {
   function formatNumber(num) {
     if (num >= 1_000_000_000) {
       return (num / 1_000_000_000).toFixed(1).replace(/\.0$/, "") + " Tỷ";

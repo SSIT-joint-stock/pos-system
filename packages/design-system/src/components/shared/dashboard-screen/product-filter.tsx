@@ -87,7 +87,7 @@ export default function FloatingTabIndicator() {
   }, [active, containerRef, updateIndicator]);
 
   return (
-    <div className="w-full gap-5 flex items-center  py-3 rounded scrollbar-fixed overflow-auto ">
+    <div className="w-full gap-5 flex items-center  py-3 rounded overflow-auto ">
       <div ref={containerRef} className="relative flex gap-6 px-2 ">
         {/* floating block behind active tab */}
         <span

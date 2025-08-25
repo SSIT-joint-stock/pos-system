@@ -56,7 +56,7 @@ export function LineChart() {
         xAxisProps={{ padding: { left: 30, right: 30 } }}
         data={chartData}
         dataKey="date"
-        series={[{ name: "Apples", color: "#64B5F6" }]}
+        series={[{ name: "Apples", color: "#2563eb" }]}
         yAxisProps={yProps}
         curveType="bump"
         connectNulls

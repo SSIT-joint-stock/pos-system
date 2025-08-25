@@ -21,7 +21,7 @@ export default function SlidingTabs({ setState }: { setState: (state: ChartPoint
     },
     {
       date: "Mar 26",
-      Apples: null,
+      Apples: 0,
     },
     {
       date: "Mar 27",
@@ -90,7 +90,7 @@ export default function SlidingTabs({ setState }: { setState: (state: ChartPoint
       {/* Indicator */}
       <div
         ref={indicatorRef}
-        className="absolute top-1 bottom-1 bg-gray-100 rounded-md  shadow transition-all duration-300"
+        className="absolute top-1 bottom-1 bg-white drop-shadow rounded-md  shadow transition-all duration-300"
       />
       {/* Tabs */}
       {tabs.map((item, i) => (
@@ -101,7 +101,7 @@ export default function SlidingTabs({ setState }: { setState: (state: ChartPoint
             setState(item.data);
           }}
           className={`relative z-10 px-5 py-1 text-center text-xs font-medium whitespace-nowrap ${
-            active === i ? "text-pos-blue-400" : "text-pos-blue-400"
+            active === i ? "text-pos-blue-700" : "text-gray-500 hover:text-gray-700"
           }`}
         >
           {item.name}
