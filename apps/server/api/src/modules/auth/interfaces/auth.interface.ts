@@ -77,6 +77,7 @@ export interface IAuthService {
 }
 
 export interface IBusinessInfor {
+  userId: string
   phone: string;
   address: string;
   taxCode: string;

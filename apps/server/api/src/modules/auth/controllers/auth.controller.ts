@@ -7,7 +7,7 @@ import {
   loginSchema,
   registerSchema,
   type RegisterInput,
-  type LoginInput,
+  LoginInput,
   verifyCodeSchema,
   reSendVerificationCodeSchema,
   businessSchema,
@@ -67,8 +67,9 @@ export class ManualAuthController extends BaseController {
     next: NextFunction
   ): Promise<void> {
     const data = this.validate<LoginInput>(req.body, loginSchema);
-    const result = await this.service.login(data);
+    console.log(data)
 
+    const result = await this.service.login(data);
     res.setHeader("Authorization", `Bearer ${result.accessToken}`);
 
     res.cookie("refreshToken", result.refreshToken, {
@@ -95,20 +96,16 @@ export class ManualAuthController extends BaseController {
     res: Response,
     next: NextFunction
   ): Promise<void> {
-    // res.json("asdsaasd");
     const data = this.validate<RegisterInput>(req.body, registerSchema);
     const result = await this.service.register(data);
     this.sendResponse(res, ApiResponse.success(result, "Register successful"));
-    // res.status(200).json(result);
   }
   private async handleVerifyCode(
     req: RegisterWithAuth,
     res: Response,
     next: NextFunction
   ): Promise<void> {
-    const email = String(req.query.email);
-    const verificationCode = req.body.verificationCode
-    const data = this.validate<VerifyCodeInput>({ email, verificationCode }, verifyCodeSchema);
+    const data = this.validate<VerifyCodeInput>(req.body, verifyCodeSchema);
     const result = await this.service.verifyCode(
       data.email,
       data.verificationCode
@@ -242,10 +239,7 @@ export class BusinessController extends BaseController {
     );
 
     // Thêm business info
-    const result = await this.service.addBusinessInfor(
-      businessInfo,
-      req.userId
-    );
+    const result = await this.service.addBusinessInfor(businessInfo);
 
     // Gửi response chuẩn
     this.sendResponse(

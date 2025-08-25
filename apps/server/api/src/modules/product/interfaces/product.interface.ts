@@ -40,8 +40,30 @@ export interface GetProductDTO {
     id: string
 }
 
+export interface GetProductsDetailDTO {
+    tenantId?: string;
+    name?: string;
+    sku?: string;
+    categoryId?: string;
+    basePrice?: number;
+    description?: string;
+    barcode?: string;
+    baseCost?: number;
+    trackInventory?: boolean;
+    isActive?: boolean;
+    imageUrl?: string;
+    tags?: string[];
+    createdAt?: Date,
+    updatedAt?: Date,
+}
+
+type ProductPick = Pick<ProductEntity, (typeof PickProductFields)[number]>;
 export interface productServiceResult {
     product: Pick<ProductEntity, (typeof PickProductFields)[number]>,
+}
+
+export interface ProductListServiceResult {
+    products: ProductPick[]; // nhiều sản phẩm
 }
 
 export const PickProductFields = [
@@ -67,4 +89,6 @@ export interface IProductService {
     updateProduct(id: string, data: UpdateProductDTO): Promise<productServiceResult>
     deleteProduct(id: string): Promise<void>
     getProduct(id: string): Promise<productServiceResult>
+    getAllProducts(): Promise<ProductListServiceResult>
+
 }

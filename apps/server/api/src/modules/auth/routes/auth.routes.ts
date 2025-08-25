@@ -66,7 +66,7 @@ router.post(
 );
 router.post(
   "/business",
-  authMiddleware.verifyAccessToken(),
+  // authMiddleware.verifyAccessToken(),
   businessController.handle()
 );
 

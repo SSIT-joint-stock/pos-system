@@ -27,6 +27,9 @@ export class ProductController extends BaseController {
             case "get-product":
                 await this.getProduct(req, res, next);
                 break;
+            case "get-all-products":
+                await this.getAllProducts(req, res, next);
+                break;
             default:
                 throw new BadRequestError("Invalid action");
         }
@@ -41,8 +44,8 @@ export class ProductController extends BaseController {
     private async update(req: RegisterWithAuth, res: Response, next: NextFunction) {
         const id = req.params.id
         const data = this.validate<UpdateProductInput>(req.body, updateProductSchema)
-        const stripUndefinedData = stripUndefined(data)
-        const result = await this.service.updateProduct(id, stripUndefinedData)
+        // const stripUndefinedData = stripUndefined(data)
+        const result = await this.service.updateProduct(id, data)
         this.sendResponse(res, ApiResponse.success(result, "Update product successful"));
     }
 
@@ -56,5 +59,10 @@ export class ProductController extends BaseController {
         const id = req.params.id
         const result = await this.service.getProduct(id)
         this.sendResponse(res, ApiResponse.success(result, "Get product successful"));
+    }
+
+    private async getAllProducts(req: RegisterWithAuth, res: Response, next: NextFunction) {
+        const result = await this.service.getAllProducts()
+        this.sendResponse(res, ApiResponse.success(result, "Get all products successful"));
     }
 }

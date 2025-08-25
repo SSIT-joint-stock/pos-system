@@ -146,18 +146,7 @@
 | Request URL | `/api/v1/auth/verify-code?email=<user@example.com>` |
 | Request Method | POST |
 | Request Header | Content-Type: application/json |
-
-**Query**
-
-```json
-email: string
-```
-
-**Body**
-
-```json
-{ "verificationCode": "string" }
-```
+| Body data | JSON |
 
 **JSON Schema**
 ```json

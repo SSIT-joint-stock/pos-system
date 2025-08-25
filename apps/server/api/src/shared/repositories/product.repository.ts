@@ -9,21 +9,21 @@ export type StrictPartial<T> = {
 export class ProductRepository {
 
 
-    private selectField = {
-        tenantId: true,
-        name: true,
-        sku: true,
-        categoryId: true,
-        basePrice: true,
+    // private selectField = {
+    //     tenantId: true,
+    //     name: true,
+    //     sku: true,
+    //     categoryId: true,
+    //     basePrice: true,
 
-        description: true,
-        barcode: true,
-        baseCost: true,
-        trackInventory: true,
-        isActive: true,
-        imageUrl: true,
-        tags: true,
-    }
+    //     description: true,
+    //     barcode: true,
+    //     baseCost: true,
+    //     trackInventory: true,
+    //     isActive: true,
+    //     imageUrl: true,
+    //     tags: true,
+    // }
 
     async create(
         product: Omit<
@@ -75,5 +75,15 @@ export class ProductRepository {
             where: { id }
         })
         return product as unknown as ProductEntity
+    }
+
+    async findProductsDetail(product: object): Promise<ProductEntity[]> {
+        const products = await prisma.product.findMany({ where: product });
+        return products as ProductEntity[];
+    }
+
+    async findAllProducts(): Promise<ProductEntity[]> {
+        const products = await prisma.product.findMany();
+        return products as ProductEntity[];
     }
 }

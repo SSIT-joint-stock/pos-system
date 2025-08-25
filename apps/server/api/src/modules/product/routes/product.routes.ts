@@ -6,11 +6,12 @@ import { AuthMiddleware } from "@/shared/middleware/auth.middleware";
 const router = Router()
 
 const productController = new ProductController()
-// const auth = new AuthMiddleware(); 
+const auth = new AuthMiddleware();
 
-router.post("/create", actionMiddleware("create"), productController.handle());
-router.put("/:id", actionMiddleware("update"), productController.handle());
+router.post("/", actionMiddleware("create"), productController.handle());
+router.patch("/:id", actionMiddleware("update"), productController.handle());
 router.delete("/:id", actionMiddleware("delete"), productController.handle());
 router.get("/:id", actionMiddleware("get-product"), productController.handle());
+router.get("/", auth.verifyAccessToken(), actionMiddleware("get-all-products"), productController.handle())
 
 export default router

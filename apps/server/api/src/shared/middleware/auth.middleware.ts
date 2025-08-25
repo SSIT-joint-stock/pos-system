@@ -20,6 +20,7 @@ export class AuthMiddleware {
     return async (req: RegisterWithAuth, res: Response, next: NextFunction) => {
       try {
         const authHeader = req.headers.authorization;
+        console.log(authHeader);
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
           return res.status(401).json({ message: "No access token provided" });
         }

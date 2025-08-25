@@ -17,6 +17,7 @@ import { AuthStrategyFactory } from "./auth.factory";
 import { UserRepository } from "@/shared/repositories/user.repository";
 import { ForbiddenError } from "@repo/types/response";
 import { TenantRepository } from "@/shared/repositories/tenant.repository";
+import { addIssueToContext } from "zod";
 export class AuthService implements IAuthService {
   private readonly manual: ManualAuthStrategy;
   private readonly oauth: OAuthAuthStrategy;
@@ -85,12 +86,17 @@ export class AuthService implements IAuthService {
     return this.oauth.callback(params);
   }
 
-  async addBusinessInfor(businessInfor: IBusinessInfor, userId: string) {
-    const existingUser = await this.users.findByEmail(userId);
-    if (existingUser) {
-      throw new ForbiddenError(this.errorMessages.USER_ALREADY_EXISTS);
+  async addBusinessInfor(businessInfor: IBusinessInfor) {
+    const existingUser = await this.users.findById(businessInfor.userId);
+    if (!existingUser) {
+      throw new ForbiddenError(this.errorMessages.USER_NOT_FOUND);
     }
-    const tenant = await this.tenant.addBusinessInfo(userId, businessInfor);
+    await this.tenant.addBusinessInfo(businessInfor.userId, businessInfor)
+    // const existingUser = await this.users.findById(businessInfor.userId);
+    // if (existingUser) {
+    //   throw new ForbiddenError(this.errorMessages.USER_ALREADY_EXISTS);
+    // }
+    // const tenant = await this.tenant.addBusinessInfo( businessInfor);
 
     return this.businessInforService
       .builder()

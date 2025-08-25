@@ -65,6 +65,8 @@ export class ManualStrategy implements ManualAuthStrategy {
     if (!user || !user.passwordHash) {
       throw new BadRequestError(this.errorMessages.INVALID_CREDENTIALS);
     }
+
+
     const comparePassword = await bcrypt.compare(
       credentials.password,
       user.passwordHash
@@ -93,6 +95,7 @@ export class ManualStrategy implements ManualAuthStrategy {
       user: _.pick(user, PickUserFields),
       accessToken,
       refreshToken,
+
     };
   }
 

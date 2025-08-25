@@ -1,5 +1,5 @@
 import { resolve } from "path";
-import { CreateProductDTO, DeleteProductDTO, GetProductDTO, IProductService, PickProductFields, productServiceResult, UpdateProductDTO } from "../interfaces/product.interface";
+import { CreateProductDTO, DeleteProductDTO, GetProductDTO, GetProductsDetailDTO, IProductService, PickProductFields, productServiceResult, UpdateProductDTO } from "../interfaces/product.interface";
 import prisma from "@shared/orm/prisma";
 import _ from "lodash";
 import { ProductRepository } from "@/shared/repositories/product.repository";
@@ -34,14 +34,18 @@ export class ProductService implements IProductService {
                 imageUrl: data.imageUrl ?? null,
                 tags: data.tags ?? []
             })
+            // const newProduct2 = await this.products.create(data)
             return { product: _.pick(newProduct, PickProductFields) }
         } catch (err) {
             throw new BadRequestError("message: Create product failed-", err);
         }
+
     }
     async updateProduct(id: string, data: UpdateProductDTO): Promise<productServiceResult> {
         try {
-            const updatedProduct = await this.products.updateById(id, data);
+            const updatedProduct = await this.products.updateById(id, {
+                ...data,
+            });
             return { product: _.pick(updatedProduct, PickProductFields) }
         } catch (err) {
             throw new BadRequestError("message: Update product failed-", err);
@@ -60,6 +64,21 @@ export class ProductService implements IProductService {
             throw new BadRequestError("Product not found")
         }
         return { product: _.pick(product, PickProductFields) }
+    }
+    async getProductDetail(data: GetProductsDetailDTO) {
+        const getProducts = await this.products.findProductsDetail(data)
+        if (!getProducts) {
+            throw new BadRequestError("Product not found")
+        }
+        return { product: _.pick(getProducts, PickProductFields) }
+    }
+    async getAllProducts() {
+        try {
+            const getProducts = await this.products.findAllProducts()
+            return { products: getProducts.map(p => _.pick(p, PickProductFields)) }
+        } catch (err) {
+            throw new BadRequestError("Product not found")
+        }
     }
 }
 
