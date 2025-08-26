@@ -55,17 +55,22 @@ export const forgotPasswordSchema = z.object({
 });
 export type ForgotPasswordData = z.infer<typeof forgotPasswordSchema>;
 
-export const resetPasswordSchema = z.object({
-  code: z.string().nonempty({
-    message: "Vui lòng nhập mã xác thực",
-  }),
-  passwordHash: z.string().nonempty({
-    message: "Vui lòng nhập mật khẩu",
-  }),
-  confirmPasswordHash: z.string().nonempty({
-    message: "Vui lòng nhập xác thực mật khẩu",
-  }),
-});
+export const resetPasswordSchema = z
+  .object({
+    resetPasswordCode: z.string().nonempty({
+      message: "Vui lòng nhập mã xác thực",
+    }),
+    newPassword: z.string().nonempty({
+      message: "Vui lòng nhập mật khẩu",
+    }),
+    confirmNewPassword: z.string().nonempty({
+      message: "Vui lòng nhập xác thực mật khẩu",
+    }),
+  })
+  .refine((data) => data.confirmNewPassword === data.newPassword, {
+    path: ["confirmNewPassword"],
+    message: "Mật khẩu xác thực không khóp",
+  });
 export type ResetPasswordData = z.infer<typeof resetPasswordSchema>;
 
 export const businessInfoSchema = z.object({

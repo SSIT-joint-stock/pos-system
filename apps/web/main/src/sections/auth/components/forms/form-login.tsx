@@ -1,27 +1,25 @@
 "use client";
 import React, { useState } from "react";
-// import GoogleIC from "@/../../../web/main/src/public/icons/google.svg";
 import {
   Input,
   Button,
   Checkbox,
-  Modal,
   Loading,
 } from "@repo/design-system/components/ui/";
 import { Lock, Mail } from "lucide-react";
 import { RouterLink } from "@repo/design-system/routes/components";
-import { FormResetPassword, FormRetryPassword } from "./index";
 import useAuth from "@main/hooks/auth/useAuth";
+import StepResetPassword from "../steps/step-reset-password";
 
 export function FormLogin() {
-  const [isOpenModal, setIsOpenModal] = useState(false);
-  const [modalSteps, setModalSteps] = useState(1);
-  const { handleLogin, loginForm, loading } = useAuth();
+  const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
+
+  const { login, loginForm, loading } = useAuth();
 
   return (
     <>
       <form
-        onSubmit={loginForm.handleSubmit(handleLogin)}
+        onSubmit={loginForm.handleSubmit(login)}
         className="flex flex-col gap-4 w-full ">
         <Input
           disabled={loading}
@@ -108,27 +106,10 @@ export function FormLogin() {
           </RouterLink>
         </p>
       </form>
-      <Modal
-        radius="xl"
-        padding="lg"
-        size="46%"
-        opened={isOpenModal}
-        onClose={() => setIsOpenModal(false)}>
-        <>
-          <h1 className="text-2xl font-semibold text-center text-gray-900">
-            Quên mật khẩu
-          </h1>
-          <p className="mt-1 text-sm text-gray-400 text-center font-medium">
-            Vui lòng nhập email bạn đăng ký trên hệ thống
-          </p>
-
-          {modalSteps === 1 && (
-            <FormRetryPassword setModalSteps={setModalSteps} />
-          )}
-          {modalSteps === 2 && <FormResetPassword />}
-          {modalSteps === 3 && <>Done</>}
-        </>
-      </Modal>
+      <StepResetPassword
+        isOpenModal={isOpenModal}
+        setIsOpenModal={setIsOpenModal}
+      />
     </>
   );
 }

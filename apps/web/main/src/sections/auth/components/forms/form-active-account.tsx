@@ -13,19 +13,22 @@ export function FormActiveAccount({
 }) {
   const {
     handleVerificationCodeChange,
-    verifyEmailForm,
-    handleResendCode,
+    verifyEmailForm: {
+      handleSubmit,
+      formState: { errors },
+    },
+    resendCode,
     loading,
   } = useAuth();
   return (
     <form
-      onSubmit={verifyEmailForm.handleSubmit(onSubmit)}
+      onSubmit={handleSubmit(onSubmit)}
       className="flex flex-col gap-4 w-full ">
       <div className="flex items-center justify-center">
         <PinInput
           name="verificationCode"
           onChange={handleVerificationCodeChange}
-          error={verifyEmailForm.formState.errors.verificationCode?.message}
+          error={errors.verificationCode?.message}
           length={6}
           radius="md"
         />
@@ -44,7 +47,7 @@ export function FormActiveAccount({
       <p className="text-center text-xs font-medium text-gray-400">
         Chưa nhận được mã xác thức?{" "}
         <button
-          onClick={handleResendCode}
+          onClick={resendCode}
           type="button"
           className="text-pos-blue-500 hover:underline cursor-pointer">
           Gửi lại mã

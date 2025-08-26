@@ -12,16 +12,23 @@ export function FormRegister({
 }: {
   onSubmit: (data: RegisterData) => void;
 }) {
-  const { registerForm, loading } = useAuth();
+  const {
+    registerForm: {
+      handleSubmit,
+      register,
+      formState: { errors },
+    },
+    loading,
+  } = useAuth();
   return (
     <form
-      onSubmit={registerForm.handleSubmit(onSubmit)}
+      onSubmit={handleSubmit(onSubmit)}
       className="flex flex-col gap-4 w-full ">
       <Input
-        {...registerForm.register("email")}
+        {...register("email")}
         name="email"
         disabled={loading}
-        error={registerForm.formState.errors.email?.message}
+        error={errors.email?.message}
         size="sm"
         type="email"
         label="Email"
@@ -30,10 +37,10 @@ export function FormRegister({
       />
 
       <Input
-        {...registerForm.register("password")}
+        {...register("password")}
         name="password"
         disabled={loading}
-        error={registerForm.formState.errors.password?.message}
+        error={errors.password?.message}
         size="sm"
         type="password"
         isInputPassword
@@ -43,10 +50,10 @@ export function FormRegister({
       />
 
       <Input
-        {...registerForm.register("confirmPassword")}
+        {...register("confirmPassword")}
         name="confirmPassword"
         disabled={loading}
-        error={registerForm.formState.errors.confirmPassword?.message}
+        error={errors.confirmPassword?.message}
         size="sm"
         type="password"
         isInputPassword

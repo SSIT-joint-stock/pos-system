@@ -2,13 +2,9 @@
 import React, { useState } from "react";
 import { Building2, Check, MailCheck, User } from "lucide-react";
 import { RouterLink } from "@repo/design-system/routes/components";
-import { Button, Stepper } from "@repo/design-system/components/ui";
-import {
-  FormActiveAccount,
-  FormRegister,
-  FormBusinessInfo,
-} from "../components/Form";
-import useAuth from "@main/hooks/auth/useAuth";
+import { Stepper } from "@repo/design-system/components/ui";
+
+import StepRegister from "../components/steps/step-register";
 
 const steps = [
   {
@@ -34,11 +30,7 @@ const steps = [
   },
 ];
 export function RegisterView() {
-  const [userId, setUserId] = useState<string>("");
   const [isActive, setIsActive] = useState<number>(0);
-  const { handleSignup, handleActiveAccount, handleCreatedBusinessInfo } =
-    useAuth();
-
   return (
     <>
       {/* Left side */}
@@ -56,7 +48,7 @@ export function RegisterView() {
           <div className="mt-10">
             <Stepper
               active={isActive}
-              setActive={setIsActive}
+              // setActive={setIsActive}
               orientation="vertical"
               steps={steps}
               size="xs"
@@ -78,47 +70,7 @@ export function RegisterView() {
             {steps[isActive].description}
           </p>
         </div>
-        {isActive === 0 && (
-          <FormRegister
-            onSubmit={async (data) => {
-              const success = await handleSignup(data, setUserId);
-              if (success) setIsActive(1);
-            }}
-          />
-        )}
-
-        {isActive === 1 && (
-          <FormActiveAccount
-            setActive={setIsActive}
-            onSubmit={async (data) => {
-              const success = await handleActiveAccount(data);
-              if (success) setIsActive(2);
-            }}
-          />
-        )}
-        {isActive === 2 && (
-          <FormBusinessInfo
-            onSubmit={async (data) => {
-              const success = await handleCreatedBusinessInfo(data);
-              if (success) setIsActive(3);
-            }}
-            userId={userId}
-            setActive={setIsActive}
-          />
-        )}
-        {isActive === 3 && (
-          <div className="w-full">
-            <RouterLink className="w-full flex" href="/auth/login">
-              <Button
-                className="flex-1"
-                size="sm"
-                type="submit"
-                title="Tiếp tục"
-                variant="filled"
-              />
-            </RouterLink>
-          </div>
-        )}
+        {StepRegister({ setIsActive, isActive })}
       </div>
     </>
   );
