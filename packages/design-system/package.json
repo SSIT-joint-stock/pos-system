@@ -36,8 +36,6 @@
     "typescript": "5.5.4"
   },
   "dependencies": {
-    "@mantine/core": "^7.11.2",
-    "@mantine/hooks": "^7.11.2",
     "@repo/types": "*",
     "@repo/utils": "*",
     "@tabler/icons-react": "^3.24.0",
