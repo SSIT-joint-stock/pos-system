@@ -1,13 +1,14 @@
-import prisma, { Product } from "@shared/orm/prisma";
+import prisma, { DbClient, Prisma, PrismaClient, Product, } from "@shared/orm/prisma";
+
 
 export type ProductEntity = Product
 export type StrictPartial<T> = {
     [K in keyof T]?: T[K];
 };
 
-
+type Db = PrismaClient | Prisma.TransactionClient;
 export class ProductRepository {
-
+    constructor(private db: DbClient) { }
 
     // private selectField = {
     //     tenantId: true,
@@ -35,7 +36,7 @@ export class ProductRepository {
             | "updatedAt"
         >
     ): Promise<ProductEntity> {
-        const newProduct = await prisma.product.create({
+        const newProduct = await this.db.product.create({
             data: {
                 ...product,
                 tags: (product.tags ?? [])   // need to test later
@@ -53,7 +54,7 @@ export class ProductRepository {
             | "createdAt"
             | "updatedAt"
         >>): Promise<ProductEntity> {
-        const udatedProduct = await prisma.product.update(
+        const udatedProduct = await this.db.product.update(
             {
                 where: { id },
                 data: {
@@ -66,24 +67,24 @@ export class ProductRepository {
     }
 
     async delete(id: string): Promise<void> {
-        await prisma.product.delete({
+        await this.db.product.delete({
             where: { id },
         });
     }
-    async findById(id: string): Promise<ProductEntity | null> {
-        const product = await prisma.product.findUnique({
-            where: { id }
+    async findById(id: string, tenantId: string): Promise<ProductEntity | null> {
+        const product = await this.db.product.findUnique({
+            where: { id, tenantId }
         })
         return product as unknown as ProductEntity
     }
 
     async findProductsDetail(product: object): Promise<ProductEntity[]> {
-        const products = await prisma.product.findMany({ where: product });
+        const products = await this.db.product.findMany({ where: product });
         return products as ProductEntity[];
     }
 
     async findAllProducts(): Promise<ProductEntity[]> {
-        const products = await prisma.product.findMany();
+        const products = await this.db.product.findMany();
         return products as ProductEntity[];
     }
 }

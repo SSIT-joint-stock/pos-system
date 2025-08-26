@@ -87,8 +87,8 @@ export const PickProductFields = [
 export interface IProductService {
     createProduct(data: CreateProductDTO): Promise<productServiceResult>
     updateProduct(id: string, data: UpdateProductDTO): Promise<productServiceResult>
-    deleteProduct(id: string): Promise<void>
-    getProduct(id: string): Promise<productServiceResult>
+    deleteProduct(id: string, tenantId: string): Promise<void>
+    getProduct(id: string, tenantId: string): Promise<productServiceResult>
     getAllProducts(): Promise<ProductListServiceResult>
 
 }

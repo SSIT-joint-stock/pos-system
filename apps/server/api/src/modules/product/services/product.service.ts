@@ -3,11 +3,12 @@ import { CreateProductDTO, DeleteProductDTO, GetProductDTO, GetProductsDetailDTO
 import prisma from "@shared/orm/prisma";
 import _ from "lodash";
 import { ProductRepository } from "@/shared/repositories/product.repository";
-import { BadRequestError } from "@repo/types/response";
+import { BadRequestError, NotFoundError } from "@repo/types/response";
+import { InventoryRepository } from "@/shared/repositories/inventory.repository";
 
 
 export class ProductService implements IProductService {
-    private products = new ProductRepository()
+    private products = new ProductRepository(prisma)
 
     async existInTenant(tenantId: string, sku: string): Promise<boolean> {
         const existing = await prisma.product.findFirst({
@@ -26,20 +27,27 @@ export class ProductService implements IProductService {
             throw new BadRequestError(`Product with SKU "${data.sku}" already exists in this tenant`);
         }
         try {
-            const newProduct = await this.products.create({
-                ...data,
-                description: data.description ?? null,
-                barcode: data.barcode ?? null,
-                baseCost: data.baseCost ?? null,
-                imageUrl: data.imageUrl ?? null,
-                tags: data.tags ?? []
-            })
-            // const newProduct2 = await this.products.create(data)
-            return { product: _.pick(newProduct, PickProductFields) }
-        } catch (err) {
-            throw new BadRequestError("message: Create product failed-", err);
-        }
+            const tags: any = Array.isArray(data.tags) ? data.tags : [];
 
+            const createdProduct = await prisma.$transaction(async (tx) => {
+                const productRepo = new ProductRepository(tx);
+                const inventoryRepo = new InventoryRepository(tx);
+                const newProduct = await productRepo.create({
+                    ...data,
+                    description: data.description ?? null,
+                    barcode: data.barcode ?? null,
+                    baseCost: data.baseCost ?? null,
+                    imageUrl: data.imageUrl ?? null,
+                    tags: tags
+                })
+                // auto-create inventory record (0/0)
+                await inventoryRepo.upsertZero(data.tenantId, newProduct.id);
+                return newProduct
+            })
+            return { product: _.pick(createdProduct, PickProductFields) }
+        } catch (e: any) {
+            throw new BadRequestError("message: Create product failed-", e);
+        }
     }
     async updateProduct(id: string, data: UpdateProductDTO): Promise<productServiceResult> {
         try {
@@ -51,26 +59,23 @@ export class ProductService implements IProductService {
             throw new BadRequestError("message: Update product failed-", err);
         }
     }
-    async deleteProduct(id: string): Promise<void> {
-        try {
-            await this.products.delete(id)
-        } catch (err) {
-            throw new BadRequestError("message: Delete product failed-", err);
-        }
+    async deleteProduct(id: string, tenantId: string): Promise<void> {
+        const existed = await this.products.findById(id, tenantId);
+        if (!existed) throw new NotFoundError("Không tìm thấy sản phẩm");
+
+        await prisma.$transaction(async (tx) => {                               // add delete stock movement later
+            const productRepo = new ProductRepository(tx);
+            const inventoryRepo = new InventoryRepository(tx);
+            await productRepo.delete(existed.id);
+            await inventoryRepo.delete(existed.id);
+        });
     }
-    async getProduct(id: string): Promise<productServiceResult> {
-        const product = await this.products.findById(id)
+    async getProduct(id: string, tenantId: string): Promise<productServiceResult> {
+        const product = await this.products.findById(id, tenantId);
         if (!product) {
             throw new BadRequestError("Product not found")
         }
         return { product: _.pick(product, PickProductFields) }
-    }
-    async getProductDetail(data: GetProductsDetailDTO) {
-        const getProducts = await this.products.findProductsDetail(data)
-        if (!getProducts) {
-            throw new BadRequestError("Product not found")
-        }
-        return { product: _.pick(getProducts, PickProductFields) }
     }
     async getAllProducts() {
         try {
@@ -80,6 +85,13 @@ export class ProductService implements IProductService {
             throw new BadRequestError("Product not found")
         }
     }
+    // async getProductDetail(data: GetProductsDetailDTO) {
+    //     const getProducts = await this.products.findProductsDetail(data)
+    //     if (!getProducts) {
+    //         throw new BadRequestError("Product not found")
+    //     }
+    //     return { product: _.pick(getProducts, PickProductFields) }
+    // }
 }
 
 export default new ProductService();

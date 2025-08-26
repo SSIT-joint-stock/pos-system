@@ -8,7 +8,7 @@ const router = Router()
 const productController = new ProductController()
 const auth = new AuthMiddleware();
 
-router.post("/", auth.verifyAccessToken(), actionMiddleware("create"), productController.handle());
+router.post("/", actionMiddleware("create"), productController.handle());
 router.patch("/:id", auth.verifyAccessToken(), actionMiddleware("update"), productController.handle());
 router.delete("/:id", auth.verifyAccessToken(), actionMiddleware("delete"), productController.handle());
 router.get("/:id", auth.verifyAccessToken(), actionMiddleware("get-product"), productController.handle());

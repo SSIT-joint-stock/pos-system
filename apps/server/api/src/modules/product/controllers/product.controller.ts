@@ -51,13 +51,15 @@ export class ProductController extends BaseController {
 
     private async delete(req: RegisterWithAuth, res: Response, next: NextFunction) {
         const id = req.params.id
-        await this.service.deleteProduct(id)
+        const tenantId = req.body.tenantId
+        await this.service.deleteProduct(id, tenantId)
         this.sendResponse(res, ApiResponse.success("Delete product successful"));
     }
 
     private async getProduct(req: RegisterWithAuth, res: Response, next: NextFunction) {
         const id = req.params.id
-        const result = await this.service.getProduct(id)
+        const tenantId = req.body.tenantId
+        const result = await this.service.getProduct(id, tenantId)
         this.sendResponse(res, ApiResponse.success(result, "Get product successful"));
     }
 

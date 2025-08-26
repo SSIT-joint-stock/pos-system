@@ -1,4 +1,4 @@
-import { PrismaClient } from "@repo/database";
+import { Prisma, PrismaClient } from "@repo/database";
 
 export * from '@repo/database';
 
@@ -39,3 +39,6 @@ prisma.$use(async (params, next) => {
 export default prisma;
 
 if (process.env.NODE_ENV !== "production") globalThis.prisma = prisma;
+
+/** ---- Shared types & helpers ---- */
+export type DbClient = PrismaClient | Prisma.TransactionClient
