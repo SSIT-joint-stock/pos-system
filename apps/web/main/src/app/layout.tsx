@@ -4,9 +4,10 @@ import { ThemeProvider, MantineProvider } from "@repo/design-system/providers";
 import { Metadata, Viewport } from "next";
 import { GoogleAnalytics } from "@next/third-parties/google";
 
+
 const fontSans = Inter({
-  subsets: ["latin"],
   variable: "--font-sans",
+  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
