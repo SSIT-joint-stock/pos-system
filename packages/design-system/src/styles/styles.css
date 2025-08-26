@@ -1,6 +1,8 @@
 @import "@repo/tailwind-config";
 @import "@mantine/core/styles.css";
-@import '@mantine/charts/styles.css';
+@import "@mantine/charts/styles.css";
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap");
 /* POS Blue Theme Tokens */
 :root {
   /* POS primary blue and scale */
@@ -51,11 +53,11 @@
 
 /* Common component utilities */
 @layer utilities {
-  .container {
+  /* .container {
     margin-inline: auto;
     padding-inline: 1rem;
     max-width: 1280px;
-  }
+  } */
 
   .btn-primary {
     @apply bg-[--color-primary] text-[--color-primary-foreground] hover:bg-[--pos-blue-700] active:bg-[--pos-blue-800] disabled:opacity-60 disabled:cursor-not-allowed;
@@ -65,7 +67,7 @@
     @apply text-gray-600 dark:text-gray-400;
   }
 
-  .card {
+  s .card {
     @apply rounded-lg border border-gray-200/60 bg-white shadow-sm dark:border-gray-800/60 dark:bg-gray-900;
   }
 }
