@@ -56,18 +56,18 @@ api.interceptors.response.use(
             { withCredentials: true }
           );
 
-          const { access_token, user } = res.data;
-
+          const { accessToken, refreshToken, data } = res.data;
+          console.log(accessToken, refreshToken, data);
           // ==================
           // Không lưu Redux
-          setAccessToken(access_token);
+          setAccessToken(accessToken);
 
           // ==================
           // Sau này muốn lưu Redux thì bật đoạn này
           // storeRef.dispatch(setCredentials({ accessToken: access_token, user }));
 
           // Gắn accessToken mới vào request cũ
-          originalRequest.headers.Authorization = `Bearer ${access_token}`;
+          originalRequest.headers.Authorization = `Bearer ${accessToken}`;
 
           return api(originalRequest);
         } catch (refreshError) {

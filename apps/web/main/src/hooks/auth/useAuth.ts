@@ -131,7 +131,7 @@ export default function useAuth() {
       () => api.post(AUTH_ENDPOINTS.LOGIN, data),
       "Đăng nhập thành công!"
     );
-    if (res) router.push("/dashboard");
+    if (res) router.push("http://localhost:3001/dashboard");
   };
 
   const forgotPassword = async (data: ForgotPasswordData) => {

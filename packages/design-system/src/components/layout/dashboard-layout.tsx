@@ -6,11 +6,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [isExpand, setIsExpand] = useState(false);
 
   return (
-    <div className=" flex">
-      <aside className="sticky top-0 h-screen">
+    <div className=" flex w-screen h-screen ">
+      <aside className="flex-shrink-0">
         <SideBar isExpand={isExpand} setIsExpand={setIsExpand} />
       </aside>
-      <main className="flex-1 overflow-auto bg-gray-50 ">{children}</main>{" "}
+      <main className="flex-1 p-4 overflow-auto bg-gray-50 scrollbar-fixed">{children}</main>
     </div>
   );
 }

@@ -1,4 +1,3 @@
 /* @import "@repo/tailwind-config"; */
 @import "@repo/design-system/styles/styles.css";
-
 @plugin 'tailwind-scrollbar';
