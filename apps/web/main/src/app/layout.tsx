@@ -64,7 +64,7 @@ export default function RootLayout({
       suppressHydrationWarning
       className="h-full overscroll-contain scroll-smooth"
     >
-      <body className={`${fontSans.variable} min-h-dvh font-sans antialiased`}>
+      <body className={`${fontSans.className} min-h-dvh font-sans antialiased`}>
         <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID} />
         <MantineProvider>
           <ThemeProvider
