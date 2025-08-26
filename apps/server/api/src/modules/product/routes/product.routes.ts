@@ -8,10 +8,10 @@ const router = Router()
 const productController = new ProductController()
 const auth = new AuthMiddleware();
 
-router.post("/", actionMiddleware("create"), productController.handle());
-router.patch("/:id", actionMiddleware("update"), productController.handle());
-router.delete("/:id", actionMiddleware("delete"), productController.handle());
-router.get("/:id", actionMiddleware("get-product"), productController.handle());
+router.post("/", auth.verifyAccessToken(), actionMiddleware("create"), productController.handle());
+router.patch("/:id", auth.verifyAccessToken(), actionMiddleware("update"), productController.handle());
+router.delete("/:id", auth.verifyAccessToken(), actionMiddleware("delete"), productController.handle());
+router.get("/:id", auth.verifyAccessToken(), actionMiddleware("get-product"), productController.handle());
 router.get("/", auth.verifyAccessToken(), actionMiddleware("get-all-products"), productController.handle())
 
 export default router
