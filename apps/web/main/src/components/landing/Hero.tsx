@@ -18,7 +18,7 @@ export default function Hero() {
             <Image
               className="h- w-"
               alt="POS devices"
-              src="/edited-pos.png"
+              src="/hero.png"
               height={1000}
               width={1000}
               priority

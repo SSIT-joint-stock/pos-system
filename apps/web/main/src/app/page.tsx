@@ -11,9 +11,9 @@ import ConsultForm from "@main/components/landing/ConsultForm";
 
 export default function Page() {
   return (
-    <div>
-      <Header></Header>
-      <Hero></Hero>
+    <>
+      <Header />
+      <Hero />
       <div className="min-h-screen bg-[radial-gradient(circle_at_20%_30%,rgba(168,85,247,0.3),transparent_40%),radial-gradient(circle_at_80%_20%,rgba(59,130,246,0.3),transparent_40%)]">
         <Features></Features>
         <AssistantFeatureSection></AssistantFeatureSection>
@@ -35,14 +35,13 @@ export default function Page() {
           <div className="mt-10 flex justify-center">
             <a
               href="#"
-              className="inline-flex rounded-full bg-orange-500 px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-orange-600"
-            >
+              className="inline-flex rounded-full bg-orange-500 px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-orange-600">
               Xem thêm
             </a>
           </div>
         </div>
       </div>
-      <Footer></Footer>
-    </div>
+      <Footer />
+    </>
   );
 }
