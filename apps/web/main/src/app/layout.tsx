@@ -4,7 +4,6 @@ import { ThemeProvider, MantineProvider } from "@repo/design-system/providers";
 import { Metadata, Viewport } from "next";
 import { GoogleAnalytics } from "@next/third-parties/google";
 
-
 const fontSans = Inter({
   variable: "--font-sans",
   subsets: ["latin"],
@@ -12,16 +11,23 @@ const fontSans = Inter({
 
 export const metadata: Metadata = {
   title: "EraPOS - Phần mềm quản lý bán hàng",
-  description: "Phần mềm quản lý bán hàng giúp bạn quản lý khách hàng, hóa đơn, báo cáo, ...",
+  description:
+    "Phần mềm quản lý bán hàng giúp bạn quản lý khách hàng, hóa đơn, báo cáo, ...",
   generator: "EraPOS",
   applicationName: "EraPOS",
-  keywords: ["EraPOS", "Phần mềm quản lý bán hàng", "Phần mềm quản lý bán hàng", "Phần mềm quản lý bán hàng"],
+  keywords: [
+    "EraPOS",
+    "Phần mềm quản lý bán hàng",
+    "Phần mềm quản lý bán hàng",
+    "Phần mềm quản lý bán hàng",
+  ],
   authors: [{ name: "EraPOS", url: "https://erapos.vn" }],
   creator: "EraPOS",
   publisher: "EraPOS",
   openGraph: {
     title: "EraPOS - Phần mềm quản lý bán hàng",
-    description: "Phần mềm quản lý bán hàng giúp bạn quản lý khách hàng, hóa đơn, báo cáo, ...",
+    description:
+      "Phần mềm quản lý bán hàng giúp bạn quản lý khách hàng, hóa đơn, báo cáo, ...",
     url: "https://erapos.vn",
     siteName: "EraPOS",
     images: [{ url: "/images/og-image.png" }],
@@ -56,15 +62,17 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className="h-full overscroll-contain scroll-smooth">
-      <body className={`${fontSans.variable} min-h-dvh font-sans antialiased`}>
+      className="h-full overscroll-contain scroll-smooth"
+    >
+      <body className={`${fontSans.className} min-h-dvh font-sans antialiased`}>
         <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID} />
         <MantineProvider>
           <ThemeProvider
             attribute="class"
             defaultTheme="light"
             disableTransitionOnChange
-            forcedTheme={"light"}>
+            forcedTheme={"light"}
+          >
             {children}
           </ThemeProvider>
         </MantineProvider>
