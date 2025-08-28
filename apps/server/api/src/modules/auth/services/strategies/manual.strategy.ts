@@ -117,6 +117,7 @@ export class ManualStrategy implements ManualAuthStrategy {
       username: await this.users.generateUsername(credentials.email),
       passwordHash: await this.bcrypt.hash(credentials.password),
       provider: UserProvider.EMAIL,
+      providerId: null,
       firstName: null,
       lastName: null,
       phone: null,

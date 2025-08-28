@@ -17,6 +17,7 @@ import { AuthStrategyFactory } from "./auth.factory";
 import { UserRepository } from "@/shared/repositories/user.repository";
 import { ForbiddenError } from "@repo/types/response";
 import { TenantRepository } from "@/shared/repositories/tenant.repository";
+
 export class AuthService implements IAuthService {
   private readonly manual: ManualAuthStrategy;
   private readonly oauth: OAuthAuthStrategy;
@@ -67,20 +68,25 @@ export class AuthService implements IAuthService {
   //reset password
   async resetPassword(newPassword: string, resetToken: string) {
     return this.manual.resetPassword(newPassword, resetToken);
-  }
+  } // oauth init
 
-  // oauth init
   async oauthInit(
     params: OAuthInitParams
   ): Promise<{ authUrl: string; state?: string }> {
-    return this.oauth.init(params);
+    const result = await this.oauth.init(params);
+    return result; // Giữ nguyên, trả về authUrl và state cho frontend
   }
 
   // oauth callback
   async oauthCallback(params: OAuthCallbackParams): Promise<AuthResult> {
-    return this.oauth.callback(params);
+    const result = await this.oauth.callback(params); // Gọi callback từ OAuthStrategy
+    // Trả về chỉ các thuộc tính trong AuthResult, bỏ state
+    return {
+      user: result.user,
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+    };
   }
-
   async addBusinessInfor(businessInfor: IBusinessInfor, userId: string) {
     const existingUser = await this.users.findByEmail(userId);
     if (existingUser) {

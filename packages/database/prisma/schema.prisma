@@ -22,6 +22,7 @@ model User {
   username          String       @unique
   passwordHash      String? // BCrypt hashed password
   provider          UserProvider @default(LOCAL)
+  providerId        String?       
   firstName         String?
   lastName          String?
   phone             String?

@@ -79,7 +79,12 @@ export class UserRepository {
     });
     return user as unknown as UserEntity;
   }
-
+  async findByProviderId(providerId: string): Promise<UserEntity | null> {
+    const user = await prisma.user.findFirst({
+      where: { providerId },
+    });
+    return user as unknown as UserEntity;
+  }
   // find user by id
   async findByResetToken(resetToken: string): Promise<UserEntity | null> {
     const user = await prisma.user.findFirst({

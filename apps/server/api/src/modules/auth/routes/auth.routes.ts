@@ -48,7 +48,7 @@ router.post(
   actionMiddleware("oauth_init"),
   oauthAuthController.handle()
 );
-router.post(
+router.get(
   "/oauth/callback",
   actionMiddleware("oauth_callback"),
   oauthAuthController.handle()

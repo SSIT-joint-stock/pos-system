@@ -13,8 +13,9 @@ export interface RegisterCredentials {
 
 export interface AuthResult {
   user: Pick<UserEntity, (typeof PickUserFields)[number]>;
-  accessToken: string;
-  refreshToken?: string;
+  accessToken: string | null | undefined;
+  refreshToken?: string | null | undefined;
+  state?: string;
 }
 
 export const PickUserFields = [

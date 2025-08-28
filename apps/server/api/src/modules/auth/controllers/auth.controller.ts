@@ -66,7 +66,7 @@ export class ManualAuthController extends BaseController {
     const result = await this.service.login(data);
 
     res.setHeader("Authorization", `Bearer ${result.accessToken}`);
-    
+
     res.cookie("refreshToken", result.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -186,24 +186,66 @@ export class OAuthAuthController extends BaseController {
         throw new BadRequestError("Invalid action");
     }
   }
-
   private async handleOAuthInit(
     req: RegisterWithAuth,
     res: Response
   ): Promise<void> {
-    // TODO: Implement OAuth init
-    this.sendResponse(res, ApiResponse.success(null, "OAuth init successful"));
+    try {
+      const { provider, redirectUri } = req.body; // Giả định từ body
+      const { authUrl, state } = await this.service.oauthInit({
+        provider,
+        redirectUri,
+      });
+      console.log(authUrl);
+      res.redirect(authUrl); // Chuyển hướng đến Google
+    } catch (error) {
+      this.sendResponse(
+        res,
+        ApiResponse.error(`Failed to initiate OAuth ${error}`)
+      );
+    }
   }
 
   private async handleOAuthCallback(
     req: RegisterWithAuth,
     res: Response
   ): Promise<void> {
-    // TODO: Implement OAuth callback
-    this.sendResponse(
-      res,
-      ApiResponse.success(null, "OAuth callback successful")
-    );
+    try {
+      const { code } = req.query;
+      if (!code || typeof code !== "string") {
+        throw new Error("Authorization code is missing or invalid");
+      }
+      // if (!state || typeof state !== "string") {
+      //   throw new Error("State is missing or invalid");
+      // }
+      const result = await this.service.oauthCallback({
+        provider: "google",
+        code,
+        redirectUri:
+          req.body.redirectUri ||
+          req.query.redirectUri ||
+          "http://localhost:8080/api/v1/auth/oauth/callback",
+        // state,
+      });
+      res.setHeader("Authorization", `Bearer ${result.accessToken}`);
+
+      //luu accesstoken vao cookie
+      res.cookie("refreshToken", result.refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: ms(process.env.JWT_REFRESH_EXPIRY),
+      });
+      this.sendResponse(
+        res,
+        ApiResponse.success(result, "OAuth callback successful")
+      );
+    } catch (error) {
+      this.sendResponse(
+        res,
+        ApiResponse.error(`Failed to process OAuth callback ${error}`)
+      );
+    }
   }
 }
 
