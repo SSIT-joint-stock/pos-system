@@ -1,8 +1,8 @@
-"use client";
-import api from "@main/libs/axios";
-import useToast from "@repo/design-system/hooks/client/use-toast-notification";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
+'use client';
+import api from '@main/libs/axios';
+import useToast from '@repo/design-system/hooks/client/use-toast-notification';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
 import {
   BusinessInfoData,
   businessInfoSchema,
@@ -16,23 +16,23 @@ import {
   resetPasswordSchema,
   VerifyAccountData,
   verifyAccountSchema,
-} from "@main/sections/auth/data";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+} from '@main/sections/auth/data';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 const AUTH_ENDPOINTS = {
-  REGISTER: "/auth/register",
-  VERIFY: "/auth/verify-code",
-  RESEND: "/auth/resend-code",
-  BUSINESS: "/auth/business",
-  LOGIN: "/auth/login",
-  FORGOT: "/auth/forgot-password",
-  RESET: "/auth/reset-password",
+  REGISTER: '/auth/register',
+  VERIFY: '/auth/verify-code',
+  RESEND: '/auth/resend-code',
+  BUSINESS: '/auth/business',
+  LOGIN: '/auth/login',
+  FORGOT: '/auth/forgot-password',
+  RESET: '/auth/reset-password',
 };
 
 export default function useAuth() {
   const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState('');
   const { showErrorToast, showSuccessToast } = useToast();
   const router = useRouter();
 
@@ -53,7 +53,6 @@ export default function useAuth() {
   const resetPasswordForm = useForm<ResetPasswordData>({
     resolver: zodResolver(resetPasswordSchema),
   });
-
   // ========== Helper Request Wrapper ==========
   const requestWrapper = async <T>(
     fn: () => Promise<T>,
@@ -65,9 +64,7 @@ export default function useAuth() {
       if (successMessage) showSuccessToast(successMessage);
       return res;
     } catch (err: any) {
-      const message =
-        err.response?.data?.error?.message ||
-        "Có lỗi hệ thống, vui lòng thử lại sau";
+      const message = err.response?.data?.error?.message || 'Có lỗi hệ thống, vui lòng thử lại sau';
       showErrorToast(message);
       console.error(err);
       return null;
@@ -77,13 +74,10 @@ export default function useAuth() {
   };
 
   // ========== Auth Functions ==========
-  const signup = async (
-    data: RegisterData,
-    saveUserId: (id: string) => void
-  ) => {
+  const signup = async (data: RegisterData, saveUserId: (id: string) => void) => {
     const res = await requestWrapper(
       () => api.post(AUTH_ENDPOINTS.REGISTER, data),
-      "Đăng ký thành công"
+      'Đăng ký thành công'
     );
     if (res?.data?.success) {
       saveUserId(res.data.data.user.id);
@@ -100,12 +94,12 @@ export default function useAuth() {
           email,
           verificationCode: data.verificationCode,
         }),
-      "Xác thực tài khoản thành công"
+      'Xác thực tài khoản thành công'
     );
     return !!res;
   };
   const handleVerificationCodeChange = (value: string) => {
-    verifyEmailForm.setValue("verificationCode", value);
+    verifyEmailForm.setValue('verificationCode', value);
   };
 
   const resendCode = async () => {
@@ -114,14 +108,12 @@ export default function useAuth() {
         api.post(`${AUTH_ENDPOINTS.RESEND}`, {
           email,
         }),
-      "Gửi lại mã xác thực thành công"
+      'Gửi lại mã xác thực thành công'
     );
   };
 
   const createBusinessInfo = async (data: BusinessInfoData) => {
-    const res = await requestWrapper(() =>
-      api.post(AUTH_ENDPOINTS.BUSINESS, data)
-    );
+    const res = await requestWrapper(() => api.post(AUTH_ENDPOINTS.BUSINESS, data));
     if (res) showSuccessToast(res.data.message);
     return !!res;
   };
@@ -129,23 +121,19 @@ export default function useAuth() {
   const login = async (data: LoginData) => {
     const res = await requestWrapper(
       () => api.post(AUTH_ENDPOINTS.LOGIN, data),
-      "Đăng nhập thành công!"
+      'Đăng nhập thành công!'
     );
-    if (res) router.push("http://localhost:3001/dashboard");
+    if (res) router.push('http://localhost:3001/dashboard');
   };
 
   const forgotPassword = async (data: ForgotPasswordData) => {
-    const res = await requestWrapper(() =>
-      api.post(AUTH_ENDPOINTS.FORGOT, data)
-    );
+    const res = await requestWrapper(() => api.post(AUTH_ENDPOINTS.FORGOT, data));
     if (res) showSuccessToast(res.data.message);
     return !!res;
   };
 
   const resetPassword = async (data: ResetPasswordData) => {
-    const res = await requestWrapper(() =>
-      api.post(AUTH_ENDPOINTS.RESET, data)
-    );
+    const res = await requestWrapper(() => api.post(AUTH_ENDPOINTS.RESET, data));
     if (res) showSuccessToast(res.data.message);
     return !!res;
   };

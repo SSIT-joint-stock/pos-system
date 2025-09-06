@@ -1,14 +1,15 @@
-import Image from "next/image";
+import Image from 'next/image';
 
 export default function Hero() {
   return (
     <section
-      className="relative isolate h-screen w-full overflow-hidden flex items-center"
+      id="home"
+      className="relative isolate h-screen w-full overflow-hidden flex items-center snap-always snap-center scroll-mt-12"
       style={{
         backgroundImage:
-          "linear-gradient(to top, rgba(6,35,110,1), rgba(28,83,214,0.98), rgba(255,255,255,0))",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
+          'linear-gradient(to top, rgba(6,35,110,1), rgba(28,83,214,0.98), rgba(255,255,255,0))',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
       }}
     >
       <div className="relative z-10 mx-auto flex min-h-screen max-w-6xl items-center px-4">
@@ -16,9 +17,9 @@ export default function Hero() {
           {/* LEFT: Product image */}
           <div className="flex justify-center">
             <Image
-              className="h- w-"
+              className="h-xl w-xl"
               alt="POS devices"
-              src="/hero.png"
+              src="/edited-pos.png"
               height={1000}
               width={1000}
               priority

@@ -1,7 +1,7 @@
-@import "@repo/tailwind-config";
-@import "@mantine/core/styles.css";
-@import "@mantine/charts/styles.css";
-@import "@mantine/dates/styles.css";
+@import '@repo/tailwind-config';
+@import '@mantine/core/styles.css';
+@import '@mantine/charts/styles.css';
+@import '@mantine/dates/styles.css';
 @plugin 'tailwind-scrollbar';
 /* POS Blue Theme Tokens */
 :root {

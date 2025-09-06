@@ -1,52 +1,52 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-
+import { useState } from 'react';
+const items = [
+  {
+    question: 'Phần mềm bán hàng EraPOS phù hợp với mô hình kinh doanh nào?',
+    answer:
+      'Dù bạn kinh doanh cửa hàng tạp hoá, shop thời trang, quán ăn hay chuỗi siêu thị mini, EraPOS đều đáp ứng tốt. Phần mềm linh hoạt cho cá nhân, hộ kinh doanh nhỏ lẻ lẫn doanh nghiệp quy mô vừa và lớn.',
+  },
+  {
+    question: 'Có bắt buộc phải xuất hoá đơn điện tử từ máy tính tiền không?',
+    answer:
+      'Không bắt buộc cho mọi trường hợp. Tuy nhiên, EraPOS hỗ trợ hoá đơn điện tử đạt chuẩn, kết nối nhanh với nhà cung cấp và máy in hoá đơn.',
+  },
+  {
+    question: 'Sử dụng EraPOS mang lại lợi ích gì?',
+    answer:
+      'Quản lý bán hàng, kho, khách hàng, khuyến mãi; báo cáo doanh thu theo thời gian thực; đồng bộ đa thiết bị; giảm sai sót vận hành.',
+  },
+  {
+    question: 'Phần mềm quản lý bán hàng EraPOS có dễ dùng không?',
+    answer:
+      'Giao diện trực quan, bước thiết lập nhanh; có hướng dẫn và hỗ trợ kỹ thuật tiếng Việt.',
+  },
+  {
+    question: 'Giá phần mềm quản lý bán hàng EraPOS đắt không?',
+    answer: 'Nhiều gói phù hợp ngân sách từ cá nhân đến doanh nghiệp; có bản dùng thử miễn phí.',
+  },
+  {
+    question: 'EraPOS có tích hợp được với các thiết bị bán hàng khác không?',
+    answer:
+      'Hỗ trợ máy in hoá đơn, máy quét mã vạch, ngăn kéo đựng tiền, cân điện tử… Kết nối USB, LAN tuỳ thiết bị.',
+  },
+];
 export default function FAQ() {
-  const items = [
-    {
-      question: "Phần mềm bán hàng EraPOS phù hợp với mô hình kinh doanh nào?",
-      answer:
-        "Dù bạn kinh doanh cửa hàng tạp hoá, shop thời trang, quán ăn hay chuỗi siêu thị mini, EraPOS đều đáp ứng tốt. Phần mềm linh hoạt cho cá nhân, hộ kinh doanh nhỏ lẻ lẫn doanh nghiệp quy mô vừa và lớn.",
-    },
-    {
-      question: "Có bắt buộc phải xuất hoá đơn điện tử từ máy tính tiền không?",
-      answer:
-        "Không bắt buộc cho mọi trường hợp. Tuy nhiên, EraPOS hỗ trợ hoá đơn điện tử đạt chuẩn, kết nối nhanh với nhà cung cấp và máy in hoá đơn.",
-    },
-    {
-      question: "Sử dụng EraPOS mang lại lợi ích gì?",
-      answer:
-        "Quản lý bán hàng, kho, khách hàng, khuyến mãi; báo cáo doanh thu theo thời gian thực; đồng bộ đa thiết bị; giảm sai sót vận hành.",
-    },
-    {
-      question: "Phần mềm quản lý bán hàng EraPOS có dễ dùng không?",
-      answer:
-        "Giao diện trực quan, bước thiết lập nhanh; có hướng dẫn và hỗ trợ kỹ thuật tiếng Việt.",
-    },
-    {
-      question: "Giá phần mềm quản lý bán hàng EraPOS đắt không?",
-      answer:
-        "Nhiều gói phù hợp ngân sách từ cá nhân đến doanh nghiệp; có bản dùng thử miễn phí.",
-    },
-    {
-      question: "EraPOS có tích hợp được với các thiết bị bán hàng khác không?",
-      answer:
-        "Hỗ trợ máy in hoá đơn, máy quét mã vạch, ngăn kéo đựng tiền, cân điện tử… Kết nối USB, LAN tuỳ thiết bị.",
-    },
-  ];
-
   const [openIndex, setOpenIndex] = useState(0);
 
   return (
-    <section className="bg-white">
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-10">
+    <section
+      id="support"
+      className="bg-white h-screen flex items-center justify-center flex-col  snap-always snap-center pt-12"
+    >
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 ">
         <h2 className="text-center text-3xl md:text-4xl font-extrabold">
           Câu hỏi thường gặp về phần mềm quản lý bán hàng EraPOS
         </h2>
         <p className="mt-2 text-center text-gray-500">
-          Nếu bạn vẫn còn băn khoăn hoặc muốn nhận tư vấn theo nhu cầu cụ thể,
-          đừng ngần ngại liên hệ ngay với chúng tôi để được hỗ trợ tốt nhất.
+          Nếu bạn vẫn còn băn khoăn hoặc muốn nhận tư vấn theo nhu cầu cụ thể, đừng ngần ngại liên
+          hệ ngay với chúng tôi để được hỗ trợ tốt nhất.
         </p>
 
         <div className="mt-8 space-y-4">
@@ -56,17 +56,15 @@ export default function FAQ() {
               <div
                 key={i}
                 className={
-                  "rounded-xl shadow-sm border transition-colors overflow-hidden " +
-                  (isOpen
-                    ? "bg-blue-600 text-white border-blue-600"
-                    : "bg-gray-50")
+                  'rounded-xl shadow-sm border transition-colors overflow-hidden ' +
+                  (isOpen ? 'bg-blue-600 text-white border-blue-600' : 'bg-gray-50')
                 }
               >
                 {/* Header */}
                 <button
                   className={
-                    "flex w-full items-center justify-between gap-4 px-5 py-4 text-left " +
-                    (isOpen ? "text-white" : "text-gray-900")
+                    'flex w-full items-center justify-between gap-4 px-5 py-4 text-left ' +
+                    (isOpen ? 'text-white' : 'text-gray-900')
                   }
                   aria-expanded={isOpen}
                   onClick={() => setOpenIndex(isOpen ? -1 : i)}
@@ -75,8 +73,8 @@ export default function FAQ() {
 
                   <svg
                     className={
-                      "h-5 w-5 shrink-0 transition-transform " +
-                      (isOpen ? "rotate-180 text-white" : "text-gray-500")
+                      'h-5 w-5 shrink-0 transition-transform ' +
+                      (isOpen ? 'rotate-180 text-white' : 'text-gray-500')
                     }
                     viewBox="0 0 20 20"
                     fill="currentColor"
@@ -93,17 +91,15 @@ export default function FAQ() {
                 {/* Animated panel (no JS libs) */}
                 <div
                   className={
-                    "grid transition-[grid-template-rows] duration-300 ease-out " +
-                    (isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]")
+                    'grid transition-[grid-template-rows] duration-300 ease-out ' +
+                    (isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]')
                   }
                 >
                   <div className="min-h-0 px-5 pb-5">
                     <div
                       className={
-                        "rounded-lg " +
-                        (isOpen
-                          ? "bg-white/95 text-gray-700"
-                          : "bg-gray-50 text-gray-600")
+                        'rounded-lg ' +
+                        (isOpen ? 'bg-white/95 text-gray-700' : 'bg-gray-50 text-gray-600')
                       }
                     >
                       <p className="p-4 leading-relaxed">{it.answer}</p>
