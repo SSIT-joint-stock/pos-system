@@ -1,5 +1,5 @@
-import { NumberInput } from "@mantine/core";
-import React, { useState, useMemo } from "react";
+import { NumberInput } from '@mantine/core';
+import React, { useState, useMemo } from 'react';
 
 interface Product {
   id: number;
@@ -12,10 +12,10 @@ interface Product {
 export function CartDetails() {
   // Preset product data
   const [products, setProducts] = useState<Product[]>([
-    { id: 1, name: "Sản phẩm A", quantity: 2, price: 120000, discount: 0 },
-    { id: 2, name: "Sản phẩm B", quantity: 1, price: 95000, discount: 0 },
-    { id: 3, name: "Sản phẩm C", quantity: 3, price: 150000, discount: 0 },
-    { id: 4, name: "Sản phẩm D", quantity: 1, price: 200000, discount: 0 },
+    { id: 1, name: 'Sản phẩm A', quantity: 2, price: 120000, discount: 0 },
+    { id: 2, name: 'Sản phẩm B', quantity: 1, price: 95000, discount: 0 },
+    { id: 3, name: 'Sản phẩm C', quantity: 3, price: 150000, discount: 0 },
+    { id: 4, name: 'Sản phẩm D', quantity: 1, price: 200000, discount: 0 },
   ]);
 
   // Calculate total price
@@ -70,14 +70,13 @@ export function CartDetails() {
             </div>
 
             {/* Price */}
-            <div className="text-right">{product.price.toLocaleString("vi-VN")}₫</div>
+            <div className="text-right">{product.price.toLocaleString('vi-VN')}₫</div>
 
             {/* Discount */}
             <div className="flex justify-end">
               <NumberInput
                 hideControls
                 suffix="₫"
-       
                 onChange={(value: number) => {
                   handleDiscountChange(product.id, value);
                 }}
@@ -85,17 +84,14 @@ export function CartDetails() {
             </div>
 
             {/* Total for item */}
-            <div className="text-right">{total.toLocaleString("vi-VN")}₫</div>
+            <div className="text-right">{total.toLocaleString('vi-VN')}₫</div>
           </div>
         );
       })}
 
       {/* Tổng cộng */}
-      <div className="grid grid-cols-5 gap-4 font-bold mt-4 pt-2 ">
-        <div className="col-span-4 text-right">Tổng cộng:</div>
-        <div className="text-right">{totalPrice.toLocaleString("vi-VN")}₫</div>
-        
-      </div>
+      <div className="col-span-4 text-right">Tổng cộng:</div>
+      <div className="text-right">{totalPrice.toLocaleString('vi-VN')}₫</div>
     </div>
   );
 }

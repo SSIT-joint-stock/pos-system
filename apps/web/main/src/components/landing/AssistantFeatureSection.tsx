@@ -1,37 +1,37 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import Image from "next/image";
+import { useState } from 'react';
+import Image from 'next/image';
 
 type Item = { title: string; desc: string; image: string };
 
 const ITEMS: Item[] = [
   {
-    title: "Tự động đồng bộ đơn hàng thành hoá đơn",
+    title: 'Tự động đồng bộ đơn hàng thành hoá đơn',
     desc:
-      "Tự động phát hành và chuyển dữ liệu lên cơ quan Thuế theo Thông tư 78. " +
-      "Quản lý công nợ, thống kê số tiền, đồng bộ hoá đơn điện tử…",
-    image: "/feature-1.png", // put your screenshots in /public
+      'Tự động phát hành và chuyển dữ liệu lên cơ quan Thuế theo Thông tư 78. ' +
+      'Quản lý công nợ, thống kê số tiền, đồng bộ hoá đơn điện tử…',
+    image: '/feature-1.png', // put your screenshots in /public
   },
   {
-    title: "Tích hợp xuất hóa đơn điện tử khởi tạo từ máy tính tiền",
-    desc: "Xuất hoá đơn khởi tạo từ máy tính tiền theo quy định mới của cơ quan Thuế.",
-    image: "/feature-2.png",
+    title: 'Tích hợp xuất hóa đơn điện tử khởi tạo từ máy tính tiền',
+    desc: 'Xuất hoá đơn khởi tạo từ máy tính tiền theo quy định mới của cơ quan Thuế.',
+    image: '/feature-2.png',
   },
   {
-    title: "Giao diện thân thiện",
-    desc: "Thiết kế trực quan, thao tác nhanh, hiển thị tốt trên Mobile/Desktop.",
-    image: "/feature-3.png",
+    title: 'Giao diện thân thiện',
+    desc: 'Thiết kế trực quan, thao tác nhanh, hiển thị tốt trên Mobile/Desktop.',
+    image: '/feature-3.png',
   },
   {
-    title: "Giao diện thân thiện",
-    desc: "Thiết kế trực quan, thao tác nhanh, hiển thị tốt trên Mobile/Desktop.",
-    image: "/feature-3.png",
+    title: 'Giao diện thân thiện',
+    desc: 'Thiết kế trực quan, thao tác nhanh, hiển thị tốt trên Mobile/Desktop.',
+    image: '/feature-3.png',
   },
   {
-    title: "Giao diện thân thiện",
-    desc: "Thiết kế trực quan, thao tác nhanh, hiển thị tốt trên Mobile/Desktop.",
-    image: "/feature-3.png",
+    title: 'Giao diện thân thiện',
+    desc: 'Thiết kế trực quan, thao tác nhanh, hiển thị tốt trên Mobile/Desktop.',
+    image: '/feature-3.png',
   },
 ];
 
@@ -39,7 +39,10 @@ export default function AssistantFeatureSection() {
   const [idx, setIdx] = useState(0);
 
   return (
-    <section className="mx-auto max-w-7xl px-4 py-16">
+    <section
+      id="solutions"
+      className="mx-auto max-w-7xl px-4  h-screen flex items-center justify-center flex-col snap-always snap-center scroll-mt-12"
+    >
       <div className="mx-auto mb-10 max-w-3xl text-center">
         <h2 className="text-3xl font-extrabold text-[#0D2A5C] sm:text-4xl">
           EraPOS - trợ thủ đắc lực cho người làm kinh doanh
@@ -59,7 +62,7 @@ export default function AssistantFeatureSection() {
               <button
                 key={it.title}
                 onClick={() => setIdx(i)}
-                className={`w-full rounded-xl p-4 text-left transition ${active ? "bg-gray-100" : "hover:bg-blue-50"}`}
+                className={`w-full rounded-xl p-4 text-left transition ${active ? 'bg-gray-100' : 'hover:bg-blue-50'}`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -68,7 +71,12 @@ export default function AssistantFeatureSection() {
                     </span>
                     <span className="font-medium text-[#0D2A5C]">{it.title}</span>
                   </div>
-                  <svg viewBox="0 0 20 20" className="h-5 w-5 text-[#1976D2]" fill="currentColor" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 20 20"
+                    className="h-5 w-5 text-[#1976D2]"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
                     <path d="M7 5l5 5-5 5" />
                   </svg>
                 </div>
@@ -103,10 +111,16 @@ export default function AssistantFeatureSection() {
 
       {/* CTAs */}
       <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-        <a href="#" className="rounded-lg border border-orange-500 px-5 py-3 font-medium text-orange-600 hover:bg-orange-50">
+        <a
+          href="#"
+          className="rounded-lg border border-orange-500 px-5 py-3 font-medium text-orange-600 hover:bg-orange-50"
+        >
           Dùng thử miễn phí
         </a>
-        <a href="#" className="rounded-lg bg-orange-500 px-5 py-3 font-medium text-white hover:bg-orange-600">
+        <a
+          href="#"
+          className="rounded-lg bg-orange-500 px-5 py-3 font-medium text-white hover:bg-orange-600"
+        >
           Nhận tư vấn
         </a>
       </div>

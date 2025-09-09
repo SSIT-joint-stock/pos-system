@@ -1,28 +1,32 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import Logo from "../common/Logo";
+import Link from 'next/link';
+import Logo from '../common/Logo';
 
 const pagesItems = [
   {
-    title: "Trang chủ",
-    href: "/",
+    title: 'Trang chủ',
+    href: '#home',
   },
   {
-    title: "Tính năng",
-    href: "/features",
+    title: 'Tính năng',
+    href: '#features',
   },
   {
-    title: "Bảng giá",
-    href: "/pricing",
+    title: 'Giải pháp',
+    href: '#solutions',
   },
   {
-    title: "Hỗ trợ",
-    href: "/support",
+    title: 'Bảng giá',
+    href: '#pricing',
   },
   {
-    title: "Liên hệ",
-    href: "/contact",
+    title: 'Liên hệ',
+    href: '#contact',
+  },
+  {
+    title: 'Hỗ trợ',
+    href: '#support',
   },
 ];
 export default function Header() {
@@ -35,12 +39,13 @@ export default function Header() {
         {/* Nav */}
         <nav className="hidden md:flex items-center gap-8  font-medium text-lg ">
           {pagesItems.map((item) => (
-            <Link
+            <a
               key={item.title}
               href={item.href}
-              className="hover:text-blue-600  transition-colors duration-300">
+              className="hover:text-blue-600  transition-colors duration-300"
+            >
               {item.title}
-            </Link>
+            </a>
           ))}
         </nav>
 
@@ -48,12 +53,14 @@ export default function Header() {
         <div className="hidden sm:flex items-center gap-3">
           <Link
             href="/auth/register"
-            className="rounded-full border px-6 py-2 border-pos-blue-500 text-pos-blue-500 text-base font-medium hover:text-pos-blue-50 hover:bg-pos-blue-500 transition-all duration-300 hover:shadow-2xl hover:shadow-pos-blue-300">
+            className="rounded-full border px-6 py-2 border-pos-blue-500 text-pos-blue-500 text-base font-medium hover:text-pos-blue-50 hover:bg-pos-blue-500 transition-all duration-300 hover:shadow-2xl hover:shadow-pos-blue-300"
+          >
             Đăng ký
           </Link>
           <Link
             href="/auth/login"
-            className="rounded-full px-5 py-2 border bg-pos-blue-500 text-pos-blue-50 text-base font-medium ">
+            className="rounded-full px-5 py-2 border bg-pos-blue-500 text-pos-blue-50 text-base font-medium "
+          >
             Đăng nhập
           </Link>
         </div>

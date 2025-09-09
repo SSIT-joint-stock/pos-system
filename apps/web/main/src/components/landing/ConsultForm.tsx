@@ -2,11 +2,11 @@
 export default function ConsultForm() {
   return (
     <section
-      id="signup"
-      className="relative w-full py-12 sm:py-16 md:py-20 scroll-mt-24"
+      id="contact"
+      className="relative w-full h-screen flex items-center justify-center flex-col  snap-always snap-center scroll-mt-12"
       style={{
         backgroundImage:
-          "linear-gradient(to bottom, rgba(6,35,110,1), rgba(28,83,214,0.95), rgba(255,255,255,0))",
+          'linear-gradient(to bottom, rgba(6,35,110,1), rgba(28,83,214,0.95), rgba(255,255,255,0))',
       }}
     >
       <div className="mx-auto grid max-w-6xl grid-cols-1 items-start gap-10 px-4 sm:px-6 lg:grid-cols-[minmax(0,520px)_1fr] lg:gap-12 lg:px-8">
@@ -84,12 +84,12 @@ export default function ConsultForm() {
 
           <ul className="mt-8 space-y-4 text-base/relaxed md:text-lg">
             {[
-              "Giá cả hợp lý chỉ từ 70K/tháng",
-              "Đa dạng tính năng quản lý bán hàng",
-              "Tích hợp hoá đơn khởi tạo từ máy tính tiền",
-              "Giao diện trực quan, dễ dàng sử dụng",
-              "Theo dõi tình hình kinh doanh từ xa qua điện thoại",
-              "Tiết kiệm thời gian, công sức",
+              'Giá cả hợp lý chỉ từ 70K/tháng',
+              'Đa dạng tính năng quản lý bán hàng',
+              'Tích hợp hoá đơn khởi tạo từ máy tính tiền',
+              'Giao diện trực quan, dễ dàng sử dụng',
+              'Theo dõi tình hình kinh doanh từ xa qua điện thoại',
+              'Tiết kiệm thời gian, công sức',
             ].map((line, i) => (
               <li key={i} className="flex items-start gap-3">
                 <span className="mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full bg-white/15">

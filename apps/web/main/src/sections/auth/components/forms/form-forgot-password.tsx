@@ -1,14 +1,10 @@
-"use client";
-import React from "react";
-import { Button, Input } from "@repo/design-system/components/ui";
-import { ForgotPasswordData } from "../../data";
-import useAuth from "@main/hooks/auth/useAuth";
+'use client';
+import React from 'react';
+import { Button, Input } from '@repo/design-system/components/ui';
+import { ForgotPasswordData } from '../../data';
+import useAuth from '@main/hooks/auth/useAuth';
 
-export function FormForgotPassword({
-  onSubmit,
-}: {
-  onSubmit: (data: ForgotPasswordData) => void;
-}) {
+export function FormForgotPassword({ onSubmit }: { onSubmit: (data: ForgotPasswordData) => void }) {
   const {
     forgotPasswordForm: {
       register,
@@ -18,12 +14,9 @@ export function FormForgotPassword({
     loading,
   } = useAuth();
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="mt-2 flex flex-col gap-4"
-      action="">
+    <form onSubmit={handleSubmit(onSubmit)} className="mt-2 flex flex-col gap-4 ">
       <Input
-        {...register("email")}
+        {...register('email')}
         disabled={loading}
         name="email"
         error={errors.email?.message}
