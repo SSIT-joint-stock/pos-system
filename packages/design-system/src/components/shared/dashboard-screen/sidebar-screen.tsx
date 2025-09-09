@@ -8,6 +8,8 @@ import {
   LogOut,
   ShoppingCart,
   ChevronDown,
+  PackageSearch,
+  User,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/Image";
@@ -30,6 +32,16 @@ const pageItems = [
     path: "/sales",
     icon: <ShoppingCart className="shrink-0" />,
   },
+  {
+    title: "Đơn hàng",
+    path: "/orders",
+    icon: <PackageSearch className="shrink-0" />,
+  },
+  {
+    title: "Quan ly nhan vien",
+    path: "/employees",
+    icon: <User className="shrink-0" />,
+  },
 ];
 
 export function SideBar({ isExpand, setIsExpand }: { isExpand: boolean; setIsExpand: (isExpand: boolean) => void }) {
@@ -41,7 +53,7 @@ export function SideBar({ isExpand, setIsExpand }: { isExpand: boolean; setIsExp
       className={`h-screen relative  flex flex-col bg-white overflow-x-none shadow-[4px_0_6px_rgba(0,0,0,0.1)] transition-all duration-300 ${isExpand ? "w-56" : "w-20"} }`}
     >
       {/* Toggle button */}
-      <div className="w-fit absolute top-1/2 -translate-y-1/2  -right-3.5 flex justify-end">
+      <div className="w-fit absolute top-1/2 -translate-y-1/2  -right-4 flex justify-end">
         <button
           className="p-2 rounded-xl bg-pos-blue-50  hover:bg-pos-blue-500 group cursor-pointer duration-300  transition-all"
           onClick={() => setIsExpand(!isExpand)}

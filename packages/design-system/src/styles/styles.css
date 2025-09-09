@@ -92,7 +92,7 @@
   }
   ::-webkit-scrollbar-track {
     background: #f1f1f1; /* Màu nền track */
-    margin: 40px 40px; /* Cắt bớt trên và dưới */
+    /* margin: 40px 40px; Cắt bớt trên và dưới  */
   }
 
   ::-webkit-scrollbar-thumb {

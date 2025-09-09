@@ -1,11 +1,7 @@
 "use client";
 import * as React from "react";
 import { Select as MantineSelect } from "@mantine/core";
-import type {
-  CSSProperties,
-  ReactNode,
-  ForwardedRef,
-} from "react";
+import type { CSSProperties, ReactNode, ForwardedRef } from "react";
 
 type SizeSelect = "xs" | "sm" | "md" | "lg" | "xl";
 type SizeRadius = "xs" | "sm" | "md" | "lg" | "xl";
@@ -29,13 +25,7 @@ export type SelectProps = {
   name?: string;
 } & Omit<
   React.ComponentProps<typeof MantineSelect>,
-  | "size"
-  | "radius"
-  | "data"
-  | "error"
-  | "placeholder"
-  | "disabled"
-  | "defaultValue"
+  "size" | "radius" | "data" | "error" | "placeholder" | "disabled" | "defaultValue"
 >;
 
 export const Select = React.forwardRef<HTMLInputElement, SelectProps>(
@@ -63,15 +53,7 @@ export const Select = React.forwardRef<HTMLInputElement, SelectProps>(
   ) => {
     return (
       <div className={`flex flex-col gap-1 ${className ?? ""}`} style={style}>
-        {label && (
-          <span
-            className={`${
-              error ? "text-red-500" : "text-gray-900"
-            } text-sm font-medium`}
-          >
-            {label}
-          </span>
-        )}
+        {label && <span className={`${error ? "text-red-500" : "text-gray-900"} text-sm font-medium`}>{label}</span>}
         <MantineSelect
           ref={ref}
           name={name}

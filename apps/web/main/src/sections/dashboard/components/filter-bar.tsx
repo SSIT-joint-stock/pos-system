@@ -1,9 +1,6 @@
 "use client";
-import {
-  AutoComplete,
-  DatePickerInput,
-} from "@repo/design-system/components/ui";
-import { Calendar1, ChevronDown,Search } from "lucide-react";
+import { AutoComplete, DatePickerInput } from "@repo/design-system/components/ui";
+import { Calendar1, ChevronDown, Search } from "lucide-react";
 import * as React from "react";
 type FilterBarProps = {
   onSearch?: (value: string) => void;
@@ -31,19 +28,17 @@ export default function FilterBar({ onSearch, actions }: FilterBarProps) {
         </div>
         {/* FILTER */}
         <div className="flex items-center gap-2 ">
-          <button className="bg-white border text-nowrap border-gray-200 rounded-md flex items-center gap-2 py-2 px-4  cursor-pointer hover:opacity-80 transition-opacity duration-300">
-            <span className="text-gray-900 font-medium text-xs">
-              Trạng thái
-            </span>
-            <ChevronDown size={16} />
+          <button className="bg-pos-blue-400 border text-nowrap border-gray-200 rounded-md flex items-center gap-2 py-2 px-4  cursor-pointer hover:opacity-80 transition-opacity duration-300">
+            <span className="text-white font-medium text-xs">Trạng thái</span>
+            <ChevronDown size={16} className="text-white" />
           </button>
-          <button className="bg-white text-nowrap border border-gray-200 rounded-md flex items-center gap-2 py-2 px-4  cursor-pointer hover:opacity-80 transition-opacity duration-300">
-            <span className="text-gray-900 font-medium text-xs">Danh mục</span>
-            <ChevronDown size={16} />
+          <button className="bg-pos-blue-400 text-nowrap border border-gray-200 rounded-md flex items-center gap-2 py-2 px-4  cursor-pointer hover:opacity-80 transition-opacity duration-300">
+            <span className="text-white font-medium text-xs">Danh mục</span>
+            <ChevronDown size={16} className="text-white" />
           </button>
           <div className="w-[22ch] border border-gray-200 rounded-md   outline-none">
             <DatePickerInput
-              rightSection={<Calendar1  size={16}/>}
+              rightSection={<Calendar1 size={16} />}
               type="range"
               variant="unstyled"
               radius="md"

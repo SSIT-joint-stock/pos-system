@@ -11,28 +11,14 @@ export type ModalProps = React.PropsWithChildren & {
   size?: SizeModal;
   padding?: SizePadding;
   radius?: SizeRadius;
-  title?: string;
+  title?: string | React.ReactNode;
 };
-export function Modal({
-  onClose,
-  opened,
-  children,
-  size = "md",
-  padding = "md",
-  radius = "md",
-  title,
-}: ModalProps) {
+export function Modal({ onClose, opened, children, size = "md", padding = "md", radius = "md", title }: ModalProps) {
   return (
-    <MantineModal.Root
-      size={size}
-      padding={padding}
-      radius={radius}
-      opened={opened}
-      centered
-      onClose={onClose}>
+    <MantineModal.Root size={size} padding={padding} radius={radius} opened={opened} centered onClose={onClose}>
       <MantineModal.Overlay />
       <MantineModal.Content>
-        <MantineModal.Header >
+        <MantineModal.Header>
           <MantineModal.Title>{title}</MantineModal.Title>
           <MantineModal.CloseButton />
         </MantineModal.Header>
