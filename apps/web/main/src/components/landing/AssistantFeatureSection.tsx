@@ -44,12 +44,12 @@ export default function AssistantFeatureSection() {
       className="mx-auto max-w-7xl px-4  h-screen flex items-center justify-center flex-col snap-always snap-center scroll-mt-12"
     >
       <div className="mx-auto mb-10 max-w-3xl text-center">
-        <h2 className="text-3xl font-extrabold text-[#0D2A5C] sm:text-4xl">
+        <h2 className="text-3xl font-extrabold text-black sm:text-4xl">
           EraPOS - trợ thủ đắc lực cho người làm kinh doanh
         </h2>
         <p className="mt-3 text-gray-600">
-          Tự động hoá quản lý bán hàng, xử lý đơn nhanh chóng, kiểm soát tồn kho, lợi nhuận rõ ràng,
-          khởi tạo hoá đơn từ máy tính tiền.
+          Tự động hoá quản lý bán hàng, xử lý đơn nhanh chóng, kiểm soát tồn
+          kho, lợi nhuận rõ ràng, khởi tạo hoá đơn từ máy tính tiền.
         </p>
       </div>
 
@@ -69,7 +69,9 @@ export default function AssistantFeatureSection() {
                     <span className="grid h-8 w-8 place-items-center rounded-md bg-[#1976D2] text-white">
                       <span className="text-xs">i</span>
                     </span>
-                    <span className="font-medium text-[#0D2A5C]">{it.title}</span>
+                    <span className="font-medium text-[#0D2A5C]">
+                      {it.title}
+                    </span>
                   </div>
                   <svg
                     viewBox="0 0 20 20"
@@ -80,7 +82,9 @@ export default function AssistantFeatureSection() {
                     <path d="M7 5l5 5-5 5" />
                   </svg>
                 </div>
-                {active && <p className="mt-3 text-sm text-gray-600">{it.desc}</p>}
+                {active && (
+                  <p className="mt-3 text-sm text-gray-600">{it.desc}</p>
+                )}
               </button>
             );
           })}
