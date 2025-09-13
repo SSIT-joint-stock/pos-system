@@ -1,7 +1,7 @@
-import { accessTokenAtom } from './../../../../../packages/design-system/src/stores/auth';
+import { accessTokenAtom } from "./../../../../../packages/design-system/src/stores/auth";
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import axios, { AxiosError } from 'axios';
-import { getDefaultStore } from 'jotai';
+import axios, { AxiosError } from "axios";
+import { getDefaultStore } from "jotai";
 
 const store = getDefaultStore();
 
@@ -17,7 +17,6 @@ api.interceptors.request.use(
   (config) => {
     const accessToken = store.get(accessTokenAtom);
     if (accessToken) {
-      console.log('🔑 Access Token gửi lên:', config.headers.Authorization);
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
     return config;
@@ -33,7 +32,7 @@ api.interceptors.response.use(
     const originalRequest = error.config as any;
 
     if (error.response?.status === 401 && !originalRequest._retry) {
-      const isLoginRequest = originalRequest.url && originalRequest.url.includes('/auth/login');
+      const isLoginRequest = originalRequest.url && originalRequest.url.includes("/auth/login");
 
       if (!isLoginRequest) {
         originalRequest._retry = true;

@@ -59,9 +59,7 @@ export function PieChart() {
     return () => observer.disconnect();
   }, []);
 
-  useEffect(() => {
-    console.log(size);
-  }, [size]);
+  useEffect(() => {}, [size]);
   return (
     <>
       <div className="flex gap-10 px-10 py-5 items-center h-full w-full bg-white  rounded-2xl overflow-y-hidden">

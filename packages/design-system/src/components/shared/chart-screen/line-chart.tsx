@@ -25,7 +25,7 @@ export function LineChart() {
   // Cộng thêm 10%
   const maxWith10Percent = Math.round(maxApples * 1.1);
   const yProps = { domain: [0, maxWith10Percent] };
-  console.log(yProps);
+
   useEffect(() => {
     if (!containerRef.current) return;
 

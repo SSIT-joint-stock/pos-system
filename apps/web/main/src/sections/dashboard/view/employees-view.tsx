@@ -64,116 +64,114 @@ export default function EmployeesView() {
   };
   return (
     <>
-      {openModalAdd && (
-        <Modal
-          opened={openModalAdd}
-          onClose={() => setOpenModalAdd(false)}
-          size="lg"
-          title={
-            <div className="flex items-center gap-2 text-lg font-medium">
-              <UserPlus size={20} />
-              <p>Them Nhan Vien Moi</p>
-            </div>
-          }
-        >
-          <div className="relative">
-            {/* Background upload */}
-            <div className="h-32 bg-gray-300 rounded-lg flex items-center justify-center relative">
-              <button className="p-3 bg-black/40 rounded-full hover:bg-black/60 transition">
+      <Modal
+        opened={openModalAdd}
+        onClose={() => setOpenModalAdd(false)}
+        size="lg"
+        title={
+          <div className="flex items-center gap-2 text-lg font-medium">
+            <UserPlus size={20} />
+            <p>Them Nhan Vien Moi</p>
+          </div>
+        }
+      >
+        <div className="relative">
+          {/* Background upload */}
+          <div className="h-32 bg-gray-300 rounded-lg flex items-center justify-center relative">
+            <button className="p-3 bg-black/40 rounded-full hover:bg-black/60 transition">
+              <Plus size={20} className="text-white" />
+            </button>
+          </div>
+          <div className="absolute -bottom-10 left-6 border-4 border-white rounded-full">
+            <div className="relative">
+              <Image
+                src="https://i.pinimg.com/originals/6e/ea/71/6eea71cd65edef17878a46e75d2ee5f7.jpg"
+                alt="avatar"
+                width={80}
+                height={80}
+                className="rounded-full border-4 border-white shadow-md"
+              />
+              <button className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full hover:bg-black/60 transition">
                 <Plus size={20} className="text-white" />
               </button>
             </div>
-            <div className="absolute -bottom-10 left-6 border-4 border-white rounded-full">
-              <div className="relative">
-                <Image
-                  src="https://i.pinimg.com/originals/6e/ea/71/6eea71cd65edef17878a46e75d2ee5f7.jpg"
-                  alt="avatar"
-                  width={80}
-                  height={80}
-                  className="rounded-full border-4 border-white shadow-md"
-                />
-                <button className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full hover:bg-black/60 transition">
-                  <Plus size={20} className="text-white" />
-                </button>
-              </div>
+          </div>
+        </div>
+
+        {/* Form */}
+        <form className="mt-14 space-y-4">
+          <div>
+            <label className="block text-sm font-medium">Full Name</label>
+            <Input size="sm" placeholder="Ho va ten" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Email</label>
+            <Input size="sm" placeholder="Email" type="email" />
+          </div>
+          <div className="flex flex-row gap-4 items-center justify-between">
+            <div className="w-full">
+              <label className="block text-sm font-medium">Gioi Tinh</label>
+              <Select placeholder="Gioi Tinh" size="sm" data={["Nam", "Nu"]} className="text-sm font-medium"></Select>
+            </div>
+            <div className="w-full">
+              <label className="block text-sm font-medium">Trang Thai</label>
+              <Select
+                placeholder="Trang Thai"
+                size="sm"
+                data={["Dang lam viec", "Thu viec"]}
+                className="text-sm font-medium"
+              ></Select>
             </div>
           </div>
+          <div className="flex flex-row gap-4 items-center justify-between">
+            <div className="w-full">
+              <label className="block text-sm font-medium">Ngay tham gia</label>
+              <Select placeholder="Gioi Tinh" size="sm" data={["Nam", "Nu"]} className="text-sm font-medium"></Select>
+            </div>
+            <div className="w-full">
+              <label className="block text-sm font-medium">Vi Tri</label>
+              <Select
+                placeholder="Vi tri"
+                size="sm"
+                data={["Ke toan", "Nhan vien", "Quan Ly", "Nhan Vien Ky Thuat"]}
+                className="text-sm font-medium"
+              ></Select>
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Dia Chi</label>
+            <Input size="sm" placeholder="Dia chi" type="text" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Mobile Number</label>
+            <Input size="sm" placeholder="So dien thoai" type="number" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Description</label>
+            <textarea
+              placeholder="Description"
+              className="w-full border-gray-300 border rounded-lg px-3 py-2 outline-0"
+            />
+          </div>
 
-          {/* Form */}
-          <form className="mt-14 space-y-4">
-            <div>
-              <label className="block text-sm font-medium">Full Name</label>
-              <Input size="sm" placeholder="Ho va ten" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium">Email</label>
-              <Input size="sm" placeholder="Email" type="email" />
-            </div>
-            <div className="flex flex-row gap-4 items-center justify-between">
-              <div className="w-full">
-                <label className="block text-sm font-medium">Gioi Tinh</label>
-                <Select placeholder="Gioi Tinh" size="sm" data={["Nam", "Nu"]} className="text-sm font-medium"></Select>
-              </div>
-              <div className="w-full">
-                <label className="block text-sm font-medium">Trang Thai</label>
-                <Select
-                  placeholder="Trang Thai"
-                  size="sm"
-                  data={["Dang lam viec", "Thu viec"]}
-                  className="text-sm font-medium"
-                ></Select>
-              </div>
-            </div>
-            <div className="flex flex-row gap-4 items-center justify-between">
-              <div className="w-full">
-                <label className="block text-sm font-medium">Ngay tham gia</label>
-                <Select placeholder="Gioi Tinh" size="sm" data={["Nam", "Nu"]} className="text-sm font-medium"></Select>
-              </div>
-              <div className="w-full">
-                <label className="block text-sm font-medium">Vi Tri</label>
-                <Select
-                  placeholder="Vi tri"
-                  size="sm"
-                  data={["Ke toan", "Nhan vien", "Quan Ly", "Nhan Vien Ky Thuat"]}
-                  className="text-sm font-medium"
-                ></Select>
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium">Dia Chi</label>
-              <Input size="sm" placeholder="Dia chi" type="text" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium">Mobile Number</label>
-              <Input size="sm" placeholder="So dien thoai" type="number" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium">Description</label>
-              <textarea
-                placeholder="Description"
-                className="w-full border-gray-300 border rounded-lg px-3 py-2 outline-0"
-              />
-            </div>
-
-            {/* Footer */}
-            <div className="flex justify-end gap-3 pt-4">
-              <button
-                type="button"
-                onClick={() => setOpenModalAdd(false)}
-                className="px-5 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-5 py-2 rounded-lg bg-gradient-to-r from-orange-400 to-orange-500 text-white hover:opacity-90"
-              >
-                Add
-              </button>
-            </div>
-          </form>
-        </Modal>
-      )}
+          {/* Footer */}
+          <div className="flex justify-end gap-3 pt-4">
+            <button
+              type="button"
+              onClick={() => setOpenModalAdd(false)}
+              className="px-5 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-5 py-2 rounded-lg bg-gradient-to-r from-orange-400 to-orange-500 text-white hover:opacity-90"
+            >
+              Add
+            </button>
+          </div>
+        </form>
+      </Modal>
 
       <FilterBar
         actions={

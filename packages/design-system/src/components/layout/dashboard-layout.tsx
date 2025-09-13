@@ -1,20 +1,20 @@
-'use client';
-import React, { useEffect, useState } from 'react';
-import { SideBar } from '../shared/dashboard-screen';
-import { useSetAtom } from 'jotai';
-import { accessTokenAtom } from '@repo/design-system/stores/auth';
-import api from '../../../../../apps/web/main/src/libs/axios';
+"use client";
+import React, { useEffect, useState } from "react";
+import { SideBar } from "../shared/dashboard-screen";
+import { useSetAtom } from "jotai";
+import { accessTokenAtom } from "@repo/design-system/stores/auth";
+import api from "../../../../../apps/web/main/src/libs/axios";
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [isExpand, setIsExpand] = useState(false);
   const setAccessToken = useSetAtom(accessTokenAtom);
   useEffect(() => {
     const init = async () => {
       try {
-        const res = await api.post('/auth/refresh-token');
+        const res = await api.post("/auth/refresh-token");
         const { access_token } = res.data.data;
-        console.log(access_token);
+
         setAccessToken(access_token);
-        const profileRes = await api.get('/auth/profile');
+        const profileRes = await api.get("/auth/profile");
         console.log(profileRes.data);
       } catch (error) {
         console.log(error);
