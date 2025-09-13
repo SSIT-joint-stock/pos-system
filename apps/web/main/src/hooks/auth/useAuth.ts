@@ -1,5 +1,5 @@
 'use client';
-import api from '@main/libs/axios';
+import api from '../../libs/axios';
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
@@ -16,7 +16,7 @@ import {
   resetPasswordSchema,
   VerifyAccountData,
   verifyAccountSchema,
-} from '@main/sections/auth/data';
+} from '../../../src/sections/auth/data';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useAtom } from 'jotai';
@@ -24,7 +24,7 @@ import {
   accessTokenAtom,
   currentStoreAtom,
   storesAtom,
-  userAtom,
+  currentUserAtom,
 } from '@repo/design-system/stores/auth';
 
 const AUTH_ENDPOINTS = {
@@ -41,7 +41,7 @@ const AUTH_ENDPOINTS = {
 export default function useAuth() {
   const [loading, setLoading] = useState(false);
   const [, setAccessToken] = useAtom(accessTokenAtom);
-  const [, setUser] = useAtom(userAtom);
+  const [, setCurrentUser] = useAtom(currentUserAtom);
   const [, setStores] = useAtom(storesAtom);
   const [, setCurrentStore] = useAtom(currentStoreAtom);
   const [email, setEmail] = useState('');
@@ -130,11 +130,20 @@ export default function useAuth() {
     if (res?.data.success) {
       const { user, stores, access_token } = res.data.data;
       setAccessToken(access_token);
-      setUser(user);
+      setCurrentUser(user);
       setStores(stores);
       return true;
     }
     return false;
+  };
+
+  const profile = async () => {
+    const res = await requestWrapper(() => api.get('/auth/profile'));
+    if (res?.data.success) {
+      const { user, store } = res.data.data;
+      setCurrentUser(user);
+      setCurrentStore(store);
+    }
   };
 
   // Tạo store và tự động set làm current store
@@ -210,6 +219,7 @@ export default function useAuth() {
     selectStore,
     forgotPassword,
     resetPassword,
+    profile,
     goToDashboard,
     // utils
     setLoading,
