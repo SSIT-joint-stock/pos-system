@@ -165,7 +165,8 @@ export default function useAuth() {
     );
 
     if (res?.data.success) {
-      const { access_token } = res?.data.data;
+      // eslint-disable-next-line no-unsafe-optional-chaining
+      const { access_token } = res?.data?.data;
       setAccessToken(access_token);
       setCurrentStore(res.data.data);
       return true;
