@@ -24,7 +24,7 @@ const pageItems = [
   },
   {
     title: "Quản lý sản phẩm",
-    path: "/manage",
+    path: "/manage-products",
     icon: <BadgeDollarSign className="shrink-0" />,
   },
   {
