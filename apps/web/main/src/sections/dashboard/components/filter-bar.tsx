@@ -9,7 +9,7 @@ type FilterBarProps = {
 
 export default function FilterBar({ onSearch, actions }: FilterBarProps) {
   return (
-    <div className="flex items-center bg-white p-5 rounded-md">
+    <div className="flex items-center bg-white p-5 rounded-lg shadow">
       <div className="flex items-center w-full gap-2">
         {/* SEARCH */}
         <div className="w-[30%] border border-gray-200 rounded-md   outline-none">

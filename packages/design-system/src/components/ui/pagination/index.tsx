@@ -15,7 +15,7 @@ export type PaginationProps = React.PropsWithChildren & {
 export function Pagination({
   total,
   boundaries = 1,
-  siblings = 1,
+  siblings = 2,
   size = "md",
   radius = "md",
   value,

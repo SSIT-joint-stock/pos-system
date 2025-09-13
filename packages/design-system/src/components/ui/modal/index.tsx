@@ -1,9 +1,9 @@
-'use client';
-import * as React from 'react';
-import { Modal as MantineModal } from '@mantine/core';
-type SizeModal = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'full' | 'content' | '46%';
-type SizeRadius = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
-type SizePadding = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+"use client";
+import * as React from "react";
+import { Modal as MantineModal } from "@mantine/core";
+type SizeModal = "xs" | "sm" | "md" | "lg" | "xl" | "full" | "content" | "46%";
+type SizeRadius = "xs" | "sm" | "md" | "lg" | "xl";
+type SizePadding = "xs" | "sm" | "md" | "lg" | "xl";
 export type ModalProps = React.PropsWithChildren & {
   onClose: () => void;
   opened: boolean;
@@ -11,16 +11,16 @@ export type ModalProps = React.PropsWithChildren & {
   size?: SizeModal;
   padding?: SizePadding;
   radius?: SizeRadius;
-  title?: string;
+  title?: string | React.ReactNode;
   closeOnClickOutside?: boolean;
 };
 export function Modal({
   onClose,
   opened,
   children,
-  size = 'md',
-  padding = 'md',
-  radius = 'md',
+  size = "md",
+  padding = "md",
+  radius = "md",
   title,
   closeOnClickOutside = true,
 }: ModalProps) {

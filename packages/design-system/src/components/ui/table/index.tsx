@@ -16,7 +16,7 @@ export type TableProps<T> = {
 };
 
 export function Table<T>({
-//   size,
+  //   size,
   tableHeaders,
   data,
   renderRow,
@@ -26,7 +26,7 @@ export function Table<T>({
   onPageSizeChange,
 }: TableProps<T>) {
   return (
-    <div className="bg-white rounded-md p-5 mt-5 flex-col flex overflow-y-auto">
+    <div className="bg-white border border-black/10 p-5 mt-5 flex-col flex overflow-y-auto shadow-md rounded-lg ">
       {/* TABLE */}
       <div className="overflow-y-auto flex-1 scrollbar-thin scrollbar-thumb-gray-50 scrollbar-track-transparent">
         <table className="table-fixed w-full border-collapse">
@@ -60,7 +60,7 @@ export function Table<T>({
           </div>
         </div>
 
-        <Pagination size="sm" total={totalPages} onChange={onPageChange} />
+        <Pagination size="sm" boundaries={2} siblings={2} total={totalPages} onChange={onPageChange} />
       </div>
     </div>
   );

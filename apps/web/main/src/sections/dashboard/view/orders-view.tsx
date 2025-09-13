@@ -1,7 +1,7 @@
 "use client";
 import { Input, Modal, Select, Table } from "@repo/design-system/components/ui";
 import FilterBar from "../components/filter-bar";
-import { BadgeAlert, CalendarDays, Check, Download, Edit, Eye, ShoppingCart, Trash } from "lucide-react";
+import { BadgeAlert, Check, Download, Edit, Eye, ShoppingCart, Trash } from "lucide-react";
 import React, { useState } from "react";
 import Image from "next/image";
 
@@ -224,32 +224,6 @@ export function OrdersView() {
       </Modal>
 
       <div className="flex flex-col h-full gap-5">
-        <div className="w-full bg-white grid grid-cols-6 rounded-xl p-4 text-gray-400 gap-6 shadow-sm">
-          <div className="flex items-center  gap-2 text-lg font-semibold text-pos-blue-400 px-4 py-3 border-r border-r-gray-200">
-            <CalendarDays className="text-pos-blue-400" />
-            <span>Today</span>
-          </div>
-          <div className="border-r border-r-gray-200">
-            <p>Total orders</p>
-            <p className="font-semibold text-xl text-pos-blue-400">48</p>
-          </div>
-          <div className="border-r border-r-gray-200">
-            <p>Ordered items over time</p>
-            <p className="font-semibold text-xl text-pos-blue-400">493</p>
-          </div>
-          <div className="border-r border-r-gray-200">
-            <p>Return</p>
-            <p className="font-semibold text-xl text-pos-blue-400">6</p>
-          </div>
-          <div className="border-r border-r-gray-200">
-            <p>Fullfiled orders over time</p>
-            <p className="font-semibold text-xl text-pos-blue-400">359</p>
-          </div>
-          <div className="">
-            <p>Delivered orders overtime</p>
-            <p className="font-semibold text-xl text-pos-blue-400">353</p>
-          </div>
-        </div>
         {/* ACTION */}
         <FilterBar
           actions={
@@ -264,7 +238,7 @@ export function OrdersView() {
 
         {/* TABLE AND PAGINATION */}
         <Table
-          totalPages={10}
+          totalPages={20}
           tableHeaders={tableHeaders}
           data={products}
           renderRow={(product, idx) => (
@@ -292,12 +266,12 @@ export function OrdersView() {
                         setOpenEditModal(false);
                         setOpenViewModal(true);
                       }}
-                      className="flex justify-center items-center cursor-pointer w-[36px] h-[36px] bg-gray-50 text-gray-500 rounded-md hover:opacity-100 opacity-70 transition-opacity duration-200"
+                      className="flex justify-center items-center cursor-pointer w-[36px] h-[36px] bg-gray-50 text-gray-500 rounded-md hover:opacity-100 hover:bg-gray-700 hover:text-white opacity-70 transition-opacity duration-200"
                     >
                       <Eye size={16} />
                     </button>
                     <button
-                      className="flex justify-center items-center cursor-pointer w-[36px] h-[36px]  bg-pos-blue-50 text-pos-blue-500 rounded-md hover:opacity-100 opacity-70 transition-opacity duration-200"
+                      className="flex justify-center items-center cursor-pointer w-[36px] h-[36px]  bg-pos-blue-50 text-pos-blue-500 rounded-md hover:opacity-100 hover:bg-pos-blue-500 hover:text-pos-blue-50 opacity-70 transition-opacity duration-200"
                       onClick={() => {
                         setOpenEditModal(true);
                         setOpenViewModal(false);
@@ -307,7 +281,7 @@ export function OrdersView() {
                       <Edit size={16} />
                     </button>
                     <button
-                      className="flex justify-center items-center cursor-pointer w-[36px] h-[36px]  bg-red-50 text-red-500 rounded-md hover:opacity-100 opacity-70 transition-opacity duration-200 ml-auto"
+                      className="flex justify-center items-center cursor-pointer w-[36px] h-[36px]  bg-red-50 text-red-500 rounded-md hover:opacity-100 hover:bg-red-500 hover:text-white  opacity-70 transition-opacity duration-200 ml-auto"
                       onClick={() => {
                         setDeleteModal(true);
                         setSelectedProduct(product);

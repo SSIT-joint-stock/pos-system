@@ -81,9 +81,9 @@ export default function SlidingTabs({ setState }: { setState: (state: ChartPoint
     return () => window.removeEventListener("resize", moveIndicator);
   }, [active]);
 
-  useEffect(() => {
-    setState(data1);
-  }, []);
+    useEffect(() => {
+      setState(data1);
+    }, []);
 
   return (
     <div ref={containerRef} className="relative flex w-fit  rounded-lg p-1 overflow-x-auto">
