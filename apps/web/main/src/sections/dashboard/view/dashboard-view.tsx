@@ -1,56 +1,24 @@
-"use client";
+'use client';
 import {
   ItemBoxChart,
   LineChart,
   PieChart,
-} from "@repo/design-system/components/shared/chart-screen";
-import ItemNoti from "@repo/design-system/components/shared/chart-screen/item-noti";
-import { Plus } from "lucide-react";
+} from '@repo/design-system/components/shared/chart-screen';
+import ItemNoti from '@repo/design-system/components/shared/chart-screen/item-noti';
+import { Plus } from 'lucide-react';
 
 export function DashboardView() {
   return (
     <div className="flex  h-fit w-full gap-5 flex-col">
       <div className="grid sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pb-2  w-full overflow-x-auto min-h-fit">
-        <ItemBoxChart
-          title="Doanh Thu Hôm Nay"
-          value={500000000}
-          percent={55}
-        />
-        <ItemBoxChart
-          title="Tiền Nhập Hàng Tháng Này"
-          value={900000000}
-          percent={36}
-        />
-        <ItemBoxChart
-          title="Tổng Tiền Lãi Tháng Này"
-          value={30102005}
-          percent={10}
-        />
-        <ItemBoxChart
-          title="Tổng Doanh Thu Tháng"
-          value={500000000000}
-          percent={5}
-        />
-        <ItemBoxChart
-          title="Tổng Doanh Thu Tháng"
-          value={500000000000}
-          percent={5}
-        />
-        <ItemBoxChart
-          title="Tổng Doanh Thu Tháng"
-          value={500000000000}
-          percent={5}
-        />
-        <ItemBoxChart
-          title="Tổng Doanh Thu Tháng"
-          value={500000000000}
-          percent={5}
-        />
-        <ItemBoxChart
-          title="Tổng Doanh Thu Tháng"
-          value={500000000000}
-          percent={5}
-        />
+        <ItemBoxChart title="Doanh Thu Hôm Nay" value={500000000} percent={55} />
+        <ItemBoxChart title="Tiền Nhập Hàng Tháng Này" value={900000000} percent={36} />
+        <ItemBoxChart title="Tổng Tiền Lãi Tháng Này" value={30102005} percent={10} />
+        <ItemBoxChart title="Tổng Doanh Thu Tháng" value={500000000000} percent={5} />
+        <ItemBoxChart title="Tổng Doanh Thu Tháng" value={500000000000} percent={5} />
+        <ItemBoxChart title="Tổng Doanh Thu Tháng" value={500000000000} percent={5} />
+        <ItemBoxChart title="Tổng Doanh Thu Tháng" value={500000000000} percent={5} />
+        <ItemBoxChart title="Tổng Doanh Thu Tháng" value={500000000000} percent={5} />
         <div className="flex items-center justify-center h-full w-full group  hover:bg-white transition-all duration-300 border-2 border-dashed border-pos-blue-500 bg-pos-blue-100 rounded-2xl">
           <Plus
             className=" text-pos-blue-500  text-center group-hover:rotate-90 transition-all duration-200"
@@ -89,21 +57,9 @@ export function DashboardView() {
           <PieChart />
         </div>
         <div className=" flex flex-col gap-2 ">
-          <ItemBoxChart
-            title="Doanh Thu Hôm Nay"
-            value={500000000}
-            percent={55}
-          />
-          <ItemBoxChart
-            title="Tổng Tiền Lãi Tháng Này"
-            value={30102005}
-            percent={10}
-          />
-          <ItemBoxChart
-            title="Tiền Nhập Hàng Tháng Này"
-            value={900000000}
-            percent={36}
-          />
+          <ItemBoxChart title="Doanh Thu Hôm Nay" value={500000000} percent={55} />
+          <ItemBoxChart title="Tổng Tiền Lãi Tháng Này" value={30102005} percent={10} />
+          <ItemBoxChart title="Tiền Nhập Hàng Tháng Này" value={900000000} percent={36} />
         </div>
       </div>
     </div>

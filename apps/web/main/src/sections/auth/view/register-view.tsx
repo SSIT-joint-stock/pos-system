@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { Building2, Check, MailCheck, User } from 'lucide-react';
+import { Check, MailCheck, User } from 'lucide-react';
 import { Stepper } from '@repo/design-system/components/ui';
 
 import StepRegister from '../components/steps/step-register';
@@ -16,11 +16,6 @@ const steps = [
     label: 'Xác thực tài khoản',
     description: 'Xác minh mã được gửi đến email của bạn.',
     icon: <MailCheck size={16} />,
-  },
-  {
-    label: 'Thông tin doang nghiệp',
-    description: 'Xây dựng tài khoản doanh nghiệp.',
-    icon: <Building2 size={16} />,
   },
   {
     label: 'Tạo mới tài khoản thành công',

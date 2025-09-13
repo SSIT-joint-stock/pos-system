@@ -46,7 +46,7 @@ export default function StepResetPassword({
         closeOnClickOutside={false}
         radius="xl"
         padding="lg"
-        size="46%"
+        size="lg"
         opened={isOpenModal}
         onClose={() => setIsOpenModal(false)}
       >

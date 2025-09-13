@@ -38,7 +38,7 @@ export default function Page() {
                 href="#"
                 className="inline-flex rounded-full bg-orange-500 px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-orange-600"
               >
-                Xem thêm
+                Xem thêms
               </a>
             </div>
           </div>

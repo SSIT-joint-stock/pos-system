@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import {
   BadgeDollarSign,
   LayoutDashboard,
@@ -8,49 +8,53 @@ import {
   LogOut,
   ShoppingCart,
   ChevronDown,
-  PackageSearch,
-  User,
-} from "lucide-react";
-import Link from "next/link";
-import Image from "next/Image";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
+} from 'lucide-react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { usePathname } from 'next/navigation';
+import { useState } from 'react';
 
 const pageItems = [
   {
-    title: "Tổng quan",
-    path: "/dashboard",
+    title: 'Tổng quan',
+    path: '/dashboard',
     icon: <LayoutDashboard className="shrink-0" />,
   },
   {
-    title: "Quản lý sản phẩm",
-    path: "/manage",
+    title: 'Quản lý sản phẩm',
+    path: '/manage',
     icon: <BadgeDollarSign className="shrink-0" />,
   },
   {
-    title: "Bán hàng",
-    path: "/sales",
+    title: 'Bán hàng',
+    path: '/sales',
     icon: <ShoppingCart className="shrink-0" />,
   },
   {
-    title: "Đơn hàng",
-    path: "/orders",
+    title: 'Đơn hàng',
+    path: '/orders',
     icon: <PackageSearch className="shrink-0" />,
   },
   {
-    title: "Quan ly nhan vien",
-    path: "/employees",
+    title: 'Quan ly nhan vien',
+    path: '/employees',
     icon: <User className="shrink-0" />,
   },
 ];
 
-export function SideBar({ isExpand, setIsExpand }: { isExpand: boolean; setIsExpand: (isExpand: boolean) => void }) {
+export function SideBar({
+  isExpand,
+  setIsExpand,
+}: {
+  isExpand: boolean;
+  setIsExpand: (isExpand: boolean) => void;
+}) {
   const pathName = usePathname();
   const [isOpnen, setIsOpen] = useState(false);
 
   return (
     <div
-      className={`h-screen relative  flex flex-col bg-white overflow-x-none shadow-[4px_0_6px_rgba(0,0,0,0.1)] transition-all duration-300 ${isExpand ? "w-56" : "w-20"} }`}
+      className={`h-screen relative  flex flex-col bg-white overflow-x-none shadow-[4px_0_6px_rgba(0,0,0,0.1)] transition-all duration-300 ${isExpand ? 'w-56' : 'w-20'} }`}
     >
       {/* Toggle button */}
       <div className="w-fit absolute top-1/2 -translate-y-1/2  -right-4 flex justify-end">
@@ -73,31 +77,33 @@ export function SideBar({ isExpand, setIsExpand }: { isExpand: boolean; setIsExp
           <Image
             width={38}
             height={38}
-            src={"/logo.jpg"}
+            src={'/logo.jpg'}
             alt="logo"
-            className={`shrink-0 w-fit object-cover ${isExpand === false && "flex items-center justify-center"}`}
+            className={`shrink-0 w-fit object-cover ${isExpand === false && 'flex items-center justify-center'}`}
           />
-          <p className={` ${isExpand === false && "hidden"} text-xl font-medium text-gray-800 `}>EraPOS8</p>
+          <p className={` ${isExpand === false && 'hidden'} text-xl font-medium text-gray-800 `}>
+            EraPOS8
+          </p>
         </div>
 
         {/* User account management */}
 
         <div
-          className={`flex items-center justify-center ${isExpand ? "w-full" : "w-[40px] "} ${isExpand ? "gap-5" : "gap-0"} w-full transition-all duration-300 `}
+          className={`flex items-center justify-center ${isExpand ? 'w-full' : 'w-[40px] '} ${isExpand ? 'gap-5' : 'gap-0'} w-full transition-all duration-300 `}
         >
           <Image
-            src={"/avatar.png"}
+            src={'/avatar.png'}
             width={40}
             height={40}
             alt="avatar"
             className="w-10 h-10 rounded-full shrink-0 overflow-hidden object-cover "
           />
           <div
-            className={`flex ${isExpand ? "max-w-full opacity-100" : "max-w-0 opacity-0"} gap-5 overflow-hidden transition-all duration-300 items-center `}
+            className={`flex ${isExpand ? 'max-w-full opacity-100' : 'max-w-0 opacity-0'} gap-5 overflow-hidden transition-all duration-300 items-center `}
           >
             <div
               className={`flex flex-col gap-1 transition-all duration-300 overflow-hidden ${
-                isExpand ? "max-w-full opacity-100" : "max-w-0 opacity-0"
+                isExpand ? 'max-w-full opacity-100' : 'max-w-0 opacity-0'
               }`}
             >
               <h2 className="text-sm font-medium text-gray-800 truncate">Tran Huu Thanh</h2>
@@ -106,7 +112,7 @@ export function SideBar({ isExpand, setIsExpand }: { isExpand: boolean; setIsExp
             <ChevronDown
               onClick={() => setIsOpen(!isOpnen)}
               size={18}
-              className={` transition-transform duration-300  text-gray-500 ${isExpand ? "rotate-0" : "-rotate-90"}`}
+              className={` transition-transform duration-300  text-gray-500 ${isExpand ? 'rotate-0' : '-rotate-90'}`}
             />
           </div>
         </div>
@@ -118,15 +124,15 @@ export function SideBar({ isExpand, setIsExpand }: { isExpand: boolean; setIsExp
               key={idx}
               title={item.title}
               href={item.path}
-              className={`flex items-center font-medium group  ${isExpand ? "gap-5" : "gap-0"} p-2 rounded-lg transition-all duration-300 ${
+              className={`flex items-center font-medium group  ${isExpand ? 'gap-5' : 'gap-0'} p-2 rounded-lg transition-all duration-300 ${
                 pathName === item.path
-                  ? " bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white"
-                  : "text-gray-500 hover:bg-pos-blue-50 hover:text-pos-blue-400"
-              } ${isExpand ? "w-full" : "w-[40px] "}`}
+                  ? ' bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white'
+                  : 'text-gray-500 hover:bg-pos-blue-50 hover:text-pos-blue-400'
+              } ${isExpand ? 'w-full' : 'w-[40px] '}`}
             >
               <span>{item.icon}</span>
               <div
-                className={`${isExpand ? "max-w-full opacity-100 " : "max-w-0 opacity-0"} overflow-hidden transition-all duration-300`}
+                className={`${isExpand ? 'max-w-full opacity-100 ' : 'max-w-0 opacity-0'} overflow-hidden transition-all duration-300`}
               >
                 <p className=" shrink-0 truncate">{item.title}</p>
               </div>
@@ -137,21 +143,21 @@ export function SideBar({ isExpand, setIsExpand }: { isExpand: boolean; setIsExp
         {/* Settings */}
         <div className={`flex flex-col  gap-4 font-medium  items-center `}>
           <div
-            className={`flex items-center font-medium group  ${isExpand ? "gap-5" : "gap-0"} ${isExpand ? "w-full" : "w-[40px] "} hover:bg-pos-blue-50 hover:text-pos-blue-400 p-2 rounded-lg transition-all duration-300`}
+            className={`flex items-center font-medium group  ${isExpand ? 'gap-5' : 'gap-0'} ${isExpand ? 'w-full' : 'w-[40px] '} hover:bg-pos-blue-50 hover:text-pos-blue-400 p-2 rounded-lg transition-all duration-300`}
           >
             <Settings className="shrink-0" />
             <div
-              className={`${isExpand ? "max-w-full opacity-100 " : "max-w-0 opacity-0"} overflow-hidden transition-all duration-300`}
+              className={`${isExpand ? 'max-w-full opacity-100 ' : 'max-w-0 opacity-0'} overflow-hidden transition-all duration-300`}
             >
               <p className=" shrink-0 truncate">Cài đặt</p>
             </div>
           </div>
           <div
-            className={`flex items-center font-medium group  ${isExpand ? "gap-5" : "gap-0"} ${isExpand ? "w-full" : "w-[40px] "} p-2 rounded-lg transition-all duration-300 cursor-pointer hover:bg-red-500 hover:text-white rounded-lg bg-red-50 text-red-500`}
+            className={`flex items-center font-medium group  ${isExpand ? 'gap-5' : 'gap-0'} ${isExpand ? 'w-full' : 'w-[40px] '} p-2 rounded-lg transition-all duration-300 cursor-pointer hover:bg-red-500 hover:text-white rounded-lg bg-red-50 text-red-500`}
           >
             <LogOut className="shrink-0" />
             <div
-              className={`${isExpand ? "max-w-full opacity-100 " : "max-w-0 opacity-0"} overflow-hidden transition-all duration-300 `}
+              className={`${isExpand ? 'max-w-full opacity-100 ' : 'max-w-0 opacity-0'} overflow-hidden transition-all duration-300 `}
             >
               <p className=" shrink-0 truncate">Đăng xuất</p>
             </div>

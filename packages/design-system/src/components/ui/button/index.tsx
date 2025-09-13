@@ -1,20 +1,20 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { Button as MantineButton } from "@mantine/core";
+import * as React from 'react';
+import { Button as MantineButton } from '@mantine/core';
 
 type SizeVariant =
-  | "default"
-  | "filled"
-  | "gradient"
-  | "light"
-  | "outline"
-  | "subtle"
-  | "transparent"
-  | "white";
-type SizeRadius = "xs" | "sm" | "md" | "lg" | "xl";
-type SizeButton = "xs" | "sm" | "md" | "lg" | "xl";
-type TypeButton = "submit" | "reset" | "button";
+  | 'default'
+  | 'filled'
+  | 'gradient'
+  | 'light'
+  | 'outline'
+  | 'subtle'
+  | 'transparent'
+  | 'white';
+type SizeRadius = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+type SizeButton = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+type TypeButton = 'submit' | 'reset' | 'button';
 export type ButtonProps = React.PropsWithChildren & {
   title?: string | React.ReactNode;
   variant?: SizeVariant;
@@ -26,27 +26,30 @@ export type ButtonProps = React.PropsWithChildren & {
   style?: React.CSSProperties;
   color?: string;
   disabled?: boolean;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
 } & Omit<
     React.ComponentProps<typeof MantineButton>,
-    "title" | "variant" | "size" | "radius" | "type"
+    'title' | 'variant' | 'size' | 'radius' | 'type'
   >;
 
 export function Button({
   title,
-  variant = "filled",
-  radius = "md",
-  size = "md",
-  type = "button",
+  variant = 'filled',
+  radius = 'md',
+  size = 'md',
+  type = 'button',
   icon,
   className,
   style,
   children,
-  color = "#3b82f6",
+  color = '#3b82f6',
   disabled,
+  onClick,
   ...rest
 }: ButtonProps) {
   return (
     <MantineButton
+      onClick={onClick}
       loading={disabled}
       color={color}
       variant={variant}
@@ -56,7 +59,8 @@ export function Button({
       leftSection={icon}
       className={className}
       style={style}
-      {...rest}>
+      {...rest}
+    >
       {title || children}
     </MantineButton>
   );

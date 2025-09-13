@@ -1,23 +1,10 @@
+import { accessTokenAtom } from './../../../../../packages/design-system/src/stores/auth';
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import axios, { AxiosError } from "axios";
-// import { AppStore } from "@/store";
-// import { setCredentials, logout } from "@/store/features/authSlice";
+import axios, { AxiosError } from 'axios';
+import { getDefaultStore } from 'jotai';
 
-// ==================
-// Cách 1: Dùng Redux
-// let storeRef: AppStore;
-// export const setStore = (store: AppStore) => {
-//   storeRef = store;
-// };
+const store = getDefaultStore();
 
-// ==================
-// Cách 2: Không lưu đâu cả (chỉ giữ trong biến global)
-let accessToken: string | null = null;
-export const setAccessToken = (token: string | null) => {
-  accessToken = token;
-};
-
-// ==================
 // Axios instance
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -28,7 +15,9 @@ const api = axios.create({
 // Request interceptor
 api.interceptors.request.use(
   (config) => {
+    const accessToken = store.get(accessTokenAtom);
     if (accessToken) {
+      console.log('🔑 Access Token gửi lên:', config.headers.Authorization);
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
     return config;
@@ -44,38 +33,27 @@ api.interceptors.response.use(
     const originalRequest = error.config as any;
 
     if (error.response?.status === 401 && !originalRequest._retry) {
-      const isLoginRequest =
-        originalRequest.url && originalRequest.url.includes("/auth/login");
+      const isLoginRequest = originalRequest.url && originalRequest.url.includes('/auth/login');
 
       if (!isLoginRequest) {
         originalRequest._retry = true;
         try {
           const res = await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`,
+            `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh-token`,
             {},
             { withCredentials: true }
           );
 
-          const { accessToken, refreshToken, data } = res.data;
-          console.log(accessToken, refreshToken, data);
+          const { access_token, user } = res.data.data;
+          // console.log(access_token, user);
           // ==================
-          // Không lưu Redux
-          setAccessToken(accessToken);
+          store.set(accessTokenAtom, access_token);
 
-          // ==================
-          // Sau này muốn lưu Redux thì bật đoạn này
-          // storeRef.dispatch(setCredentials({ accessToken: access_token, user }));
-
-          // Gắn accessToken mới vào request cũ
-          originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+          originalRequest.headers.Authorization = `Bearer ${access_token}`;
 
           return api(originalRequest);
         } catch (refreshError) {
-          // ==================
-          // Sau này muốn clear Redux thì bật đoạn này
-          // storeRef.dispatch(logout());
-
-          setAccessToken(null);
+          store.set(accessTokenAtom, null);
           return Promise.reject(refreshError);
         }
       }
