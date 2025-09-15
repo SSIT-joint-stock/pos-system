@@ -19,7 +19,7 @@ import {
 } from '../../../src/sections/auth/data';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import {
   accessTokenAtom,
   currentStoreAtom,
@@ -37,12 +37,14 @@ const AUTH_ENDPOINTS = {
   RESET: '/auth/reset-password',
   SET_CURRENT_STORE: '/auth/set-current-store',
   PROFILE: '/auth/profile',
+  LOGOUT: '/auth/logout',
 };
 
 export default function useAuth() {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const router = useRouter();
+  const currentStore = useAtomValue(currentStoreAtom);
   const { showErrorToast, showSuccessToast } = useToast();
   const setAccessToken = useSetAtom(accessTokenAtom);
   const setCurrentUser = useSetAtom(currentUserAtom);
@@ -195,10 +197,20 @@ export default function useAuth() {
     if (res) showSuccessToast(res.data.message);
     return !!res;
   };
-
+  const logout = async () => {
+    setLoading(true);
+    const res = await requestWrapper(() => api.post(AUTH_ENDPOINTS.LOGOUT));
+    if (res) showSuccessToast(res.data.message);
+    router.push('/auth/login');
+    setLoading(false);
+    setAccessToken(null);
+    setCurrentStore(null);
+    setCurrentUser(null);
+    return !!res;
+  };
   // Redirect sang dashboard
   const goToDashboard = () => {
-    router.push('http://localhost:3001/dashboard');
+    router.push(`http://localhost:3001/dashboard/store/${currentStore?.id}/overview`);
   };
 
   // ========== Expose ==========
@@ -221,7 +233,9 @@ export default function useAuth() {
     forgotPassword,
     resetPassword,
     profile,
+    logout,
     goToDashboard,
+
     // utils
     setLoading,
     setEmail,

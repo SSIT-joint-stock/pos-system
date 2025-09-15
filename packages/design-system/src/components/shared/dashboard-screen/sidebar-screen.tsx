@@ -9,41 +9,17 @@ import {
   ShoppingCart,
   ChevronDown,
   PackageSearch,
-  User,
+  Store,
+  Users,
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-
-const pageItems = [
-  {
-    title: 'Tổng quan',
-    path: '/dashboard',
-    icon: <LayoutDashboard className="shrink-0" />,
-  },
-  {
-    title: 'Quản lý sản phẩm',
-    path: '/manage-products',
-    icon: <BadgeDollarSign className="shrink-0" />,
-  },
-  {
-    title: 'Bán hàng',
-    path: '/sales',
-    icon: <ShoppingCart className="shrink-0" />,
-  },
-  {
-    title: 'Đơn hàng',
-    path: '/orders',
-    icon: <PackageSearch className="shrink-0" />,
-  },
-  {
-    title: 'Quan ly nhan vien',
-    path: '/employees',
-    icon: <User className="shrink-0" />,
-  },
-];
-
+import { useAtom } from 'jotai';
+import { currentStoreAtom } from '@repo/design-system/stores/auth';
+import useAuth from '../../../../../../apps/web/main/src/hooks/auth/useAuth';
+import { Loading } from '../../ui';
 export function SideBar({
   isExpand,
   setIsExpand,
@@ -51,8 +27,42 @@ export function SideBar({
   isExpand: boolean;
   setIsExpand: (isExpand: boolean) => void;
 }) {
+  const [currentStore] = useAtom(currentStoreAtom);
+  const { logout, loading } = useAuth();
+  const pageItems = [
+    {
+      title: 'Tổng quan',
+      path: `/dashboard/store/${currentStore?.id}/overview`,
+      icon: <LayoutDashboard className="shrink-0" />,
+    },
+    {
+      title: 'Quản lý sản phẩm',
+      path: `/dashboard/store/${currentStore?.id}/manage-products`,
+      icon: <BadgeDollarSign className="shrink-0" />,
+    },
+    {
+      title: 'Bán hàng',
+      path: `/dashboard/store/${currentStore?.id}/sales`,
+      icon: <ShoppingCart className="shrink-0" />,
+    },
+    {
+      title: 'Đơn hàng',
+      path: `/dashboard/store/${currentStore?.id}/orders`,
+      icon: <PackageSearch className="shrink-0" />,
+    },
+    {
+      title: 'Cài đặt cửa hàng',
+      path: `/dashboard/store/${currentStore?.id}/store-setting`,
+      icon: <Store className="shrink-0" />,
+    },
+    {
+      title: 'Quản lý nhân viên',
+      path: `/dashboard/store/${currentStore?.id}/employees`,
+      icon: <Users className="shrink-0" />,
+    },
+  ];
   const pathName = usePathname();
-  const [isOpnen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div
@@ -112,7 +122,7 @@ export function SideBar({
               <p className="text-xs text-gray-500 truncate">Quản trị viên</p>
             </div>
             <ChevronDown
-              onClick={() => setIsOpen(!isOpnen)}
+              onClick={() => setIsOpen(!isOpen)}
               size={18}
               className={` transition-transform duration-300  text-gray-500 ${isExpand ? 'rotate-0' : '-rotate-90'}`}
             />
@@ -155,13 +165,14 @@ export function SideBar({
             </div>
           </div>
           <div
+            onClick={logout}
             className={`flex items-center font-medium group  ${isExpand ? 'gap-5' : 'gap-0'} ${isExpand ? 'w-full' : 'w-[40px] '} p-2 rounded-lg transition-all duration-300 cursor-pointer hover:bg-red-500 hover:text-white rounded-lg bg-red-50 text-red-500`}
           >
             <LogOut className="shrink-0" />
             <div
               className={`${isExpand ? 'max-w-full opacity-100 ' : 'max-w-0 opacity-0'} overflow-hidden transition-all duration-300 `}
             >
-              <p className=" shrink-0 truncate">Đăng xuất</p>
+              <p className=" shrink-0 truncate">{loading ? <Loading /> : 'Đăng xuất'}</p>
             </div>
           </div>
         </div>
