@@ -1,18 +1,28 @@
-"use client";
-import { Button, Loading, Modal, Select, Table } from "@repo/design-system/components/ui";
-import FilterBar from "../components/filter-bar";
-import { BadgeAlert, CirclePlus, Download, Edit, Eye, Pencil, Plus, ShoppingCart, Trash } from "lucide-react";
-import React, { ChangeEvent, FormEvent, useEffect, useState } from "react";
-import { NumberInput, TextInput } from "@mantine/core";
-import api from "../../../../../main/src/libs/axios";
-import { useAtom } from "jotai";
-import { currentStoreAtom } from "@repo/design-system/stores/auth";
-import { toast } from "react-toastify";
+'use client';
+import { Button, Loading, Modal, Select, Table } from '@repo/design-system/components/ui';
+import FilterBar from '../components/filter-bar';
+import {
+  BadgeAlert,
+  CirclePlus,
+  Download,
+  Edit,
+  Eye,
+  Pencil,
+  Plus,
+  ShoppingCart,
+  Trash,
+} from 'lucide-react';
+import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react';
+import { NumberInput, TextInput } from '@mantine/core';
+import api from '../../../../../main/src/libs/axios';
+import { useAtom } from 'jotai';
+import { currentStoreAtom } from '@repo/design-system/stores/auth';
+import { toast } from 'react-toastify';
 
-const tableHeaders = ["Sản Phẩm", "Danh Mục", "Số Lượng", "Giá", "Trạng Thái", "Thao Tác"];
+const tableHeaders = ['Sản Phẩm', 'Danh Mục', 'Số Lượng', 'Giá', 'Trạng Thái', 'Thao Tác'];
 const statusColors: Record<string, string> = {
-  ACTIVE: " text-pos-blue-500",
-  INACTIVE: "text-gray-700",
+  ACTIVE: ' text-pos-blue-500',
+  INACTIVE: 'text-gray-700',
 };
 export interface Product {
   id: string;
@@ -24,7 +34,7 @@ export interface Product {
   cost: number;
   image_url?: string; // optional vì có thể sản phẩm chưa có hình
   description?: string;
-  product_status: "ACTIVE" | "INACTIVE";
+  product_status: 'ACTIVE' | 'INACTIVE';
   createdAt: string; // dạng ISO string từ backend
   updatedAt: string;
 }
@@ -62,7 +72,7 @@ export function ManageView() {
     try {
       await api.post(`/stores/${currentStore?.id}/products`, productValue);
       setOpenAddModal(false);
-      toast.success("Them san pham thanh cong");
+      toast.success('Them san pham thanh cong');
       handleGetProducts();
     } catch (error) {
       console.log(error);
@@ -194,8 +204,8 @@ export function ManageView() {
             label="Trạng thái"
             placeholder="Chọn trạng thái"
             data={[
-              { value: "ACTIVE", label: "ACTIVE" },
-              { value: "INACTIVE", label: "INACTIVE" },
+              { value: 'ACTIVE', label: 'ACTIVE' },
+              { value: 'INACTIVE', label: 'INACTIVE' },
             ]}
           />
 
@@ -227,7 +237,7 @@ export function ManageView() {
           <Button
             onClick={handleDeleteProduct}
             color="red"
-            size={"md"}
+            size={'md'}
             className="bg-red-600 rounded-lg text-white py-2 cursor-pointer font-bold w-full"
             title="Xac nhan xoas"
           />
@@ -270,7 +280,12 @@ export function ManageView() {
           <div className="grid grid-cols-2 gap-4">
             {/* ID */}
             {openEditModal ? (
-              <TextInput onChange={onChangeProductValue} label="ID" value={selectedProduct?.id} disabled />
+              <TextInput
+                onChange={onChangeProductValue}
+                label="ID"
+                value={selectedProduct?.id}
+                disabled
+              />
             ) : (
               <div>
                 <p className="font-medium text-gray-700">ID</p>
@@ -280,7 +295,12 @@ export function ManageView() {
 
             {/* Store ID */}
             {openEditModal ? (
-              <TextInput onChange={onChangeProductValue} label="Store ID" value={selectedProduct?.store_id} disabled />
+              <TextInput
+                onChange={onChangeProductValue}
+                label="Store ID"
+                value={selectedProduct?.store_id}
+                disabled
+              />
             ) : (
               <div>
                 <p className="font-medium text-gray-700">Store ID</p>
@@ -305,7 +325,12 @@ export function ManageView() {
 
             {/* SKU */}
             {openEditModal ? (
-              <TextInput name="sku" onChange={onChangeProductValue} label="SKU" defaultValue={selectedProduct?.sku} />
+              <TextInput
+                name="sku"
+                onChange={onChangeProductValue}
+                label="SKU"
+                defaultValue={selectedProduct?.sku}
+              />
             ) : (
               <div>
                 <p className="font-medium text-gray-700">SKU</p>
@@ -319,12 +344,12 @@ export function ManageView() {
                 name="barcode"
                 onChange={onChangeProductValue}
                 label="Barcode"
-                defaultValue={selectedProduct?.barcode || ""}
+                defaultValue={selectedProduct?.barcode || ''}
               />
             ) : (
               <div>
                 <p className="font-medium text-gray-700">Barcode</p>
-                <p className="text-gray-600">{selectedProduct?.barcode || "—"}</p>
+                <p className="text-gray-600">{selectedProduct?.barcode || '—'}</p>
               </div>
             )}
 
@@ -382,10 +407,10 @@ export function ManageView() {
                 }
                 label="Trạng thái"
                 data={[
-                  { value: "ACTIVE", label: "ACTIVE" },
-                  { value: "INACTIVE", label: "INACTIVE" },
+                  { value: 'ACTIVE', label: 'ACTIVE' },
+                  { value: 'INACTIVE', label: 'INACTIVE' },
                 ]}
-                defaultValue={selectedProduct?.product_status || "ACTIVE"}
+                defaultValue={selectedProduct?.product_status || 'ACTIVE'}
               />
             ) : (
               <div>
@@ -401,12 +426,12 @@ export function ManageView() {
               name="image_url"
               onChange={onChangeProductValue}
               label="Image URL"
-              defaultValue={selectedProduct?.image_url || ""}
+              defaultValue={selectedProduct?.image_url || ''}
             />
           ) : (
             <div>
               <p className="font-medium text-gray-700">Image URL</p>
-              <p className="text-gray-600">{selectedProduct?.image_url || "—"}</p>
+              <p className="text-gray-600">{selectedProduct?.image_url || '—'}</p>
             </div>
           )}
 
@@ -416,18 +441,21 @@ export function ManageView() {
               name="description"
               onChange={onChangeProductValue}
               label="Mô tả"
-              defaultValue={selectedProduct?.description || ""}
+              defaultValue={selectedProduct?.description || ''}
             />
           ) : (
             <div>
               <p className="font-medium text-gray-700">Mô tả</p>
-              <p className="text-gray-600">{selectedProduct?.description || "—"}</p>
+              <p className="text-gray-600">{selectedProduct?.description || '—'}</p>
             </div>
           )}
 
           {/* Meta
           {openEditModal ? (
-            <TextInput label="Meta (JSON)" defaultValue={JSON.stringify(selectedProduct?.meta || {})} />
+            <TextInput
+              label="Meta (JSON)"
+              defaultValue={JSON.stringify(selectedProduct?.meta || {})}
+            />
           ) : (
             <div>
               <p className="font-medium text-gray-700">Meta</p>
@@ -462,9 +490,9 @@ export function ManageView() {
                 <Button
                   onClick={() => setOpenEditModal(false)}
                   style={{
-                    color: "red",
-                    border: "none",
-                    background: "transparent",
+                    color: 'red',
+                    border: 'none',
+                    background: 'transparent',
                   }}
                 >
                   Hủy
@@ -515,18 +543,23 @@ export function ManageView() {
             loading={<Loading color="#333" />}
             renderRow={(product, idx) => (
               <>
-                <tr key={idx} className="border-b border-b-gray-100 hover:bg-gray-50 transition-colors duration-300">
+                <tr
+                  key={idx}
+                  className="border-b border-b-gray-100 hover:bg-gray-50 transition-colors duration-300"
+                >
                   <td className="px-4 py-2 text-xs font-medium text-gray-900">{product.name}</td>
                   <td className="px-4 py-2 text-xs text-gray-500 font-medium">{product.sku}</td>
                   <td className="px-4 py-2 text-xs text-gray-500">{product.cost}</td>
                   <td className="px-4 py-2 text-xs text-gray-500">
-                    {Intl.NumberFormat("vi-VN", {
-                      style: "currency",
-                      currency: "VND",
+                    {Intl.NumberFormat('vi-VN', {
+                      style: 'currency',
+                      currency: 'VND',
                     }).format(Number(product.price))}
                   </td>
                   <td className="px-4 py-2">
-                    <span className={`text-xs font-medium rounded-xl ${statusColors[product.product_status]}`}>
+                    <span
+                      className={`text-xs font-medium rounded-xl ${statusColors[product.product_status]}`}
+                    >
                       {product.product_status}
                     </span>
                   </td>

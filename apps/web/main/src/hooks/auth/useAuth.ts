@@ -19,7 +19,7 @@ import {
 } from '../../../src/sections/auth/data';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import {
   accessTokenAtom,
   currentStoreAtom,
@@ -36,17 +36,18 @@ const AUTH_ENDPOINTS = {
   FORGOT: '/auth/forgot-password',
   RESET: '/auth/reset-password',
   SET_CURRENT_STORE: '/auth/set-current-store',
+  PROFILE: '/auth/profile',
 };
 
 export default function useAuth() {
   const [loading, setLoading] = useState(false);
-  const [, setAccessToken] = useAtom(accessTokenAtom);
-  const [, setCurrentUser] = useAtom(currentUserAtom);
-  const [, setStores] = useAtom(storesAtom);
-  const [, setCurrentStore] = useAtom(currentStoreAtom);
   const [email, setEmail] = useState('');
-  const { showErrorToast, showSuccessToast } = useToast();
   const router = useRouter();
+  const { showErrorToast, showSuccessToast } = useToast();
+  const setAccessToken = useSetAtom(accessTokenAtom);
+  const setCurrentUser = useSetAtom(currentUserAtom);
+  const setCurrentStore = useSetAtom(currentStoreAtom);
+  const setStores = useSetAtom(storesAtom);
 
   // ========== Forms ==========
   const registerForm = useForm<RegisterData>({
@@ -128,9 +129,8 @@ export default function useAuth() {
       'Đăng nhập thành công!'
     );
     if (res?.data.success) {
-      const { user, stores, access_token } = res.data.data;
+      const { stores, access_token } = res.data.data;
       setAccessToken(access_token);
-      setCurrentUser(user);
       setStores(stores);
       return true;
     }
@@ -138,7 +138,7 @@ export default function useAuth() {
   };
 
   const profile = async () => {
-    const res = await requestWrapper(() => api.get('/auth/profile'));
+    const res = await requestWrapper(() => api.get(AUTH_ENDPOINTS.PROFILE));
     if (res?.data.success) {
       const { user, store } = res.data.data;
       setCurrentUser(user);
@@ -175,9 +175,10 @@ export default function useAuth() {
 
     if (res?.data.success) {
       // eslint-disable-next-line no-unsafe-optional-chaining
-      const { access_token } = res?.data?.data;
+      const { access_token, user, store } = res?.data?.data;
       setAccessToken(access_token);
-      setCurrentStore(res.data.data);
+      setCurrentUser(user);
+      setCurrentStore(store);
       return true;
     }
     return false;
