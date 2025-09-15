@@ -13,6 +13,8 @@ export type TableProps<T> = {
   renderRow: (row: T, idx: number) => React.ReactNode;
   onPageChange?: (page: number) => void;
   onPageSizeChange?: (size: number) => void;
+  isLoading?: boolean;
+  loading?: React.ReactNode;
 };
 
 export function Table<T>({
@@ -24,24 +26,40 @@ export function Table<T>({
   pageSize = 10,
   onPageChange,
   onPageSizeChange,
+  isLoading,
+  loading,
 }: TableProps<T>) {
   return (
     <div className="bg-white border border-black/10 p-5 mt-5 flex-col flex overflow-y-auto shadow-md rounded-lg ">
       {/* TABLE */}
       <div className="overflow-y-auto flex-1 scrollbar-thin scrollbar-thumb-gray-50 scrollbar-track-transparent">
-        <table className="table-fixed w-full border-collapse">
-          <thead className="sticky top-0 z-10 bg-gray-50">
-            <tr className="text-left text-base text-gray-800">
-              {tableHeaders.map((item, idx) => (
-                <th key={idx} className="px-4 py-2 font-semibold">
-                  {item}
-                </th>
-              ))}
-            </tr>
-          </thead>
+        {isLoading ? (
+          <div className="flex items-center justify-center h-40">{loading}</div>
+        ) : (
+          <table className="table-fixed w-full border-collapse">
+            <thead className="sticky top-0 z-10 bg-gray-50">
+              <tr className="text-left text-base text-gray-800">
+                {tableHeaders.map((item, idx) => (
+                  <th key={idx} className="px-4 py-2 font-semibold">
+                    {item}
+                  </th>
+                ))}
+              </tr>
+            </thead>
 
-          <tbody>{data.map((row, idx) => renderRow(row, idx))}</tbody>
-        </table>
+            <tbody>
+              {data.length === 0 ? (
+                <tr>
+                  <td colSpan={tableHeaders.length} className="text-center py-6 text-gray-500">
+                    Không có dữ liệu
+                  </td>
+                </tr>
+              ) : (
+                <>{data.map((row, idx) => renderRow(row, idx))}</>
+              )}
+            </tbody>
+          </table>
+        )}
       </div>
 
       {/* PAGINATION */}
