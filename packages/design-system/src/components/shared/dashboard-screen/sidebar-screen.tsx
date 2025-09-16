@@ -7,7 +7,6 @@ import {
   Settings,
   LogOut,
   ShoppingCart,
-  ChevronDown,
   PackageSearch,
   Store,
   Users,
@@ -15,11 +14,11 @@ import {
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
 import { useAtom } from 'jotai';
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import useAuth from '../../../../../../apps/web/main/src/hooks/auth/useAuth';
 import { Loading } from '../../ui';
+import { AccountManagement } from './account-management';
 export function SideBar({
   isExpand,
   setIsExpand,
@@ -29,6 +28,8 @@ export function SideBar({
 }) {
   const [currentStore] = useAtom(currentStoreAtom);
   const { logout, loading } = useAuth();
+  const pathName = usePathname();
+
   const pageItems = [
     {
       title: 'Tổng quan',
@@ -61,8 +62,6 @@ export function SideBar({
       icon: <Users className="shrink-0" />,
     },
   ];
-  const pathName = usePathname();
-  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div
@@ -83,51 +82,30 @@ export function SideBar({
       </div>
 
       {/* Menu items */}
-      <div className=" h-full flex flex-col gap-5 p-4">
+      <div className=" h-full flex flex-col gap-2 p-4 ">
         {/* Should be to component */}
-        <div className={`flex  h-fit items-center overflow-hidden gap-4 `}>
-          <Image
-            width={38}
-            height={38}
-            src={'/logo.jpg'}
-            alt="logo"
-            className={`shrink-0 w-fit object-cover ${isExpand === false && 'flex items-center justify-center'}`}
-          />
-          <p className={` ${isExpand === false && 'hidden'} text-xl font-medium text-gray-800 `}>
+        <div className="flex items-center gap-4 mb-4">
+          <div className="w-10 h-10 flex items-center justify-center">
+            <Image
+              src="/logo.png"
+              alt="logo"
+              width={38}
+              height={38}
+              className="object-cover w-14 h-14"
+              unoptimized
+            />
+          </div>
+
+          <p
+            className={`text-2xl font-semibold tracking-tight text-pos-blue-500 ${isExpand === false && 'hidden'}`}
+          >
             EraPOS8
           </p>
         </div>
 
         {/* User account management */}
 
-        <div
-          className={`flex items-center justify-center ${isExpand ? 'w-full' : 'w-[40px] '} ${isExpand ? 'gap-5' : 'gap-0'} w-full transition-all duration-300 `}
-        >
-          <Image
-            src={'/avatar.png'}
-            width={40}
-            height={40}
-            alt="avatar"
-            className="w-10 h-10 rounded-full shrink-0 overflow-hidden object-cover "
-          />
-          <div
-            className={`flex ${isExpand ? 'max-w-full opacity-100' : 'max-w-0 opacity-0'} gap-5 overflow-hidden transition-all duration-300 items-center `}
-          >
-            <div
-              className={`flex flex-col gap-1 transition-all duration-300 overflow-hidden ${
-                isExpand ? 'max-w-full opacity-100' : 'max-w-0 opacity-0'
-              }`}
-            >
-              <h2 className="text-sm font-medium text-gray-800 truncate">Tran Huu Thanh</h2>
-              <p className="text-xs text-gray-500 truncate">Quản trị viên</p>
-            </div>
-            <ChevronDown
-              onClick={() => setIsOpen(!isOpen)}
-              size={18}
-              className={` transition-transform duration-300  text-gray-500 ${isExpand ? 'rotate-0' : '-rotate-90'}`}
-            />
-          </div>
-        </div>
+        <AccountManagement isExpand={isExpand} />
 
         {/* Menu */}
         <div className="flex-1 flex flex-col items-center gap-4 overflow-x-hidden  overflow-y-auto scrollbar-fixed">

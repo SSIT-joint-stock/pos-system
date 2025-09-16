@@ -1,3 +1,4 @@
+'use client';
 import { RouterLink } from '@repo/design-system/routes/components';
 import Image from 'next/image';
 import React from 'react';
