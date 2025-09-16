@@ -1,9 +1,6 @@
-import {
-  accessTokenAtom,
-  currentUserAtom,
-} from './../../../../../packages/design-system/src/stores/auth';
-import axios, { AxiosError } from 'axios';
-import { getDefaultStore } from 'jotai';
+import { accessTokenAtom, currentUserAtom } from "./../../../../../packages/design-system/src/stores/auth";
+import axios, { AxiosError } from "axios";
+import { getDefaultStore } from "jotai";
 
 const store = getDefaultStore();
 
@@ -48,8 +45,8 @@ api.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest = error.config as any;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      const isLoginRequest = originalRequest.url && originalRequest.url.includes('/auth/login');
+    if (error.response?.status === 403 && !originalRequest._retry) {
+      const isLoginRequest = originalRequest.url && originalRequest.url.includes("/auth/login");
 
       if (!isLoginRequest) {
         if (isRefreshing) {
@@ -97,7 +94,7 @@ api.interceptors.response.use(
           processQueue(refreshError, null);
 
           // Redirect to login hoặc handle logout
-          if (typeof window !== 'undefined') {
+          if (typeof window !== "undefined") {
             // window.location.href = '/login'; // Uncomment nếu cần redirect
           }
 
