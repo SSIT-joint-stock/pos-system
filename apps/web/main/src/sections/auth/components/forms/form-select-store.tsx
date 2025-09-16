@@ -2,7 +2,7 @@ import { Button, Select } from '@repo/design-system/components/ui';
 import { Warehouse } from 'lucide-react';
 import React from 'react';
 
-export default function ormSelectStore({
+export default function FormSelectStore({
   handleStoreSubmit,
   handleStoreChange,
   stores,

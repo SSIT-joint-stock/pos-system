@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button, Input } from '@repo/design-system/components/ui';
 import { ForgotPasswordData } from '../../data';
-import useAuth from '@main/hooks/auth/useAuth';
+import useAuth from '../../../../hooks/auth/useAuth';
 
 export function FormForgotPassword({ onSubmit }: { onSubmit: (data: ForgotPasswordData) => void }) {
   const {

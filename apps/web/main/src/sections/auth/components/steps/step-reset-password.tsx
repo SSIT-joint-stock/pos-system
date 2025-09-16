@@ -1,4 +1,4 @@
-import useAuth from '@main/hooks/auth/useAuth';
+import useAuth from '../../../../hooks/auth/useAuth';
 import { Modal } from '@repo/design-system/components/ui';
 import React, { useState } from 'react';
 import { FormForgotPassword, FormResetPassword } from '../forms';
@@ -51,7 +51,7 @@ export default function StepResetPassword({
         onClose={() => setIsOpenModal(false)}
       >
         <>
-          <h1 className="text-2xl font-semibold text-center text-gray-900">Quên mật khẩu</h1>
+          <h1 className="text-2xl font-semibold text-center text-gray-900">Quên mật khẩu</h1>
           <p className="mt-1 text-sm text-gray-400 text-center font-medium">
             Vui lòng nhập email bạn đăng ký trên hệ thống
           </p>

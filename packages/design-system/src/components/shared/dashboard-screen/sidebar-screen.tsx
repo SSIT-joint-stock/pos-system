@@ -1,14 +1,20 @@
-"use client";
-import { ArrowLeft, ArrowRight } from "lucide-react";
-import Image from "next/image";
+'use client';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
+import Image from 'next/image';
 
-import { AccountManagement } from "./account-management";
-import { MenuSidebar } from "./menu-sidebar";
-import SettingsSidebar from "./settings-sidebar";
-export function SideBar({ isExpand, setIsExpand }: { isExpand: boolean; setIsExpand: (isExpand: boolean) => void }) {
+import { AccountManagement } from './account-management';
+import { MenuSidebar } from './menu-sidebar';
+import SettingsSidebar from './settings-sidebar';
+export function SideBar({
+  isExpand,
+  setIsExpand,
+}: {
+  isExpand: boolean;
+  setIsExpand: (isExpand: boolean) => void;
+}) {
   return (
     <div
-      className={`h-screen relative  flex flex-col bg-white overflow-x-none shadow-[4px_0_6px_rgba(0,0,0,0.1)] transition-all duration-300 ${isExpand ? "w-56" : "w-20"} }`}
+      className={`h-screen relative  flex flex-col bg-white overflow-x-none shadow-[4px_0_6px_rgba(0,0,0,0.1)] transition-all duration-300 ${isExpand ? 'w-56' : 'w-20'} }`}
     >
       {/* Toggle button */}
       <div className="w-fit absolute top-1/2 -translate-y-1/2  -right-4 flex justify-end">
@@ -32,10 +38,21 @@ export function SideBar({ isExpand, setIsExpand }: { isExpand: boolean; setIsExp
         {/* Should be to component */}
         <div className="flex items-center gap-4 mb-4">
           <div className="w-10 h-10 flex items-center justify-center">
-            <Image src="/logo.png" alt="logo" width={38} height={38} className="object-cover w-14 h-14" unoptimized />
+            <Image
+              src="/logo.png"
+              alt="logo"
+              width={38}
+              height={38}
+              className="object-cover w-14 h-14"
+              unoptimized
+            />
           </div>
 
-          <p className={`text-2xl font-semibold tracking-tight text-pos-blue-500 ${isExpand === false && "hidden"}`}>
+          <p
+            className={`text-2xl font-semibold tracking-tight text-pos-blue-500 
+    ${isExpand ? 'truncate max-w-full' : 'hidden'}
+  `}
+          >
             EraPOS8
           </p>
         </div>

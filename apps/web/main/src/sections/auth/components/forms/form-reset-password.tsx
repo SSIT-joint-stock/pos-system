@@ -1,9 +1,9 @@
-"use client";
-import React from "react";
-import { ResetPasswordData } from "../../data";
-import { Button, Input } from "@repo/design-system/components/ui";
-import useAuth from "@main/hooks/auth/useAuth";
-import { MoveLeft } from "lucide-react";
+'use client';
+import React from 'react';
+import { ResetPasswordData } from '../../data';
+import { Button, Input } from '@repo/design-system/components/ui';
+import useAuth from '../../../../hooks/auth/useAuth';
+import { MoveLeft } from 'lucide-react';
 
 export function FormResetPassword({
   onSubmit,
@@ -21,34 +21,31 @@ export function FormResetPassword({
     loading,
   } = useAuth();
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="mt-2 flex flex-col gap-4"
-      action="">
+    <form onSubmit={handleSubmit(onSubmit)} className="mt-2 flex flex-col gap-4" action="">
       <Input
-        {...register("resetPasswordCode")}
+        {...register('resetToken')}
         disabled={loading}
-        error={errors.resetPasswordCode?.message}
+        error={errors.resetToken?.message}
         type="text"
         label="Code"
         placeholder="Nhập code"
         size="sm"
       />
       <Input
-        {...register("newPassword")}
+        {...register('password')}
         disabled={loading}
         isInputPassword
-        error={errors.newPassword?.message}
+        error={errors.password?.message}
         type="password"
         label="Mật khẩu "
         placeholder="Nhập mật khẩu"
         size="sm"
       />
       <Input
-        {...register("confirmNewPassword")}
+        {...register('confirmPassword')}
         disabled={loading}
         isInputPassword
-        error={errors.confirmNewPassword?.message}
+        error={errors.confirmPassword?.message}
         type="password"
         label="Xác thực mật mật khẩu"
         placeholder="Nhập xác thực mật khẩu "
@@ -59,11 +56,9 @@ export function FormResetPassword({
         <button
           type="button"
           onClick={() => setModalSteps(0)}
-          className="flex items-center gap-2 cursor-pointer text-gray-500 group transition-all duration-300 hover:text-pos-blue-500  ">
-          <MoveLeft
-            size={16}
-            className=" group-hover:-translate-x-2 transition-all duration-300"
-          />
+          className="flex items-center gap-2 cursor-pointer text-gray-500 group transition-all duration-300 hover:text-pos-blue-500  "
+        >
+          <MoveLeft size={16} className=" group-hover:-translate-x-2 transition-all duration-300" />
           <span className="text-xs font-medium ">Quay lại</span>
         </button>
       </div>

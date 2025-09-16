@@ -1,18 +1,22 @@
 'use client';
 import { currentUserAtom } from '@repo/design-system/stores/auth';
 import { useAtom } from 'jotai';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Lock, User } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
+import { Button, Input, Modal } from '../../ui';
+import StepResetPassword from '../../../../../../apps/web/main/src/sections/auth/components/steps/step-reset-password';
 
 export function AccountManagement({ isExpand }: { isExpand: boolean }) {
   const [currentUser] = useAtom(currentUserAtom);
   const [isOpen, setIsOpen] = useState(false);
+  const [isOpenModalProfile, setIsOpenModalProfile] = useState(false);
+  const [isOpenModalChangePassword, setIsOpenModalChangePassword] = useState(false);
   return (
     <>
       <div
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center justify-center ${isExpand ? 'w-full' : 'w-[44px] '} ${isExpand ? 'gap-2' : 'gap-0'} w-full transition-all duration-300 hover:bg-gray-100 cursor-pointer ${isExpand ? 'p-2' : 'p-0'} rounded-lg`}
+        className={`flex items-center justify-center ${isExpand ? 'w-full' : 'w-[44px] '} ${isExpand ? 'gap-2' : 'gap-0'} w-full transition-all duration-300 hover:bg-gray-100 cursor-pointer ${isExpand ? 'p-2' : 'p-0'} rounded-lg ${isOpen ? 'bg-gray-100' : ''}`}
       >
         <Image
           src={'/avatar.png'}
@@ -41,23 +45,54 @@ export function AccountManagement({ isExpand }: { isExpand: boolean }) {
 
       {/* Dropdown */}
       <div
-        className={`w-full bg-gray-500 overflow-hidden transition-all duration-300
+        className={`w-full flex flex-col gap-2 bg-gray-50 overflow-hidden transition-all duration-300
       ${isOpen ? 'max-h-40 opacity-100 visible p-2' : 'max-h-0 opacity-0 p-0 invisible'}`}
       >
-        {isOpen && (
-          <div>
-            <button className="w-full text-left px-2 py-1 hover:bg-gray-400 rounded">
-              Profile
-            </button>
-            <button className="w-full text-left px-2 py-1 hover:bg-gray-400 rounded">
-              Settings
-            </button>
-            <button className="w-full text-left px-2 py-1 hover:bg-gray-400 rounded text-red-500">
-              Logout
-            </button>
-          </div>
-        )}
+        {/* Profile */}
+        <button
+          onClick={() => setIsOpenModalProfile(true)}
+          className={`w-full cursor-pointer text-gray-500 text-xs font-semibold text-left px-2 py-1 hover:bg-gray-200 ${isOpen && isOpenModalProfile ? 'bg-gray-200' : ''} rounded flex items-center gap-2 `}
+        >
+          <User size={`${isExpand ? 14 : 16}`} />
+          <span className={`${isExpand === false && 'hidden'} text-nowrap`}>Quản lý tài khoản</span>
+        </button>
+
+        {/* Change password */}
+        <button
+          onClick={() => setIsOpenModalChangePassword(true)}
+          className={`w-full cursor-pointer text-gray-500 text-xs font-semibold text-left px-2 py-1 hover:bg-gray-200 ${isOpen && isOpenModalChangePassword ? 'bg-gray-200' : ''} rounded flex items-center gap-2 `}
+        >
+          <Lock size={`${isExpand ? 14 : 16}`} />
+          <span className={`${isExpand === false && 'hidden'} text-nowrap`}>Đổi mật khẩu</span>
+        </button>
       </div>
+      {/* Modal profile */}
+      <Modal
+        size="lg"
+        opened={isOpenModalProfile}
+        onClose={() => setIsOpenModalProfile(false)}
+        title="Quản lý tài khoản"
+      >
+        <form className="flex flex-col gap-2">
+          <Input label="Tên tài khoản" value={currentUser?.username} size="sm" radius="md" />
+          <Input label="Email" value={currentUser?.email} size="sm" radius="md" />
+          <Input
+            label="Vai trò"
+            value={currentUser?.role}
+            readOnly
+            disabled
+            size="sm"
+            radius="md"
+          />
+          <Input label="Trạng thái" readOnly disabled size="sm" radius="md" />
+          <Button title="Thay đổi" variant="filled" radius="md" size="sm" type="submit" />
+        </form>
+      </Modal>
+      {/* Modal change password */}
+      <StepResetPassword
+        isOpenModal={isOpenModalChangePassword}
+        setIsOpenModal={setIsOpenModalChangePassword}
+      />
     </>
   );
 }

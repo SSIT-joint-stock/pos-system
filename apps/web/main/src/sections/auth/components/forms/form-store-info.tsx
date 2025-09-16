@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Input } from '@repo/design-system/components/ui';
 import { Info, Warehouse } from 'lucide-react';
-import useAuth from '@main/hooks/auth/useAuth';
+import useAuth from '../../../../hooks/auth/useAuth';
 export function FormBusinessInfo({
   createBusinessInfo,
 }: {

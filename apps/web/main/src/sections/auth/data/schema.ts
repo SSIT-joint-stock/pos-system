@@ -55,18 +55,18 @@ export type ForgotPasswordData = z.infer<typeof forgotPasswordSchema>;
 
 export const resetPasswordSchema = z
   .object({
-    resetPasswordCode: z.string().nonempty({
+    resetToken: z.string().nonempty({
       message: 'Vui lòng nhập mã xác thực',
     }),
-    newPassword: z.string().nonempty({
+    password: z.string().nonempty({
       message: 'Vui lòng nhập mật khẩu',
     }),
-    confirmNewPassword: z.string().nonempty({
+    confirmPassword: z.string().nonempty({
       message: 'Vui lòng nhập xác thực mật khẩu',
     }),
   })
-  .refine((data) => data.confirmNewPassword === data.newPassword, {
-    path: ['confirmNewPassword'],
+  .refine((data) => data.password === data.confirmPassword, {
+    path: ['confirmPassword'],
     message: 'Mật khẩu xác thực không khóp',
   });
 export type ResetPasswordData = z.infer<typeof resetPasswordSchema>;
