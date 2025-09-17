@@ -41,6 +41,10 @@ export default function MenuSidebar({
           path: `/dashboard/store/${currentStore?.id}/manage-products`,
         },
         {
+          title: 'Hàng tồn kho',
+          path: `/dashboard/store/${currentStore?.id}/manage-inventory`,
+        },
+        {
           title: 'Danh mục',
           path: `/dashboard/store/${currentStore?.id}/manage-categories`,
         },

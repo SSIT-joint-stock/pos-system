@@ -3,7 +3,7 @@
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 import { useRequestHelper } from '../use-request-helper';
 import api from '../../libs/axios';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import {
@@ -13,7 +13,7 @@ import {
 } from '../../schemas/store/store.schema';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Store } from '@repo/design-system/types/store';
+import { Store, StoreMember } from '@repo/design-system/types/store';
 interface StoreDetails {
   id: string;
   name: string;
@@ -30,12 +30,16 @@ interface StoreDetails {
 }
 const STORE_ENDPOINTS = {
   STORES: 'stores',
+  STORES_MEMBERS: 'stores/members',
+  ADD_MEMBER_TO_STORE: 'stores/add-member',
+  DELETE_MEMBER_FROM_STORE: 'stores/delete-member',
 };
 
 export default function useStore() {
   // VARIABLE
-  const [stores, setStores] = useState<Store[]>([]);
   const currentStore = useAtomValue(currentStoreAtom);
+  console.log(currentStore);
+  const [stores, setStores] = useState<Store[]>([]);
   const [store, setStore] = useState<StoreDetails>({
     id: '',
     name: '',
@@ -60,6 +64,7 @@ export default function useStore() {
     averageRating: 0,
     totalOrders: 0,
   });
+  const [members, setMembers] = useState<StoreMember[]>([]);
   const { showSuccessToast } = useToast();
   const { loading, requestWrapper } = useRequestHelper();
 
@@ -81,6 +86,7 @@ export default function useStore() {
   };
 
   const getStoreDetail = async () => {
+    if (!currentStore?.id) return;
     // Fetch store info
     const storeRes = await requestWrapper(() => api.get(`stores/${currentStore?.id}`));
     const storeData = storeRes?.data?.data;
@@ -101,19 +107,52 @@ export default function useStore() {
   };
 
   const updateStore = async (data: UpdateStoreInput) => {
+    if (!currentStore?.id) return;
     const res = await requestWrapper(() => api.patch(`stores/${currentStore?.id}`, data));
     if (res?.data.success) {
-      showSuccessToast('Cập nhật thành công');
+      showSuccessToast(res.data.message);
       getStoreDetail();
       return res.data.data;
     }
   };
   const createStore = async (data: CreateStoreInput) => {
+    if (!currentStore?.id) return;
     const res = await requestWrapper(() => api.post(STORE_ENDPOINTS.STORES, data));
     if (res?.data.success) {
-      showSuccessToast('Tạo cửa hàng thành công');
+      showSuccessToast(res.data.message);
       getStores();
       return res.data.data;
+    }
+  };
+  const getMembersInStore = async () => {
+    if (!currentStore?.id) return;
+    const res = await requestWrapper(() =>
+      api.get(`${STORE_ENDPOINTS.STORES_MEMBERS}/${currentStore?.id}`)
+    );
+    if (res?.data.success) {
+      return setMembers(res.data.data);
+    }
+  };
+  const addMemberToStore = async (emailUser: string) => {
+    if (!currentStore?.id) return;
+    const res = await requestWrapper(() =>
+      api.post(`${STORE_ENDPOINTS.ADD_MEMBER_TO_STORE}/${currentStore?.id}`, { emailUser })
+    );
+    if (res?.data.success) {
+      showSuccessToast(res.data.message);
+      getMembersInStore();
+    }
+  };
+  const deleteMemberFromStore = async (memberUserId: string) => {
+    if (!currentStore?.id) return;
+    const res = await requestWrapper(() =>
+      api.delete(`${STORE_ENDPOINTS.DELETE_MEMBER_FROM_STORE}/${currentStore?.id}/`, {
+        data: { memberUserId },
+      })
+    );
+    if (res?.data.success) {
+      showSuccessToast(res.data.message);
+      getMembersInStore();
     }
   };
 
@@ -126,11 +165,15 @@ export default function useStore() {
     currentStore,
     store,
     stats,
+    members,
     loading,
     // ACTION
     updateStore,
     createStore,
     getStores,
     getStoreDetail,
+    getMembersInStore,
+    addMemberToStore,
+    deleteMemberFromStore,
   };
 }

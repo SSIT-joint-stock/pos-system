@@ -1,5 +1,7 @@
 'use client';
 import { Button, Input, Loading, Modal, Table } from '@repo/design-system/components/ui';
+import { formatDate } from '../../../../../main/src/utils/index';
+import React, { useEffect, useState } from 'react';
 import FilterBar from '../components/filter-bar';
 import {
   Download,
@@ -16,9 +18,7 @@ import {
   Clock,
   MapPin,
 } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
 import useStore from '../../../../../main/src/hooks/store/use-store';
-
 const tableHeaders = [
   'Tên Cửa Hàng',
   'Chủ Cửa Hàng',
@@ -34,13 +34,6 @@ export function ManageStoresView() {
   const [selectedStore, setSelectedStore] = useState(null);
   const [openViewModal, setOpenViewModal] = useState(false);
   const [openCreateModal, setOpenCreateModal] = useState(false);
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('vi-VN', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
 
   const handleSwitchStore = (store: any) => {
     // Logic để chuyển đổi sang store khác

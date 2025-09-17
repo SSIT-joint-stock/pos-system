@@ -6,3 +6,4 @@ export * from './employees-view';
 export * from './manage-categories-view';
 export * from './info-store-view';
 export * from './manage-stores-view';
+export * from './inventory-manage-view';
