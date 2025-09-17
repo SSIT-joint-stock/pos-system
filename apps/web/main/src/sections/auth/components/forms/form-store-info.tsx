@@ -1,22 +1,18 @@
 import React from 'react';
 import { Button, Input } from '@repo/design-system/components/ui';
 import { Info, Warehouse } from 'lucide-react';
-import useAuth from '../../../../hooks/auth/useAuth';
-export function FormBusinessInfo({
-  createBusinessInfo,
-}: {
-  createBusinessInfo: (data: any) => void;
-}) {
-  const { businessInfoForm, loading } = useAuth();
+import useAuth from '../../../../hooks/auth/use-auth';
+export function FormBusinessInfo({ createStoreInfo }: { createStoreInfo: (data: any) => void }) {
+  const { storeInfoForm, loading } = useAuth();
 
   return (
     <form
-      onSubmit={businessInfoForm.handleSubmit(createBusinessInfo)}
+      onSubmit={storeInfoForm.handleSubmit(createStoreInfo)}
       className="flex flex-col gap-3 w-full h-fit"
     >
       <Input
-        {...businessInfoForm.register('name')}
-        error={businessInfoForm.formState.errors.name?.message}
+        {...storeInfoForm.register('name')}
+        error={storeInfoForm.formState.errors.name?.message}
         size="sm"
         type="text"
         name="name"
@@ -25,8 +21,8 @@ export function FormBusinessInfo({
         leftSection={<Warehouse size={16} />}
       />
       <Input
-        {...businessInfoForm.register('description')}
-        error={businessInfoForm.formState.errors.description?.message}
+        {...storeInfoForm.register('description')}
+        error={storeInfoForm.formState.errors.description?.message}
         size="sm"
         type="text"
         name="description"

@@ -1,17 +1,17 @@
-"use client";
-import { Autocomplete } from "@mantine/core";
-import { Search, X } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+'use client';
+import { Autocomplete } from '@mantine/core';
+import { Search, X } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 const categories = [
-  "Tất cả",
-  "Đồ uống",
-  "Đồ ăn nhanh",
-  "Ăn vặt & Bánh kẹo",
-  "Đồ đông lạnh",
-  "Thực phẩm",
-  "Đồ gia dụng & cá nhân",
-  "Khác",
+  'Tất cả',
+  'Đồ uống',
+  'Đồ ăn nhanh',
+  'Ăn vặt & Bánh kẹo',
+  'Đồ đông lạnh',
+  'Thực phẩm',
+  'Đồ gia dụng & cá nhân',
+  'Khác',
 ];
 
 export function ProductFilter() {
@@ -20,25 +20,25 @@ export function ProductFilter() {
       <div className="flex flex-col gap-2 w-full h-full ">
         <p className="font-bold text-gray-900">Tìm kiếm sản phẩm</p>
         <Autocomplete
-          radius={"0.75rem"}
+          radius={'0.75rem'}
           size="md"
           placeholder="Nhập SKU, mã vạch hoặc tên sản phẩm"
           leftSection={<Search />}
           rightSection={<X className="hover:text-red-600"></X>}
           data={[
-            "Mì Hảo Hảo",
-            "Trà Xanh Không Độ",
-            "Cà phê G7",
-            "Bánh mì",
-            "Bánh Chocopie",
-            "Sữa TH True Milk",
-            "Nước suối La Vie",
-            "Kem Merino",
-            "Khăn giấy Pulppy",
-            "Bánh tráng trộn",
+            'Mì Hảo Hảo',
+            'Trà Xanh Không Độ',
+            'Cà phê G7',
+            'Bánh mì',
+            'Bánh Chocopie',
+            'Sữa TH True Milk',
+            'Nước suối La Vie',
+            'Kem Merino',
+            'Khăn giấy Pulppy',
+            'Bánh tráng trộn',
           ]}
           maxDropdownHeight={200}
-          comboboxProps={{ transitionProps: { transition: "pop", duration: 200 } }}
+          comboboxProps={{ transitionProps: { transition: 'pop', duration: 200 } }}
         />
         <FloatingTabIndicator />
       </div>
@@ -103,7 +103,7 @@ export default function FloatingTabIndicator() {
             }}
             onClick={() => setActive(i)}
             className={`relative px-3 py-2 text-sm font-medium z-10 transition-colors whitespace-nowrap ${
-              active === i ? "text-gray-100" : "text-gray-600"
+              active === i ? 'text-gray-100' : 'text-gray-600'
             }`}
           >
             {tab}

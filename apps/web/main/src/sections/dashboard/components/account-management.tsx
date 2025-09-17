@@ -4,10 +4,14 @@ import { useAtom } from 'jotai';
 import { ChevronDown, Lock, User } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
-import { Button, Input, Modal } from '../../ui';
-import StepResetPassword from '../../../../../../apps/web/main/src/sections/auth/components/steps/step-reset-password';
+import {
+  Button,
+  Input,
+  Modal,
+} from '../../../../../../../packages/design-system/src/components/ui';
+import StepResetPassword from '../../auth/components/steps/step-reset-password';
 
-export function AccountManagement({ isExpand }: { isExpand: boolean }) {
+export default function AccountManagement({ isExpand }: { isExpand: boolean }) {
   const [currentUser] = useAtom(currentUserAtom);
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenModalProfile, setIsOpenModalProfile] = useState(false);

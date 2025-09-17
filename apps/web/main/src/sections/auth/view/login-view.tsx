@@ -1,6 +1,6 @@
 'use client';
 import Logo from '@main/components/common/Logo';
-import useAuth from '@main/hooks/auth/useAuth';
+import useAuth from '@main/hooks/auth/use-auth';
 import { FormBusinessInfo, FormLogin } from '@main/sections/auth/components/forms';
 import { currentStoreAtom, storesAtom } from '@repo/design-system/stores/auth';
 import { useAtom } from 'jotai';
@@ -9,7 +9,7 @@ import FormSelectStore from '../components/forms/form-select-store';
 
 export function LoginView() {
   const [isStepActive, setIsStepActive] = useState<number>(0);
-  const { login, selectStore, createBusinessInfo, goToDashboard, loginForm, loading } = useAuth();
+  const { login, selectStore, createStoreInfo, goToDashboard, loginForm, loading } = useAuth();
   const [stores] = useAtom(storesAtom);
   const [currentStore, setCurrentStoreLocal] = useAtom(currentStoreAtom);
 
@@ -31,7 +31,6 @@ export function LoginView() {
       }
     }
   };
-
   // Handle store change
   const handleStoreChange = (storeId: string) => {
     const selectedStore = stores.find((store) => store.id === storeId);
@@ -39,8 +38,9 @@ export function LoginView() {
   };
 
   // Handle create business and auto redirect
-  const handleCreateBusiness = async (data: any) => {
-    const result = await createBusinessInfo(data);
+  const handleCreateStore = async (data: any) => {
+    console.log(data);
+    const result = await createStoreInfo(data);
     if (result.success && result.autoSet) {
       goToDashboard();
     }
@@ -78,7 +78,7 @@ export function LoginView() {
             />
           ) : (
             // User has no stores - show create form
-            <FormBusinessInfo createBusinessInfo={handleCreateBusiness} />
+            <FormBusinessInfo createStoreInfo={handleCreateStore} />
           )}
         </>
       )}

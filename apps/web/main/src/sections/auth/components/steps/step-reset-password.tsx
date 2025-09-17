@@ -1,4 +1,4 @@
-import useAuth from '../../../../hooks/auth/useAuth';
+import useAuth from '../../../../hooks/auth/use-auth';
 import { Modal } from '@repo/design-system/components/ui';
 import React, { useState } from 'react';
 import { FormForgotPassword, FormResetPassword } from '../forms';

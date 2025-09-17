@@ -1,17 +1,18 @@
 'use client';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
-
-import { AccountManagement } from './account-management';
-import { MenuSidebar } from './menu-sidebar';
+import { useState } from 'react';
 import SettingsSidebar from './settings-sidebar';
-export function SideBar({
+import AccountManagement from './account-management';
+import MenuSidebar from './menu-sidebar';
+export default function SideBar({
   isExpand,
   setIsExpand,
 }: {
   isExpand: boolean;
   setIsExpand: (isExpand: boolean) => void;
 }) {
+  const [openSubmenu, setOpenSubmenu] = useState<number | null>(null);
   return (
     <div
       className={`h-screen relative  flex flex-col bg-white overflow-x-none shadow-[4px_0_6px_rgba(0,0,0,0.1)] transition-all duration-300 ${isExpand ? 'w-56' : 'w-20'} }`}
@@ -22,7 +23,7 @@ export function SideBar({
           className="p-2 rounded-xl bg-pos-blue-50  hover:bg-pos-blue-500 group cursor-pointer duration-300  transition-all"
           onClick={() => {
             setIsExpand(!isExpand);
-            // setOpenSubmenu(false);
+            setOpenSubmenu(null);
           }}
         >
           {isExpand ? (
@@ -62,7 +63,12 @@ export function SideBar({
         <AccountManagement isExpand={isExpand} />
 
         {/* Menu */}
-        <MenuSidebar isExpand={isExpand} setIsExpand={setIsExpand} />
+        <MenuSidebar
+          isExpand={isExpand}
+          setIsExpand={setIsExpand}
+          openSubmenu={openSubmenu}
+          setOpenSubmenu={setOpenSubmenu}
+        />
         {/* Settings */}
         <SettingsSidebar isExpand={isExpand} />
       </div>

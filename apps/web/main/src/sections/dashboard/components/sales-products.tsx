@@ -1,7 +1,7 @@
 'use-client';
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
-export function SalesProducts() {
+export default function SalesProducts() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [cols, setCols] = useState(3);
 

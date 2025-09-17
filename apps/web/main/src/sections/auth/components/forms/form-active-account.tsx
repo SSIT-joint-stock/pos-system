@@ -1,4 +1,4 @@
-import useAuth from '../../../../hooks/auth/useAuth';
+import useAuth from '../../../../hooks/auth/use-auth';
 import { Button, PinInput } from '@repo/design-system/components/ui';
 import { MoveLeft } from 'lucide-react';
 import React from 'react';

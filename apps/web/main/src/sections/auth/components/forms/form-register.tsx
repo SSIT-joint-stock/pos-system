@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import useAuth from '../../../../hooks/auth/useAuth';
+import useAuth from '../../../../hooks/auth/use-auth';
 import { Lock, Mail, User } from 'lucide-react';
 
 import { Button, Input } from '@repo/design-system/components/ui';

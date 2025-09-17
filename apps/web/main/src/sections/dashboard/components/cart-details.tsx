@@ -9,7 +9,7 @@ interface Product {
   discount: number; // %
 }
 
-export function CartDetails() {
+export default function CartDetails() {
   // Preset product data
   const [products, setProducts] = useState<Product[]>([
     { id: 1, name: 'Sản phẩm A', quantity: 2, price: 120000, discount: 0 },

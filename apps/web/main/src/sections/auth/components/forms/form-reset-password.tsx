@@ -2,7 +2,7 @@
 import React from 'react';
 import { ResetPasswordData } from '../../data';
 import { Button, Input } from '@repo/design-system/components/ui';
-import useAuth from '../../../../hooks/auth/useAuth';
+import useAuth from '../../../../hooks/auth/use-auth';
 import { MoveLeft } from 'lucide-react';
 
 export function FormResetPassword({

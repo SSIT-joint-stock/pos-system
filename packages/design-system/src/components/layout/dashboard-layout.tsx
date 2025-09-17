@@ -1,6 +1,5 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { SideBar } from '../shared/dashboard-screen';
 import { getDefaultStore, useAtomValue } from 'jotai';
 import {
   accessTokenAtom,
@@ -9,6 +8,7 @@ import {
 } from '@repo/design-system/stores/auth';
 import api from '../../../../../apps/web/main/src/libs/axios';
 import { Loading } from '../ui';
+import Sidebar from '../../../../../apps/web/main/src/sections/dashboard/components/sidebar-screen';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [isExpand, setIsExpand] = useState(false);
@@ -49,7 +49,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="flex w-screen h-screen ">
       <aside className="flex-shrink-0">
-        <SideBar isExpand={isExpand} setIsExpand={setIsExpand} />
+        <Sidebar isExpand={isExpand} setIsExpand={setIsExpand} />
       </aside>
       <main className="flex-1 p-4 overflow-auto bg-gray-50 scrollbar-fixed">{children}</main>
     </div>

@@ -1,13 +1,11 @@
-"use client";
-import React, { useState, useRef } from "react";
-import {
-  ProductFilter,
-  CartDetails,
-  SalesProducts,
-} from "@repo/design-system/components/shared/dashboard-screen";
-import { MoveHorizontal } from "lucide-react";
+'use client';
+import React, { useState, useRef } from 'react';
+import { MoveHorizontal } from 'lucide-react';
+import CartDetails from '../components/cart-details';
+import ProductFilter from '../components/product-filter';
+import SalesProducts from '../components/sales-products';
 
-export  function SalesView() {
+export function SalesView() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [rightWidth, setRightWidth] = useState(50); // default 30% width for left
 
@@ -26,12 +24,12 @@ export  function SalesView() {
     };
 
     const handlePointerUp = () => {
-      window.removeEventListener("pointermove", handlePointerMove);
-      window.removeEventListener("pointerup", handlePointerUp);
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
     };
 
-    window.addEventListener("pointermove", handlePointerMove);
-    window.addEventListener("pointerup", handlePointerUp);
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', handlePointerUp);
   };
 
   return (

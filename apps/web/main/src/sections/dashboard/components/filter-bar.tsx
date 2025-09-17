@@ -1,7 +1,7 @@
-"use client";
-import { AutoComplete, DatePickerInput } from "@repo/design-system/components/ui";
-import { Calendar1, ChevronDown, Search } from "lucide-react";
-import * as React from "react";
+'use client';
+import { AutoComplete, DatePickerInput } from '@repo/design-system/components/ui';
+import { Calendar1, ChevronDown, Search } from 'lucide-react';
+import * as React from 'react';
 type FilterBarProps = {
   onSearch?: (value: string) => void;
   actions?: React.ReactNode;
@@ -19,9 +19,9 @@ export default function FilterBar({ onSearch, actions }: FilterBarProps) {
             leftSection={<Search size={16} />}
             variant="unstyled"
             placeholder="Tìm kiếm sản phẩm"
-            data={["T-Shirt", "Cap", "Shoes", "Watch", "Sunglass"]}
+            data={['T-Shirt', 'Cap', 'Shoes', 'Watch', 'Sunglass']}
             comboboxProps={{
-              transitionProps: { transition: "pop", duration: 200 },
+              transitionProps: { transition: 'pop', duration: 200 },
             }}
             className="w-full  py-[1px] text-sm text-gray-900 font-medium placeholder:font-normal"
           />

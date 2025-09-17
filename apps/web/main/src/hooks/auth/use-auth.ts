@@ -1,11 +1,9 @@
-"use client";
-import api from "../../libs/axios";
-import useToast from "@repo/design-system/hooks/client/use-toast-notification";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
+'use client';
+import api from '../../libs/axios';
+import useToast from '@repo/design-system/hooks/client/use-toast-notification';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
 import {
-  BusinessInfoData,
-  businessInfoSchema,
   ForgotPasswordData,
   forgotPasswordSchema,
   LoginData,
@@ -16,31 +14,38 @@ import {
   resetPasswordSchema,
   VerifyAccountData,
   verifyAccountSchema,
-} from "../../../src/sections/auth/data";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { useAtomValue, useSetAtom } from "jotai";
-import { accessTokenAtom, currentStoreAtom, storesAtom, currentUserAtom } from "@repo/design-system/stores/auth";
+} from '../../sections/auth/data';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useAtomValue, useSetAtom } from 'jotai';
+import {
+  accessTokenAtom,
+  currentStoreAtom,
+  storesAtom,
+  currentUserAtom,
+} from '@repo/design-system/stores/auth';
+import { useRequestHelper } from '../use-request-helper';
+import { CreateStoreInput, CreateStoreSchema } from '../../schemas/store/store.schema';
 
 const AUTH_ENDPOINTS = {
-  REGISTER: "/auth/register",
-  VERIFY: "/auth/verify-email",
-  RESEND: "/auth/resend-code",
-  BUSINESS: "/stores",
-  LOGIN: "/auth/login",
-  FORGOT: "/auth/forgot-password",
-  RESET: "/auth/reset-password",
-  SET_CURRENT_STORE: "/auth/set-current-store",
-  PROFILE: "/auth/profile",
-  LOGOUT: "/auth/logout",
+  REGISTER: '/auth/register',
+  VERIFY: '/auth/verify-email',
+  RESEND: '/auth/resend-code',
+  BUSINESS: '/stores',
+  LOGIN: '/auth/login',
+  FORGOT: '/auth/forgot-password',
+  RESET: '/auth/reset-password',
+  SET_CURRENT_STORE: '/auth/set-current-store',
+  PROFILE: '/auth/profile',
+  LOGOUT: '/auth/logout',
 };
 
 export default function useAuth() {
-  const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState("");
+  const { showSuccessToast } = useToast();
+  const { loading, requestWrapper } = useRequestHelper();
+  const [email, setEmail] = useState('');
   const router = useRouter();
   const currentStore = useAtomValue(currentStoreAtom);
-  const { showErrorToast, showSuccessToast } = useToast();
   const setAccessToken = useSetAtom(accessTokenAtom);
   const setCurrentUser = useSetAtom(currentUserAtom);
   const setCurrentStore = useSetAtom(currentStoreAtom);
@@ -54,8 +59,8 @@ export default function useAuth() {
     resolver: zodResolver(verifyAccountSchema),
   });
   const loginForm = useForm<LoginData>({ resolver: zodResolver(loginSchema) });
-  const businessInfoForm = useForm<BusinessInfoData>({
-    resolver: zodResolver(businessInfoSchema),
+  const storeInfoForm = useForm<CreateStoreInput>({
+    resolver: zodResolver(CreateStoreSchema),
   });
   const forgotPasswordForm = useForm<ForgotPasswordData>({
     resolver: zodResolver(forgotPasswordSchema),
@@ -64,26 +69,12 @@ export default function useAuth() {
     resolver: zodResolver(resetPasswordSchema),
   });
 
-  // ========== Helper Request Wrapper ==========
-  const requestWrapper = async <T>(fn: () => Promise<T>, successMessage?: string): Promise<T | null> => {
-    setLoading(true);
-    try {
-      const res = await fn();
-      if (successMessage) showSuccessToast(successMessage);
-      return res;
-    } catch (err: any) {
-      const message = err.response?.data?.error?.message || "Có lỗi hệ thống, vui lòng thử lại sau";
-      showErrorToast(message);
-      console.error(err);
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // ========== Auth Functions ==========
   const register = async (data: RegisterData) => {
-    const res = await requestWrapper(() => api.post(AUTH_ENDPOINTS.REGISTER, data), "Đăng ký tạo tài khoản thành công");
+    const res = await requestWrapper(
+      () => api.post(AUTH_ENDPOINTS.REGISTER, data),
+      'Đăng ký tạo tài khoản thành công'
+    );
     if (res?.data.success) {
       setEmail(res.data?.data?.user.email);
       return true;
@@ -98,21 +89,27 @@ export default function useAuth() {
           email,
           verificationCode: data.verificationCode,
         }),
-      "Xác thực tài khoản thành công"
+      'Xác thực tài khoản thành công'
     );
     return !!res;
   };
 
   const handleVerificationCodeChange = (value: string) => {
-    verifyEmailForm.setValue("verificationCode", value);
+    verifyEmailForm.setValue('verificationCode', value);
   };
 
   const resendCode = async () => {
-    await requestWrapper(() => api.post(`${AUTH_ENDPOINTS.RESEND}`, { email }), "Gửi lại mã xác thực thành công");
+    await requestWrapper(
+      () => api.post(`${AUTH_ENDPOINTS.RESEND}`, { email }),
+      'Gửi lại mã xác thực thành công'
+    );
   };
 
   const login = async (data: LoginData) => {
-    const res = await requestWrapper(() => api.post(AUTH_ENDPOINTS.LOGIN, data), "Đăng nhập thành công!");
+    const res = await requestWrapper(
+      () => api.post(AUTH_ENDPOINTS.LOGIN, data),
+      'Đăng nhập thành công!'
+    );
     if (res?.data.success) {
       const { stores, access_token } = res.data.data;
       setAccessToken(access_token);
@@ -132,8 +129,11 @@ export default function useAuth() {
   };
 
   // Tạo store và tự động set làm current store
-  const createBusinessInfo = async (data: BusinessInfoData) => {
-    const res = await requestWrapper(() => api.post(AUTH_ENDPOINTS.BUSINESS, data), "Tạo cửa hàng thành công!");
+  const createStoreInfo = async (data: CreateStoreInput) => {
+    const res = await requestWrapper(
+      () => api.post(AUTH_ENDPOINTS.BUSINESS, data),
+      'Tạo cửa hàng thành công!'
+    );
 
     if (res?.data.success) {
       const newStore = res.data.data;
@@ -152,7 +152,7 @@ export default function useAuth() {
   const selectStore = async (storeId: string) => {
     const res = await requestWrapper(
       () => api.post(`${AUTH_ENDPOINTS.SET_CURRENT_STORE}/${storeId}`),
-      "Đã chọn cửa hàng thành công!"
+      'Đã chọn cửa hàng thành công!'
     );
 
     if (res?.data.success) {
@@ -178,11 +178,9 @@ export default function useAuth() {
     return !!res;
   };
   const logout = async () => {
-    setLoading(true);
     const res = await requestWrapper(() => api.post(AUTH_ENDPOINTS.LOGOUT));
     if (res) showSuccessToast(res.data.message);
     router.push(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/login`);
-    setLoading(false);
     setAccessToken(null);
     setCurrentStore(null);
     setCurrentUser(null);
@@ -200,14 +198,14 @@ export default function useAuth() {
     registerForm,
     verifyEmailForm,
     loginForm,
-    businessInfoForm,
+    storeInfoForm,
     forgotPasswordForm,
     resetPasswordForm,
     // actions
     register,
     verifyAccount,
     resendCode,
-    createBusinessInfo,
+    createStoreInfo,
     login,
     selectStore,
     forgotPassword,
@@ -217,7 +215,7 @@ export default function useAuth() {
     goToDashboard,
 
     // utils
-    setLoading,
+
     setEmail,
     handleVerificationCodeChange,
   };

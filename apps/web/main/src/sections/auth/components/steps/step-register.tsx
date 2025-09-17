@@ -2,7 +2,7 @@ import { Button } from '@repo/design-system/components/ui';
 import { RouterLink } from '@repo/design-system/routes/components';
 import React, { useCallback } from 'react';
 import { FormActiveAccount, FormRegister } from '../forms';
-import useAuth from '@main/hooks/auth/useAuth';
+import useAuth from '@main/hooks/auth/use-auth';
 
 export default function StepRegister({
   setIsActive,

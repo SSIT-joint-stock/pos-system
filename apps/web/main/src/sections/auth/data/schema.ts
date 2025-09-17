@@ -70,11 +70,3 @@ export const resetPasswordSchema = z
     message: 'Mật khẩu xác thực không khóp',
   });
 export type ResetPasswordData = z.infer<typeof resetPasswordSchema>;
-
-export const businessInfoSchema = z.object({
-  name: z.string().nonempty({ message: 'Vui lòng nhập tên doanh nghiệp' }),
-  description: z.string().nonempty({
-    message: 'Vui lòng nhập thông tin chi tiết doanh nghiệp',
-  }),
-});
-export type BusinessInfoData = z.infer<typeof businessInfoSchema>;
