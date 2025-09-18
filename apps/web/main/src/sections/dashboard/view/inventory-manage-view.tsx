@@ -1,13 +1,22 @@
 'use client';
 import React, { useState } from 'react';
-import { Button, Modal, Select, Table, Loading } from '@repo/design-system/components/ui';
+import { Button, Modal, Select, Table, TableSkeleton } from '@repo/design-system/components/ui';
 import FilterBar from '../components/filter-bar';
 import { Download, Eye, Package, TrendingUp, TrendingDown, RotateCcw } from 'lucide-react';
 import { NumberInput } from '@mantine/core';
 import useInventory from '../../../../../main/src/hooks/inventory/use-inventory';
 import { Inventory } from '@repo/design-system/types/inventory';
+import { formatCurrency, formatDate } from '../../../../../main/src/utils/';
 
-const tableHeaders = ['Sản Phẩm', 'Số Lượng', 'Giảm Giá', 'Tổng Giá Trị', 'Trạng Thái', 'Thao Tác'];
+const tableHeaders = [
+  'Sản Phẩm',
+  'Số Lượng',
+  'Giảm Giá',
+  'Tổng Giá Trị',
+  'Trạng Thái',
+  'Ngày Tạo',
+  'Thao Tác',
+];
 
 const statusColors = {
   ACTIVE: 'text-green-600 bg-green-50',
@@ -16,8 +25,18 @@ const statusColors = {
 };
 
 export function InventoryManageView() {
-  const { inventories, loading, adjustQuantity, revalueInventory, setStatus, pagination } =
-    useInventory();
+  const {
+    inventories,
+    loading,
+    adjustQuantity,
+    revalueInventory,
+    setStatus,
+    pagination,
+    setPaginationParams,
+    paginationParams,
+    setFilters,
+  } = useInventory();
+
   const [openViewModal, setOpenViewModal] = useState(false);
   const [openAdjustModal, setOpenAdjustModal] = useState(false);
   const [openRevalueModal, setOpenRevalueModal] = useState(false);
@@ -44,7 +63,6 @@ export function InventoryManageView() {
     setStatus(selectedInventory?.id ?? '', statusData.status);
     setOpenStatusModal(false);
   };
-
   return (
     <>
       {/* VIEW MODAL */}
@@ -254,6 +272,17 @@ export function InventoryManageView() {
       <div className="flex flex-col h-full">
         {/* ACTION BAR */}
         <FilterBar
+          statusOptions={[
+            { value: 'ACTIVE', label: 'ACTIVE' },
+            { value: 'INACTIVE', label: 'INACTIVE' },
+            { value: 'SOLD', label: 'SOLD' },
+          ]}
+          onFilterChange={(newFilters) => {
+            setFilters(newFilters);
+          }}
+          onSearch={(value) => {
+            setFilters((prev) => ({ ...prev, productName: value }));
+          }}
           actions={
             <>
               <button className="bg-white border text-nowrap border-gray-200 rounded-md flex items-center gap-2 py-2 px-4 cursor-pointer hover:opacity-80 transition-opacity duration-300">
@@ -266,11 +295,13 @@ export function InventoryManageView() {
 
         {/* TABLE */}
         <Table
+          pageSize={pagination?.limit ?? paginationParams.limit}
+          onPageChange={(page) => setPaginationParams((prev) => ({ ...prev, page }))}
+          onPageSizeChange={(size) => setPaginationParams((prev) => ({ ...prev, limit: size }))}
           totalPages={pagination?.totalPages}
           tableHeaders={tableHeaders}
           data={inventories}
           isLoading={loading}
-          loading={<Loading color="#333" />}
           renderRow={(inventory, idx) => (
             <tr
               key={idx}
@@ -293,10 +324,7 @@ export function InventoryManageView() {
               <td className="px-4 py-2 text-xs text-gray-900 font-medium">{inventory.quantity}</td>
               <td className="px-4 py-2 text-xs text-gray-500">{inventory.discount}%</td>
               <td className="px-4 py-2 text-xs text-gray-900 font-medium">
-                {Intl.NumberFormat('vi-VN', {
-                  style: 'currency',
-                  currency: 'VND',
-                }).format(Number(inventory.total))}
+                {formatCurrency(inventory.total)}
               </td>
               <td className="px-4 py-2">
                 <span
@@ -304,6 +332,9 @@ export function InventoryManageView() {
                 >
                   {inventory.status}
                 </span>
+              </td>
+              <td className="px-4 py-2 text-xs text-gray-900 font-medium">
+                {formatDate(inventory.createdAt)}
               </td>
               <td>
                 <div className="flex items-center gap-2 pl-4">
