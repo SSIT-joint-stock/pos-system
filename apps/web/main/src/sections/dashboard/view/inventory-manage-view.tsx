@@ -2,17 +2,10 @@
 import React, { useState } from 'react';
 import { Button, Modal, Select, Table, Loading } from '@repo/design-system/components/ui';
 import FilterBar from '../components/filter-bar';
-import {
-  BadgeAlert,
-  Download,
-  Eye,
-  Package,
-  Trash,
-  TrendingUp,
-  TrendingDown,
-  RotateCcw,
-} from 'lucide-react';
+import { Download, Eye, Package, TrendingUp, TrendingDown, RotateCcw } from 'lucide-react';
 import { NumberInput } from '@mantine/core';
+import useInventory from '../../../../../main/src/hooks/inventory/use-inventory';
+import { Inventory } from '@repo/design-system/types/inventory';
 
 const tableHeaders = ['Sản Phẩm', 'Số Lượng', 'Giảm Giá', 'Tổng Giá Trị', 'Trạng Thái', 'Thao Tác'];
 
@@ -22,84 +15,34 @@ const statusColors = {
   SOLD: 'text-blue-600 bg-blue-50',
 };
 
-const mockInventories = [
-  {
-    id: '83d23ff8-39e0-42ee-a552-0a53832a3774',
-    product_id: 'a9ede775-748c-4be1-8180-a994829bb6eb',
-    quantity: 20,
-    discount: 15,
-    total: 100,
-    status: 'INACTIVE',
-    createdAt: '2025-09-09T17:20:35.255Z',
-    updatedAt: '2025-09-10T03:53:50.625Z',
-    product: {
-      name: 'iPhone 16 Pro Max',
-      price: 300,
-    },
-  },
-  {
-    id: '12345678-1234-1234-1234-123456789012',
-    product_id: 'abcdefgh-1234-5678-9012-abcdefghijkl',
-    quantity: 50,
-    discount: 20,
-    total: 240,
-    status: 'ACTIVE',
-    createdAt: '2025-09-08T10:30:00.000Z',
-    updatedAt: '2025-09-11T08:15:30.000Z',
-    product: {
-      name: 'Samsung Galaxy S24',
-      price: 250,
-    },
-  },
-];
-
 export function InventoryManageView() {
+  const { inventories, loading, adjustQuantity, revalueInventory, setStatus, pagination } =
+    useInventory();
   const [openViewModal, setOpenViewModal] = useState(false);
-  const [openEditModal, setOpenEditModal] = useState(false);
   const [openAdjustModal, setOpenAdjustModal] = useState(false);
   const [openRevalueModal, setOpenRevalueModal] = useState(false);
   const [openStatusModal, setOpenStatusModal] = useState(false);
-  const [deleteModal, setDeleteModal] = useState(false);
-  const [selectedInventory, setSelectedInventory] = useState(null);
-  const [inventories, setInventories] = useState(mockInventories);
-  const [loading, setLoading] = useState(false);
+  const [selectedInventory, setSelectedInventory] = useState<Inventory>();
 
   // Form states
   const [adjustValue, setAdjustValue] = useState({ delta: 0 });
   const [revalueData, setRevalueData] = useState({ discount: 0, total: 0 });
   const [statusData, setStatusData] = useState({ status: 'ACTIVE' });
 
-  const handleGetInventories = async () => {
-    setLoading(true);
-    // Mock API call
-    setTimeout(() => {
-      setInventories(mockInventories);
-      setLoading(false);
-    }, 1000);
-  };
-
   const handleAdjustQuantity = async () => {
-    console.log('Adjust quantity:', adjustValue);
-
+    adjustQuantity(selectedInventory?.id ?? '', adjustValue.delta);
+    setAdjustValue({ delta: 0 });
     setOpenAdjustModal(false);
   };
 
   const handleRevalue = async () => {
-    console.log('Revalue:', revalueData);
-
+    revalueInventory(selectedInventory?.id ?? '', revalueData.discount, revalueData.total);
     setOpenRevalueModal(false);
   };
 
   const handleSetStatus = async () => {
-    console.log('Set status:', statusData);
-
+    setStatus(selectedInventory?.id ?? '', statusData.status);
     setOpenStatusModal(false);
-  };
-
-  const handleDelete = async () => {
-    console.log('Delete inventory:', selectedInventory?.id);
-
-    setDeleteModal(false);
   };
 
   return (
@@ -201,8 +144,8 @@ export function InventoryManageView() {
 
           <div className="flex justify-end gap-4 pt-4 border-t border-gray-200">
             <button
-              type="button"
               onClick={() => setOpenAdjustModal(false)}
+              type="button"
               className="text-red-500 hover:underline"
             >
               Hủy
@@ -293,7 +236,6 @@ export function InventoryManageView() {
               { value: 'INACTIVE', label: 'INACTIVE' },
               { value: 'SOLD', label: 'SOLD' },
             ]}
-            required
           />
 
           <div className="flex justify-end gap-4 pt-4 border-t border-gray-200">
@@ -306,32 +248,6 @@ export function InventoryManageView() {
             </button>
             <Button onClick={handleSetStatus} title="Cập nhật" size="sm" radius="md" />
           </div>
-        </div>
-      </Modal>
-
-      {/* DELETE MODAL */}
-      <Modal opened={deleteModal} size="sm" onClose={() => setDeleteModal(false)}>
-        <div className="space-y-3 flex flex-col items-center">
-          <div className="flex flex-col gap-3 items-center justify-center">
-            <div className="justify-center flex rounded-full bg-red-100 w-fit text-red-500 p-3.5">
-              <BadgeAlert size={38} />
-            </div>
-            <div className="text-lg font-bold text-center">Bạn Có Chắc Chắn Muốn Xóa?</div>
-            <div className="text-sm text-gray-500 text-center">
-              Hành động này không thể hoàn tác. Tất cả dữ liệu liên quan của tồn kho này sẽ biến
-              mất.
-            </div>
-          </div>
-          <Button
-            onClick={handleDelete}
-            color="red"
-            size="md"
-            className="bg-red-600 rounded-lg text-white py-2 cursor-pointer font-bold w-full"
-            title="Xác nhận xóa"
-          />
-          <button onClick={() => setDeleteModal(false)} className="cursor-pointer">
-            Hủy
-          </button>
         </div>
       </Modal>
 
@@ -350,7 +266,7 @@ export function InventoryManageView() {
 
         {/* TABLE */}
         <Table
-          totalPages={10}
+          totalPages={pagination?.totalPages}
           tableHeaders={tableHeaders}
           data={inventories}
           isLoading={loading}
@@ -433,17 +349,6 @@ export function InventoryManageView() {
                     title="Đổi trạng thái"
                   >
                     <RotateCcw size={14} />
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      setDeleteModal(true);
-                      setSelectedInventory(inventory);
-                    }}
-                    className="flex justify-center items-center cursor-pointer w-[32px] h-[32px] bg-red-50 text-red-500 rounded-md hover:bg-red-500 hover:text-white transition-all duration-200"
-                    title="Xóa"
-                  >
-                    <Trash size={14} />
                   </button>
                 </div>
               </td>

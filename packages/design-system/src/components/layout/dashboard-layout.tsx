@@ -21,17 +21,35 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   useEffect(() => {
     if (!hydrated) return;
-    if (accessToken) return;
+
     const init = async () => {
       try {
-        const res = await api.post('/auth/refresh-token');
-        const { access_token, user, store: currentStore } = res.data.data;
+        let token = accessToken;
+        let currentStore = store.get(currentStoreAtom);
 
-        store.set(accessTokenAtom, access_token);
-        store.set(currentUserAtom, user);
-        store.set(currentStoreAtom, currentStore);
+        // Nếu chưa có token thì refresh
+        if (!token) {
+          const res = await api.post('/auth/refresh-token');
+          const { access_token, user, store: defaultStore } = res.data.data;
+
+          token = access_token;
+          currentStore = defaultStore;
+
+          store.set(accessTokenAtom, token);
+          store.set(currentUserAtom, user);
+          store.set(currentStoreAtom, currentStore);
+        }
+
+        // Nếu chưa có currentStore (do localStorage xóa)
+        if (!currentStore) {
+          const res = await api.get('/auth/profile');
+          const { store: defaultStore } = res.data.data;
+
+          currentStore = defaultStore;
+          store.set(currentStoreAtom, currentStore);
+        }
       } catch (error) {
-        console.log(error);
+        console.error(error);
       }
     };
 

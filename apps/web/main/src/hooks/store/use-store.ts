@@ -14,20 +14,7 @@ import {
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Store, StoreMember } from '@repo/design-system/types/store';
-interface StoreDetails {
-  id: string;
-  name: string;
-  description: string;
-  address: string;
-  business_hour: string;
-  phone_number: string;
-  createdAt: string;
-  updatedAt: string;
-  owner: {
-    username: string;
-    email: string;
-  };
-}
+
 const STORE_ENDPOINTS = {
   STORES: 'stores',
   STORES_MEMBERS: 'stores/members',
@@ -40,20 +27,7 @@ export default function useStore() {
   const currentStore = useAtomValue(currentStoreAtom);
   console.log(currentStore);
   const [stores, setStores] = useState<Store[]>([]);
-  const [store, setStore] = useState<StoreDetails>({
-    id: '',
-    name: '',
-    address: '',
-    business_hour: '',
-    phone_number: '',
-    description: '',
-    createdAt: '',
-    updatedAt: '',
-    owner: {
-      username: '',
-      email: '',
-    },
-  });
+  const [store, setStore] = useState<Store>();
   const [stats, setStats] = useState({
     totalProducts: 0,
     totalCategories: 0,

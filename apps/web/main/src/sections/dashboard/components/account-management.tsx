@@ -80,15 +80,6 @@ export default function AccountManagement({ isExpand }: { isExpand: boolean }) {
         <form className="flex flex-col gap-2">
           <Input label="Tên tài khoản" value={currentUser?.username} size="sm" radius="md" />
           <Input label="Email" value={currentUser?.email} size="sm" radius="md" />
-          <Input
-            label="Vai trò"
-            value={currentUser?.role}
-            readOnly
-            disabled
-            size="sm"
-            radius="md"
-          />
-          <Input label="Trạng thái" readOnly disabled size="sm" radius="md" />
           <Button title="Thay đổi" variant="filled" radius="md" size="sm" type="submit" />
         </form>
       </Modal>
