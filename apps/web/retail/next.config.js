@@ -11,6 +11,10 @@ const nextConfig = {
         hostname: "i.pinimg.com",
         protocol: "https",
       },
+      {
+        hostname: "down-vn.img.susercontent.com",
+        protocol: "https",
+      },
     ],
   },
 };
