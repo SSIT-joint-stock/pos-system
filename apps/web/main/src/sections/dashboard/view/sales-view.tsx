@@ -1,25 +1,50 @@
 "use client";
-import React, { useState, useRef } from "react";
-import { ProductFilter, CartDetails, SalesProducts } from "@repo/design-system/components/shared/dashboard-screen";
+import React, { useState } from "react";
 import {
-  Beef,
   ChevronDown,
   ChevronRight,
   CupSoda,
   Ellipsis,
   HandCoins,
+  MinusIcon,
+  Pencil,
   Plus,
+  PlusIcon,
   ScanLine,
   Search,
   ShoppingBasket,
   ShoppingCart,
   Utensils,
   Wrench,
+  X,
 } from "lucide-react";
-import { Input, NumberInput } from "@mantine/core";
-import { title } from "process";
 import Image from "next/image";
-import { Select } from "@repo/design-system/components/ui";
+import { Pagination, Select } from "@repo/design-system/components/ui";
+import useInventory from "../../../../../main/src/hooks/inventory/use-inventory";
+import { formatCurrency } from "../../../../../main/src/utils/index";
+import api from "../../../../../main/src/libs/axios";
+import { useAtomValue } from "jotai";
+import { currentStoreAtom } from "@repo/design-system/stores/auth";
+import useToast from "@repo/design-system/hooks/client/use-toast-notification";
+
+// Define proper TypeScript interfaces
+interface Product {
+  id: number;
+  product: {
+    name: string;
+    price: number;
+  };
+  quantity: number;
+  totalPrice: number;
+}
+
+interface Invoice {
+  id: number;
+  name: string;
+  products: Product[];
+  discountCode: string;
+  paymentMethod: string;
+}
 
 const catagories = [
   {
@@ -45,24 +70,218 @@ const catagories = [
 ];
 
 export function SalesView() {
+  const { inventories } = useInventory();
   const [open, setOpen] = useState(true);
-  const [quantity, setQuantity] = useState<number>(1);
+  const [invoices, setInvoices] = useState<Invoice[]>([
+    {
+      id: 1,
+      name: "Hóa đơn 1",
+      products: [],
+      discountCode: "",
+      paymentMethod: "",
+    },
+  ]);
+  const [activeInvoice, setActiveInvoice] = useState(1);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [newName, setNewName] = useState("");
+  const [discountCode, setDiscountCode] = useState("");
 
-  const handleChangeQuantity = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = Number(e.target.value);
-    if (!isNaN(value) && value > 0) {
-      setQuantity(value);
-    } else {
-      setQuantity(1); // nếu nhập rỗng hoặc <= 0 thì reset = 1
+  // Thêm tab mới
+  const addInvoice = () => {
+    const newId = Date.now();
+    const newInvoice: Invoice = {
+      id: newId,
+      name: `Hóa đơn ${invoices.length + 1}`,
+      products: [],
+      discountCode: "",
+      paymentMethod: "",
+    };
+    setInvoices([...invoices, newInvoice]);
+    setActiveInvoice(newId);
+  };
+
+  // Xóa tab
+  const removeInvoice = (id: number) => {
+    const filtered = invoices.filter((inv) => inv.id !== id);
+    setInvoices(filtered);
+
+    if (activeInvoice === id && filtered.length > 0) {
+      setActiveInvoice(filtered[0].id);
+    } else if (filtered.length === 0) {
+      addInvoice(); // Tạo hóa đơn mới nếu không còn hóa đơn nào
     }
   };
-  const increaseQuantity = () => {
-    setQuantity(quantity + 1);
-  };
-  const decreaseQuantity = () => {
-    setQuantity(quantity - 1);
+
+  // Bắt đầu đổi tên
+  const startEditName = (id: number, currentName: string) => {
+    setEditingId(id);
+    setNewName(currentName);
   };
 
+  // Lưu tên mới
+  const saveName = (id: number) => {
+    setInvoices(invoices.map((inv) => (inv.id === id ? { ...inv, name: newName.trim() || inv.name } : inv)));
+    setEditingId(null);
+    setNewName("");
+  };
+
+  // Thêm sản phẩm vào hóa đơn hiện tại
+  const addToCart = (product: any) => {
+    setInvoices(
+      invoices.map((inv) => {
+        if (inv.id === activeInvoice) {
+          // Kiểm tra xem sản phẩm đã có trong hóa đơn chưa
+          const existingProductIndex = inv.products.findIndex((p) => p.id === product.id);
+
+          if (existingProductIndex >= 0) {
+            // Nếu đã có, tăng số lượng
+            const updatedProducts = [...inv.products];
+            updatedProducts[existingProductIndex] = {
+              ...updatedProducts[existingProductIndex],
+              quantity: updatedProducts[existingProductIndex].quantity + 1,
+              totalPrice:
+                updatedProducts[existingProductIndex].product.price *
+                (updatedProducts[existingProductIndex].quantity + 1),
+            };
+            return { ...inv, products: updatedProducts };
+          } else {
+            // Nếu chưa có, thêm mới với số lượng là 1
+            return {
+              ...inv,
+              products: [
+                ...inv.products,
+                {
+                  ...product,
+                  quantity: 1,
+                  totalPrice: product.product.price,
+                },
+              ],
+            };
+          }
+        }
+        return inv;
+      })
+    );
+    setOpen(true);
+  };
+
+  // Cập nhật số lượng sản phẩm
+  const updateQuantity = (productId: number, newQuantity: number) => {
+    if (newQuantity < 1) return;
+
+    setInvoices(
+      invoices.map((inv) => {
+        if (inv.id === activeInvoice) {
+          return {
+            ...inv,
+            products: inv.products.map((p) =>
+              p.id === productId
+                ? {
+                    ...p,
+                    quantity: newQuantity,
+                    totalPrice: p.product.price * newQuantity,
+                  }
+                : p
+            ),
+          };
+        }
+        return inv;
+      })
+    );
+  };
+
+  // Xóa sản phẩm khỏi hóa đơn
+  const removeProduct = (productId: number) => {
+    setInvoices(
+      invoices.map((inv) => {
+        if (inv.id === activeInvoice) {
+          return {
+            ...inv,
+            products: inv.products.filter((p) => p.id !== productId),
+          };
+        }
+        return inv;
+      })
+    );
+  };
+
+  // Xóa tất cả sản phẩm khỏi hóa đơn hiện tại
+  const clearAllProducts = () => {
+    setInvoices(
+      invoices.map((inv) => {
+        if (inv.id === activeInvoice) {
+          return { ...inv, products: [] };
+        }
+        return inv;
+      })
+    );
+  };
+
+  // Cập nhật mã giảm giá
+  const applyDiscountCode = () => {
+    setInvoices(
+      invoices.map((inv) => {
+        if (inv.id === activeInvoice) {
+          return { ...inv, discountCode };
+        }
+        return inv;
+      })
+    );
+    setDiscountCode("");
+  };
+
+  // Cập nhật phương thức thanh toán
+  const updatePaymentMethod = (method: string) => {
+    setInvoices(
+      invoices.map((inv) => {
+        if (inv.id === activeInvoice) {
+          return { ...inv, paymentMethod: method };
+        }
+        return inv;
+      })
+    );
+  };
+
+  // Tính tổng tiền cho hóa đơn hiện tại
+  const getCurrentInvoice = () => {
+    return invoices.find((inv) => inv.id === activeInvoice) || invoices[0];
+  };
+
+  const currentInvoice = getCurrentInvoice();
+  const selectedProducts = currentInvoice?.products || [];
+  const productsCount = selectedProducts.length;
+
+  // Tính tổng tiền
+  const subtotal = selectedProducts.reduce((sum, product) => sum + product.product.price * product.quantity, 0);
+  const discount = currentInvoice.discountCode ? subtotal * 0.1 : 0; // Giả sử giảm giá 10%
+  const tax = subtotal * 0.05; // Giả sử thuế 5%
+  const total = subtotal - discount + tax;
+  const currentStore = useAtomValue(currentStoreAtom);
+  const { showSuccessToast } = useToast();
+  const createOrder = async () => {
+    if (!currentStore?.id) return;
+    const currentInvoice = getCurrentInvoice();
+    try {
+      const body = {
+        subtotal_amount: subtotal, // tổng tiền sản phẩm
+        discount_amount: discount, // nếu có mã giảm giá
+        tax_amount: tax,
+        total_amount: total,
+        payment_method: currentInvoice.paymentMethod === "Chuyen khoan" ? "CREDIT_CARD" : "CASH", // match enum backend
+        order_items: currentInvoice.products.map((item) => ({
+          product_id: item.id, // hoặc item.product.id nếu BE mong product_id
+          quantity: item.quantity,
+          price: item.product.price,
+        })),
+      };
+      const res = await api.post(`stores/${currentStore?.id}/orders`, body);
+      if (res?.data.succes) {
+        showSuccessToast(res?.data.message);
+      }
+    } catch (error) {
+      console.error("Lỗi khi tạo đơn:", error);
+    }
+  };
   return (
     <div className="w-full bg-white px-3.5 rouded-xl shadow overflow-auto">
       <div className="space-y-3">
@@ -112,268 +331,54 @@ export function SalesView() {
           <ChevronDown size={20} className="text-gray-400" />
         </div>
       </div>
-      <div
-        className={`grid ${open ? "grid-cols-3 w-[62%]" : "grid-cols-5 w-full"} items-center justify-center gap-5 mt-5 space-y-3.5`}
-      >
-        <div className="border border-gray-200 rounded-xl px-2 py-1 shadow ">
-          <Image
-            src={"https://down-vn.img.susercontent.com/file/c7db377b177fc8e2ff75a769022dcc23"}
-            alt="san pham"
-            width={500}
-            height={500}
-            className="rounded-xl object-cover"
-          />
-          <div className="">
-            <p className="text-lg font-semibold">Denim Fabric Jacket</p>
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-500">Loai san pham:</p>
-              <p className=" font-semibold text-gray-600">Quan ao</p>
+      <div className={`flex flex-col gap-5 ${open ? " w-[62%]" : " w-full"}`}>
+        <div
+          className={`grid ${open ? "grid-cols-3 w-[62%]" : "grid-cols-5 w-full"} w-full items-center justify-center gap-5 mt-5 space-y-3.5`}
+        >
+          {inventories.map((product) => (
+            <div key={product.id} className="border border-gray-200 rounded-xl px-2 py-1 shadow ">
+              <Image
+                src={"https://down-vn.img.susercontent.com/file/c7db377b177fc8e2ff75a769022dcc23"}
+                alt="san pham"
+                width={500}
+                height={500}
+                className="rounded-xl object-cover"
+              />
+              <div className="">
+                <h2 className="text-lg font-semibold">{product.product.name}</h2>
+
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-gray-500">So Luong:</p>
+                  <p className=" font-semibold text-gray-600">{product.quantity}</p>
+                </div>
+              </div>
+              <div className="flex items-center justify-between mt-3 ">
+                <div className="flex items-center justify-center  gap-1.5">
+                  <p className="text-sm text-gray-500">Gia: </p>
+                  <p className="text-lg font-semibold text-gray-600">{formatCurrency(product.product.price)}</p>
+                </div>
+                <div
+                  onClick={() => addToCart(product)}
+                  className="flex items-center justify-center rounded-md border border-gray-200 px-3 py-2 hover:bg-pos-blue-400 transition-all group duration-300 cursor-pointer"
+                >
+                  <ShoppingCart
+                    size={18}
+                    className="text-gray-500 group-hover:text-white transition-all duration-300"
+                  />
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="flex items-center justify-between mt-3 ">
-            <div className="flex items-center justify-center  gap-1.5">
-              <p className="text-sm text-gray-500">Gia: </p>
-              <p className="text-lg font-semibold text-gray-600">199.000 d</p>
-            </div>
-            <div
-              onClick={() => setOpen(true)}
-              className="flex items-center justify-center rounded-md border border-gray-200 px-3 py-2 hover:bg-pos-blue-400 transition-all group duration-300 cursor-pointer"
-            >
-              <ShoppingCart size={18} className="text-gray-500 group-hover:text-white transition-all duration-300" />
-            </div>
-          </div>
+          ))}
         </div>
-        <div className="border border-gray-200 rounded-xl px-2 py-1 shadow ">
-          <Image
-            src={"https://down-vn.img.susercontent.com/file/c7db377b177fc8e2ff75a769022dcc23"}
-            alt="san pham"
-            width={500}
-            height={500}
-            className="rounded-xl object-cover"
-          />
-          <div className="">
-            <p className="text-lg font-semibold">Denim Fabric Jacket</p>
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-500">Loai san pham:</p>
-              <p className=" font-semibold text-gray-600">Quan ao</p>
-            </div>
-          </div>
-          <div className="flex items-center justify-between mt-3 ">
-            <div className="flex items-center justify-center  gap-1.5">
-              <p className="text-sm text-gray-500">Gia: </p>
-              <p className="text-lg font-semibold text-gray-600">199.000 d</p>
-            </div>
-            <div className="flex items-center justify-center rounded-md border border-gray-200 px-3 py-2 hover:bg-pos-blue-400 transition-all group duration-300 cursor-pointer">
-              <ShoppingCart size={18} className="text-gray-500 group-hover:text-white transition-all duration-300" />
-            </div>
-          </div>
-        </div>
-        <div className="border border-gray-200 rounded-xl px-2 py-1 shadow ">
-          <Image
-            src={"https://down-vn.img.susercontent.com/file/c7db377b177fc8e2ff75a769022dcc23"}
-            alt="san pham"
-            width={500}
-            height={500}
-            className="rounded-xl object-cover"
-          />
-          <div className="">
-            <p className="text-lg font-semibold">Denim Fabric Jacket</p>
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-500">Loai san pham:</p>
-              <p className=" font-semibold text-gray-600">Quan ao</p>
-            </div>
-          </div>
-          <div className="flex items-center justify-between mt-3 ">
-            <div className="flex items-center justify-center  gap-1.5">
-              <p className="text-sm text-gray-500">Gia: </p>
-              <p className="text-lg font-semibold text-gray-600">199.000 d</p>
-            </div>
-            <div className="flex items-center justify-center rounded-md border border-gray-200 px-3 py-2 hover:bg-pos-blue-400 transition-all group duration-300 cursor-pointer">
-              <ShoppingCart size={18} className="text-gray-500 group-hover:text-white transition-all duration-300" />
-            </div>
-          </div>
-        </div>
-        <div className="border border-gray-200 rounded-xl px-2 py-1 shadow ">
-          <Image
-            src={"https://down-vn.img.susercontent.com/file/c7db377b177fc8e2ff75a769022dcc23"}
-            alt="san pham"
-            width={500}
-            height={500}
-            className="rounded-xl object-cover"
-          />
-          <div className="">
-            <p className="text-lg font-semibold">Denim Fabric Jacket</p>
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-500">Loai san pham:</p>
-              <p className=" font-semibold text-gray-600">Quan ao</p>
-            </div>
-          </div>
-          <div className="flex items-center justify-between mt-3 ">
-            <div className="flex items-center justify-center  gap-1.5">
-              <p className="text-sm text-gray-500">Gia: </p>
-              <p className="text-lg font-semibold text-gray-600">199.000 d</p>
-            </div>
-            <div className="flex items-center justify-center rounded-md border border-gray-200 px-3 py-2 hover:bg-pos-blue-400 transition-all group duration-300 cursor-pointer">
-              <ShoppingCart size={18} className="text-gray-500 group-hover:text-white transition-all duration-300" />
-            </div>
-          </div>
-        </div>
-        <div className="border border-gray-200 rounded-xl px-2 py-1 shadow ">
-          <Image
-            src={"https://down-vn.img.susercontent.com/file/c7db377b177fc8e2ff75a769022dcc23"}
-            alt="san pham"
-            width={500}
-            height={500}
-            className="rounded-xl object-cover"
-          />
-          <div className="">
-            <p className="text-lg font-semibold">Denim Fabric Jacket</p>
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-500">Loai san pham:</p>
-              <p className=" font-semibold text-gray-600">Quan ao</p>
-            </div>
-          </div>
-          <div className="flex items-center justify-between mt-3 ">
-            <div className="flex items-center justify-center  gap-1.5">
-              <p className="text-sm text-gray-500">Gia: </p>
-              <p className="text-lg font-semibold text-gray-600">199.000 d</p>
-            </div>
-            <div className="flex items-center justify-center rounded-md border border-gray-200 px-3 py-2 hover:bg-pos-blue-400 transition-all group duration-300 cursor-pointer">
-              <ShoppingCart size={18} className="text-gray-500 group-hover:text-white transition-all duration-300" />
-            </div>
-          </div>
-        </div>
-        <div className="border border-gray-200 rounded-xl px-2 py-1 shadow ">
-          <Image
-            src={"https://down-vn.img.susercontent.com/file/c7db377b177fc8e2ff75a769022dcc23"}
-            alt="san pham"
-            width={500}
-            height={500}
-            className="rounded-xl object-cover"
-          />
-          <div className="">
-            <p className="text-lg font-semibold">Denim Fabric Jacket</p>
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-500">Loai san pham:</p>
-              <p className=" font-semibold text-gray-600">Quan ao</p>
-            </div>
-          </div>
-          <div className="flex items-center justify-between mt-3 ">
-            <div className="flex items-center justify-center  gap-1.5">
-              <p className="text-sm text-gray-500">Gia: </p>
-              <p className="text-lg font-semibold text-gray-600">199.000 d</p>
-            </div>
-            <div className="flex items-center justify-center rounded-md border border-gray-200 px-3 py-2 hover:bg-pos-blue-400 transition-all group duration-300 cursor-pointer">
-              <ShoppingCart size={18} className="text-gray-500 group-hover:text-white transition-all duration-300" />
-            </div>
-          </div>
-        </div>
-        <div className="border border-gray-200 rounded-xl px-2 py-1 shadow ">
-          <Image
-            src={"https://down-vn.img.susercontent.com/file/c7db377b177fc8e2ff75a769022dcc23"}
-            alt="san pham"
-            width={500}
-            height={500}
-            className="rounded-xl object-cover"
-          />
-          <div className="">
-            <p className="text-lg font-semibold">Denim Fabric Jacket</p>
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-500">Loai san pham:</p>
-              <p className=" font-semibold text-gray-600">Quan ao</p>
-            </div>
-          </div>
-          <div className="flex items-center justify-between mt-3 ">
-            <div className="flex items-center justify-center  gap-1.5">
-              <p className="text-sm text-gray-500">Gia: </p>
-              <p className="text-lg font-semibold text-gray-600">199.000 d</p>
-            </div>
-            <div className="flex items-center justify-center rounded-md border border-gray-200 px-3 py-2 hover:bg-pos-blue-400 transition-all group duration-300 cursor-pointer">
-              <ShoppingCart size={18} className="text-gray-500 group-hover:text-white transition-all duration-300" />
-            </div>
-          </div>
-        </div>
-        <div className="border border-gray-200 rounded-xl px-2 py-1 shadow ">
-          <Image
-            src={"https://down-vn.img.susercontent.com/file/c7db377b177fc8e2ff75a769022dcc23"}
-            alt="san pham"
-            width={500}
-            height={500}
-            className="rounded-xl object-cover"
-          />
-          <div className="">
-            <p className="text-lg font-semibold">Denim Fabric Jacket</p>
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-500">Loai san pham:</p>
-              <p className=" font-semibold text-gray-600">Quan ao</p>
-            </div>
-          </div>
-          <div className="flex items-center justify-between mt-3 ">
-            <div className="flex items-center justify-center  gap-1.5">
-              <p className="text-sm text-gray-500">Gia: </p>
-              <p className="text-lg font-semibold text-gray-600">199.000 d</p>
-            </div>
-            <div className="flex items-center justify-center rounded-md border border-gray-200 px-3 py-2 hover:bg-pos-blue-400 transition-all group duration-300 cursor-pointer">
-              <ShoppingCart size={18} className="text-gray-500 group-hover:text-white transition-all duration-300" />
-            </div>
-          </div>
-        </div>
-        <div className="border border-gray-200 rounded-xl px-2 py-1 shadow ">
-          <Image
-            src={"https://down-vn.img.susercontent.com/file/c7db377b177fc8e2ff75a769022dcc23"}
-            alt="san pham"
-            width={500}
-            height={500}
-            className="rounded-xl object-cover"
-          />
-          <div className="">
-            <p className="text-lg font-semibold">Denim Fabric Jacket</p>
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-500">Loai san pham:</p>
-              <p className=" font-semibold text-gray-600">Quan ao</p>
-            </div>
-          </div>
-          <div className="flex items-center justify-between mt-3 ">
-            <div className="flex items-center justify-center  gap-1.5">
-              <p className="text-sm text-gray-500">Gia: </p>
-              <p className="text-lg font-semibold text-gray-600">199.000 d</p>
-            </div>
-            <div className="flex items-center justify-center rounded-md border border-gray-200 px-3 py-2 hover:bg-pos-blue-400 transition-all group duration-300 cursor-pointer">
-              <ShoppingCart size={18} className="text-gray-500 group-hover:text-white transition-all duration-300" />
-            </div>
-          </div>
-        </div>
-        <div className="border border-gray-200 rounded-xl px-2 py-1 shadow ">
-          <Image
-            src={"https://down-vn.img.susercontent.com/file/c7db377b177fc8e2ff75a769022dcc23"}
-            alt="san pham"
-            width={500}
-            height={500}
-            className="rounded-xl object-cover"
-          />
-          <div className="">
-            <p className="text-lg font-semibold">Denim Fabric Jacket</p>
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-500">Loai san pham:</p>
-              <p className=" font-semibold text-gray-600">Quan ao</p>
-            </div>
-          </div>
-          <div className="flex items-center justify-between mt-3 ">
-            <div className="flex items-center justify-center  gap-1.5">
-              <p className="text-sm text-gray-500">Gia: </p>
-              <p className="text-lg font-semibold text-gray-600">199.000 d</p>
-            </div>
-            <div className="flex items-center justify-center rounded-md border border-gray-200 px-3 py-2 hover:bg-pos-blue-400 transition-all group duration-300 cursor-pointer">
-              <ShoppingCart size={18} className="text-gray-500 group-hover:text-white transition-all duration-300" />
-            </div>
-          </div>
+        <div className="flex items-center justify-center pb-5">
+          <Pagination total={10} />
         </div>
       </div>
 
       {/*sidebar order */}
 
       <div
-        className={`fixed top-0 right-0 h-screen overflow-auto bg-white shadow-lg z-50 transform transition-transform duration-300 ${
+        className={`fixed top-0 right-0  h-screen overflow-auto bg-white shadow-lg z-50 transform transition-transform duration-300 ${
           open ? "translate-x-0 transition-all duration-300" : "translate-x-full transition-all duration-300"
         } w-[36%] border border-gray-200 rounded-md shadow px-5 py-2}`}
       >
@@ -385,176 +390,176 @@ export function SalesView() {
         >
           <ChevronRight className="text-gray-400 group-hover:text-white" />
         </button>
-        <div className="flex items-center justify-between border-b-2 border-b-gray-200 py-3.5">
-          <p className="text-2xl font-semibold text-gray-600">Don Hang</p>
-          <div className="px-2.5 py-2 border border-gray-200 rounded-lg">
-            <Plus size={25} className="text-gray-400" />
-          </div>
+        {/* Tabs hóa đơn */}
+        <div className="flex items-center gap-3 overflow-x-auto mt-3 pb-2 border-b border-gray-200">
+          {invoices.map((inv) => (
+            <div
+              key={inv.id}
+              className={`flex items-center gap-2 px-3 py-2 rounded-md cursor-pointer whitespace-nowrap transition-all ${
+                activeInvoice === inv.id
+                  ? "bg-pos-blue-400 text-white font-semibold"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              {/* Nếu đang edit thì hiện input */}
+              {editingId === inv.id ? (
+                <input
+                  value={newName}
+                  autoFocus
+                  onChange={(e) => setNewName(e.target.value)}
+                  onBlur={() => saveName(inv.id)}
+                  onKeyDown={(e) => e.key === "Enter" && saveName(inv.id)}
+                  className="px-1 rounded bg-white  outline-none w-36 text-xs font-medium text-gray-500"
+                />
+              ) : (
+                <span onClick={() => setActiveInvoice(inv.id)} onDoubleClick={() => startEditName(inv.id, inv.name)}>
+                  {inv.name}
+                </span>
+              )}
+
+              {/* Nút đổi tên */}
+              <Pencil
+                size={14}
+                className="cursor-pointer opacity-70 hover:opacity-100"
+                onClick={() => startEditName(inv.id, inv.name)}
+              />
+              {/* Nút xóa */}
+              <X
+                size={14}
+                className="cursor-pointer opacity-70 hover:text-red-500"
+                onClick={() => removeInvoice(inv.id)}
+              />
+            </div>
+          ))}
+
+          {/* Nút thêm hóa đơn */}
+          <button
+            onClick={addInvoice}
+            className="px-3 py-2 border border-gray-300 rounded-md flex items-center gap-1 hover:bg-pos-blue-400 hover:text-white transition"
+          >
+            <Plus size={18} />
+          </button>
         </div>
         <div className="flex flex-col gap-3.5 ">
           <div className="flex items-center justify-between mt-3.5">
-            <p className="text-gray-600 font-semibold">3 san pham da duoc chon</p>
-            <p className="text-red-500 font-semibold">Xoa tat ca</p>
+            <p className="text-gray-600 font-semibold">{productsCount} san pham da duoc chon</p>
+            {productsCount > 0 && (
+              <p onClick={clearAllProducts} className="text-red-500 font-semibold cursor-pointer">
+                Xoa tat ca
+              </p>
+            )}
           </div>
-          <div className="flex items-center gap-3.5 border-b-2 border-b-gray-200 py-3.5">
-            <div className="">
-              <Image
-                src={"https://down-vn.img.susercontent.com/file/c7db377b177fc8e2ff75a769022dcc23"}
-                alt="san pham"
-                width={80}
-                height={100}
-                className="rounded-xl object-cover"
-              />
-            </div>
-            <div className="w-full">
-              <h1>Denim Fabric Jacket</h1>
-              <div className="flex items-center gap-3.5  text-sm text-gray-500">
-                <p>Loai san pham: </p>
-                <p>Quan ao</p>
-              </div>
-              <div className="flex items-center justify-between mt-4 ">
-                <div className="flex items-center justify-center ">
-                  <button
-                    onClick={decreaseQuantity}
-                    className="border border-gray-200 rounded-md px-3.5  text-center flex items-center justify-center leading-0 py-1"
-                  >
-                    -
-                  </button>
-                  <input
-                    onChange={handleChangeQuantity}
-                    name="quantity"
-                    value={quantity}
-                    className="w-10 text-center outline-0"
-                  />
-                  <button
-                    onClick={increaseQuantity}
-                    className="border border-gray-200 rounded-md px-3.5 text-center flex items-center justify-center leading-0 py-1"
-                  >
-                    +
-                  </button>
-                </div>
-                <div className="text-xl font-semibold">199.000 d</div>
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center gap-3.5 border-b-2 border-b-gray-200 py-3.5">
-            <div className="">
-              <Image
-                src={"https://down-vn.img.susercontent.com/file/c7db377b177fc8e2ff75a769022dcc23"}
-                alt="san pham"
-                width={80}
-                height={100}
-                className="rounded-xl object-cover"
-              />
-            </div>
-            <div className="w-full">
-              <h1>Denim Fabric Jacket</h1>
-              <div className="flex items-center gap-3.5  text-sm text-gray-500">
-                <p>Loai san pham: </p>
-                <p>Quan ao</p>
-              </div>
-              <div className="flex items-center justify-between mt-4 ">
-                <div className="flex items-center justify-center ">
-                  <button
-                    onClick={decreaseQuantity}
-                    className="border border-gray-200 rounded-md px-3.5  text-center flex items-center justify-center leading-0 py-1"
-                  >
-                    -
-                  </button>
-                  <input
-                    onChange={handleChangeQuantity}
-                    name="quantity"
-                    value={quantity}
-                    className="w-10 text-center outline-0"
-                  />
-                  <button
-                    onClick={increaseQuantity}
-                    className="border border-gray-200 rounded-md px-3.5 text-center flex items-center justify-center leading-0 py-1"
-                  >
-                    +
-                  </button>
-                </div>
-                <div className="text-xl font-semibold">199.000 d</div>
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center gap-3.5 border-b-2 border-b-gray-200 py-3.5">
-            <div className="">
-              <Image
-                src={"https://down-vn.img.susercontent.com/file/c7db377b177fc8e2ff75a769022dcc23"}
-                alt="san pham"
-                width={80}
-                height={100}
-                className="rounded-xl object-cover"
-              />
-            </div>
-            <div className="w-full">
-              <h1>Denim Fabric Jacket</h1>
-              <div className="flex items-center gap-3.5  text-sm text-gray-500">
-                <p>Loai san pham: </p>
-                <p>Quan ao</p>
-              </div>
-              <div className="flex items-center justify-between mt-4 ">
-                <div className="flex items-center justify-center ">
-                  <button
-                    onClick={decreaseQuantity}
-                    className="border border-gray-200 rounded-md px-3.5  text-center flex items-center justify-center leading-0 py-1"
-                  >
-                    -
-                  </button>
-                  <input
-                    onChange={handleChangeQuantity}
-                    name="quantity"
-                    value={quantity}
-                    className="w-10 text-center outline-0"
-                  />
-                  <button
-                    onClick={increaseQuantity}
-                    className="border border-gray-200 rounded-md px-3.5 text-center flex items-center justify-center leading-0 py-1"
-                  >
-                    +
-                  </button>
-                </div>
-                <div className="text-xl font-semibold">199.000 d</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="bg-gray-100 rounded-md px-2.5 py-1.5 mt-4">
-          <div className="space-y-1 border-b-2 border-b-gray-200 py-2.5">
-            <div className="flex items-center justify-between">
-              <p>Tong tien san pham:</p>
-              <p>199.000 d</p>
-            </div>
-            <div className="flex items-center justify-between ">
-              <p>Giam gia: </p>
-              <p>-10%</p>
-            </div>
-            <div className="flex items-center justify-between">
-              <p>Thue gia tri san pham: </p>
-              <p>+5%</p>
-            </div>
-          </div>
-          <div className="flex items-center justify-between mt-5">
-            <p className="text-gray-700 font-bold">Tong thanh toan: </p>
-            <p className="text-lg text-gray-700 font-bold">1.000.000 d</p>
-          </div>
-        </div>
-        <div className="flex items-center justify-center gap-3.5 mt-4">
-          <input placeholder="Ma giam gia" className="outline-0 border border-gray-200 w-full rounded-md h-9 px-3" />
-          <button className="px-2.5 py-1.5 bg-gray-100 rounded-md text-gray-500 font-semibold text-nowrap">
-            Xac nhan
-          </button>
-        </div>
 
-        <Select data={["Chuyen khoan", "Tien mat"]} className="mt-2" placeholder="Chon phuong thuc thanh toan" />
-        <button className="bg-pos-blue-400 text-white rounded-md px-3.5 py-2 flex items-center justify-center gap-3 mt-5 w-full">
-          <HandCoins size={20} className="text-white" />
-          <p>Thanh toan ngay</p>
-        </button>
+          {productsCount === 0 ? (
+            <div className="text-center text-lg italic text-gray-600 py-10">Chua co san pham</div>
+          ) : (
+            <>
+              {selectedProducts.map((item) => (
+                <div key={item.id} className="flex items-center gap-3.5 border-b-2 border-b-gray-200 py-3.5">
+                  <div className="">
+                    <Image
+                      src={"https://down-vn.img.susercontent.com/file/c7db377b177fc8e2ff75a769022dcc23"}
+                      alt="san pham"
+                      width={80}
+                      height={100}
+                      className="rounded-xl object-cover"
+                    />
+                  </div>
+                  <div className="w-full">
+                    <h1 className="font-semibold">{item.product.name}</h1>
+                    <div className="flex items-center gap-3.5 text-sm text-gray-500">
+                      <p>Loai san pham: </p>
+                      <p>Quan ao</p>
+                    </div>
+                    <div className="flex items-center justify-between mt-4">
+                      <div className="flex items-center justify-center">
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          className="border border-gray-200 rounded-md text-center flex items-center justify-center w-8 h-8"
+                        >
+                          <span>
+                            <MinusIcon size={14} />
+                          </span>
+                        </button>
+                        <input
+                          value={item.quantity}
+                          onChange={(e) => updateQuantity(item.id, parseInt(e.target.value) || 1)}
+                          className="w-8 h-8 text-center outline-0 border border-gray-200 mx-1 rounded-md"
+                        />
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          className="border border-gray-200 rounded-md text-center flex items-center justify-center w-8 h-8"
+                        >
+                          <span>
+                            <PlusIcon size={14} />
+                          </span>
+                        </button>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="text-xl font-semibold">{formatCurrency(item.totalPrice)}</div>
+                        <X size={16} className="cursor-pointer text-red-500" onClick={() => removeProduct(item.id)} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {/* Hiển thị tổng tiền chỉ khi có sản phẩm */}
+              <div className="bg-gray-100 rounded-md px-2.5 py-1.5 mt-4">
+                <div className="space-y-1 border-b-2 border-b-gray-200 py-2.5">
+                  <div className="flex items-center justify-between">
+                    <p>Tong tien san pham:</p>
+                    <p>{formatCurrency(subtotal)}</p>
+                  </div>
+                  {currentInvoice.discountCode && (
+                    <div className="flex items-center justify-between">
+                      <p>Giam gia: </p>
+                      <p className="text-red-500">-{formatCurrency(discount)}</p>
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between">
+                    <p>Thue gia tri san pham: </p>
+                    <p>+{formatCurrency(tax)}</p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between mt-5">
+                  <p className="text-gray-700 font-bold">Tong thanh toan: </p>
+                  <p className="text-lg text-gray-700 font-bold">{formatCurrency(total)}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-center gap-3.5 mt-4">
+                <input
+                  placeholder="Ma giam gia"
+                  value={discountCode}
+                  onChange={(e) => setDiscountCode(e.target.value)}
+                  className="outline-0 border border-gray-200 w-full rounded-md h-9 px-3"
+                />
+                <button
+                  onClick={applyDiscountCode}
+                  className="px-2.5 py-1.5 bg-gray-100 rounded-md text-gray-500 font-semibold text-nowrap"
+                >
+                  Xac nhan
+                </button>
+              </div>
+
+              <Select
+                data={["Chuyen khoan", "Tien mat"]}
+                className="mt-2"
+                placeholder="Chon phuong thuc thanh toan"
+                onChange={updatePaymentMethod}
+              />
+              <button
+                onClick={createOrder}
+                className="bg-pos-blue-400 text-white rounded-md px-3.5 py-2 flex items-center justify-center gap-3 my-5 w-full"
+              >
+                <HandCoins size={20} className="text-white" />
+                <p>Thanh toan ngay</p>
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
 }
-
-// <SalesProducts />

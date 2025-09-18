@@ -8,6 +8,7 @@ import api from "../../../../../main/src/libs/axios";
 import { useAtom } from "jotai";
 import { currentStoreAtom } from "@repo/design-system/stores/auth";
 import { toast } from "react-toastify";
+import { formatCurrency } from "../../../../../main/src/utils/index";
 
 const tableHeaders = ["Sản Phẩm", "Danh Mục", "Số Lượng", "Giá", "Trạng Thái", "Thao Tác"];
 const statusColors: Record<string, string> = {
@@ -49,7 +50,7 @@ export function ManageView() {
     try {
       const res = await api.get(`/stores/${currentStore?.id}/products`);
       setLoading(false);
-      // console.log(res);
+      console.log(res.data);
       setProducts(res.data.data);
     } catch (error) {
       setLoading(false);
@@ -522,12 +523,7 @@ export function ManageView() {
                   <td className="px-4 py-2 text-xs font-medium text-gray-900">{product.name}</td>
                   <td className="px-4 py-2 text-xs text-gray-500 font-medium">{product.sku}</td>
                   <td className="px-4 py-2 text-xs text-gray-500">{product.cost}</td>
-                  <td className="px-4 py-2 text-xs text-gray-500">
-                    {Intl.NumberFormat("vi-VN", {
-                      style: "currency",
-                      currency: "VND",
-                    }).format(Number(product.price))}
-                  </td>
+                  <td className="px-4 py-2 text-xs text-gray-500">{formatCurrency(product.price)}</td>
                   <td className="px-4 py-2">
                     <span className={`text-xs font-medium rounded-xl ${statusColors[product.product_status]}`}>
                       {product.product_status}

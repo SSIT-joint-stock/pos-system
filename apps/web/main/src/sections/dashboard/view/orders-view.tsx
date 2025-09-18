@@ -2,70 +2,38 @@
 import { Input, Modal, Select, Table } from "@repo/design-system/components/ui";
 import FilterBar from "../components/filter-bar";
 import { BadgeAlert, Check, Download, Edit, Eye, ShoppingCart, Trash } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
-
-const products = [
-  {
-    orderId: "DH001",
-    customer: "Nguyễn Văn A",
-    address: "123 Lê Lợi, Hà Nội",
-    price: 250000,
-    status: "Processing",
-    date: "12 August, 2025 at 10:00 AM from Web",
-    catagory: "Sunglass",
-  },
-  {
-    orderId: "DH002",
-    customer: "Trần Thị B",
-    address: "45 Nguyễn Huệ, TP. HCM",
-    price: 120000,
-    status: "Delivered",
-    date: "15 August, 2025 at 02:30 PM from Mobile",
-    catagory: "Sunglass",
-  },
-  {
-    orderId: "DH003",
-    customer: "Lê Văn C",
-    address: "78 Hai Bà Trưng, Đà Nẵng",
-    price: 500000,
-    status: "Unpaid",
-    date: "20 August, 2025 at 09:15 AM from Web",
-    catagory: "Sunglass",
-  },
-  {
-    orderId: "DH004",
-    customer: "Phạm Thị D",
-    address: "90 Trần Phú, Hải Phòng",
-    price: 300000,
-    status: "Canceled",
-    date: "25 August, 2025 at 05:45 PM from Mobile",
-    catagory: "Sunglass",
-  },
-  {
-    orderId: "DH005",
-    customer: "Hoàng Văn E",
-    address: "12 Lý Thường Kiệt, Cần Thơ",
-    price: 450000,
-    status: "Completed",
-    date: "30 August, 2025 at 11:20 AM from Web",
-    catagory: "Sunglass",
-  },
-];
-const tableHeaders = ["Mã Đơn Hàng", "Khách Hàng", "Địa Chỉ", "Giá", "Trạng Thái Đơn Hàng", "Thao Tác"];
+import api from "../../../../../main/src/libs/axios";
+import { useAtomValue } from "jotai";
+import { currentStoreAtom } from "@repo/design-system/stores/auth";
+import { formatDate } from "../../../../../main/src/utils/index";
+const tableHeaders = ["Mã Đơn Hàng", "Khách Hàng", "Giá", "Trạng Thái Đơn Hàng", "Ngày Tạo", "Thao Tác"];
 const statusColors: Record<string, string> = {
-  Processing: "text-blue-500",
-  Delivered: "text-green-500",
-  Unpaid: "text-orange-500",
-  Canceled: "text-red-600",
-  Completed: "text-green-700",
+  PROCESSING: "text-blue-500",
+  RETURNED: "text-red-900",
+  PENDING: "text-orange-500",
+  CANCELLED: "text-red-600",
+  COMPLETED: "text-green-700",
 };
 
 export function OrdersView() {
+  const currentStore = useAtomValue(currentStoreAtom);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [openEditModal, setOpenEditModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
   const [openViewModal, setOpenViewModal] = useState(false);
+  const [orders, setOrders] = useState([]);
+
+  useEffect(() => {
+    if (!currentStore?.id) return;
+    const getOrders = async () => {
+      const res = await api.get(`store/${currentStore?.id}/orders`);
+      console.log(res.data);
+      setOrders(res.data.data);
+    };
+    getOrders();
+  }, [currentStore?.id]);
   return (
     <>
       <Modal
@@ -240,24 +208,24 @@ export function OrdersView() {
         <Table
           totalPages={20}
           tableHeaders={tableHeaders}
-          data={products}
+          data={orders}
           renderRow={(product, idx) => (
             <>
               <tr key={idx} className="border-b border-b-gray-100 hover:bg-gray-50 transition-colors duration-300">
-                <td className="px-4 py-2 text-xs font-medium text-gray-900">{product.orderId}</td>
-                <td className="px-4 py-2 text-xs text-gray-500 font-medium">{product.customer}</td>
-                <td className="px-4 py-2 text-xs text-gray-500">{product.address}</td>
+                <td className="px-4 py-2  font-medium text-gray-900">{product.code}</td>
+                <td className="px-4 py-2   font-medium">{product.customer_name ?? "Khách lẻ"}</td>
                 <td className="px-4 py-2 text-xs text-gray-500">
                   {Intl.NumberFormat("vi-VN", {
                     style: "currency",
                     currency: "VND",
-                  }).format(Number(product.price))}
+                  }).format(Number(product.total_amount))}
                 </td>
                 <td className="px-4 py-2">
                   <span className={`text-xs font-medium rounded-xl ${statusColors[product.status]}`}>
                     {product.status}
                   </span>
                 </td>
+                <td className="px-4 py-2 font-bold">{formatDate(product.createdAt)}</td>
                 <td>
                   <div className="flex  items-center gap-5 pl-4">
                     <button
