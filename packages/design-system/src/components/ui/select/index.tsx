@@ -6,7 +6,7 @@ import type { CSSProperties, ReactNode, ForwardedRef } from 'react';
 // Type size
 type SizeSelect = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 type SizeRadius = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
-
+type VariantSelect = 'filled' | 'default' | 'unstyled';
 // Extend item có description
 export type SelectDataItem = {
   value: string;
@@ -36,6 +36,7 @@ export type SelectProps = {
   value?: string;
   onChange?: (value: string) => void;
   position?: PositionOptions;
+  variant?: VariantSelect;
 } & Omit<
   React.ComponentProps<typeof MantineSelect>,
   'size' | 'radius' | 'data' | 'error' | 'placeholder' | 'disabled' | 'defaultValue'
@@ -64,6 +65,7 @@ export const Select = React.forwardRef<HTMLInputElement, SelectProps>(
       onChange,
       value,
       position = 'top',
+      variant = 'default',
       ...rest
     },
     ref: ForwardedRef<HTMLInputElement>
@@ -92,6 +94,7 @@ export const Select = React.forwardRef<HTMLInputElement, SelectProps>(
           error={error}
           disabled={disabled}
           className={className}
+          variant={variant}
           value={value}
           styles={{ input: { color } }}
           renderOption={({ option }: { option: SelectDataItem }) => (

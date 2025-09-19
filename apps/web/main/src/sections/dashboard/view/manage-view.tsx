@@ -7,6 +7,7 @@ import {
   Download,
   Edit,
   Eye,
+  Filter,
   Pencil,
   Plus,
   ShoppingCart,
@@ -37,7 +38,6 @@ export function ManageView() {
   const [openViewModal, setOpenViewModal] = useState<boolean>(false);
   const [openEditModal, setOpenEditModal] = useState<boolean>(false);
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
-
   const {
     products,
     loading,
@@ -45,8 +45,8 @@ export function ManageView() {
     product,
     updateProductForm,
     pagination,
-    setPaginationParams,
     paginationParams,
+    setPaginationParams,
     setFilters,
     createProduct,
     deleteProduct,
@@ -472,6 +472,10 @@ export function ManageView() {
               >
                 <Download size={16} />
                 <span className="text-gray-900 font-medium text-xs"> Xuất dữ liệu</span>
+              </button>
+              <button className="bg-white border text-nowrap border-gray-200 rounded-md flex items-center gap-2 py-2 px-4 cursor-pointer hover:opacity-80 transition-opacity duration-300">
+                <Filter size={16} />
+                <span className="text-gray-900 font-medium text-xs">Lọc sản phẩm</span>
               </button>
               <button
                 onClick={() => {

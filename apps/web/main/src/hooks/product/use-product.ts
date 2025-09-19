@@ -32,6 +32,8 @@ export function useProduct() {
     pagination,
     setPagination,
     buildParams,
+    setSortBy,
+    setSort,
   } = useQueryParams<ProductFilters>({
     q: 'q',
     product_status: 'product_status',
@@ -105,6 +107,8 @@ export function useProduct() {
     updateProduct,
     setFilters,
     setPaginationParams,
+    setSortBy,
+    setSort,
     pagination,
     paginationParams,
     filters,

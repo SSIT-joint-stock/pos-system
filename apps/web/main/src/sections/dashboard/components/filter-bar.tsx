@@ -18,6 +18,8 @@ type FilterBarProps = {
     date?: [string, string];
   }) => void;
   actions?: React.ReactNode;
+  hasBg?: boolean;
+  setWidth?: string;
 };
 
 export default function FilterBar({
@@ -26,6 +28,8 @@ export default function FilterBar({
   categoryOptions = [],
   onFilterChange,
   actions,
+  hasBg = true,
+  setWidth = '34%',
 }: FilterBarProps) {
   const [status, setStatus] = React.useState<string | undefined>(undefined);
   const [category, setCategory] = React.useState<string | undefined>(undefined);
@@ -68,7 +72,7 @@ export default function FilterBar({
   };
 
   return (
-    <div className="flex items-center bg-white p-5 rounded-lg shadow">
+    <div className={`flex items-center ${hasBg ? 'bg-white p-5 rounded-lg shadow' : ''}`}>
       <div className="flex items-center w-full gap-2">
         {/* SEARCH */}
         <form
@@ -76,7 +80,8 @@ export default function FilterBar({
             e.preventDefault();
             handleSearchClick();
           }}
-          className="w-[30%] flex items-center border border-gray-200 rounded-md overflow-hidden"
+          style={{ width: setWidth }}
+          className={` flex items-center border border-gray-200 rounded-md overflow-hidden`}
         >
           <AutoComplete
             onChange={setSearchValue}
@@ -86,14 +91,16 @@ export default function FilterBar({
             placeholder="Tìm kiếm sản phẩm"
             data={['T-Shirt', 'Cap', 'Shoes', 'Watch', 'Sunglass']}
             className="flex-1 py-[1px] text-sm text-gray-900 font-medium placeholder:font-normal"
+            rightSection={
+              <button
+                onClick={handleSearchClick}
+                className="bg-pos-blue-500 text-white p-2"
+                title="Tìm kiếm"
+              >
+                <Search size={16} />
+              </button>
+            }
           />
-          <button
-            onClick={handleSearchClick}
-            className="px-3 py-2 bg-blue-500 text-white hover:bg-blue-600 transition-colors duration-200 flex items-center justify-center"
-            title="Tìm kiếm"
-          >
-            <Search size={14} />
-          </button>
         </form>
 
         {/* FILTER */}
@@ -107,7 +114,7 @@ export default function FilterBar({
               onChange={setStatus}
               size="xs"
               radius="sm"
-              className="w-[150px] text-xs font-medium"
+              className="w-[200px] text-sm font-medium"
             />
           )}
 

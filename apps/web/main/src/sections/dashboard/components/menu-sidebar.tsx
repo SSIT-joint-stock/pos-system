@@ -1,5 +1,5 @@
-import { currentStoreAtom } from "@repo/design-system/stores/auth";
-import { useAtom } from "jotai";
+import { currentStoreAtom } from '@repo/design-system/stores/auth';
+import { useAtom } from 'jotai';
 import {
   BadgeDollarSign,
   ChevronRight,
@@ -8,10 +8,10 @@ import {
   ShoppingCart,
   Store,
   Users,
-} from "lucide-react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { title } from "process";
+} from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { title } from 'process';
 export default function MenuSidebar({
   isExpand,
   setIsExpand,
@@ -29,58 +29,58 @@ export default function MenuSidebar({
 
   const pageItems = [
     {
-      title: "Tổng quan",
+      title: 'Tổng quan',
       path: `/dashboard/store/${currentStore?.id}/overview`,
       icon: <LayoutDashboard className="shrink-0" />,
     },
     {
-      title: "Quản lý kho",
+      title: 'Quản lý kho',
       icon: <BadgeDollarSign className="shrink-0" />,
       children: [
         {
-          title: "Sản phẩm",
+          title: 'Sản phẩm',
           path: `/dashboard/store/${currentStore?.id}/manage-products`,
         },
         {
-          title: "Hàng tồn kho",
+          title: 'Hàng tồn kho',
           path: `/dashboard/store/${currentStore?.id}/manage-inventory`,
         },
         {
-          title: "Danh mục",
-          path: `/dashboard/store/${currentStore?.id}/manage-categories`,
+          title: 'Biến động kho',
+          path: `/dashboard/store/${currentStore?.id}/manage-stock`,
         },
         {
-          title: "Biến động kho",
-          path: `/dashboard/store/${currentStore?.id}/manage-stock`,
+          title: 'Danh mục',
+          path: `/dashboard/store/${currentStore?.id}/manage-categories`,
         },
       ],
     },
     {
-      title: "Bán hàng",
+      title: 'Bán hàng',
       path: `/dashboard/store/${currentStore?.id}/sales`,
       icon: <ShoppingCart className="shrink-0" />,
     },
     {
-      title: "Đơn hàng",
+      title: 'Đơn hàng',
       path: `/dashboard/store/${currentStore?.id}/orders`,
       icon: <PackageSearch className="shrink-0" />,
     },
     {
-      title: "Cửa hàng",
+      title: 'Cửa hàng',
       icon: <Store className="shrink-0" />,
       children: [
         {
-          title: "Thông tin cửa hàng",
+          title: 'Thông tin cửa hàng',
           path: `/dashboard/store/${currentStore?.id}/store-info`,
         },
         {
-          title: "Quản lý cửa hàng",
+          title: 'Quản lý cửa hàng',
           path: `/dashboard/store/${currentStore?.id}/manage-stores`,
         },
       ],
     },
     {
-      title: "Quản lý nhân viên",
+      title: 'Quản lý nhân viên',
       path: `/dashboard/store/${currentStore?.id}/employees`,
       icon: <Users className="shrink-0" />,
     },
@@ -99,11 +99,11 @@ export default function MenuSidebar({
                   setOpenSubmenu(openSubmenu === idx ? null : idx);
                 }}
                 className={`flex cursor-pointer items-center gap-5 p-2 rounded-lg transition-all duration-300 w-full font-medium
-    ${isExpand === false ? "flex items-center justify-center" : ""}
+    ${isExpand === false ? 'flex items-center justify-center' : ''}
     ${
       item.children.some((child) => child.path === pathName)
-        ? "bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white"
-        : "text-gray-500 hover:bg-pos-blue-50 hover:text-pos-blue-400"
+        ? 'bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white'
+        : 'text-gray-500 hover:bg-pos-blue-50 hover:text-pos-blue-400'
     }`}
               >
                 <span className="font-medium">{item.icon}</span>
@@ -111,19 +111,19 @@ export default function MenuSidebar({
                 {isExpand && (
                   <ChevronRight
                     size={16}
-                    className={`ml-auto transition-transform duration-300 ${openSubmenu === idx ? "rotate-90" : ""}`}
+                    className={`ml-auto transition-transform duration-300 ${openSubmenu === idx ? 'rotate-90' : ''}`}
                   />
                 )}
               </button>
               {/* Submenu dropdown */}
               <div
-                className={`flex flex-col pl-4 gap-1 transition-all duration-300 border-l border-l-gray-400 ${isExpand && openSubmenu === idx ? "max-h-40 opacity-100 visible mt-2 " : "max-h-0 opacity-0 p-0 invisible mt-0"}`}
+                className={`flex flex-col pl-4 gap-1 transition-all duration-300 border-l border-l-gray-400 ${isExpand && openSubmenu === idx ? 'max-h-40 opacity-100 visible mt-2 ' : 'max-h-0 opacity-0 p-0 invisible mt-0'}`}
               >
                 {item.children.map((child, cIdx) => (
                   <Link
                     key={cIdx}
                     href={child.path}
-                    className={`text-sm font-medium rounded-md p-2  ${child.path === pathName ? "bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white" : "text-gray-500 hover:bg-pos-blue-50 hover:text-pos-blue-400"}`}
+                    className={`text-sm font-medium rounded-md p-2  ${child.path === pathName ? 'bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white' : 'text-gray-500 hover:bg-pos-blue-50 hover:text-pos-blue-400'}`}
                   >
                     {child.title}
                   </Link>
@@ -137,7 +137,7 @@ export default function MenuSidebar({
           <Link
             key={idx}
             href={item.path}
-            className={`flex items-center gap-5 p-2 rounded-lg  transition-all duration-300 w-full font-medium ${isExpand === false && "flex items-center justify-center"}   ${item.path === pathName ? "bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white" : "text-gray-500 hover:bg-pos-blue-50 hover:text-pos-blue-400"}`}
+            className={`flex items-center gap-5 p-2 rounded-lg  transition-all duration-300 w-full font-medium ${isExpand === false && 'flex items-center justify-center'}   ${item.path === pathName ? 'bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white' : 'text-gray-500 hover:bg-pos-blue-50 hover:text-pos-blue-400'}`}
           >
             <span>{item.icon}</span>
             {isExpand && <p className="truncate">{item.title}</p>}

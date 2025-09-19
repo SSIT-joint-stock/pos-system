@@ -25,13 +25,14 @@ export function useQueryParams<T extends Record<string, FilterValue>>(
 
   const [filters, setFilters] = useState<T>({} as T);
   const [pagination, setPagination] = useState<Pagination>();
-
+  const [sortBy, setSortBy] = useState<string>('createdAt');
+  const [sort, setSort] = useState<'asc' | 'desc'>('desc');
   const buildParams = () => {
     const params = new URLSearchParams({
       page: paginationParams.page.toString(),
       limit: paginationParams.limit.toString(),
-      sortBy: 'createdAt',
-      sortOrder: 'desc',
+      sortBy,
+      sort,
     });
 
     Object.entries(filters).forEach(([key, value]) => {
@@ -55,6 +56,7 @@ export function useQueryParams<T extends Record<string, FilterValue>>(
 
       params.append(queryKey, value.toString());
     });
+    console.log(params);
     return params;
   };
 
@@ -66,5 +68,9 @@ export function useQueryParams<T extends Record<string, FilterValue>>(
     pagination,
     setPagination,
     buildParams,
+    sortBy,
+    setSortBy,
+    sort,
+    setSort,
   };
 }
