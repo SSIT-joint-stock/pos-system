@@ -14,6 +14,7 @@ import {
   Search,
   ShoppingBasket,
   ShoppingCart,
+  Trash,
   Utensils,
   Wrench,
   X,
@@ -48,34 +49,34 @@ interface Invoice {
 
 const catagories = [
   {
-    title: "Tat ca",
+    title: "Tất cả",
     icon: <ShoppingBasket size={20} />,
   },
   {
-    title: "Do an",
+    title: "Đồ ăn",
     icon: <Utensils size={20} />,
   },
   {
-    title: "Do uong",
+    title: "Đồ uống",
     icon: <CupSoda size={20} />,
   },
   {
-    title: "Do dung",
+    title: "Đồ dùng",
     icon: <Wrench size={20} />,
   },
   {
-    title: "khac",
+    title: "khác",
     icon: <Ellipsis size={20} />,
   },
 ];
 
 export function SalesView() {
-  const { inventories } = useInventory();
-  const [open, setOpen] = useState(true);
+  const { inventories, getInventories } = useInventory();
+  const [open, setOpen] = useState(false);
   const [invoices, setInvoices] = useState<Invoice[]>([
     {
       id: 1,
-      name: "Hóa đơn 1",
+      name: "Hóa đơn ",
       products: [],
       discountCode: "",
       paymentMethod: "",
@@ -91,7 +92,7 @@ export function SalesView() {
     const newId = Date.now();
     const newInvoice: Invoice = {
       id: newId,
-      name: `Hóa đơn ${invoices.length + 1}`,
+      name: `Hóa đơn `,
       products: [],
       discountCode: "",
       paymentMethod: "",
@@ -102,13 +103,12 @@ export function SalesView() {
 
   // Xóa tab
   const removeInvoice = (id: number) => {
-    const filtered = invoices.filter((inv) => inv.id !== id);
-    setInvoices(filtered);
-
-    if (activeInvoice === id && filtered.length > 0) {
+    if (invoices.length > 1) {
+      const filtered = invoices.filter((inv) => inv.id !== id);
+      setInvoices(filtered);
       setActiveInvoice(filtered[0].id);
-    } else if (filtered.length === 0) {
-      addInvoice(); // Tạo hóa đơn mới nếu không còn hóa đơn nào
+    } else {
+      return;
     }
   };
 
@@ -257,7 +257,7 @@ export function SalesView() {
   const tax = subtotal * 0.05; // Giả sử thuế 5%
   const total = subtotal - discount + tax;
   const currentStore = useAtomValue(currentStoreAtom);
-  const { showSuccessToast } = useToast();
+  const { showSuccessToast, showWarningToast } = useToast();
   const createOrder = async () => {
     if (!currentStore?.id) return;
     const currentInvoice = getCurrentInvoice();
@@ -265,52 +265,49 @@ export function SalesView() {
       const body = {
         subtotal_amount: subtotal, // tổng tiền sản phẩm
         discount_amount: discount, // nếu có mã giảm giá
-        tax_amount: tax,
-        total_amount: total,
+        tax_amount: Math.ceil(tax),
+        total_amount: Math.ceil(total),
         payment_method: currentInvoice.paymentMethod === "Chuyen khoan" ? "CREDIT_CARD" : "CASH", // match enum backend
         order_items: currentInvoice.products.map((item) => ({
-          product_id: item.id, // hoặc item.product.id nếu BE mong product_id
+          product_id: item.product_id, // hoặc item.product.id nếu BE mong product_id
           quantity: item.quantity,
           price: item.product.price,
         })),
       };
-      const res = await api.post(`stores/${currentStore?.id}/orders`, body);
-      if (res?.data.succes) {
-        showSuccessToast(res?.data.message);
+      const res = await api.post(`store/${currentStore?.id}/orders`, body);
+      if (res?.data.success) {
+        // setOpen(false);
+        getInventories();
+        clearAllProducts();
+
+        showSuccessToast("Tạo đơn hàng thành công");
       }
     } catch (error) {
       console.error("Lỗi khi tạo đơn:", error);
     }
   };
   return (
-    <div className="w-full bg-white px-3.5 rouded-xl shadow overflow-auto">
-      <div className="space-y-3">
-        <h1 className="text-3xl font-medium text-gray-800">Order</h1>
-        <p className="text-gray-500">
-          Experience a seamless purchasing experience with our intuitive cashier interface
-        </p>
-      </div>
+    <div className="w-full bg-white px-3.5 rounded-xl shadow overflow-auto h-full pb-3.5">
       <div
         className={`flex items-center justify-between border-b-2 border-b-gray-300 py-6  ${open ? " w-[62%]" : " w-full"}`}
       >
-        <h2 className="text-lg font-semibold">Danh Sach San Pham</h2>
+        <h2 className="text-lg font-semibold">Danh Sách Sản Phẩm</h2>
         <div className="flex items-center justify-center gap-4">
-          <button className="px-2.5 py-1 text-nowrap flex items-center justify-center gap-2.5 border border-gray-400 rounded-md cursor-pointer">
+          {/* <button className="px-2.5 py-1 text-nowrap flex items-center justify-center gap-2.5 border border-gray-400 rounded-md cursor-pointer">
             <ScanLine size={22} className="text-gray-700" />
             <p className="text-gray-700">Scan Barcode</p>
-          </button>
+          </button> */}
           <button className="px-2.5 py-1 flex items-center justify-center w-full gap-2.5 border border-gray-400 rounded-md cursor-pointer">
             <Search className="text-gray-500" />
-            <input type="text" placeholder="Tim kiem san pham theo ten..." className="outline-0 w-full" />
+            <input type="text" placeholder="Tìm kiếm sản phẩm..." className="outline-0 w-full" />
           </button>
           <button
             onClick={() => {
               setOpen(!open);
             }}
-            className="cursor-pointer flex items-center justify-center gap-2.5 px-2.5 py-1 border border-gray-400 rounded-md text-nowrap"
+            className="cursor-pointer flex items-center justify-center gap-2.5 px-3.5 py-3 border border-gray-400 rounded-md text-nowrap hover:bg-pos-blue-400 transition-all duration-300 group"
           >
-            <ShoppingCart size={20} className="text-gray-500" />
-            <p className="text-gray-700">Xem Gio Hang</p>
+            <ShoppingCart size={20} className="text-gray-500 group-hover:text-white transition-all duration-300" />
           </button>
         </div>
       </div>
@@ -319,7 +316,7 @@ export function SalesView() {
           {catagories.map((item, idx) => (
             <button
               key={idx}
-              className="flex items-center gap-3 text-gray-700 bg-white border border-gray-200 px-2 py-1 rounded-md hover:text-white hover:bg-pos-blue-400 transition-all duration-300"
+              className="flex items-center gap-3 text-gray-700 bg-white border border-gray-200 px-2 py-1 rounded-md hover:text-white hover:bg-pos-blue-400 transition-all duration-300 cursor-pointer"
             >
               <div className="flex items-center justify-center text-sm">{item.icon}</div>
               <p className="text-sm font-medium ">{item.title}</p>
@@ -327,7 +324,7 @@ export function SalesView() {
           ))}
         </div>
         <div className="flex items-center justify-center gap-3 px-2.5 py-2 border border-gray-300 rounded-md">
-          <p className="text-sm font-medium text-gray-400 leading-none">Loc theo san pham</p>
+          <p className="text-sm font-medium text-gray-400 leading-none">Lọc theo sản phẩm</p>
           <ChevronDown size={20} className="text-gray-400" />
         </div>
       </div>
@@ -336,10 +333,13 @@ export function SalesView() {
           className={`grid ${open ? "grid-cols-3 w-[62%]" : "grid-cols-5 w-full"} w-full items-center justify-center gap-5 mt-5 space-y-3.5`}
         >
           {inventories.map((product) => (
-            <div key={product.id} className="border border-gray-200 rounded-xl px-2 py-1 shadow ">
+            <div
+              key={product.id}
+              className="border border-gray-200 rounded-xl px-2 py-1 shadow scale-100 hover:scale-106 transition-all duration-300"
+            >
               <Image
                 src={"https://down-vn.img.susercontent.com/file/c7db377b177fc8e2ff75a769022dcc23"}
-                alt="san pham"
+                alt="sản phẩm"
                 width={500}
                 height={500}
                 className="rounded-xl object-cover"
@@ -348,31 +348,38 @@ export function SalesView() {
                 <h2 className="text-lg font-semibold">{product.product.name}</h2>
 
                 <div className="flex items-center justify-between">
-                  <p className="text-sm text-gray-500">So Luong:</p>
+                  <p className="text-sm text-gray-500">Số Lượng:</p>
                   <p className=" font-semibold text-gray-600">{product.quantity}</p>
                 </div>
               </div>
               <div className="flex items-center justify-between mt-3 ">
                 <div className="flex items-center justify-center  gap-1.5">
-                  <p className="text-sm text-gray-500">Gia: </p>
+                  <p className="text-sm text-gray-500">Giá: </p>
                   <p className="text-lg font-semibold text-gray-600">{formatCurrency(product.product.price)}</p>
                 </div>
                 <div
-                  onClick={() => addToCart(product)}
-                  className="flex items-center justify-center rounded-md border border-gray-200 px-3 py-2 hover:bg-pos-blue-400 transition-all group duration-300 cursor-pointer"
+                  onClick={() => {
+                    if (product.quantity > 0) {
+                      addToCart(product);
+                      showSuccessToast("Thêm vào giỏ hàng thành công");
+                    } else {
+                      showWarningToast("Sản phẩm hiện đã hết hàng");
+                    }
+                  }}
+                  className={`flex items-center justify-center rounded-md border px-3 py-2 transition-all group duration-300 ${product.quantity <= 0 ? "border-gray-300 bg-gray-100 cursor-not-allowed" : "border-gray-200 hover:bg-pos-blue-400 cursor-pointer"}`}
                 >
                   <ShoppingCart
                     size={18}
-                    className="text-gray-500 group-hover:text-white transition-all duration-300"
+                    className={`transition-all duration-300 ${product.quantity <= 0 ? "text-gray-300" : "text-gray-500 group-hover:text-white"}`}
                   />
                 </div>
               </div>
             </div>
           ))}
         </div>
-        <div className="flex items-center justify-center pb-5">
+        {/* <div className="flex items-center justify-center pb-5">
           <Pagination total={10} />
-        </div>
+        </div> */}
       </div>
 
       {/*sidebar order */}
@@ -388,11 +395,11 @@ export function SalesView() {
           }}
           className="border border-gray-200 shadow px-2 py-1.5 rounded-md mt-2 hover:bg-pos-blue-400 group transition-all duration-300"
         >
-          <ChevronRight className="text-gray-400 group-hover:text-white" />
+          <ChevronRight className="text-gray-400 group-hover:text-white cursor-pointer" />
         </button>
         {/* Tabs hóa đơn */}
         <div className="flex items-center gap-3 overflow-x-auto mt-3 pb-2 border-b border-gray-200">
-          {invoices.map((inv) => (
+          {invoices.map((inv, index) => (
             <div
               key={inv.id}
               className={`flex items-center gap-2 px-3 py-2 rounded-md cursor-pointer whitespace-nowrap transition-all ${
@@ -413,7 +420,7 @@ export function SalesView() {
                 />
               ) : (
                 <span onClick={() => setActiveInvoice(inv.id)} onDoubleClick={() => startEditName(inv.id, inv.name)}>
-                  {inv.name}
+                  {`${inv.name} ${index + 1}`}
                 </span>
               )}
 
@@ -435,102 +442,124 @@ export function SalesView() {
           {/* Nút thêm hóa đơn */}
           <button
             onClick={addInvoice}
-            className="px-3 py-2 border border-gray-300 rounded-md flex items-center gap-1 hover:bg-pos-blue-400 hover:text-white transition"
+            className="px-3 py-2 cursor-pointer border border-gray-300 rounded-md flex items-center gap-1 hover:bg-pos-blue-400 hover:text-white transition"
           >
             <Plus size={18} />
           </button>
         </div>
         <div className="flex flex-col gap-3.5 ">
           <div className="flex items-center justify-between mt-3.5">
-            <p className="text-gray-600 font-semibold">{productsCount} san pham da duoc chon</p>
+            <div className="flex items-center justify-center gap-2">
+              <p className="text-gray-600 font-semibold">Hiện có</p>
+              <p className="text-red-400 font-semibold">{productsCount}</p>
+              <p className="text-gray-600 font-semibold">sản phẩm đã được chọn</p>
+            </div>
             {productsCount > 0 && (
-              <p onClick={clearAllProducts} className="text-red-500 font-semibold cursor-pointer">
-                Xoa tat ca
+              <p
+                onClick={clearAllProducts}
+                className="text-red-500 font-semibold cursor-pointer hover:bg-red-50 hover:text-red-500 hover:rounded-md hover:px-2.5 transition-all duration-300"
+              >
+                Xóa tất cả
               </p>
             )}
           </div>
 
           {productsCount === 0 ? (
-            <div className="text-center text-lg italic text-gray-600 py-10">Chua co san pham</div>
+            <div className="text-center text-lg italic text-gray-600 py-10">Chưa có sản phẩm</div>
           ) : (
             <>
-              {selectedProducts.map((item) => (
-                <div key={item.id} className="flex items-center gap-3.5 border-b-2 border-b-gray-200 py-3.5">
-                  <div className="">
-                    <Image
-                      src={"https://down-vn.img.susercontent.com/file/c7db377b177fc8e2ff75a769022dcc23"}
-                      alt="san pham"
-                      width={80}
-                      height={100}
-                      className="rounded-xl object-cover"
-                    />
-                  </div>
-                  <div className="w-full">
-                    <h1 className="font-semibold">{item.product.name}</h1>
-                    <div className="flex items-center gap-3.5 text-sm text-gray-500">
-                      <p>Loai san pham: </p>
-                      <p>Quan ao</p>
+              <div className="h-[380px] overflow-y-scroll ">
+                {selectedProducts.map((item) => (
+                  <div key={item.id} className="flex items-center gap-3.5 border-b-2 border-b-gray-200 py-3.5">
+                    <div className="">
+                      <Image
+                        src={"https://down-vn.img.susercontent.com/file/c7db377b177fc8e2ff75a769022dcc23"}
+                        alt="san pham"
+                        width={80}
+                        height={100}
+                        className="rounded-xl object-cover"
+                      />
                     </div>
-                    <div className="flex items-center justify-between mt-4">
-                      <div className="flex items-center justify-center">
+                    <div className="w-full">
+                      <div className="flex items-center justify-between">
+                        <h1 className="font-semibold">{item.product.name}</h1>
                         <button
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          className="border border-gray-200 rounded-md text-center flex items-center justify-center w-8 h-8"
+                          className="cursor-pointer scale-100 hover:scale-150 hover:-translate-x-2.5 transition-all duration-300 hover:bg-red-50 hover:px-2 hover:py-1 hover:text-red-500 hover:rounded-md text-red-500"
+                          onClick={() => removeProduct(item.id)}
                         >
-                          <span>
-                            <MinusIcon size={14} />
-                          </span>
-                        </button>
-                        <input
-                          value={item.quantity}
-                          onChange={(e) => updateQuantity(item.id, parseInt(e.target.value) || 1)}
-                          className="w-8 h-8 text-center outline-0 border border-gray-200 mx-1 rounded-md"
-                        />
-                        <button
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          className="border border-gray-200 rounded-md text-center flex items-center justify-center w-8 h-8"
-                        >
-                          <span>
-                            <PlusIcon size={14} />
-                          </span>
+                          <Trash size={16} />
                         </button>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <div className="text-xl font-semibold">{formatCurrency(item.totalPrice)}</div>
-                        <X size={16} className="cursor-pointer text-red-500" onClick={() => removeProduct(item.id)} />
+                      {/* <div className="flex items-center gap-3.5 text-sm text-gray-500">
+                          <p>Loai san pham: </p>
+                          <p>Quan ao</p>
+                        </div> */}
+                      <div className="flex items-center justify-between mt-4">
+                        <div className="flex items-center justify-center">
+                          <button
+                            disabled={item.quantity === 1}
+                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            className="border border-gray-200 rounded-md text-center flex items-center justify-center w-8 h-8 disabled:bg-gray-50 disabled:border-0 disabled:cursor-not-allowed"
+                          >
+                            <span>
+                              <MinusIcon size={14} />
+                            </span>
+                          </button>
+                          <input
+                            value={item.quantity}
+                            onChange={(e) => {
+                              updateQuantity(item.id, parseInt(e.target.value) || 1);
+                            }}
+                            className="w-8 h-8 text-center outline-0 border border-gray-200 mx-1 rounded-md"
+                          />
+                          <button
+                            disabled={item.quantity > inventories.map((product) => product.quantity)}
+                            onClick={() => {
+                              updateQuantity(item.id, item.quantity + 1);
+                            }}
+                            className="border border-gray-200 rounded-md text-center flex items-center justify-center w-8 h-8"
+                          >
+                            <span>
+                              <PlusIcon size={14} />
+                            </span>
+                          </button>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="text-xl font-semibold">{formatCurrency(item.totalPrice)}</div>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
 
               {/* Hiển thị tổng tiền chỉ khi có sản phẩm */}
               <div className="bg-gray-100 rounded-md px-2.5 py-1.5 mt-4">
                 <div className="space-y-1 border-b-2 border-b-gray-200 py-2.5">
                   <div className="flex items-center justify-between">
-                    <p>Tong tien san pham:</p>
+                    <p>Tổng tiền sản phẩm:</p>
                     <p>{formatCurrency(subtotal)}</p>
                   </div>
                   {currentInvoice.discountCode && (
                     <div className="flex items-center justify-between">
-                      <p>Giam gia: </p>
+                      <p>Giảm giá: </p>
                       <p className="text-red-500">-{formatCurrency(discount)}</p>
                     </div>
                   )}
                   <div className="flex items-center justify-between">
-                    <p>Thue gia tri san pham: </p>
+                    <p>Thuế giá trị sản phẩm: </p>
                     <p>+{formatCurrency(tax)}</p>
                   </div>
                 </div>
                 <div className="flex items-center justify-between mt-5">
-                  <p className="text-gray-700 font-bold">Tong thanh toan: </p>
+                  <p className="text-gray-700 font-bold">Tổng thanh toán: </p>
                   <p className="text-lg text-gray-700 font-bold">{formatCurrency(total)}</p>
                 </div>
               </div>
 
               <div className="flex items-center justify-center gap-3.5 mt-4">
                 <input
-                  placeholder="Ma giam gia"
+                  placeholder="Mã giảm giá"
                   value={discountCode}
                   onChange={(e) => setDiscountCode(e.target.value)}
                   className="outline-0 border border-gray-200 w-full rounded-md h-9 px-3"
@@ -539,22 +568,22 @@ export function SalesView() {
                   onClick={applyDiscountCode}
                   className="px-2.5 py-1.5 bg-gray-100 rounded-md text-gray-500 font-semibold text-nowrap"
                 >
-                  Xac nhan
+                  Xác nhận
                 </button>
               </div>
 
               <Select
-                data={["Chuyen khoan", "Tien mat"]}
+                data={["Chuyển khoản", "Tiền mặt"]}
                 className="mt-2"
-                placeholder="Chon phuong thuc thanh toan"
+                placeholder="Chọn phương thức thanh toán"
                 onChange={updatePaymentMethod}
               />
               <button
                 onClick={createOrder}
-                className="bg-pos-blue-400 text-white rounded-md px-3.5 py-2 flex items-center justify-center gap-3 my-5 w-full"
+                className="bg-pos-blue-400 text-white rounded-md px-3.5 py-2 flex items-center justify-center gap-3 my-5 w-full hover:bg-pos-blue-300 transition-all duration-300 cursor-pointer"
               >
                 <HandCoins size={20} className="text-white" />
-                <p>Thanh toan ngay</p>
+                <p>Thanh toán ngay</p>
               </button>
             </>
           )}

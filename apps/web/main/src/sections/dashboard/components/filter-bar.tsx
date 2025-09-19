@@ -1,7 +1,7 @@
-'use client';
-import { AutoComplete, DatePickerInput, Select } from '@repo/design-system/components/ui';
-import { Calendar1, Search } from 'lucide-react';
-import { useEffect, useState } from 'react';
+"use client";
+import { AutoComplete, DatePickerInput, Select } from "@repo/design-system/components/ui";
+import { Calendar1, Search } from "lucide-react";
+import { useEffect, useState } from "react";
 
 type FilterOption = {
   label: string;
@@ -26,7 +26,7 @@ export default function FilterBar({
   const [status, setStatus] = useState<string | undefined>(undefined);
   const [category, setCategory] = useState<string | undefined>(undefined);
   const [date, setDate] = useState<[string | null, string | null]>([null, null]);
-  const [searchValue, setSearchValue] = useState<string>('');
+  const [searchValue, setSearchValue] = useState<string>("");
   // Handle date change with proper typing
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -49,7 +49,7 @@ export default function FilterBar({
           <AutoComplete
             radius="md"
             onChange={(val) => {
-              if (typeof val === 'string') {
+              if (typeof val === "string") {
                 setSearchValue(val);
               }
             }}
@@ -57,7 +57,7 @@ export default function FilterBar({
             leftSection={<Search size={16} />}
             variant="unstyled"
             placeholder="Tìm kiếm sản phẩm"
-            data={['T-Shirt', 'Cap', 'Shoes', 'Watch', 'Sunglass']}
+            data={["T-Shirt", "Cap", "Shoes", "Watch", "Sunglass"]}
             className="w-full py-[1px] text-sm text-gray-900 font-medium placeholder:font-normal"
           />
         </div>
@@ -87,7 +87,7 @@ export default function FilterBar({
               className="w-[150px] text-xs font-medium"
             />
           )}
-          <div className="w-[22ch] border border-gray-200 rounded-md outline-none">
+          <div className="w-[24ch] border border-gray-200 rounded-md outline-none">
             <DatePickerInput
               type="range"
               variant="unstyled"
@@ -98,7 +98,7 @@ export default function FilterBar({
               value={date}
               onChange={setDate}
               rightSection={<Calendar1 size={16} />}
-              className="w-fit text-nowrap py-[1px] px-2 text-sm text-gray-900 font-medium placeholder:font-normal placeholder:text-gray-900"
+              className="w-full text-nowrap py-[1px] px-2 text-sm text-gray-900 font-medium placeholder:font-normal placeholder:text-gray-900"
             />
           </div>
         </div>

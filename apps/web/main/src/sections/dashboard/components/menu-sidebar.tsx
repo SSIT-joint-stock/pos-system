@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { title } from "process";
 export default function MenuSidebar({
   isExpand,
   setIsExpand,
@@ -47,6 +48,10 @@ export default function MenuSidebar({
         {
           title: "Danh mục",
           path: `/dashboard/store/${currentStore?.id}/manage-categories`,
+        },
+        {
+          title: "Biến động kho",
+          path: `/dashboard/store/${currentStore?.id}/manage-stock`,
         },
       ],
     },

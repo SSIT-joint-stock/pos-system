@@ -1,8 +1,8 @@
-import { useState, useCallback } from 'react';
-import { Bounce, ToastOptions, toast } from 'react-toastify';
+import { useState, useCallback } from "react";
+import { Bounce, ToastOptions, toast } from "react-toastify";
 
 export const DEFAULT_TOAST_OPTIONS: ToastOptions = {
-  position: 'top-right',
+  position: "top-right",
   autoClose: 4500,
   hideProgressBar: false,
   closeOnClick: true,
@@ -10,10 +10,10 @@ export const DEFAULT_TOAST_OPTIONS: ToastOptions = {
   draggable: false,
   progress: undefined,
   transition: Bounce,
-  className: 'text-sm font-medium text-gray-800',
+  className: "text-sm font-medium text-gray-800",
 };
 
-export type ToastType = 'info' | 'success' | 'warning' | 'error' | 'default';
+export type ToastType = "info" | "success" | "warning" | "error" | "default";
 
 interface UseToast {
   showInfoToast: (message: string, options?: ToastOptions) => void;
@@ -56,11 +56,11 @@ const useToast = ({ options }: UseToastProps = {}): UseToast => {
   );
 
   return {
-    showInfoToast: showToastByType('info'),
-    showSuccessToast: showToastByType('success'),
-    showWarningToast: showToastByType('warning'),
-    showErrorToast: showToastByType('error'),
-    showDefaultToast: showToastByType('default'),
+    showInfoToast: showToastByType("info"),
+    showSuccessToast: showToastByType("success"),
+    showWarningToast: showToastByType("warning"),
+    showErrorToast: showToastByType("error"),
+    showDefaultToast: showToastByType("default"),
     setToastOptions: setToastOptionsCallback,
   };
 };
