@@ -55,7 +55,8 @@ export default function NewsCards() {
         <a
           key={i}
           href={p.href}
-          className="group block rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:shadow-lg"
+          aria-label={p.title}
+          className="group block h-full rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
         >
           {/* Image placeholder */}
           <div className="relative overflow-hidden rounded-t-2xl bg-gray-200">
@@ -76,7 +77,7 @@ export default function NewsCards() {
           </div>
 
           {/* Body */}
-          <div className="p-4 sm:p-5">
+          <div className="flex flex-col p-4 sm:p-5 h-[calc(100%-0px)]">
             {/* Date */}
             <div className="mb-2 flex items-center gap-2 text-sm text-gray-500">
               <svg
@@ -92,12 +93,15 @@ export default function NewsCards() {
             </div>
 
             {/* Title */}
-            <h3 className="mb-2 line-clamp-2 text-lg font-semibold leading-snug text-gray-900 group-hover:text-blue-600">
+            <h3 className="mb-2 line-clamp-2 text-lg font-semibold leading-snug text-gray-900 transition-colors group-hover:text-blue-600">
               {p.title}
             </h3>
 
-            {/* Excerpt */}
-            <p className="line-clamp-2 text-gray-600">{p.excerpt}</p>
+            {/* Excerpt grows to fill; cards end aligned */}
+            <p className="line-clamp-2 text-gray-600 flex-1">{p.excerpt}</p>
+
+            {/* Tiny spacer so hover shadow doesn’t clip CTA area if you add one later */}
+            <div className="mt-3" />
           </div>
         </a>
       ))}
