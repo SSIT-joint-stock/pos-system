@@ -12,10 +12,10 @@ export default function Logo({ isTextWhite }: { isTextWhite?: boolean }) {
         width={500}
         height={500}
         priority
-        className="object-cover w-16 h-16"
+        className="object-cover w-14 h-14"
       />
       <span
-        className={`text-2xl font-semibold tracking-tight ${isTextWhite ? 'text-white' : 'text-pos-blue-500'}`}
+        className={`text-2xl font-semibold tracking-tight ${isTextWhite ? "text-white" : "text-pos-blue-500"}`}
       >
         EraPOS
       </span>
