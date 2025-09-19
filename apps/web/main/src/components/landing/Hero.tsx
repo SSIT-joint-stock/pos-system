@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import Image from "next/image";
 
 export default function Hero() {
   return (
@@ -7,9 +7,9 @@ export default function Hero() {
       className="relative isolate h-screen w-full overflow-hidden flex items-center snap-always snap-center scroll-mt-12"
       style={{
         backgroundImage:
-          'linear-gradient(to top, rgba(6,35,110,1), rgba(28,83,214,0.98), rgba(255,255,255,0))',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
+          "linear-gradient(to bottom, rgba(6,35,110,1) 0%, rgba(28,83,214,0.98) 50%, rgba(28,83,214,0.6) 80%, rgba(255,255,255,0) 100%)",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
       }}
     >
       <div className="relative z-10 mx-auto flex min-h-screen max-w-6xl items-center px-4">

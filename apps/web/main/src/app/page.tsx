@@ -1,13 +1,13 @@
-import React from 'react';
-import Header from '@main/components/landing/Header';
-import AssistantFeatureSection from '@main/components/landing/AssistantFeatureSection';
-import PricingSection from '@main/components/landing/PricingSection';
-import Footer from '@main/components/landing/Footer';
-import Hero from '@main/components/landing/Hero';
-import Features from '@main/components/landing/Features';
-import FAQ from '@main/components/landing/FAQ';
-import NewsCards from '@main/components/landing/NewsCard';
-import ConsultForm from '@main/components/landing/ConsultForm';
+import React from "react";
+import Header from "@main/components/landing/Header";
+import AssistantFeatureSection from "@main/components/landing/AssistantFeatureSection";
+import PricingSection from "@main/components/landing/PricingSection";
+import Footer from "@main/components/landing/Footer";
+import Hero from "@main/components/landing/Hero";
+import Features from "@main/components/landing/Features";
+import FAQ from "@main/components/landing/FAQ";
+import NewsCards from "@main/components/landing/NewsCard";
+import ConsultForm from "@main/components/landing/ConsultForm";
 
 export default function Page() {
   return (
@@ -15,32 +15,27 @@ export default function Page() {
       <Header />
       <main className="snap-y snap-mandatory h-screen scroll-smooth overflow-scroll transition-all duration-300 ">
         <Hero />
-        <div className="bg-[radial-gradient(circle_at_20%_30%,rgba(168,85,247,0.3),transparent_40%),radial-gradient(circle_at_80%_20%,rgba(59,130,246,0.3),transparent_40%)] ">
+        <div className="">
           <Features />
           <AssistantFeatureSection />
           <PricingSection />
           <ConsultForm />
           <FAQ />
-          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-12">
-            {/* Heading */}
-            <h2 className="text-center text-3xl font-extrabold text-gray-900 md:text-4xl">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 h-screen flex items-center justify-center flex-col snap-always snap-start pt-14">
+            <h2 className="text-center mb-4 text-3xl font-extrabold text-gray-900 md:text-4xl">
               Tin tức nổi bật
             </h2>
 
-            {/* Cards */}
-            <div className="mt-10">
-              <NewsCards />
-            </div>
+            <NewsCards />
 
-            {/* Button */}
-            <div className="mt-10 flex justify-center">
+            {/* <div className="mt-10 flex justify-center">
               <a
                 href="#"
                 className="inline-flex rounded-full bg-orange-500 px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-orange-600"
               >
                 Xem thêms
               </a>
-            </div>
+            </div> */}
           </div>
         </div>
         <Footer />

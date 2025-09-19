@@ -23,6 +23,30 @@ export default function NewsCards() {
       excerpt:
         "Quy trình theo ISO là bước nền tảng giúp doanh nghiệp tổ chức kho hàng chuyên nghiệp, hiệu quả và dễ mở rộng…",
     },
+    {
+      href: "#",
+      date: "14 Tháng 8, 2025",
+      title:
+        "Quy Trình Quản Lý Kho Theo ISO: Chuyên Nghiệp, Hiệu Quả, Bền Vững",
+      excerpt:
+        "Quy trình theo ISO là bước nền tảng giúp doanh nghiệp tổ chức kho hàng chuyên nghiệp, hiệu quả và dễ mở rộng…",
+    },
+    {
+      href: "#",
+      date: "14 Tháng 8, 2025",
+      title:
+        "Quy Trình Quản Lý Kho Theo ISO: Chuyên Nghiệp, Hiệu Quả, Bền Vững",
+      excerpt:
+        "Quy trình theo ISO là bước nền tảng giúp doanh nghiệp tổ chức kho hàng chuyên nghiệp, hiệu quả và dễ mở rộng…",
+    },
+    {
+      href: "#",
+      date: "14 Tháng 8, 2025",
+      title:
+        "Quy Trình Quản Lý Kho Theo ISO: Chuyên Nghiệp, Hiệu Quả, Bền Vững",
+      excerpt:
+        "Quy trình theo ISO là bước nền tảng giúp doanh nghiệp tổ chức kho hàng chuyên nghiệp, hiệu quả và dễ mở rộng…",
+    },
   ];
 
   return (
