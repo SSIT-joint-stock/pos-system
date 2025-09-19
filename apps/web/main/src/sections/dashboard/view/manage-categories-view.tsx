@@ -519,7 +519,7 @@ export function ManageCategoriesView() {
             <div className="bg-red-50 border border-red-200 rounded-lg p-4">
               <p className="text-gray-700">
                 Bạn có chắc chắn muốn xóa danh mục{" "}
-                <span className="font-semibold text-red-600">"{selectedCategory.name}"</span>?
+                <span className="font-semibold text-red-600">{selectedCategory.name}</span>?
               </p>
               <p className="text-sm text-red-500 mt-2">
                 Hành động này không thể hoàn tác. Hãy đảm bảo không có sản phẩm nào đang sử dụng danh mục này.
@@ -746,7 +746,7 @@ export function ManageCategoriesView() {
               <div className="flex flex-wrap gap-2">
                 {filters.search && (
                   <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
-                    Tìm kiếm: "{filters.search}"
+                    Tìm kiếm: {filters.search}
                   </span>
                 )}
                 {filters.startDate && (
