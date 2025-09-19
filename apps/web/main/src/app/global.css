@@ -1,3 +1,14 @@
 /* @import "@repo/tailwind-config"; */
 @import "@repo/design-system/styles/styles.css";
 @plugin 'tailwind-scrollbar';
+
+@layer base {
+  html {
+    font-size: 100%;
+  }
+  @media (min-width: 1024px) {
+    html {
+      font-size: 90%;
+    }
+  }
+}

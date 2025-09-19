@@ -76,7 +76,7 @@ export default function PricingSection() {
           Lựa chọn an toàn, tạm biệt rủi ro
         </h2>
         <p className="mt-2 text-sm text-gray-500">
-          Free trial period of 14 days, unlocking all features
+          Dùng thử miễn phí 14 ngày, mở khóa tất cả tính năng
         </p>
 
         {/* Toggle */}
@@ -126,7 +126,7 @@ export default function PricingSection() {
                 {formatPrice(plan.priceMonthly)}
               </div>
 
-              <div className="mt-auto pt-6">
+              <div className="mt-auto mb-6 pt-6">
                 <button
                   className={`w-full rounded-md px-4 py-2 text-sm font-medium ${
                     plan.cta === "Contact Us"

@@ -56,13 +56,12 @@ export default function NewsCards() {
           key={i}
           href={p.href}
           aria-label={p.title}
-          className="group block h-full rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
+          className="group block h-full min-w-0 rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:shadow-lg
+                     overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
         >
           {/* Image placeholder */}
           <div className="relative overflow-hidden rounded-t-2xl bg-gray-200">
-            {/* 16:9 ratio box */}
             <div className="aspect-[16/9] w-full" />
-            {/* Optional placeholder icon */}
             <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
               <svg
                 className="h-10 w-10 text-gray-400"
@@ -77,11 +76,11 @@ export default function NewsCards() {
           </div>
 
           {/* Body */}
-          <div className="flex flex-col p-4 sm:p-5 h-[calc(100%-0px)]">
+          <div className="flex min-w-0 flex-col p-4 sm:p-5">
             {/* Date */}
-            <div className="mb-2 flex items-center gap-2 text-sm text-gray-500">
+            <div className="mb-2 flex items-center gap-2 text-sm text-gray-500 min-w-0">
               <svg
-                className="h-4 w-4"
+                className="h-4 w-4 shrink-0"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -89,19 +88,23 @@ export default function NewsCards() {
                 <rect x="3" y="4" width="18" height="18" rx="2" />
                 <path d="M16 2v4M8 2v4M3 10h18" />
               </svg>
-              <span>{p.date}</span>
+              <span className="min-w-0 break-words [overflow-wrap:anywhere] [word-break:break-word]">
+                {p.date}
+              </span>
             </div>
 
             {/* Title */}
-            <h3 className="mb-2 line-clamp-2 text-lg font-semibold leading-snug text-gray-900 transition-colors group-hover:text-blue-600">
+            <h3
+              className="mb-2 line-clamp-2 text-lg font-semibold leading-snug text-gray-900 transition-colors group-hover:text-blue-600
+                           break-words [overflow-wrap:anywhere] [word-break:break-word] hyphens-auto [text-wrap:balance]"
+            >
               {p.title}
             </h3>
 
-            {/* Excerpt grows to fill; cards end aligned */}
-            <p className="line-clamp-2 text-gray-600 flex-1">{p.excerpt}</p>
-
-            {/* Tiny spacer so hover shadow doesn’t clip CTA area if you add one later */}
-            <div className="mt-3" />
+            {/* Excerpt */}
+            <p className="flex-1 line-clamp-2 text-gray-600 break-words [overflow-wrap:anywhere] [word-break:break-word] hyphens-auto">
+              {p.excerpt}
+            </p>
           </div>
         </a>
       ))}

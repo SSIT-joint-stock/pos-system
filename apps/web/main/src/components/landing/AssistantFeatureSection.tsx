@@ -11,12 +11,12 @@ const ITEMS: Item[] = [
     desc:
       "Tự động phát hành và chuyển dữ liệu lên cơ quan Thuế theo Thông tư 78. " +
       "Quản lý công nợ, thống kê số tiền, đồng bộ hoá đơn điện tử…",
-    image: "/feature-1.png",
+    image: "/feature-1.jpg",
   },
   {
     title: "Tích hợp xuất hóa đơn điện tử khởi tạo từ máy tính tiền",
     desc: "Xuất hoá đơn khởi tạo từ máy tính tiền theo quy định mới của cơ quan Thuế.",
-    image: "/feature-2.png",
+    image: "/feature-2.jpg",
   },
   {
     title: "Giao diện thân thiện",
