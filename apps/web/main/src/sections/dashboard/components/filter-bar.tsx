@@ -1,7 +1,7 @@
-"use client";
-import { AutoComplete, DatePickerInput, Select } from "@repo/design-system/components/ui";
-import { Calendar1, Search } from "lucide-react";
-import { useEffect, useState } from "react";
+'use client';
+import { AutoComplete, DatePickerInput, Select } from '@repo/design-system/components/ui';
+import { Calendar1, Search } from 'lucide-react';
+import * as React from 'react';
 
 type FilterOption = {
   label: string;
@@ -12,7 +12,11 @@ type FilterBarProps = {
   onSearch?: (value: string) => void;
   statusOptions?: FilterOption[];
   categoryOptions?: FilterOption[];
-  onFilterChange?: (filters: { status?: string; category?: string; date?: [Date, Date] }) => void;
+  onFilterChange?: (filters: {
+    status?: string;
+    category?: string;
+    date?: [string, string];
+  }) => void;
   actions?: React.ReactNode;
 };
 
@@ -23,44 +27,75 @@ export default function FilterBar({
   onFilterChange,
   actions,
 }: FilterBarProps) {
-  const [status, setStatus] = useState<string | undefined>(undefined);
-  const [category, setCategory] = useState<string | undefined>(undefined);
-  const [date, setDate] = useState<[string | null, string | null]>([null, null]);
-  const [searchValue, setSearchValue] = useState<string>("");
-  // Handle date change with proper typing
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
+  const [status, setStatus] = React.useState<string | undefined>(undefined);
+  const [category, setCategory] = React.useState<string | undefined>(undefined);
+  const [date, setDate] = React.useState<[string | null, string | null]>([null, null]);
+  const [searchValue, setSearchValue] = React.useState<string>('');
+
+  // Ref to track if component has mounted
+  const hasMounted = React.useRef(false);
+
+  React.useEffect(() => {
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      return;
+    }
+
+    // Check if both dates are actually selected and not null
+    if (!date || date.length < 2) {
       onFilterChange?.({
-        search: searchValue || undefined,
         status,
         category,
-        date: date && date[0] && date[1] ? [date[0], date[1]] : undefined,
+        date: null,
       });
-    }, 500);
+      return;
+    }
 
-    return () => clearTimeout(timeoutId);
-  }, [status, category, date[1], searchValue]);
+    onFilterChange?.({
+      status,
+      category,
+      date: [date[0], date[1]],
+    });
+  }, [status, category, date]);
+  // Handle search when button is clicked
+  const handleSearchClick = () => {
+    const timedout = setTimeout(() => {
+      if (onSearch) {
+        onSearch(searchValue);
+      }
+    }, 1000);
+    return () => clearTimeout(timedout);
+  };
 
   return (
     <div className="flex items-center bg-white p-5 rounded-lg shadow">
       <div className="flex items-center w-full gap-2">
         {/* SEARCH */}
-        <div className="w-[30%] border border-gray-200 rounded-md outline-none">
+        <form
+          onSubmit={(e: React.FormEvent) => {
+            e.preventDefault();
+            handleSearchClick();
+          }}
+          className="w-[30%] flex items-center border border-gray-200 rounded-md overflow-hidden"
+        >
           <AutoComplete
-            radius="md"
-            onChange={(val) => {
-              if (typeof val === "string") {
-                setSearchValue(val);
-              }
-            }}
+            onChange={setSearchValue}
             size="xs"
             leftSection={<Search size={16} />}
             variant="unstyled"
             placeholder="Tìm kiếm sản phẩm"
-            data={["T-Shirt", "Cap", "Shoes", "Watch", "Sunglass"]}
-            className="w-full py-[1px] text-sm text-gray-900 font-medium placeholder:font-normal"
+            data={['T-Shirt', 'Cap', 'Shoes', 'Watch', 'Sunglass']}
+            className="flex-1 py-[1px] text-sm text-gray-900 font-medium placeholder:font-normal"
           />
-        </div>
+          <button
+            onClick={handleSearchClick}
+            className="px-3 py-2 bg-blue-500 text-white hover:bg-blue-600 transition-colors duration-200 flex items-center justify-center"
+            title="Tìm kiếm"
+          >
+            <Search size={14} />
+          </button>
+        </form>
+
         {/* FILTER */}
         <div className="flex items-center gap-2">
           {statusOptions.length > 0 && (
@@ -75,6 +110,7 @@ export default function FilterBar({
               className="w-[150px] text-xs font-medium"
             />
           )}
+
           {categoryOptions.length > 0 && (
             <Select
               data={categoryOptions}
@@ -87,7 +123,8 @@ export default function FilterBar({
               className="w-[150px] text-xs font-medium"
             />
           )}
-          <div className="w-[24ch] border border-gray-200 rounded-md outline-none">
+
+          <div className="w-[22ch] border border-gray-200 rounded-md outline-none">
             <DatePickerInput
               type="range"
               variant="unstyled"
@@ -103,6 +140,7 @@ export default function FilterBar({
           </div>
         </div>
       </div>
+
       {/* ACTIONS */}
       <div className="flex items-center gap-2 justify-end w-fit">{actions}</div>
     </div>

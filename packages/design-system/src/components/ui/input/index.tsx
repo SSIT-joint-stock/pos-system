@@ -1,16 +1,11 @@
-"use client";
-import * as React from "react";
-import { PasswordInput, TextInput } from "@mantine/core";
-import type {
-  CSSProperties,
-  HTMLInputTypeAttribute,
-  ReactNode,
-  ForwardedRef,
-} from "react";
+'use client';
+import * as React from 'react';
+import { PasswordInput, Input as MantineInput } from '@mantine/core';
+import type { CSSProperties, HTMLInputTypeAttribute, ReactNode, ForwardedRef } from 'react';
 
-type SizeInput = "xs" | "sm" | "md" | "lg" | "xl";
-type SizeRadius = "xs" | "sm" | "md" | "lg" | "xl";
-type StyleInput = "default" | "filled" | "unstyled";
+type SizeInput = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+type SizeRadius = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+type StyleInput = 'default' | 'filled' | 'unstyled';
 
 export type InputProps = React.PropsWithChildren & {
   type?: HTMLInputTypeAttribute;
@@ -29,15 +24,15 @@ export type InputProps = React.PropsWithChildren & {
   disabled?: boolean;
   isInputPassword?: boolean;
   color?: string;
-} & Omit<React.ComponentProps<"input">, "size" | "type" | "onChange" | "value">;
+} & Omit<React.ComponentProps<'input'>, 'size' | 'type' | 'onChange' | 'value'>;
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   (
     {
       type,
-      size = "md",
-      radius = "md",
-      variant = "default",
+      size = 'md',
+      radius = 'md',
+      variant = 'default',
       label,
       placeholder,
       onChange,
@@ -71,24 +66,31 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     };
 
     return (
-      <div className={`flex flex-col gap-1 ${className ?? ""}`} style={style}>
+      <div className={`flex flex-col gap-1 ${className ?? ''}`} style={style}>
         {label && (
           <span
             className={`${
-              error ? "text-red-500" : "text-gray-500"
-            } text-sm font-medium cursor-pointer hover:text-gray-700 transition-colors duration-300`}>
+              error ? 'text-red-500' : 'text-gray-500'
+            } text-sm font-medium cursor-pointer hover:text-gray-700 transition-colors duration-300`}
+          >
             {label}
           </span>
         )}
         {isInputPassword ? (
           <PasswordInput {...commonProps} />
         ) : (
-          <TextInput {...commonProps} />
+          <>
+            <MantineInput {...commonProps} />
+            {error && typeof error === 'string' && (
+              <span className="text-xs text-red-400">{error}</span>
+            )}
+          </>
         )}
+
         {children}
       </div>
     );
   }
 );
 
-Input.displayName = "Input";
+Input.displayName = 'Input';

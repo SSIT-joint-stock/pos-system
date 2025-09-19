@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { Button, Modal, Select, Table, TableSkeleton } from '@repo/design-system/components/ui';
+import { Button, Modal, Select, Table } from '@repo/design-system/components/ui';
 import FilterBar from '../components/filter-bar';
 import { Download, Eye, Package, TrendingUp, TrendingDown, RotateCcw } from 'lucide-react';
 import { NumberInput } from '@mantine/core';
@@ -304,7 +304,7 @@ export function InventoryManageView() {
           isLoading={loading}
           renderRow={(inventory, idx) => (
             <tr
-              key={idx}
+              key={inventory?.id || idx}
               className="border-b border-b-gray-100 hover:bg-gray-50 transition-colors duration-300"
             >
               <td className="px-4 py-2">
