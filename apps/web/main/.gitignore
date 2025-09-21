@@ -42,3 +42,9 @@ Thumbs.db
 .idea/
 *.swp
 
+# Env
+.env.production
+.env.local
+.env.development.local
+.env.test.localss
+
