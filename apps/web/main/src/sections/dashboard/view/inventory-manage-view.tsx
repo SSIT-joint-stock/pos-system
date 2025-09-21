@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Button, Modal, Select, Table } from '@repo/design-system/components/ui';
 import FilterBar from '../components/filter-bar';
-import { Download, Eye, Package, TrendingUp, TrendingDown, RotateCcw } from 'lucide-react';
+import { Download, Eye, Package, TrendingDown, RotateCcw, HandCoins } from 'lucide-react';
 import { NumberInput } from '@mantine/core';
 import useInventory from '../../../../../main/src/hooks/inventory/use-inventory';
 import { Inventory } from '@repo/design-system/types/inventory';
@@ -28,7 +28,7 @@ export function InventoryManageView() {
   const {
     inventories,
     loading,
-    adjustQuantity,
+
     revalueInventory,
     setStatus,
     pagination,
@@ -38,21 +38,13 @@ export function InventoryManageView() {
   } = useInventory();
 
   const [openViewModal, setOpenViewModal] = useState(false);
-  const [openAdjustModal, setOpenAdjustModal] = useState(false);
   const [openRevalueModal, setOpenRevalueModal] = useState(false);
   const [openStatusModal, setOpenStatusModal] = useState(false);
   const [selectedInventory, setSelectedInventory] = useState<Inventory>();
 
   // Form states
-  const [adjustValue, setAdjustValue] = useState({ delta: 0 });
   const [revalueData, setRevalueData] = useState({ discount: 0, total: 0 });
   const [statusData, setStatusData] = useState({ status: 'ACTIVE' });
-
-  const handleAdjustQuantity = async () => {
-    adjustQuantity(selectedInventory?.id ?? '', adjustValue.delta);
-    setAdjustValue({ delta: 0 });
-    setOpenAdjustModal(false);
-  };
 
   const handleRevalue = async () => {
     revalueInventory(selectedInventory?.id ?? '', revalueData.discount, revalueData.total);
@@ -125,50 +117,6 @@ export function InventoryManageView() {
             <p className="text-sm text-gray-500">
               Lần cuối cập nhật: {new Date(selectedInventory?.updatedAt).toLocaleString()}
             </p>
-          </div>
-        </div>
-      </Modal>
-
-      {/* ADJUST QUANTITY MODAL */}
-      <Modal
-        opened={openAdjustModal}
-        size="md"
-        onClose={() => setOpenAdjustModal(false)}
-        title={
-          <div className="flex items-center gap-2 text-lg font-medium text-gray-600">
-            <TrendingUp size={20} />
-            <p>Điều chỉnh số lượng</p>
-          </div>
-        }
-      >
-        <div className="space-y-4">
-          <div>
-            <p className="text-sm text-gray-600 mb-2">
-              Sản phẩm: <strong>{selectedInventory?.product?.name}</strong>
-            </p>
-            <p className="text-sm text-gray-600 mb-4">
-              Số lượng hiện tại: <strong>{selectedInventory?.quantity}</strong>
-            </p>
-          </div>
-
-          <NumberInput
-            label="Số lượng thay đổi"
-            placeholder="Nhập số lượng (âm = xuất, dương = nhập)"
-            value={adjustValue.delta}
-            onChange={(value) => setAdjustValue({ delta: value })}
-            description="Số âm để xuất hàng, số dương để nhập hàng"
-            required
-          />
-
-          <div className="flex justify-end gap-4 pt-4 border-t border-gray-200">
-            <button
-              onClick={() => setOpenAdjustModal(false)}
-              type="button"
-              className="text-red-500 hover:underline"
-            >
-              Hủy
-            </button>
-            <Button onClick={handleAdjustQuantity} title="Xác nhận" size="sm" radius="md" />
           </div>
         </div>
       </Modal>
@@ -351,24 +299,13 @@ export function InventoryManageView() {
 
                   <button
                     onClick={() => {
-                      setOpenAdjustModal(true);
-                      setSelectedInventory(inventory);
-                    }}
-                    className="flex justify-center items-center cursor-pointer w-[32px] h-[32px] bg-green-50 text-green-500 rounded-md hover:bg-green-500 hover:text-white transition-all duration-200"
-                    title="Điều chỉnh số lượng"
-                  >
-                    <TrendingUp size={14} />
-                  </button>
-
-                  <button
-                    onClick={() => {
                       setOpenRevalueModal(true);
                       setSelectedInventory(inventory);
                     }}
                     className="flex justify-center items-center cursor-pointer w-[32px] h-[32px] bg-blue-50 text-blue-500 rounded-md hover:bg-blue-500 hover:text-white transition-all duration-200"
                     title="Điều chỉnh giá trị"
                   >
-                    <TrendingDown size={14} />
+                    <HandCoins size={14} />
                   </button>
 
                   <button

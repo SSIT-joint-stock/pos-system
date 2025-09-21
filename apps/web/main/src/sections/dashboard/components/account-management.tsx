@@ -28,6 +28,7 @@ export default function AccountManagement({ isExpand }: { isExpand: boolean }) {
           height={40}
           alt="avatar"
           className="w-10 h-10 rounded-full shrink-0 overflow-hidden object-cover "
+          unoptimized
         />
         <div
           className={`flex ${isExpand ? 'max-w-full opacity-100' : 'max-w-0 opacity-0'} gap-1.5 overflow-hidden transition-all duration-300 items-center `}

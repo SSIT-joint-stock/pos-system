@@ -73,7 +73,7 @@ export default function useInventory() {
       showSuccessToast(res.data.message);
     }
   };
-  const getInventory = (inventory: string) => {};
+
   useEffect(() => {
     getInventories();
   }, [currentStore?.id, paginationParams, filters]);

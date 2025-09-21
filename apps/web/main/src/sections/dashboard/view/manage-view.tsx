@@ -10,10 +10,11 @@ import {
   Filter,
   Pencil,
   Plus,
+  ShoppingBag,
   ShoppingCart,
   Trash,
 } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import React, { FormEvent, useEffect, useState } from 'react';
 import { formatCurrency, formatDate } from '../../../../../main/src/utils/index';
 import { useProduct } from '../../../../../main/src/hooks/product/use-product';
 import { Controller } from 'react-hook-form';
@@ -21,6 +22,7 @@ import Image from 'next/image';
 
 const tableHeaders = [
   'Sản Phẩm',
+  'Số lượng',
   'Mã Sản Phẩm',
   'Giá Nhập',
   'Giá Bán',
@@ -38,6 +40,9 @@ export function ManageView() {
   const [openViewModal, setOpenViewModal] = useState<boolean>(false);
   const [openEditModal, setOpenEditModal] = useState<boolean>(false);
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
+  const [inventoryModal, setInventorModal] = useState<boolean>(false);
+  const [adjustValue, setAdjustValue] = useState({ delta: '0' });
+  const [type, setType] = useState<string>('ADJUSTMENT');
   const {
     products,
     loading,
@@ -46,6 +51,7 @@ export function ManageView() {
     updateProductForm,
     pagination,
     paginationParams,
+    applyStockMovement,
     setPaginationParams,
     setFilters,
     createProduct,
@@ -67,6 +73,7 @@ export function ManageView() {
       });
     }
   }, [product, updateProductForm]);
+  console.log(product);
   return (
     <>
       {/* MODAL ADD PRODUCT */}
@@ -339,7 +346,7 @@ export function ManageView() {
                 <Input
                   size="sm"
                   type="number"
-                  {...(updateProductForm.register('price'), { valueAsNumber: true })}
+                  {...updateProductForm.register('price', { valueAsNumber: true })}
                   name="price"
                   label="Giá bán"
                   min={0}
@@ -356,7 +363,7 @@ export function ManageView() {
                 <Input
                   size="sm"
                   type="number"
-                  {...(updateProductForm.register('cost'), { valueAsNumber: true })}
+                  {...updateProductForm.register('cost', { valueAsNumber: true })}
                   name="cost"
                   label="Giá vốn"
                   min={0}
@@ -420,10 +427,12 @@ export function ManageView() {
           )}
 
           {/* Created + Updated */}
-          <div className="border-t border-gray-200 pt-4 flex items-center justify-between text-sm text-gray-500">
-            <p>Ngày tạo: {formatDate(product?.createdAt)}</p>
-            <p>Lần cuối cập nhật: {formatDate(product?.updatedAt)}</p>
-          </div>
+          {product && product.createdAt && product.updatedAt && (
+            <div className="border-t border-gray-200 pt-4 flex items-center justify-between text-sm text-gray-500">
+              <p>Ngày tạo: {formatDate(product?.createdAt)}</p>
+              <p>Lần cuối cập nhật: {formatDate(product?.updatedAt)}</p>
+            </div>
+          )}
 
           {/* Actions */}
           {openEditModal && (
@@ -446,6 +455,55 @@ export function ManageView() {
         </form>
       </Modal>
 
+      {/* MODAL Apply Stock Movement */}
+      <Modal
+        title={
+          <div className="flex items-center gap-2 text-sm font-medium text-gray-500">
+            <ShoppingBag size={16} />
+            Điều chỉnh tồn kho
+          </div>
+        }
+        opened={inventoryModal}
+        onClose={() => setInventorModal(false)}
+      >
+        <form
+          onSubmit={(e: FormEvent) => {
+            e.preventDefault();
+            if (product && product.id) {
+              applyStockMovement(product?.id, parseInt(adjustValue.delta), type);
+            }
+            setInventorModal(false);
+            setAdjustValue({ delta: '0' });
+            setType('ADJUSTMENT');
+          }}
+          className="flex flex-col gap-4"
+          action=""
+        >
+          <Select
+            position="bottom"
+            label="Loại điều chỉnh"
+            data={[
+              { label: 'Điều chỉnh thủ công', value: 'ADJUSTMENT' },
+              { label: 'Bán hàng', value: 'SALE' },
+              { label: 'Nhập hàng', value: 'PURCHASE' },
+              { label: 'Trả hàng bán', value: 'RETURN_SALE' },
+              { label: 'Trả hàng mua', value: 'RETURN_PURCHASE' },
+              { label: 'Chuyển kho nhập', value: 'TRANSFER_IMPORT' },
+              { label: 'Chuyển kho xuất', value: 'TRANSFER_EXPORT' },
+            ]}
+            value={type}
+            onChange={(value) => setType(value)}
+            defaultValue={type}
+          />
+          <Input
+            value={adjustValue?.delta?.toString() || ''}
+            onChange={(e) => setAdjustValue({ ...adjustValue, delta: e.target.value })}
+            type="string"
+            placeholder="Số lượng"
+          />
+          <Button type="submit" title={'Áp dụng điều chỉnh'} />
+        </form>
+      </Modal>
       <div className="flex flex-col h-full ">
         {/* ACTION */}
         <FilterBar
@@ -518,6 +576,9 @@ export function ManageView() {
                   className="border-b border-b-gray-100 hover:bg-gray-50 transition-colors duration-300"
                 >
                   <td className="px-4 py-2 text-xs font-medium text-gray-900">{product.name}</td>
+                  <td className="px-4 py-2 text-xs font-medium text-gray-900">
+                    {product.inventory.quantity}
+                  </td>
                   <td className="px-4 py-2 text-xs text-gray-500">{product.sku}</td>
                   <td className="px-4 py-2 text-xs text-gray-500">
                     {formatCurrency(product.cost)}
@@ -557,6 +618,15 @@ export function ManageView() {
                         className="flex justify-center items-center cursor-pointer w-[36px] h-[36px]  bg-pos-blue-50 text-pos-blue-500 rounded-md hover:opacity-100 hover:bg-pos-blue-500 hover:text-pos-blue-50 opacity-70 transition-opacity duration-200"
                       >
                         <Edit size={16} />
+                      </button>
+                      <button
+                        onClick={() => {
+                          setInventorModal(true);
+                          getProductById(product.id);
+                        }}
+                        className="flex justify-center items-center cursor-pointer w-[36px] h-[36px]  bg-green-50 text-green-500 rounded-md hover:opacity-100 hover:bg-green-500 hover:text-green-50 opacity-70 transition-opacity duration-200"
+                      >
+                        <ShoppingBag size={16} />
                       </button>
                       <button
                         onClick={() => {

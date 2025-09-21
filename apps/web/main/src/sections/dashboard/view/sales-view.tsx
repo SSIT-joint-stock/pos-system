@@ -1,7 +1,6 @@
 'use client';
 import React, { useState } from 'react';
 import {
-  ChevronDown,
   ChevronRight,
   CupSoda,
   Ellipsis,
@@ -10,8 +9,6 @@ import {
   Pencil,
   Plus,
   PlusIcon,
-  ScanLine,
-  Search,
   ShoppingBasket,
   ShoppingCart,
   Trash,
@@ -20,7 +17,7 @@ import {
   X,
 } from 'lucide-react';
 import Image from 'next/image';
-import { Pagination, Select } from '@repo/design-system/components/ui';
+import { Select } from '@repo/design-system/components/ui';
 import useInventory from '../../../../../main/src/hooks/inventory/use-inventory';
 import { formatCurrency, formatDate } from '../../../../../main/src/utils/index';
 import api from '../../../../../main/src/libs/axios';
@@ -46,6 +43,14 @@ interface Invoice {
   products: Product[];
   discountCode: string;
   paymentMethod: string;
+}
+enum order_status {
+  PENDING = 'PENDING',
+  CONFIRMED = 'CONFIRMED',
+  PREPARING = 'PREPARING',
+  DELIVERING = 'DELIVERING',
+  COMPLETED = 'COMPLETED',
+  CANCELLED = 'CANCELLED',
 }
 
 const catagories = [
@@ -263,7 +268,7 @@ export function SalesView() {
   const tax = subtotal * 0.05; // Giả sử thuế 5%
   const total = subtotal - discount + tax;
   const currentStore = useAtomValue(currentStoreAtom);
-  const { showSuccessToast, showWarningToast } = useToast();
+  const { showSuccessToast, showWarningToast, showErrorToast } = useToast();
   const createOrder = async () => {
     if (!currentStore?.id) return;
     const currentInvoice = getCurrentInvoice();
@@ -273,14 +278,15 @@ export function SalesView() {
         discount_amount: discount, // nếu có mã giảm giá
         tax_amount: Math.ceil(tax),
         total_amount: Math.ceil(total),
-        payment_method: currentInvoice.paymentMethod === 'Chuyen khoan' ? 'CREDIT_CARD' : 'CASH', // match enum backend
+        payment_method: currentInvoice.paymentMethod === 'Chuyen khoan' ? 'CREDIT_CARD' : 'CASH',
+        status: order_status.COMPLETED,
         order_items: currentInvoice.products.map((item) => ({
           product_id: item.product_id, // hoặc item.product.id nếu BE mong product_id
           quantity: item.quantity,
           price: item.product.price,
         })),
       };
-      const res = await api.post(`store/${currentStore?.id}/orders`, body);
+      const res = await api.post(`stores/${currentStore?.id}/orders`, body);
       if (res?.data.success) {
         // setOpen(false);
         getInventories();
@@ -289,15 +295,15 @@ export function SalesView() {
         showSuccessToast('Tạo đơn hàng thành công');
       }
     } catch (error) {
-      console.error('Lỗi khi tạo đơn:', error);
+      showErrorToast('Tạo đơn hàng thất bại, vui lòng thử lại');
     }
   };
   return (
     <div className="w-full bg-white px-3.5 rounded-xl shadow overflow-auto h-full pb-3.5">
       <div
-        className={`flex items-center justify-between  border-b-2 border-b-gray-300 py-6  ${open ? ' w-[64%]' : ' w-full'}`}
+        className={`flex items-center justify-between  border-b-2 border-b-gray-300 py-6  ${open ? ' w-[62%]' : ' w-full'}`}
       >
-        <h1 className="text-2xl font-semibold text-pos-blue-500 w-fit">Danh Sách Sản Phẩm</h1>
+        <h1 className="text-xl font-semibold text-pos-blue-500 w-fit">Danh Sách Sản Phẩm</h1>
         <div className="flex-1 ml-8 mr-4">
           <FilterBar
             setWidth="60%"
@@ -328,7 +334,7 @@ export function SalesView() {
           />
         </button>
       </div>
-      <div className={`mt-7 ${open ? ' w-[64%]' : ' w-full'}`}>
+      <div className={`mt-7 ${open ? ' w-[62%]' : ' w-full'}`}>
         <div className="flex items-center gap-5 ">
           {catagories.map((item, idx) => (
             <button
@@ -341,75 +347,87 @@ export function SalesView() {
           ))}
         </div>
       </div>
-      <div className={`flex flex-col gap-5 ${open ? ' w-[64%]' : ' w-full'}`}>
-        <div
-          className={`grid ${open ? 'grid-cols-3 w-[64%]' : 'grid-cols-5 w-full'} w-full items-center justify-center gap-5 mt-12 space-y-3.5`}
-        >
-          {inventories.map((product) => (
+
+      <>
+        {inventories.length === 0 ? (
+          <div
+            className={`${open ? ' w-[62%]' : ' w-full'} text-center text-lg italic text-gray-600 py-10`}
+          >
+            Chưa có sản phẩm
+          </div>
+        ) : (
+          <>
             <div
-              onClick={() => {
-                if (product.quantity > 0) {
-                  addToCart(product);
-                  showSuccessToast('Thêm vào giỏ hàng thành công');
-                } else {
-                  showWarningToast('Sản phẩm hiện đã hết hàng');
-                }
-              }}
-              key={product.id}
-              className="border border-gray-200 rounded-xl p-4 shadow scale-100 hover:scale-95 transition-all duration-300 cursor-pointer"
+              className={`grid ${open ? 'grid-cols-4 w-[62%]' : 'grid-cols-5 w-full'}  items-center justify-center gap-5 mt-12 space-y-3.5`}
             >
-              <Image
-                src={'/placeholder.jpg'}
-                alt="sản phẩm"
-                width={500}
-                height={500}
-                className="rounded-xl object-cover"
-                unoptimized
-              />
-              <div className="flex flex-col gap-2 mt-3 ">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-semibold truncate text-gray-500">
-                    {product.product.name}
-                  </h2>
-                  <span className="text-xs text-gray-500 font-medium">
-                    {formatDate(product.createdAt)}
-                  </span>
-                </div>
+              {inventories.map((product) => (
+                <div
+                  onClick={() => {
+                    if (product.quantity > 0) {
+                      addToCart(product);
+                      showSuccessToast('Thêm vào giỏ hàng thành công');
+                    } else {
+                      showWarningToast('Sản phẩm hiện đã hết hàng');
+                    }
+                  }}
+                  key={product.id}
+                  className="border border-gray-200 rounded-xl p-4 shadow scale-100 hover:scale-95 transition-all duration-300 cursor-pointer"
+                >
+                  <Image
+                    src={'/placeholder.jpg'}
+                    alt="sản phẩm"
+                    width={500}
+                    height={500}
+                    className="rounded-xl object-cover"
+                    unoptimized
+                  />
+                  <div className="flex flex-col gap-2 mt-3 ">
+                    <div className="flex items-center justify-between">
+                      <h2 className="text-xl font-semibold truncate text-gray-500">
+                        {product.product.name}
+                      </h2>
+                      <span className="text-xs text-gray-500 font-medium">
+                        {formatDate(product.createdAt)}
+                      </span>
+                    </div>
 
-                <div className="flex items-center justify-between">
-                  <p className="text-sm text-gray-500">Số Lượng:</p>
-                  <p className=" font-semibold text-gray-600">{product.quantity}</p>
-                </div>
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm text-gray-500">Số Lượng:</p>
+                      <p className=" font-semibold text-gray-600">{product.quantity}</p>
+                    </div>
 
-                <div className="flex items-center justify-between  ">
-                  <div className="flex items-center justify-center  gap-1.5">
-                    <p className="text-sm text-gray-500">Giá: </p>
-                    <p className="text-lg font-semibold text-gray-600">
-                      {formatCurrency(product.product.price)}
-                    </p>
-                  </div>
-                  <div
-                    onClick={() => {
-                      if (product.quantity > 0) {
-                        addToCart(product);
-                        showSuccessToast('Thêm vào giỏ hàng thành công');
-                      } else {
-                        showWarningToast('Sản phẩm hiện đã hết hàng');
-                      }
-                    }}
-                    className={`flex items-center justify-center rounded-md border px-3 py-2 transition-all group duration-300 ${product.quantity <= 0 ? 'border-gray-100 bg-gray-100 cursor-not-allowed' : 'border-gray-200 hover:border-pos-blue-400 hover:bg-pos-blue-400 cursor-pointer '}`}
-                  >
-                    <ShoppingCart
-                      size={18}
-                      className={`transition-all duration-300 ${product.quantity <= 0 ? 'text-gray-300' : 'text-gray-500 group-hover:text-white'}`}
-                    />
+                    <div className="flex items-center justify-between  ">
+                      <div className="flex items-center justify-center  gap-1.5">
+                        <p className="text-sm text-gray-500">Giá: </p>
+                        <p className="text-lg font-semibold text-gray-600">
+                          {formatCurrency(product.product.price)}
+                        </p>
+                      </div>
+                      <button
+                        disabled={product.quantity <= 0}
+                        onClick={() => {
+                          if (product.quantity > 0) {
+                            addToCart(product);
+                            // showSuccessToast('Thêm vào giỏ hàng thành công');
+                          } else {
+                            showWarningToast('Sản phẩm hiện đã hết hàng');
+                          }
+                        }}
+                        className={`flex items-center justify-center rounded-md border px-3 py-2 transition-all group duration-300 ${product.quantity <= 0 ? 'border-gray-100 bg-gray-100 cursor-not-allowed' : 'border-gray-200 hover:border-pos-blue-400 hover:bg-pos-blue-400 cursor-pointer '}`}
+                      >
+                        <ShoppingCart
+                          size={18}
+                          className={`transition-all duration-300 ${product.quantity <= 0 ? 'text-gray-300' : 'text-gray-500 group-hover:text-white'}`}
+                        />
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </div>
+          </>
+        )}
+      </>
 
       {/*sidebar order */}
 
@@ -418,7 +436,7 @@ export function SalesView() {
           open
             ? 'translate-x-0 transition-all duration-300'
             : 'translate-x-full transition-all duration-300'
-        } w-[34%] border border-gray-200 rounded-md shadow px-5 py-2}`}
+        } w-[32%] border border-gray-200 rounded-md shadow px-5 py-2}`}
       >
         <button
           onClick={() => {

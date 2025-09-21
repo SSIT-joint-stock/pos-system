@@ -16,7 +16,12 @@ export const ProductSchema = z.object({
   cost: z.number().min(0).nonnegative({
     message: 'Giá trị phải lớn hơn hoặc bằng 0',
   }),
-  image_url: z.string().url().optional(),
+  image_url: z
+    .string()
+    .url({ message: 'URL không hợp lệ' })
+    .optional()
+    .or(z.literal(''))
+    .transform((val) => (val === '' ? undefined : val)),
   description: z.string().optional(),
   product_status: z.enum(['ACTIVE', 'INACTIVE']).default('ACTIVE'),
   meta: z.string().optional(),

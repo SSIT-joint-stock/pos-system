@@ -1,37 +1,48 @@
-"use client";
-import { Button, Loading, Modal, Pagination, Select, Table } from "@repo/design-system/components/ui";
-import FilterBar from "../components/filter-bar";
+'use client';
+import { Button, Modal, Select, Table } from '@repo/design-system/components/ui';
+import FilterBar from '../components/filter-bar';
 import {
   Download,
   Eye,
   Package,
-  TrendingDown,
-  TrendingUp,
   RotateCcw,
   Filter,
   Info,
-  Hash,
   Calendar,
   X,
-} from "lucide-react";
-import React, { useEffect, useState } from "react";
-import { NumberInput, TextInput } from "@mantine/core";
-import api from "../../../../../main/src/libs/axios";
-import { useAtom } from "jotai";
-import { currentStoreAtom } from "@repo/design-system/stores/auth";
-import { toast } from "react-toastify";
-import { formatDate } from "../../../../../main/src/utils";
+  ShoppingCart,
+  DollarSignIcon,
+  ArrowLeftCircle,
+  ArrowRightCircle,
+  Upload,
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { NumberInput, TextInput } from '@mantine/core';
+import api from '../../../../../main/src/libs/axios';
+import { useAtom } from 'jotai';
+import { currentStoreAtom } from '@repo/design-system/stores/auth';
+import { toast } from 'react-toastify';
+import { formatDate } from '../../../../../main/src/utils';
 
-const tableHeaders = ["ID", "Sản phẩm", "Loại", "Số lượng", "Ngày tạo", "Thao tác"];
+const tableHeaders = ['ID', 'Sản phẩm', 'Loại', 'Số lượng', 'Ngày tạo', 'Thao tác'];
 
 // Màu sắc cho các loại phiếu kho
 const typeColors: Record<string, { bg: string; text: string; icon: React.ReactNode }> = {
-  ADJUSTMENT: { bg: "bg-yellow-100", text: "text-yellow-700", icon: <Package size={14} /> },
-  PURCHASE: { bg: "bg-green-100", text: "text-green-700", icon: <TrendingUp size={14} /> },
-  SALE: { bg: "bg-red-100", text: "text-red-700", icon: <TrendingDown size={14} /> },
-  RETURN_IN: { bg: "bg-blue-100", text: "text-blue-700", icon: <RotateCcw size={14} /> },
-  RETURN_OUT: { bg: "bg-orange-100", text: "text-orange-700", icon: <RotateCcw size={14} /> },
-  TRANSFER: { bg: "bg-purple-100", text: "text-purple-700", icon: <Package size={14} /> },
+  ADJUSTMENT: { bg: 'bg-yellow-100', text: 'text-yellow-700', icon: <Package size={14} /> },
+  PURCHASE: { bg: 'bg-green-100', text: 'text-green-700', icon: <ShoppingCart size={14} /> },
+  SALE: { bg: 'bg-red-100', text: 'text-red-700', icon: <DollarSignIcon size={14} /> },
+  RETURN_PURCHASE: {
+    bg: 'bg-blue-100',
+    text: 'text-blue-700',
+    icon: <ArrowLeftCircle size={14} />,
+  },
+  RETURN_SALE: {
+    bg: 'bg-orange-100',
+    text: 'text-orange-700',
+    icon: <ArrowRightCircle size={14} />,
+  },
+  TRANSFER_IMPORT: { bg: 'bg-purple-100', text: 'text-purple-700', icon: <Download size={14} /> },
+  TRANSFER_EXPORT: { bg: 'bg-indigo-100', text: 'text-indigo-700', icon: <Upload size={14} /> },
 };
 
 // Interface cho phiếu kho
@@ -39,7 +50,13 @@ export interface StockMovement {
   id: string;
   product_id: string;
   quantity: number;
-  type: "ADJUSTMENT" | "PURCHASE" | "SALE" | "RETURN_IN" | "RETURN_OUT" | "TRANSFER";
+  type:
+    | 'ADJUSTMENT'
+    | 'PURCHASE'
+    | 'RETURN_PURCHASE'
+    | 'RETURN_SALE'
+    | 'TRANSFER_IMPORT'
+    | 'TRANSFER_EXPORT';
   createdAt: string;
   updatedAt: string;
   product?: {
@@ -52,8 +69,8 @@ export interface StockMovement {
 interface StockMovementFilters {
   page: number;
   limit: number;
-  sortBy: "createdAt" | "quantity";
-  sort: "asc" | "desc";
+  sortBy: 'createdAt' | 'quantity';
+  sort: 'asc' | 'desc';
   startDate?: string;
   endDate?: string;
   type?: string;
@@ -79,8 +96,8 @@ export function ManageStockView() {
   const [filters, setFilters] = useState<StockMovementFilters>({
     page: 1,
     limit: 10,
-    sortBy: "createdAt",
-    sort: "desc",
+    sortBy: 'createdAt',
+    sort: 'desc',
   });
 
   // Bộ lọc tạm trong modal
@@ -96,21 +113,23 @@ export function ManageStockView() {
       const currentFilters = { ...filters, ...customFilters };
 
       // Phân trang và sắp xếp
-      queryParams.append("page", currentFilters.page.toString());
-      queryParams.append("limit", currentFilters.limit.toString());
-      queryParams.append("sortBy", currentFilters.sortBy);
-      queryParams.append("sort", currentFilters.sort);
+      queryParams.append('page', currentFilters.page.toString());
+      queryParams.append('limit', currentFilters.limit.toString());
+      queryParams.append('sortBy', currentFilters.sortBy);
+      queryParams.append('sort', currentFilters.sort);
 
       // Bộ lọc tùy chọn
-      if (currentFilters.startDate) queryParams.append("startDate", currentFilters.startDate);
-      if (currentFilters.endDate) queryParams.append("endDate", currentFilters.endDate);
-      if (currentFilters.type) queryParams.append("type", currentFilters.type);
+      if (currentFilters.startDate) queryParams.append('startDate', currentFilters.startDate);
+      if (currentFilters.endDate) queryParams.append('endDate', currentFilters.endDate);
+      if (currentFilters.type) queryParams.append('type', currentFilters.type);
       if (currentFilters.min_quantity !== undefined)
-        queryParams.append("min_quantity", currentFilters.min_quantity.toString());
+        queryParams.append('min_quantity', currentFilters.min_quantity.toString());
       if (currentFilters.max_quantity !== undefined)
-        queryParams.append("max_quantity", currentFilters.max_quantity.toString());
+        queryParams.append('max_quantity', currentFilters.max_quantity.toString());
 
-      const res = await api.get(`/stores/${currentStore.id}/stock-movement?${queryParams.toString()}`);
+      const res = await api.get(
+        `/stores/${currentStore.id}/stock-movement?${queryParams.toString()}`
+      );
 
       setMovements(res.data.data);
       if (res.data.pagination) {
@@ -121,7 +140,7 @@ export function ManageStockView() {
     } catch (error) {
       setLoading(false);
       console.error(error);
-      toast.error("Lỗi khi tải dữ liệu phiếu kho");
+      toast.error('Lỗi khi tải dữ liệu phiếu kho');
     }
   };
 
@@ -134,7 +153,7 @@ export function ManageStockView() {
       setSelectedMovement(res.data.data);
     } catch (error) {
       console.error(error);
-      toast.error("Lỗi khi tải chi tiết phiếu kho");
+      toast.error('Lỗi khi tải chi tiết phiếu kho');
     }
   };
 
@@ -160,8 +179,8 @@ export function ManageStockView() {
     const defaultFilters: StockMovementFilters = {
       page: 1,
       limit: 20,
-      sortBy: "createdAt",
-      sort: "desc",
+      sortBy: 'createdAt',
+      sort: 'desc',
     };
     setFilters(defaultFilters);
     setTempFilters({});
@@ -181,12 +200,13 @@ export function ManageStockView() {
   // Định dạng loại phiếu
   const formatMovementType = (type: string) => {
     const translations: Record<string, string> = {
-      ADJUSTMENT: "Điều chỉnh",
-      PURCHASE: "Nhập hàng",
-      SALE: "Bán hàng",
-      RETURN_IN: "Trả hàng về kho",
-      RETURN_OUT: "Xuất trả hàng",
-      TRANSFER: "Chuyển kho",
+      ADJUSTMENT: 'Điều chỉnh kho',
+      PURCHASE: 'Nhập hàng từ nhà cung cấp',
+      SALE: 'Bán hàng cho khách hàng',
+      RETURN_PURCHASE: 'Trả hàng cho nhà cung cấp',
+      RETURN_SALE: 'Nhận hàng trả từ khách hàng',
+      TRANSFER_IMPORT: 'Nhập hàng từ kho khác',
+      TRANSFER_EXPORT: 'Xuất hàng sang kho khác',
     };
     return translations[type] || type;
   };
@@ -222,15 +242,15 @@ export function ManageStockView() {
             position="bottom"
             placeholder="Tất cả loại"
             value={tempFilters.type}
-            onChange={(value) => onChangeFilterValue("type", value)}
+            onChange={(value) => onChangeFilterValue('type', value)}
             data={[
-              { value: "", label: "Tất cả loại" },
-              { value: "ADJUSTMENT", label: "Điều chỉnh" },
-              { value: "PURCHASE", label: "Nhập hàng" },
-              { value: "SALE", label: "Bán hàng" },
-              { value: "RETURN_IN", label: "Trả hàng về kho" },
-              { value: "RETURN_OUT", label: "Xuất trả hàng" },
-              { value: "TRANSFER", label: "Chuyển kho" },
+              { value: '', label: 'Tất cả loại' },
+              { value: 'ADJUSTMENT', label: 'Điều chỉnh' },
+              { value: 'PURCHASE', label: 'Nhập hàng' },
+              { value: 'SALE', label: 'Bán hàng' },
+              { value: 'RETURN_IN', label: 'Trả hàng về kho' },
+              { value: 'RETURN_OUT', label: 'Xuất trả hàng' },
+              { value: 'TRANSFER', label: 'Chuyển kho' },
             ]}
           />
 
@@ -240,13 +260,13 @@ export function ManageStockView() {
               type="date"
               label="Ngày bắt đầu"
               value={tempFilters.startDate}
-              onChange={(e) => onChangeFilterValue("startDate", e.target.value)}
+              onChange={(e) => onChangeFilterValue('startDate', e.target.value)}
             />
             <TextInput
               type="date"
               label="Ngày kết thúc"
               value={tempFilters.endDate}
-              onChange={(e) => onChangeFilterValue("endDate", e.target.value)}
+              onChange={(e) => onChangeFilterValue('endDate', e.target.value)}
             />
           </div>
 
@@ -257,14 +277,14 @@ export function ManageStockView() {
               placeholder="0"
               min={0}
               value={tempFilters.min_quantity}
-              onChange={(value) => onChangeFilterValue("min_quantity", value)}
+              onChange={(value) => onChangeFilterValue('min_quantity', value)}
             />
             <NumberInput
               label="Số lượng tối đa"
               placeholder="Không giới hạn"
               min={0}
               value={tempFilters.max_quantity}
-              onChange={(value) => onChangeFilterValue("max_quantity", value)}
+              onChange={(value) => onChangeFilterValue('max_quantity', value)}
             />
           </div>
 
@@ -273,19 +293,19 @@ export function ManageStockView() {
             <Select
               label="Sắp xếp theo"
               value={tempFilters.sortBy || filters.sortBy}
-              onChange={(value) => onChangeFilterValue("sortBy", value)}
+              onChange={(value) => onChangeFilterValue('sortBy', value)}
               data={[
-                { value: "createdAt", label: "Ngày tạo" },
-                { value: "quantity", label: "Số lượng" },
+                { value: 'createdAt', label: 'Ngày tạo' },
+                { value: 'quantity', label: 'Số lượng' },
               ]}
             />
             <Select
               label="Thứ tự"
               value={tempFilters.sort || filters.sort}
-              onChange={(value) => onChangeFilterValue("sort", value)}
+              onChange={(value) => onChangeFilterValue('sort', value)}
               data={[
-                { value: "desc", label: "Giảm dần" },
-                { value: "asc", label: "Tăng dần" },
+                { value: 'desc', label: 'Giảm dần' },
+                { value: 'asc', label: 'Tăng dần' },
               ]}
             />
           </div>
@@ -309,7 +329,7 @@ export function ManageStockView() {
         </div>
       </Modal>
 
-      {/* MODAL XEM CHI TIẾT - VERSION AMÉLIORÉE */}
+      {/* MODAL XEM CHI TIẾT -  */}
       <Modal
         opened={openViewModal}
         onClose={() => {
@@ -338,52 +358,49 @@ export function ManageStockView() {
                   <h3 className="text-lg font-bold text-gray-800">Thông tin sản phẩm</h3>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div className="flex flex-col">
-                      <label className="text-sm font-semibold text-gray-600 mb-1">ID Sản phẩm</label>
-                      <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                        <span className="font-mono text-gray-900 break-all">{selectedMovement.product_id}</span>
-                      </div>
+                <div className="space-y-4">
+                  <div className="flex flex-col">
+                    <label className="text-sm font-semibold text-gray-600 mb-1">ID Sản phẩm</label>
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center">
+                      <span className="font-mono  text-gray-900 break-all">
+                        {selectedMovement.product_id}
+                      </span>
                     </div>
-
-                    {selectedMovement.product?.sku && (
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-600 mb-1">SKU</label>
-                        <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                          <span className="font-mono text-blue-600 font-medium">{selectedMovement.product.sku}</span>
-                        </div>
-                      </div>
-                    )}
                   </div>
-
-                  <div className="space-y-4">
+                  <>
                     {selectedMovement.product?.name && (
                       <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-600 mb-1">Tên sản phẩm</label>
+                        <label className="text-sm font-semibold text-gray-600 mb-1">
+                          Tên sản phẩm
+                        </label>
                         <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                          <span className="text-gray-900 font-medium">{selectedMovement.product.name}</span>
+                          <span className="text-gray-900 font-medium text-center">
+                            {selectedMovement.product.name}
+                          </span>
                         </div>
                       </div>
                     )}
-
-                    <div className="flex flex-col">
-                      <label className="text-sm font-semibold text-gray-600 mb-1">Thay đổi số lượng</label>
-                      <div
-                        className={`border-2 rounded-lg p-4 text-center ${
-                          selectedMovement.quantity > 0 ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"
+                  </>
+                  <div className="flex flex-col">
+                    <label className="text-sm font-semibold text-gray-600 mb-1">
+                      Thay đổi số lượng
+                    </label>
+                    <div
+                      className={`border-2 rounded-lg p-4 text-center ${
+                        selectedMovement.quantity > 0
+                          ? 'bg-green-50 border-green-200'
+                          : 'bg-red-50 border-red-200'
+                      }`}
+                    >
+                      <span
+                        className={`text-2xl font-bold ${
+                          selectedMovement.quantity > 0 ? 'text-green-600' : 'text-red-600'
                         }`}
                       >
-                        <span
-                          className={`text-2xl font-bold ${
-                            selectedMovement.quantity > 0 ? "text-green-600" : "text-red-600"
-                          }`}
-                        >
-                          {selectedMovement.quantity > 0 ? "+" : ""}
-                          {selectedMovement.quantity.toLocaleString()}
-                        </span>
-                        <p className="text-xs text-gray-500 mt-1">đơn vị</p>
-                      </div>
+                        {selectedMovement.quantity > 0 ? '+' : ''}
+                        {selectedMovement.quantity.toLocaleString()}
+                      </span>
+                      <p className="text-xs text-gray-500 mt-1">đơn vị</p>
                     </div>
                   </div>
                 </div>
@@ -400,23 +417,25 @@ export function ManageStockView() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="flex flex-col">
-                    <label className="text-sm font-semibold text-gray-600 mb-1">Ngày tạo phiếu</label>
+                    <label className="text-sm font-semibold text-gray-600 mb-1">
+                      Ngày tạo phiếu
+                    </label>
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center gap-3">
                       <Calendar size={16} className="text-blue-600" />
                       <div>
                         <p className="font-semibold text-gray-900">
-                          {new Date(selectedMovement.createdAt).toLocaleDateString("vi-VN", {
-                            weekday: "long",
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
+                          {new Date(selectedMovement.createdAt).toLocaleDateString('vi-VN', {
+                            weekday: 'long',
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
                           })}
                         </p>
                         <p className="text-sm text-blue-600">
-                          {new Date(selectedMovement.createdAt).toLocaleTimeString("vi-VN", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            second: "2-digit",
+                          {new Date(selectedMovement.createdAt).toLocaleTimeString('vi-VN', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit',
                           })}
                         </p>
                       </div>
@@ -424,23 +443,25 @@ export function ManageStockView() {
                   </div>
 
                   <div className="flex flex-col">
-                    <label className="text-sm font-semibold text-gray-600 mb-1">Cập nhật lần cuối</label>
+                    <label className="text-sm font-semibold text-gray-600 mb-1">
+                      Cập nhật lần cuối
+                    </label>
                     <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-3">
                       <RotateCcw size={16} className="text-green-600" />
                       <div>
                         <p className="font-semibold text-gray-900">
-                          {new Date(selectedMovement.updatedAt).toLocaleDateString("vi-VN", {
-                            weekday: "long",
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
+                          {new Date(selectedMovement.updatedAt).toLocaleDateString('vi-VN', {
+                            weekday: 'long',
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
                           })}
                         </p>
                         <p className="text-sm text-green-600">
-                          {new Date(selectedMovement.updatedAt).toLocaleTimeString("vi-VN", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            second: "2-digit",
+                          {new Date(selectedMovement.updatedAt).toLocaleTimeString('vi-VN', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit',
                           })}
                         </p>
                       </div>
@@ -460,7 +481,9 @@ export function ManageStockView() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="bg-white rounded-lg p-4 border border-gray-200 text-center">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Trạng thái</p>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                      Trạng thái
+                    </p>
                     <div
                       className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${typeColors[selectedMovement.type]?.bg} ${typeColors[selectedMovement.type]?.text}`}
                     >
@@ -470,16 +493,22 @@ export function ManageStockView() {
                   </div>
 
                   <div className="bg-white rounded-lg p-4 border border-gray-200 text-center">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">ID Giao dịch</p>
-                    <p className="font-mono text-sm text-gray-700 break-all">{selectedMovement.id}</p>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                      ID Giao dịch
+                    </p>
+                    <p className="font-mono text-sm text-gray-700 break-all">
+                      {selectedMovement.id}
+                    </p>
                   </div>
 
                   <div className="bg-white rounded-lg p-4 border border-gray-200 text-center">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Giá trị thay đổi</p>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                      Giá trị thay đổi
+                    </p>
                     <p
-                      className={`text-lg font-bold ${selectedMovement.quantity > 0 ? "text-green-600" : "text-red-600"}`}
+                      className={`text-lg font-bold ${selectedMovement.quantity > 0 ? 'text-green-600' : 'text-red-600'}`}
                     >
-                      {selectedMovement.quantity > 0 ? "+" : ""}
+                      {selectedMovement.quantity > 0 ? '+' : ''}
                       {Math.abs(selectedMovement.quantity).toLocaleString()}
                     </p>
                   </div>
@@ -490,7 +519,9 @@ export function ManageStockView() {
             {/* Footer với nút hành động */}
             <div className="bg-gray-50 border-t-2 border-gray-200 px-6 py-4">
               <div className="flex flex-col sm:flex-row gap-3 justify-between items-center">
-                <div className="text-xs text-gray-500">Phiếu được tạo vào {formatDate(selectedMovement.createdAt)}</div>
+                <div className="text-xs text-gray-500">
+                  Phiếu được tạo vào {formatDate(selectedMovement.createdAt)}
+                </div>
 
                 <div className="flex gap-3">
                   <button
@@ -538,7 +569,11 @@ export function ManageStockView() {
         />
 
         {/* Bộ lọc đang áp dụng */}
-        {(filters.type || filters.startDate || filters.endDate || filters.min_quantity || filters.max_quantity) && (
+        {(filters.type ||
+          filters.startDate ||
+          filters.endDate ||
+          filters.min_quantity ||
+          filters.max_quantity) && (
           <div className="mb-4 p-3 bg-blue-50 rounded-md">
             <div className="flex items-center justify-between">
               <div className="flex flex-wrap gap-2">
@@ -549,12 +584,12 @@ export function ManageStockView() {
                 )}
                 {filters.startDate && (
                   <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
-                    Từ ngày: {new Date(filters.startDate).toLocaleDateString("vi-VN")}
+                    Từ ngày: {new Date(filters.startDate).toLocaleDateString('vi-VN')}
                   </span>
                 )}
                 {filters.endDate && (
                   <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
-                    Đến ngày: {new Date(filters.endDate).toLocaleDateString("vi-VN")}
+                    Đến ngày: {new Date(filters.endDate).toLocaleDateString('vi-VN')}
                   </span>
                 )}
                 {filters.min_quantity && (
@@ -568,7 +603,10 @@ export function ManageStockView() {
                   </span>
                 )}
               </div>
-              <button onClick={handleResetFilters} className="text-blue-600 hover:underline text-xs">
+              <button
+                onClick={handleResetFilters}
+                className="text-blue-600 hover:underline text-xs"
+              >
                 Xóa tất cả
               </button>
             </div>
@@ -584,10 +622,15 @@ export function ManageStockView() {
           data={movements}
           isLoading={loading}
           renderRow={(movement: StockMovement, idx: number) => (
-            <tr key={idx} className="border-b border-b-gray-100 hover:bg-gray-50 transition-colors duration-300">
-              <td className="px-4 py-2 text-xs font-mono text-gray-600">{movement.id.slice(0, 8)}...</td>
+            <tr
+              key={idx}
+              className="border-b border-b-gray-100 hover:bg-gray-50 transition-colors duration-300"
+            >
+              <td className="px-4 py-2 text-xs font-mono text-gray-600">
+                {movement.id.slice(0, 8)}...
+              </td>
               <td className="px-4 py-2 text-xs font-medium text-gray-900">
-                {movement.product?.name || movement.product_id.slice(0, 8) + "..."}
+                {movement.product?.name || movement.product_id.slice(0, 8) + '...'}
               </td>
               <td className="px-0.5 py-2">
                 <span
@@ -598,9 +641,28 @@ export function ManageStockView() {
                 </span>
               </td>
               <td className="px-4 py-2 text-xs font-bold">
-                <span className={movement.quantity > 0 ? "text-green-600" : "text-red-600"}>
-                  {movement.quantity > 0 ? "+" : ""}
-                  {movement.quantity}
+                {/* <div
+                  className={`border-2 rounded-lg p-4 text-center ${
+                    selectedMovement.quantity > 0
+                      ? 'bg-green-50 border-green-200'
+                      : 'bg-red-50 border-red-200'
+                  }`}
+                >
+                  <span
+                    className={`text-2xl font-bold ${
+                      selectedMovement.quantity > 0 ? 'text-green-600' : 'text-red-600'
+                    }`}
+                  >
+                    {selectedMovement.quantity > 0 ? '+' : ''}
+                    {selectedMovement.quantity.toLocaleString()}
+                  </span>
+                  <p className="text-xs text-gray-500 mt-1">đơn vị</p>
+                </div> */}
+                <span
+                  className={`${movement.quantity > 0 ? 'text-green-600' : 'text-red-600'} text-sm font-medium`}
+                >
+                  {movement.quantity > 0 ? '+' : ''}
+                  {movement.quantity.toLocaleString()}
                 </span>
               </td>
               <td className="px-4 py-2 text-xs text-gray-500">{formatDate(movement.createdAt)}</td>

@@ -41,6 +41,7 @@ export function useProduct() {
   // STATE
   const currentStore = useAtomValue(currentStoreAtom);
   const [products, setProducts] = useState<Product[]>([]);
+  console.log(products);
   const [product, setProduct] = useState<Product>();
   // FORM
   const createProductForm = useForm<CreateProductInput>({
@@ -64,6 +65,7 @@ export function useProduct() {
     if (!currentStore?.id) return;
     const res = await requestWrapper(() => api.post(`/stores/${currentStore?.id}/products`, data));
     if (res?.data.success) {
+      getProducts();
       showSuccessToast(res.data.message);
       return res.data.data;
     }
@@ -96,6 +98,20 @@ export function useProduct() {
       setProduct(res.data.data);
     }
   };
+  const applyStockMovement = async (productId: string, delta: number, type: string) => {
+    if (!currentStore?.id) return;
+    const storeId = currentStore?.id ?? '';
+    const res = await requestWrapper(() =>
+      api.put(`stores/${storeId}/inventories/applyStockMovement/${productId}`, {
+        delta,
+        type,
+      })
+    );
+    if (res?.data.success) {
+      getProducts();
+      showSuccessToast(res.data.message);
+    }
+  };
   useEffect(() => {
     if (!currentStore?.id) return;
     getProducts();
@@ -105,6 +121,7 @@ export function useProduct() {
     createProduct,
     deleteProduct,
     updateProduct,
+    applyStockMovement,
     setFilters,
     setPaginationParams,
     setSortBy,
