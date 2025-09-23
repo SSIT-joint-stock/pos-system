@@ -26,8 +26,6 @@
     "@repo/typescript-config": "*",
     "@tailwindcss/cli": "^4.1.5",
     "@tailwindcss/postcss": "4.1.11",
-    "@types/react": "^18.2.61",
-    "@types/react-dom": "^18.2.19",
     "eslint": "^8.57.0",
     "postcss-preset-mantine": "^1.18.0",
     "postcss-simple-vars": "^7.0.1",
