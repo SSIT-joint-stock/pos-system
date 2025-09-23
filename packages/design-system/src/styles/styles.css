@@ -1,6 +1,8 @@
 @import "@repo/tailwind-config";
 @import "@mantine/core/styles.css";
-@import '@mantine/charts/styles.css';
+@import "@mantine/charts/styles.css";
+@import "@mantine/dates/styles.css";
+@plugin 'tailwind-scrollbar';
 /* POS Blue Theme Tokens */
 :root {
   /* POS primary blue and scale */
@@ -51,11 +53,11 @@
 
 /* Common component utilities */
 @layer utilities {
-  .container {
+  /* .container {
     margin-inline: auto;
     padding-inline: 1rem;
     max-width: 1280px;
-  }
+  } */
 
   .btn-primary {
     @apply bg-[--color-primary] text-[--color-primary-foreground] hover:bg-[--pos-blue-700] active:bg-[--pos-blue-800] disabled:opacity-60 disabled:cursor-not-allowed;
@@ -66,6 +68,40 @@
   }
 
   .card {
-    @apply rounded-lg border border-gray-200/60 bg-white shadow-sm dark:border-gray-800/60 dark:bg-gray-900;
+    @apply rounded-lg border border-gray-200/60 bg-white shadow-md dark:border-gray-800/80 dark:bg-gray-900;
+  }
+  .scrollbar-fixed::-webkit-scrollbar {
+    width: 6px; /* fixed width for vertical scrollbars */
+  }
+
+  .scrollbar-fixed::-webkit-scrollbar-thumb {
+    background-color: #e3e8ef; /* Tailwind gray-50 */
+    border-radius: 9999px;
+  }
+
+  .scrollbar-fixed::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+@layer base {
+  /* Scrollbar - hiển thị rõ ràng toàn cục */
+  ::-webkit-scrollbar {
+    width: 0px; /* scrollbar dày hơn */
+    height: 0px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #e5e7eb; /* Tailwind gray-200, nền track dễ nhìn */
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #e3e8ef; /* POS Blue-500 */
+    border-radius: 6px;
+    border: 2px solid #e5e7eb; /* tạo khoảng cách rõ ràng với track */
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #e3e8ef; /* POS Blue-600 khi hover */
   }
 }

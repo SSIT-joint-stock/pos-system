@@ -1,0 +1,232 @@
+'use client';
+import { Input, Modal, Select, Table } from '@repo/design-system/components/ui';
+import FilterBar from '../components/filter-bar';
+import { BadgeAlert, Check, Download, Edit, Eye, ShoppingCart, Trash } from 'lucide-react';
+import React, { useState } from 'react';
+import Image from 'next/image';
+import { formatCurrency, formatDate } from '../../../../../main/src/utils/index';
+import { useOrders } from '../../../../../main/src/hooks/orders/use-orders';
+import { Order } from '@repo/design-system/types';
+import { OrderItem } from '@main/schemas/order/order.schema';
+
+const tableHeaders = [
+  'Mã Đơn Hàng',
+  'Khách Hàng',
+  'Giá',
+  'Trạng Thái Đơn Hàng',
+  'Ngày Tạo',
+  'Thao Tác',
+];
+
+const statusColors: Record<string, string> = {
+  PROCESSING: 'text-blue-500',
+  RETURNED: 'text-red-900',
+  PENDING: 'text-orange-500',
+  CANCELLED: 'text-red-600',
+  COMPLETED: 'text-green-700',
+  PAID: 'text-green-700',
+  REFUNDED: 'text-red-900',
+};
+
+const statusLabels: Record<string, string> = {
+  PROCESSING: 'Đang xử lý',
+  RETURNED: 'Đã trả hàng',
+  PENDING: 'Chờ thanh toán',
+  CANCELLED: 'Đã hủy',
+  COMPLETED: 'Hoàn thành',
+  PAID: 'Đã thanh toán',
+  REFUNDED: 'Đã hoàn tiền',
+};
+
+const paymentMethodLabels: Record<string, string> = {
+  CASH: 'Tiền mặt',
+  BANK_TRANSFER: 'Chuyển khoản',
+  MOMO: 'Momo',
+  ZALO_PAY: 'Zalo Pay',
+  CREDIT_CARD: 'Thẻ tín dụng',
+};
+
+export function OrdersView() {
+  const {
+    orders,
+
+    loading,
+    pagination,
+    updateOrderForm,
+    paginationParams,
+    setPaginationParams,
+    setFilters,
+    deleteOrder,
+  } = useOrders();
+
+  // Local state for modals
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [openEditModal, setOpenEditModal] = useState(false);
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [openViewModal, setOpenViewModal] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  // Handle fetch order details when modal opens
+
+  // Handle delete order
+  const handleDeleteOrder = async () => {
+    if (!selectedOrder?.id) return;
+
+    try {
+      setDeleteLoading(true);
+      const success = await deleteOrder(selectedOrder.id);
+
+      if (success) {
+        setDeleteModal(false);
+        setSelectedOrder(null);
+      }
+    } catch (error) {
+      console.error('Error deleting order:', error);
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  // Handle update order
+
+  const handleViewOrder = (order: any) => {
+    setSelectedOrder(order);
+    setOpenViewModal(true);
+  };
+
+  const handleEditOrder = (order: any) => {
+    setSelectedOrder(order);
+    setOpenEditModal(true);
+
+    // Populate form with current values
+    updateOrderForm.reset({
+      customer_name: order.customer_name,
+      payment_method: order.payment_method,
+    });
+  };
+
+  const closeModals = () => {
+    setOpenEditModal(false);
+    setOpenViewModal(false);
+    setSelectedOrder(null);
+    updateOrderForm.reset();
+  };
+
+  return (
+    <>
+      {/* VIEW/EDIT MODAL */}
+
+      {/* DELETE MODAL */}
+      <Modal opened={deleteModal} size="sm" onClose={() => setDeleteModal(false)}>
+        <div className="space-y-3 flex flex-col items-center">
+          <div className="flex flex-col gap-3 items-center justify-center">
+            <div className="justify-center flex rounded-full bg-red-100 w-fit text-red-500 p-3.5">
+              <BadgeAlert size={38} />
+            </div>
+            <div className="text-lg font-bold text-center">Bạn Có Chắc Chắn Muốn Xóa?</div>
+            <div className="text-sm text-gray-500 text-center">
+              Hành động này không thể hoàn tác. Đơn hàng #{selectedOrder?.code || selectedOrder?.id}{' '}
+              sẽ bị xóa vĩnh viễn.
+            </div>
+          </div>
+          <button
+            className="bg-red-600 rounded-lg text-white w-full py-2 cursor-pointer font-bold disabled:opacity-50"
+            onClick={handleDeleteOrder}
+            disabled={deleteLoading}
+          >
+            {deleteLoading ? 'Đang xóa...' : 'Xác Nhận Xóa'}
+          </button>
+          <button
+            className="cursor-pointer"
+            onClick={() => setDeleteModal(false)}
+            disabled={deleteLoading}
+          >
+            Hủy
+          </button>
+        </div>
+      </Modal>
+
+      <div className="flex flex-col h-full gap-5">
+        {/* ACTION */}
+        <FilterBar
+          onFilterChange={(newFilters) => {
+            setFilters(newFilters);
+          }}
+          actions={
+            <>
+              <button className="bg-pos-blue-400 border text-nowrap border-gray-200 rounded-md flex items-center gap-2 py-2 px-4 cursor-pointer hover:opacity-80 transition-opacity duration-300">
+                <Download size={16} className="text-white" />
+                <span className="text-white font-medium text-xs">
+                  {loading ? 'Đang xuất...' : 'Xuất dữ liệu'}
+                </span>
+              </button>
+            </>
+          }
+        />
+
+        {/* TABLE AND PAGINATION */}
+        <Table
+          totalPages={pagination?.totalPages}
+          pageSize={pagination?.limit ?? paginationParams.limit}
+          onPageChange={(page) => setPaginationParams((prev) => ({ ...prev, page }))}
+          onPageSizeChange={(size) =>
+            setPaginationParams((prev) => ({
+              ...prev,
+              limit: size,
+            }))
+          }
+          tableHeaders={tableHeaders}
+          data={orders}
+          isLoading={loading}
+          renderRow={(order, idx) => (
+            <tr
+              key={idx}
+              className="border-b border-b-gray-100 hover:bg-gray-50 transition-colors duration-300"
+            >
+              <td className="px-4 py-2 font-medium text-xs text-gray-500 truncate">
+                {order.code || `#${order.id}`}
+              </td>
+              <td className="px-4 py-2 font-medium">{order.customer_name || 'Khách lẻ'}</td>
+              <td className="px-4 py-2 text-sm text-gray-500">
+                {formatCurrency(order.total_amount)}
+              </td>
+              <td className="px-4 py-2">
+                <span className={`text-sm font-medium rounded-xl ${statusColors[order.status]}`}>
+                  {statusLabels[order.status] || order.status}
+                </span>
+              </td>
+              <td className="px-4 py-2 font-medium text-sm text-gray-500">
+                {formatDate(order.createdAt)}
+              </td>
+              <td>
+                <div className="flex items-center gap-5 pl-4">
+                  <button
+                    onClick={() => handleViewOrder(order)}
+                    className="flex justify-center items-center cursor-pointer w-[36px] h-[36px] bg-gray-50 text-gray-500 rounded-md hover:opacity-100 hover:bg-gray-700 hover:text-white opacity-70 transition-opacity duration-200"
+                  >
+                    <Eye size={16} />
+                  </button>
+                  <button
+                    className="flex justify-center items-center cursor-pointer w-[36px] h-[36px] bg-pos-blue-50 text-pos-blue-500 rounded-md hover:opacity-100 hover:bg-pos-blue-500 hover:text-pos-blue-50 opacity-70 transition-opacity duration-200"
+                    onClick={() => handleEditOrder(order)}
+                  >
+                    <Edit size={16} />
+                  </button>
+                  <button
+                    className="flex justify-center items-center cursor-pointer w-[36px] h-[36px] bg-red-50 text-red-500 rounded-md hover:opacity-100 hover:bg-red-500 hover:text-white opacity-70 transition-opacity duration-200 ml-auto"
+                    onClick={() => {
+                      setDeleteModal(true);
+                      setSelectedOrder(order);
+                    }}
+                  >
+                    <Trash size={16} />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          )}
+        />
+      </div>
+    </>
+  );
+}

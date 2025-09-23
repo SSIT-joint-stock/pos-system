@@ -1,0 +1,75 @@
+'use client';
+import React, { useEffect, useState } from 'react';
+import { getDefaultStore, useAtomValue } from 'jotai';
+import {
+  accessTokenAtom,
+  currentStoreAtom,
+  currentUserAtom,
+} from '@repo/design-system/stores/auth';
+import api from '../../../../../apps/web/main/src/libs/axios';
+import { Loading } from '../ui';
+import Sidebar from '../../../../../apps/web/main/src/sections/dashboard/components/sidebar-screen';
+
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const [isExpand, setIsExpand] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
+  const store = getDefaultStore();
+  const accessToken = useAtomValue(accessTokenAtom);
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+
+    const init = async () => {
+      try {
+        let token = accessToken;
+        let currentStore = store.get(currentStoreAtom);
+
+        // Nếu chưa có token thì refresh
+        if (!token) {
+          const res = await api.post('/auth/refresh-token');
+          const { access_token, user, store: defaultStore } = res.data.data;
+
+          token = access_token;
+          currentStore = defaultStore;
+
+          store.set(accessTokenAtom, token);
+          store.set(currentUserAtom, user);
+          store.set(currentStoreAtom, currentStore);
+        }
+
+        // Nếu chưa có currentStore (do localStorage xóa)
+        if (!currentStore) {
+          const res = await api.get('/auth/profile');
+          const { store: defaultStore } = res.data.data;
+
+          currentStore = defaultStore;
+          store.set(currentStoreAtom, currentStore);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    init();
+  }, [hydrated, store, accessToken]);
+
+  if (!hydrated) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loading />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex w-screen h-screen ">
+      <aside className="flex-shrink-0">
+        <Sidebar isExpand={isExpand} setIsExpand={setIsExpand} />
+      </aside>
+      <main className="flex-1 p-4 overflow-auto bg-gray-50 scrollbar-fixed">{children}</main>
+    </div>
+  );
+}
