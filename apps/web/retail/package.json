@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev --port 3001",
-    "build": "next build",
+    "build": "rimraf .next && set NEXT_PUBLIC_DISABLE_ESLINT=true && next build",
     "start": "next start --port 3001",
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",
@@ -40,11 +40,6 @@
   "devDependencies": {
     "@repo/eslint-config": "*",
     "@repo/typescript-config": "*",
-    "@types/node": "20.11.24",
-    "@types/react": "18.2.61",
-    "@types/react-dom": "18.2.19",
-    "@types/lodash.isequal": "^4.5.0",
-    "@types/jsbarcode": "^3.11.3",
     "typescript": "5.5.4",
     "eslint": "8.57.0",
     "eslint-config-next": "14.2.3",

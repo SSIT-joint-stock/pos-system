@@ -32,7 +32,6 @@
   "devDependencies": {
     "@repo/eslint-config": "*",
     "@repo/typescript-config": "*",
-    "@types/node": "^20.12.12",
     "eslint": "^8.57.0",
     "rimraf": "^5.0.7",
     "tsup": "^8.1.0",
