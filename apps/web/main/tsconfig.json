@@ -9,9 +9,6 @@
       "@repo/design-system/*": [
         "../../../packages/design-system/src/*"
       ],
-      "@repo/*": [
-        "../../../packages/*"
-      ]
     },
     "plugins": [
       {
