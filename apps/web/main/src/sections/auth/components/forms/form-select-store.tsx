@@ -30,7 +30,7 @@ export default function FormSelectStore({
           description: store.description,
           member: store.membersCount,
         }))}
-        onChange={handleStoreChange}
+        onChange={(value) => handleStoreChange(value as string)}
       />
       <Button type="submit" title="Đăng nhập" size="sm" disabled={loading} />
     </form>

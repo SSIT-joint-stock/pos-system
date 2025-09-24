@@ -28,7 +28,7 @@ import FilterBar from '../components/filter-bar';
 
 // Define proper TypeScript interfaces
 interface Product {
-  id: number;
+  product_id: string;
   product: {
     name: string;
     price: number;
@@ -139,7 +139,7 @@ export function SalesView() {
       invoices.map((inv) => {
         if (inv.id === activeInvoice) {
           // Kiểm tra xem sản phẩm đã có trong hóa đơn chưa
-          const existingProductIndex = inv.products.findIndex((p) => p.id === product.id);
+          const existingProductIndex = inv.products.findIndex((p) => p.product_id === product.id);
 
           if (existingProductIndex >= 0) {
             // Nếu đã có, tăng số lượng
@@ -174,7 +174,7 @@ export function SalesView() {
   };
 
   // Cập nhật số lượng sản phẩm
-  const updateQuantity = (productId: number, newQuantity: number) => {
+  const updateQuantity = (productId: string, newQuantity: number) => {
     if (newQuantity < 1) return;
 
     setInvoices(
@@ -183,7 +183,7 @@ export function SalesView() {
           return {
             ...inv,
             products: inv.products.map((p) =>
-              p.id === productId
+              p.product_id === productId
                 ? {
                     ...p,
                     quantity: newQuantity,
@@ -199,13 +199,13 @@ export function SalesView() {
   };
 
   // Xóa sản phẩm khỏi hóa đơn
-  const removeProduct = (productId: number) => {
+  const removeProduct = (productId: string) => {
     setInvoices(
       invoices.map((inv) => {
         if (inv.id === activeInvoice) {
           return {
             ...inv,
-            products: inv.products.filter((p) => p.id !== productId),
+            products: inv.products.filter((p) => p.product_id !== productId),
           };
         }
         return inv;
@@ -240,6 +240,7 @@ export function SalesView() {
 
   // Cập nhật phương thức thanh toán
   const updatePaymentMethod = (method: string) => {
+    if (!method) return;
     setInvoices(
       invoices.map((inv) => {
         if (inv.id === activeInvoice) {
@@ -523,7 +524,7 @@ export function SalesView() {
               <div className="h-[380px] overflow-y-scroll ">
                 {selectedProducts.map((item) => (
                   <div
-                    key={item.id}
+                    key={item.product_id}
                     className="flex items-center gap-3.5 border-b-2 border-b-gray-200 py-3.5"
                   >
                     <div className="">
@@ -541,7 +542,7 @@ export function SalesView() {
                         <h1 className="font-semibold">{item.product.name}</h1>
                         <button
                           className="cursor-pointer scale-100 hover:scale-150 hover:-translate-x-2.5 transition-all duration-300 hover:bg-red-50 hover:px-2 hover:py-1 hover:text-red-500 hover:rounded-md text-red-500"
-                          onClick={() => removeProduct(item.id)}
+                          onClick={() => removeProduct(item.product_id)}
                         >
                           <Trash size={16} />
                         </button>
@@ -554,7 +555,7 @@ export function SalesView() {
                         <div className="flex items-center justify-center">
                           <button
                             disabled={item.quantity === 1}
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            onClick={() => updateQuantity(item.product_id, item.quantity - 1)}
                             className="border border-gray-200 rounded-md text-center flex items-center justify-center w-8 h-8 disabled:bg-gray-50 disabled:border-0 disabled:cursor-not-allowed"
                           >
                             <span>
@@ -565,25 +566,27 @@ export function SalesView() {
                             value={item.quantity}
                             min={1}
                             max={(() => {
-                              const inventoryProduct = inventories.find((p) => p.id === item.id);
-                              return inventoryProduct
-                                ? item.quantity >= inventoryProduct.quantity
-                                : false;
+                              const inventoryProduct = inventories.find(
+                                (p) => p.id === item.product_id
+                              );
+                              return inventoryProduct ? inventoryProduct.quantity : 1;
                             })()}
                             onChange={(e) => {
-                              updateQuantity(item.id, parseInt(e.target.value) || 1);
+                              updateQuantity(item.product_id, parseInt(e.target.value) || 1);
                             }}
                             className="w-8 h-8 text-center outline-0 border border-gray-200 mx-1 rounded-md"
                           />
                           <button
                             disabled={(() => {
-                              const inventoryProduct = inventories.find((p) => p.id === item.id);
+                              const inventoryProduct = inventories.find(
+                                (p) => p.id === item.product_id
+                              );
                               return inventoryProduct
                                 ? item.quantity >= inventoryProduct.quantity
                                 : false;
                             })()}
                             onClick={() => {
-                              updateQuantity(item.id, item.quantity + 1);
+                              updateQuantity(item.product_id, item.quantity + 1);
                             }}
                             className="border border-gray-200 rounded-md text-center flex items-center justify-center w-8 h-8 disabled:bg-gray-50 disabled:border-0 disabled:cursor-not-allowed"
                           >
@@ -644,7 +647,7 @@ export function SalesView() {
                 data={['Chuyển khoản', 'Tiền mặt']}
                 className="mt-2"
                 placeholder="Chọn phương thức thanh toán"
-                onChange={updatePaymentMethod}
+                onChange={updatePaymentMethod as any}
               />
               <button
                 onClick={createOrder}

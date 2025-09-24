@@ -1,17 +1,17 @@
-"use client";
-import * as React from "react";
-import dayjs from "dayjs";
-import "dayjs/locale/vi";
-dayjs.locale("vi");
-import { DatePickerInput as MantineDatePicker } from "@mantine/dates";
-type TypeDate = "range" | "default" | "multiple";
-type SizeInput = "xs" | "sm" | "md" | "lg" | "xl";
-type SizeRadius = "xs" | "sm" | "md" | "lg" | "xl";
-type SizeVariant = "default" | "filled" | "unstyled";
+'use client';
+import * as React from 'react';
+import dayjs from 'dayjs';
+import 'dayjs/locale/vi';
+dayjs.locale('vi');
+import { DatePickerInput as MantineDatePicker } from '@mantine/dates';
+type TypeDate = 'range' | 'default' | 'multiple';
+type SizeInput = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+type SizeRadius = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+type SizeVariant = 'default' | 'filled' | 'unstyled';
 export type DatePickerProps = React.PropsWithChildren & {
   placeholder?: string;
-  value?: Date | Date[] | null;
-  onChange?: (value: Date | Date[] | null) => void;
+  value?: Date | Date[] | [Date | null, Date | null] | null;
+  onChange?: (value: Date | Date[] | [Date | null, Date | null] | null) => void;
   type?: TypeDate;
   label?: string;
   radius?: SizeRadius;
@@ -29,13 +29,13 @@ export function DatePickerInput({
   description,
   label,
   onChange,
-  size = "md",
-  radius = "md",
+  size = 'md',
+  radius = 'md',
   type,
   value,
   placeholder,
   leftSection,
-  variant = "default",
+  variant = 'default',
   clearable,
   rightSection,
 }: DatePickerProps) {
@@ -43,7 +43,14 @@ export function DatePickerInput({
     <MantineDatePicker
       placeholder={placeholder}
       value={value}
-      onChange={onChange}
+      onChange={(val) => {
+        if (!val) return onChange?.(null);
+        if (Array.isArray(val)) {
+          onChange?.(val.map((d) => (d ? dayjs(d).format('DD-MM-YYYY') : null)) as any);
+        } else {
+          onChange?.(dayjs(val).format('DD-MM-YYYY') as any);
+        }
+      }}
       type={type}
       label={label}
       variant={variant}
@@ -55,8 +62,8 @@ export function DatePickerInput({
       leftSection={leftSection}
       maxDate={dayjs().toDate()}
       valueFormat="DD/MM/YYYY"
-      monthLabelFormat={(month) => dayjs(month).format("MMMM")}
-      weekdayFormat={(day) => dayjs(day).format("dd")}
+      monthLabelFormat={(month) => dayjs(month).format('MMMM')}
+      weekdayFormat={(day) => dayjs(day).format('dd')}
       rightSection={rightSection}
     />
   );

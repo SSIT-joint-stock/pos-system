@@ -42,7 +42,6 @@ export function useQueryParams<T extends Record<string, FilterValue>>(
 
       if (Array.isArray(value) && value.length === 2) {
         const [start, end] = value;
-        console.log(start, end);
         if (start) {
           params.append('startDate', start);
         }
@@ -54,7 +53,7 @@ export function useQueryParams<T extends Record<string, FilterValue>>(
         return;
       }
 
-      params.append(queryKey, value.toString());
+      params.append(queryKey, value?.toString());
     });
     console.log(params);
     return params;

@@ -226,7 +226,9 @@ export function ManageView() {
               color="red"
               size={'md'}
               onClick={() => {
-                deleteProduct(product?.id);
+                if (product && product.id) {
+                  deleteProduct(product.id);
+                }
                 setDeleteModal(false);
               }}
               className="bg-red-600 rounded-lg text-white cursor-pointer font-bold w-full "
@@ -269,7 +271,9 @@ export function ManageView() {
       >
         <form
           onSubmit={updateProductForm.handleSubmit(async (data) => {
-            await updateProduct(product?.id, data);
+            if (product && product.id) {
+              await updateProduct(product?.id, data);
+            }
             setOpenEditModal(false);
           })}
           className={`${openEditModal ? 'space-y-4' : '"space-y-6"'}`}
@@ -284,7 +288,7 @@ export function ManageView() {
                 width={1000}
                 height={1000}
                 src={'/placeholder.jpg'}
-                alt={product?.name}
+                alt={product?.name || 'Image name'}
                 className="w-48 h-48 object-cover rounded-lg shadow"
                 unoptimized
               />
@@ -492,7 +496,7 @@ export function ManageView() {
               { label: 'Chuyển kho xuất', value: 'TRANSFER_EXPORT' },
             ]}
             value={type}
-            onChange={(value) => setType(value)}
+            onChange={(value) => setType(value || 'ADJUSTMENT')}
             defaultValue={type}
           />
           <Input

@@ -1,7 +1,7 @@
-"use client";
-import { AutoComplete, DatePickerInput, Select } from "@repo/design-system/components/ui";
-import { Calendar1, Search } from "lucide-react";
-import * as React from "react";
+'use client';
+import { AutoComplete, DatePickerInput, Select } from '@repo/design-system/components/ui';
+import { Calendar1, Search } from 'lucide-react';
+import * as React from 'react';
 
 type FilterOption = {
   label: string;
@@ -12,7 +12,11 @@ type FilterBarProps = {
   onSearch?: (value: string) => void;
   statusOptions?: FilterOption[];
   categoryOptions?: FilterOption[];
-  onFilterChange?: (filters: { status?: string; category?: string; date?: [string, string] }) => void;
+  onFilterChange?: (filters: {
+    status?: string;
+    category?: string;
+    date?: [string, string];
+  }) => void;
   actions?: React.ReactNode;
   hasBg?: boolean;
   setWidth?: string;
@@ -25,12 +29,12 @@ export default function FilterBar({
   onFilterChange,
   actions,
   hasBg = true,
-  setWidth = "34%",
+  setWidth = '34%',
 }: FilterBarProps) {
   const [status, setStatus] = React.useState<string | undefined>(undefined);
   const [category, setCategory] = React.useState<string | undefined>(undefined);
-  const [date, setDate] = React.useState<[string | null, string | null]>([null, null]);
-  const [searchValue, setSearchValue] = React.useState<string>("");
+  const [date, setDate] = React.useState<Date[] | null>(null);
+  const [searchValue, setSearchValue] = React.useState<string>('');
 
   // Ref to track if component has mounted
   const hasMounted = React.useRef(false);
@@ -46,7 +50,7 @@ export default function FilterBar({
       onFilterChange?.({
         status,
         category,
-        date: null,
+        date: undefined,
       });
       return;
     }
@@ -54,21 +58,21 @@ export default function FilterBar({
     onFilterChange?.({
       status,
       category,
-      date: [date[0], date[1]],
+      date: [date[0]?.toISOString() ?? '', date[1]?.toISOString() ?? ''] as [string, string],
     });
   }, [status, category, date]);
   // Handle search when button is clicked
   const handleSearchClick = () => {
-    const timedout = setTimeout(() => {
+    const timeout = setTimeout(() => {
       if (onSearch) {
         onSearch(searchValue);
       }
     }, 1000);
-    return () => clearTimeout(timedout);
+    return () => clearTimeout(timeout);
   };
 
   return (
-    <div className={`flex items-center ${hasBg ? "bg-white p-5 rounded-lg shadow" : ""}`}>
+    <div className={`flex items-center ${hasBg ? 'bg-white p-5 rounded-lg shadow' : ''}`}>
       <div className="flex items-center w-full gap-2">
         {/* SEARCH */}
         <form
@@ -85,10 +89,14 @@ export default function FilterBar({
             leftSection={<Search size={16} />}
             variant="unstyled"
             placeholder="Tìm kiếm sản phẩm"
-            data={["T-Shirt", "Cap", "Shoes", "Watch", "Sunglass"]}
+            data={['T-Shirt', 'Cap', 'Shoes', 'Watch', 'Sunglass']}
             className="flex-1 py-[1px] text-sm text-gray-900 font-medium placeholder:font-normal"
             rightSection={
-              <button onClick={handleSearchClick} className="bg-pos-blue-500 text-white p-2" title="Tìm kiếm">
+              <button
+                onClick={handleSearchClick}
+                className="bg-pos-blue-500 text-white p-2"
+                title="Tìm kiếm"
+              >
                 <Search size={16} />
               </button>
             }
@@ -103,7 +111,7 @@ export default function FilterBar({
               position="bottom"
               placeholder="Trạng thái"
               value={status}
-              onChange={setStatus}
+              onChange={(value) => setStatus(value ?? undefined)}
               size="xs"
               radius="sm"
               className="w-[200px] text-sm font-medium"
@@ -116,7 +124,7 @@ export default function FilterBar({
               placeholder="Danh mục"
               position="bottom"
               value={category}
-              onChange={setCategory}
+              onChange={(value) => setCategory(value ?? undefined)}
               size="xs"
               radius="sm"
               className="w-[150px] text-xs font-medium"
@@ -132,7 +140,7 @@ export default function FilterBar({
               placeholder="VD: 15/08/2025-22/08/2025"
               size="xs"
               value={date}
-              onChange={setDate}
+              onChange={(val) => setDate(val as Date[] | null)}
               rightSection={<Calendar1 size={16} />}
               className="w-full text-nowrap py-[1px] px-2 text-sm text-gray-900 font-medium placeholder:font-normal placeholder:text-gray-900"
             />

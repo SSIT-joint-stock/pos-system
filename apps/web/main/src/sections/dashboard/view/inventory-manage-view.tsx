@@ -98,25 +98,31 @@ export function InventoryManageView() {
             </div>
             <div>
               <p className="font-medium text-gray-700">Trạng thái</p>
-              <span
-                className={`text-xs font-medium px-2 py-1 rounded-full ${statusColors[selectedInventory?.status]}`}
-              >
-                {selectedInventory?.status}
-              </span>
+              {selectedInventory && selectedInventory.status && (
+                <span
+                  className={`text-xs font-medium px-2 py-1 rounded-full ${statusColors[selectedInventory?.status]}`}
+                >
+                  {selectedInventory?.status}
+                </span>
+              )}
             </div>
           </div>
 
           <div>
             <p className="font-medium text-gray-700">Ngày tạo</p>
-            <p className="text-gray-600">
-              {new Date(selectedInventory?.createdAt).toLocaleString()}
-            </p>
+            {selectedInventory && selectedInventory.createdAt && (
+              <p className="text-gray-600">
+                {new Date(selectedInventory?.createdAt).toLocaleString()}
+              </p>
+            )}
           </div>
 
           <div className="border-t border-gray-300 pt-4">
-            <p className="text-sm text-gray-500">
-              Lần cuối cập nhật: {new Date(selectedInventory?.updatedAt).toLocaleString()}
-            </p>
+            {selectedInventory && selectedInventory.updatedAt && (
+              <p className="text-sm text-gray-500">
+                Lần cuối cập nhật: {new Date(selectedInventory?.updatedAt).toLocaleString()}
+              </p>
+            )}
           </div>
         </div>
       </Modal>
@@ -144,7 +150,9 @@ export function InventoryManageView() {
             label="Giảm giá (%)"
             placeholder="Nhập phần trăm giảm giá"
             value={revalueData.discount}
-            onChange={(value) => setRevalueData((prev) => ({ ...prev, discount: value }))}
+            onChange={(value) =>
+              setRevalueData((prev) => ({ ...prev, discount: Number(value ?? 0) }))
+            }
             min={0}
             max={100}
           />
@@ -153,7 +161,7 @@ export function InventoryManageView() {
             label="Tổng giá trị"
             placeholder="Nhập tổng giá trị mới"
             value={revalueData.total}
-            onChange={(value) => setRevalueData((prev) => ({ ...prev, total: value }))}
+            onChange={(value) => setRevalueData((prev) => ({ ...prev, total: Number(value ?? 0) }))}
             min={0}
           />
 
@@ -196,7 +204,7 @@ export function InventoryManageView() {
             label="Trạng thái mới"
             placeholder="Chọn trạng thái"
             value={statusData.status}
-            onChange={(value) => setStatusData({ status: value })}
+            onChange={(value) => setStatusData({ status: value ?? 'ACTIVE' })}
             data={[
               { value: 'ACTIVE', label: 'ACTIVE' },
               { value: 'INACTIVE', label: 'INACTIVE' },

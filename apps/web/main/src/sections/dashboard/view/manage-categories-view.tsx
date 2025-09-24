@@ -1,16 +1,16 @@
-"use client";
-import { Button, Loading, Modal, Pagination, Select, Table } from "@repo/design-system/components/ui";
-import FilterBar from "../components/filter-bar";
-import { Download, Eye, Edit, Trash2, Plus, Filter, Info, Calendar, X, Tag, Search } from "lucide-react";
-import React, { useEffect, useState } from "react";
-import { TextInput, Textarea } from "@mantine/core";
-import api from "../../../../../main/src/libs/axios";
-import { useAtom } from "jotai";
-import { currentStoreAtom } from "@repo/design-system/stores/auth";
-import { toast } from "react-toastify";
-import { formatDate } from "../../../../../main/src/utils";
+'use client';
+import { Button, Modal, Select, Table } from '@repo/design-system/components/ui';
+import FilterBar from '../components/filter-bar';
+import { Download, Eye, Edit, Trash2, Plus, Filter, Calendar, X, Tag, Search } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { TextInput, Textarea } from '@mantine/core';
+import api from '../../../../../main/src/libs/axios';
+import { useAtom } from 'jotai';
+import { currentStoreAtom } from '@repo/design-system/stores/auth';
+import { toast } from 'react-toastify';
+import { formatDate } from '../../../../../main/src/utils';
 
-const tableHeaders = ["ID", "Tên danh mục", "Mô tả", "Ngày tạo", "Ngày cập nhật", "Thao tác"];
+const tableHeaders = ['ID', 'Tên danh mục', 'Mô tả', 'Ngày tạo', 'Ngày cập nhật', 'Thao tác'];
 
 // Interface cho Category
 export interface Category {
@@ -26,8 +26,8 @@ export interface Category {
 interface CategoryFilters {
   page: number;
   limit: number;
-  sortBy: "createdAt" | "name" | "updatedAt";
-  sort: "asc" | "desc";
+  sortBy: 'createdAt' | 'name' | 'updatedAt';
+  sort: 'asc' | 'desc';
   startDate?: string;
   endDate?: string;
   search?: string;
@@ -63,8 +63,8 @@ export function ManageCategoriesView() {
   const [filters, setFilters] = useState<CategoryFilters>({
     page: 1,
     limit: 10,
-    sortBy: "createdAt",
-    sort: "desc",
+    sortBy: 'createdAt',
+    sort: 'desc',
   });
 
   // Bộ lọc tạm trong modal
@@ -72,8 +72,8 @@ export function ManageCategoriesView() {
 
   // Form data cho tạo/sửa category
   const [formData, setFormData] = useState<CategoryFormData>({
-    name: "",
-    description: "",
+    name: '',
+    description: '',
   });
 
   // Validation errors
@@ -89,15 +89,15 @@ export function ManageCategoriesView() {
       const currentFilters = { ...filters, ...customFilters };
 
       // Phân trang và sắp xếp
-      queryParams.append("page", currentFilters.page.toString());
-      queryParams.append("limit", currentFilters.limit.toString());
-      queryParams.append("sortBy", currentFilters.sortBy);
-      queryParams.append("sort", currentFilters.sort);
+      queryParams.append('page', currentFilters.page.toString());
+      queryParams.append('limit', currentFilters.limit.toString());
+      queryParams.append('sortBy', currentFilters.sortBy);
+      queryParams.append('sort', currentFilters.sort);
 
       // Bộ lọc tùy chọn
-      if (currentFilters.startDate) queryParams.append("startDate", currentFilters.startDate);
-      if (currentFilters.endDate) queryParams.append("endDate", currentFilters.endDate);
-      if (currentFilters.search) queryParams.append("search", currentFilters.search);
+      if (currentFilters.startDate) queryParams.append('startDate', currentFilters.startDate);
+      if (currentFilters.endDate) queryParams.append('endDate', currentFilters.endDate);
+      if (currentFilters.search) queryParams.append('search', currentFilters.search);
 
       const res = await api.get(`/stores/${currentStore.id}/categories?${queryParams.toString()}`);
 
@@ -110,7 +110,7 @@ export function ManageCategoriesView() {
     } catch (error) {
       setLoading(false);
       console.error(error);
-      toast.error("Lỗi khi tải danh sách danh mục");
+      toast.error('Lỗi khi tải danh sách danh mục');
     }
   };
 
@@ -123,7 +123,7 @@ export function ManageCategoriesView() {
       setSelectedCategory(res.data.data);
     } catch (error) {
       console.error(error);
-      toast.error("Lỗi khi tải chi tiết danh mục");
+      toast.error('Lỗi khi tải chi tiết danh mục');
     }
   };
 
@@ -132,13 +132,13 @@ export function ManageCategoriesView() {
     const errors: Partial<CategoryFormData> = {};
 
     if (!data.name.trim()) {
-      errors.name = "Tên danh mục là bắt buộc";
+      errors.name = 'Tên danh mục là bắt buộc';
     } else if (data.name.length > 255) {
-      errors.name = "Tên danh mục không được vượt quá 255 ký tự";
+      errors.name = 'Tên danh mục không được vượt quá 255 ký tự';
     }
 
     if (data.description && data.description.length > 1000) {
-      errors.description = "Mô tả không được vượt quá 1000 ký tự";
+      errors.description = 'Mô tả không được vượt quá 1000 ký tự';
     }
 
     return errors;
@@ -161,17 +161,17 @@ export function ManageCategoriesView() {
         description: formData.description.trim() || undefined,
       });
 
-      toast.success("Tạo danh mục thành công");
+      toast.success('Tạo danh mục thành công');
       setOpenCreateModal(false);
-      setFormData({ name: "", description: "" });
+      setFormData({ name: '', description: '' });
       setFormErrors({});
       handleGetCategories();
     } catch (error: any) {
       console.error(error);
-      if (error.response?.data?.error?.code === "CONFLICT") {
-        toast.error("Tên danh mục đã tồn tại");
+      if (error.response?.data?.error?.code === 'CONFLICT') {
+        toast.error('Tên danh mục đã tồn tại');
       } else {
-        toast.error("Lỗi khi tạo danh mục");
+        toast.error('Lỗi khi tạo danh mục');
       }
     } finally {
       setSubmitting(false);
@@ -195,18 +195,18 @@ export function ManageCategoriesView() {
         description: formData.description.trim() || undefined,
       });
 
-      toast.success("Cập nhật danh mục thành công");
+      toast.success('Cập nhật danh mục thành công');
       setOpenEditModal(false);
       setSelectedCategory(null);
-      setFormData({ name: "", description: "" });
+      setFormData({ name: '', description: '' });
       setFormErrors({});
       handleGetCategories();
     } catch (error: any) {
       console.error(error);
-      if (error.response?.data?.error?.code === "CONFLICT") {
-        toast.error("Tên danh mục đã tồn tại");
+      if (error.response?.data?.error?.code === 'CONFLICT') {
+        toast.error('Tên danh mục đã tồn tại');
       } else {
-        toast.error("Lỗi khi cập nhật danh mục");
+        toast.error('Lỗi khi cập nhật danh mục');
       }
     } finally {
       setSubmitting(false);
@@ -220,13 +220,13 @@ export function ManageCategoriesView() {
     setSubmitting(true);
     try {
       await api.delete(`/stores/${currentStore.id}/categories/${selectedCategory.id}`);
-      toast.success("Xóa danh mục thành công");
+      toast.success('Xóa danh mục thành công');
       setOpenDeleteModal(false);
       setSelectedCategory(null);
       handleGetCategories();
     } catch (error) {
       console.error(error);
-      toast.error("Lỗi khi xóa danh mục");
+      toast.error('Lỗi khi xóa danh mục');
     } finally {
       setSubmitting(false);
     }
@@ -254,8 +254,8 @@ export function ManageCategoriesView() {
     const defaultFilters: CategoryFilters = {
       page: 1,
       limit: 10,
-      sortBy: "createdAt",
-      sort: "desc",
+      sortBy: 'createdAt',
+      sort: 'desc',
     };
     setFilters(defaultFilters);
     setTempFilters({});
@@ -275,7 +275,7 @@ export function ManageCategoriesView() {
     setSelectedCategory(category);
     setFormData({
       name: category.name,
-      description: category.description || "",
+      description: category.description || '',
     });
     setFormErrors({});
     setOpenEditModal(true);
@@ -289,7 +289,7 @@ export function ManageCategoriesView() {
 
   // Reset form khi mở modal tạo
   const handleOpenCreateModal = () => {
-    setFormData({ name: "", description: "" });
+    setFormData({ name: '', description: '' });
     setFormErrors({});
     setOpenCreateModal(true);
   };
@@ -322,8 +322,8 @@ export function ManageCategoriesView() {
           <TextInput
             label="Tìm kiếm theo tên"
             placeholder="Nhập tên danh mục..."
-            value={tempFilters.search || ""}
-            onChange={(e) => onChangeFilterValue("search", e.target.value)}
+            value={tempFilters.search || ''}
+            onChange={(e) => onChangeFilterValue('search', e.target.value)}
             leftSection={<Search size={16} />}
           />
 
@@ -332,14 +332,14 @@ export function ManageCategoriesView() {
             <TextInput
               type="date"
               label="Ngày tạo từ"
-              value={tempFilters.startDate || ""}
-              onChange={(e) => onChangeFilterValue("startDate", e.target.value)}
+              value={tempFilters.startDate || ''}
+              onChange={(e) => onChangeFilterValue('startDate', e.target.value)}
             />
             <TextInput
               type="date"
               label="Ngày tạo đến"
-              value={tempFilters.endDate || ""}
-              onChange={(e) => onChangeFilterValue("endDate", e.target.value)}
+              value={tempFilters.endDate || ''}
+              onChange={(e) => onChangeFilterValue('endDate', e.target.value)}
             />
           </div>
 
@@ -348,20 +348,20 @@ export function ManageCategoriesView() {
             <Select
               label="Sắp xếp theo"
               value={tempFilters.sortBy || filters.sortBy}
-              onChange={(value) => onChangeFilterValue("sortBy", value)}
+              onChange={(value) => onChangeFilterValue('sortBy', value)}
               data={[
-                { value: "createdAt", label: "Ngày tạo" },
-                { value: "updatedAt", label: "Ngày cập nhật" },
-                { value: "name", label: "Tên danh mục" },
+                { value: 'createdAt', label: 'Ngày tạo' },
+                { value: 'updatedAt', label: 'Ngày cập nhật' },
+                { value: 'name', label: 'Tên danh mục' },
               ]}
             />
             <Select
               label="Thứ tự"
               value={tempFilters.sort || filters.sort}
-              onChange={(value) => onChangeFilterValue("sort", value)}
+              onChange={(value) => onChangeFilterValue('sort', value)}
               data={[
-                { value: "desc", label: "Giảm dần" },
-                { value: "asc", label: "Tăng dần" },
+                { value: 'desc', label: 'Giảm dần' },
+                { value: 'asc', label: 'Tăng dần' },
               ]}
             />
           </div>
@@ -390,7 +390,7 @@ export function ManageCategoriesView() {
         opened={openCreateModal}
         onClose={() => {
           setOpenCreateModal(false);
-          setFormData({ name: "", description: "" });
+          setFormData({ name: '', description: '' });
           setFormErrors({});
         }}
         size="lg"
@@ -428,14 +428,20 @@ export function ManageCategoriesView() {
             <button
               onClick={() => {
                 setOpenCreateModal(false);
-                setFormData({ name: "", description: "" });
+                setFormData({ name: '', description: '' });
                 setFormErrors({});
               }}
               className="text-red-500 hover:underline"
             >
               Hủy
             </button>
-            <Button onClick={handleCreateCategory} title="Tạo danh mục" size="sm" radius="md" loading={submitting} />
+            <Button
+              onClick={handleCreateCategory}
+              title="Tạo danh mục"
+              size="sm"
+              radius="md"
+              disabled={submitting}
+            />
           </div>
         </div>
       </Modal>
@@ -446,7 +452,7 @@ export function ManageCategoriesView() {
         onClose={() => {
           setOpenEditModal(false);
           setSelectedCategory(null);
-          setFormData({ name: "", description: "" });
+          setFormData({ name: '', description: '' });
           setFormErrors({});
         }}
         size="lg"
@@ -485,14 +491,20 @@ export function ManageCategoriesView() {
               onClick={() => {
                 setOpenEditModal(false);
                 setSelectedCategory(null);
-                setFormData({ name: "", description: "" });
+                setFormData({ name: '', description: '' });
                 setFormErrors({});
               }}
               className="text-red-500 hover:underline"
             >
               Hủy
             </button>
-            <Button onClick={handleUpdateCategory} title="Cập nhật" size="sm" radius="md" loading={submitting} />
+            <Button
+              onClick={handleUpdateCategory}
+              title="Cập nhật"
+              size="sm"
+              radius="md"
+              disabled={submitting}
+            />
           </div>
         </div>
       </Modal>
@@ -518,11 +530,12 @@ export function ManageCategoriesView() {
           <div className="space-y-4">
             <div className="bg-red-50 border border-red-200 rounded-lg p-4">
               <p className="text-gray-700">
-                Bạn có chắc chắn muốn xóa danh mục{" "}
+                Bạn có chắc chắn muốn xóa danh mục{' '}
                 <span className="font-semibold text-red-600">{selectedCategory.name}</span>?
               </p>
               <p className="text-sm text-red-500 mt-2">
-                Hành động này không thể hoàn tác. Hãy đảm bảo không có sản phẩm nào đang sử dụng danh mục này.
+                Hành động này không thể hoàn tác. Hãy đảm bảo không có sản phẩm nào đang sử dụng
+                danh mục này.
               </p>
             </div>
 
@@ -541,7 +554,7 @@ export function ManageCategoriesView() {
                 title="Xóa danh mục"
                 size="sm"
                 radius="md"
-                loading={submitting}
+                disabled={submitting}
                 className="bg-red-600 hover:bg-red-700"
               />
             </div>
@@ -581,14 +594,20 @@ export function ManageCategoriesView() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-4">
                     <div className="flex flex-col">
-                      <label className="text-sm font-semibold text-gray-600 mb-1">ID Danh mục</label>
+                      <label className="text-sm font-semibold text-gray-600 mb-1">
+                        ID Danh mục
+                      </label>
                       <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                        <span className="font-mono text-gray-900 break-all text-sm">{selectedCategory.id}</span>
+                        <span className="font-mono text-gray-900 break-all text-sm">
+                          {selectedCategory.id}
+                        </span>
                       </div>
                     </div>
 
                     <div className="flex flex-col">
-                      <label className="text-sm font-semibold text-gray-600 mb-1">Tên danh mục</label>
+                      <label className="text-sm font-semibold text-gray-600 mb-1">
+                        Tên danh mục
+                      </label>
                       <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                         <span className="text-gray-900 font-medium">{selectedCategory.name}</span>
                       </div>
@@ -599,7 +618,9 @@ export function ManageCategoriesView() {
                     <div className="flex flex-col">
                       <label className="text-sm font-semibold text-gray-600 mb-1">Store ID</label>
                       <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                        <span className="font-mono text-gray-700 break-all text-sm">{selectedCategory.store_id}</span>
+                        <span className="font-mono text-gray-700 break-all text-sm">
+                          {selectedCategory.store_id}
+                        </span>
                       </div>
                     </div>
 
@@ -607,7 +628,9 @@ export function ManageCategoriesView() {
                       <label className="text-sm font-semibold text-gray-600 mb-1">Mô tả</label>
                       <div className="bg-green-50 border border-green-200 rounded-lg p-3 min-h-[80px]">
                         <span className="text-gray-900">
-                          {selectedCategory.description || <em className="text-gray-500">Không có mô tả</em>}
+                          {selectedCategory.description || (
+                            <em className="text-gray-500">Không có mô tả</em>
+                          )}
                         </span>
                       </div>
                     </div>
@@ -631,18 +654,18 @@ export function ManageCategoriesView() {
                       <Calendar size={16} className="text-blue-600" />
                       <div>
                         <p className="font-semibold text-gray-900">
-                          {new Date(selectedCategory.createdAt).toLocaleDateString("vi-VN", {
-                            weekday: "long",
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
+                          {new Date(selectedCategory.createdAt).toLocaleDateString('vi-VN', {
+                            weekday: 'long',
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
                           })}
                         </p>
                         <p className="text-sm text-blue-600">
-                          {new Date(selectedCategory.createdAt).toLocaleTimeString("vi-VN", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            second: "2-digit",
+                          {new Date(selectedCategory.createdAt).toLocaleTimeString('vi-VN', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit',
                           })}
                         </p>
                       </div>
@@ -650,23 +673,25 @@ export function ManageCategoriesView() {
                   </div>
 
                   <div className="flex flex-col">
-                    <label className="text-sm font-semibold text-gray-600 mb-1">Cập nhật lần cuối</label>
+                    <label className="text-sm font-semibold text-gray-600 mb-1">
+                      Cập nhật lần cuối
+                    </label>
                     <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-3">
                       <Calendar size={16} className="text-green-600" />
                       <div>
                         <p className="font-semibold text-gray-900">
-                          {new Date(selectedCategory.updatedAt).toLocaleDateString("vi-VN", {
-                            weekday: "long",
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
+                          {new Date(selectedCategory.updatedAt).toLocaleDateString('vi-VN', {
+                            weekday: 'long',
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
                           })}
                         </p>
                         <p className="text-sm text-green-600">
-                          {new Date(selectedCategory.updatedAt).toLocaleTimeString("vi-VN", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            second: "2-digit",
+                          {new Date(selectedCategory.updatedAt).toLocaleTimeString('vi-VN', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit',
                           })}
                         </p>
                       </div>
@@ -751,16 +776,19 @@ export function ManageCategoriesView() {
                 )}
                 {filters.startDate && (
                   <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
-                    Từ ngày: {new Date(filters.startDate).toLocaleDateString("vi-VN")}
+                    Từ ngày: {new Date(filters.startDate).toLocaleDateString('vi-VN')}
                   </span>
                 )}
                 {filters.endDate && (
                   <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
-                    Đến ngày: {new Date(filters.endDate).toLocaleDateString("vi-VN")}
+                    Đến ngày: {new Date(filters.endDate).toLocaleDateString('vi-VN')}
                   </span>
                 )}
               </div>
-              <button onClick={handleResetFilters} className="text-blue-600 hover:underline text-xs">
+              <button
+                onClick={handleResetFilters}
+                className="text-blue-600 hover:underline text-xs"
+              >
                 Xóa tất cả
               </button>
             </div>
@@ -775,8 +803,13 @@ export function ManageCategoriesView() {
           data={categories}
           isLoading={loading}
           renderRow={(category: Category, idx: number) => (
-            <tr key={idx} className="border-b border-b-gray-100 hover:bg-gray-50 transition-colors duration-300">
-              <td className="px-4 py-2 text-xs font-mono text-gray-600">{category.id.slice(0, 8)}...</td>
+            <tr
+              key={idx}
+              className="border-b border-b-gray-100 hover:bg-gray-50 transition-colors duration-300"
+            >
+              <td className="px-4 py-2 text-xs font-mono text-gray-600">
+                {category.id.slice(0, 8)}...
+              </td>
               <td className="px-4 py-2 text-xs font-medium text-gray-900">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">

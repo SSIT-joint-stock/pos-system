@@ -63,8 +63,8 @@ export default function CartDetails() {
                 hideControls
                 inputMode="numeric"
                 className="w-[7ch]"
-                onChange={(value: number) => {
-                  handleQuantityChange(product.id, value);
+                onChange={(value: string | number) => {
+                  handleQuantityChange(product.id, Number(value) || 0);
                 }}
               />
             </div>
@@ -77,8 +77,8 @@ export default function CartDetails() {
               <NumberInput
                 hideControls
                 suffix="₫"
-                onChange={(value: number) => {
-                  handleDiscountChange(product.id, value);
+                onChange={(value: string | number) => {
+                  handleDiscountChange(product.id, Number(value) || 0);
                 }}
               />
             </div>

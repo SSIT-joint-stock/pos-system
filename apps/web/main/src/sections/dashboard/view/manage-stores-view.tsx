@@ -19,6 +19,7 @@ import {
   MapPin,
 } from 'lucide-react';
 import useStore from '../../../../../main/src/hooks/store/use-store';
+import { Store as StoreType } from '@repo/design-system/types/store';
 const tableHeaders = [
   'Tên Cửa Hàng',
   'Chủ Cửa Hàng',
@@ -31,7 +32,7 @@ const tableHeaders = [
 
 export function ManageStoresView() {
   const { stores, loading, getStores, createStoreForm, createStore } = useStore();
-  const [selectedStore, setSelectedStore] = useState(null);
+  const [selectedStore, setSelectedStore] = useState<StoreType>();
   const [openViewModal, setOpenViewModal] = useState(false);
   const [openCreateModal, setOpenCreateModal] = useState(false);
 
@@ -59,7 +60,9 @@ export function ManageStoresView() {
           <Store size={18} className="text-pos-blue-500" />
           <div className="flex items-center gap-2">
             <h3 className="text-gray-700">Thông tin cửa hàng:</h3>
-            <h3 className="text-pos-blue-400 font-semibold">{selectedStore?.name}</h3>
+            {selectedStore && selectedStore?.name && (
+              <h3 className="text-pos-blue-400 font-semibold">{selectedStore?.name}</h3>
+            )}
           </div>
         </div>
 

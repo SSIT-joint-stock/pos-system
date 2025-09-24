@@ -172,11 +172,13 @@ export function InfoStoreView() {
                   <span>
                     Ngày tạo:{' '}
                     <span className="font-medium text-gray-800">
-                      {new Date(store?.createdAt).toLocaleDateString('vi-VN', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                      })}
+                      {store &&
+                        store.createdAt &&
+                        new Date(store?.createdAt).toLocaleDateString('vi-VN', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })}
                     </span>
                   </span>
                 </div>
@@ -232,13 +234,15 @@ export function InfoStoreView() {
                     <BarChart3 size={16} className="text-pos-blue-500" />
                     <span className="text-sm font-medium text-gray-600">Hoạt động</span>
                   </div>
-                  <p className="text-lg font-bold text-gray-800">
-                    {(
-                      (Date.now() - new Date(store?.createdAt).getTime()) /
-                      (1000 * 60 * 60 * 24)
-                    ).toFixed(0)}{' '}
-                    ngày
-                  </p>
+                  {store && store.createdAt && (
+                    <p className="text-lg font-bold text-gray-800">
+                      {(
+                        (Date.now() - new Date(store?.createdAt).getTime()) /
+                        (1000 * 60 * 60 * 24)
+                      ).toFixed(0)}{' '}
+                      ngày
+                    </p>
+                  )}
                   <p className="text-xs text-gray-500">Đã hoạt động</p>
                 </div>
 
