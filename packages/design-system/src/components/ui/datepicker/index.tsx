@@ -4,14 +4,15 @@ import dayjs from "dayjs";
 import "dayjs/locale/vi";
 dayjs.locale("vi");
 import { DatePickerInput as MantineDatePicker } from "@mantine/dates";
+
 type TypeDate = "range" | "default" | "multiple";
 type SizeInput = "xs" | "sm" | "md" | "lg" | "xl";
 type SizeRadius = "xs" | "sm" | "md" | "lg" | "xl";
 type SizeVariant = "default" | "filled" | "unstyled";
 export type DatePickerProps = React.PropsWithChildren & {
   placeholder?: string;
-  value?: Date | Date[] | null;
-  onChange?: (value: Date | Date[] | null) => void;
+  value?: string | string[] | [string | null, string | null] | null;
+  onChange?: (value: string | string[] | [string | null, string | null] | null) => void;
   type?: TypeDate;
   label?: string;
   radius?: SizeRadius;

@@ -4,13 +4,13 @@ interface IBoxProps {
   percent?: number;
 }
 export function ItemBoxChart({ title, value, percent }: IBoxProps) {
-  function formatNumber(num) {
+  function formatNumber(num: number) {
     if (num >= 1_000_000_000) {
-      return (num / 1_000_000_000).toFixed(1).replace(/\.0$/, "") + " Tỷ";
+      return (num / 1_000_000_000).toFixed(1).replace(/\.0$/, '') + ' Tỷ';
     } else if (num >= 1_000_000) {
-      return (num / 1_000_000).toFixed(1).replace(/\.0$/, "") + " Triệu";
+      return (num / 1_000_000).toFixed(1).replace(/\.0$/, '') + ' Triệu';
     } else if (num >= 1_000) {
-      return (num / 1_000).toFixed(1).replace(/\.0$/, "") + "K";
+      return (num / 1_000).toFixed(1).replace(/\.0$/, '') + 'K';
     }
     return num.toString();
   }
@@ -19,12 +19,7 @@ export function ItemBoxChart({ title, value, percent }: IBoxProps) {
       <div className="flex flex-col gap-2">
         <p className="text-gray-600 text-sm font-[500]">{title}</p>
         <div className="flex items-center gap-2">
-          <p className="font-bold font-mono ">
-            {formatNumber(value)?.toLocaleString("vi-VN", {
-              style: "currency",
-              currency: "VND",
-            })}
-          </p>
+          <p className="font-bold font-mono ">{formatNumber(value || 0)}</p>
           <p className="text-green-700 font-bold">+{percent}%</p>
         </div>
       </div>

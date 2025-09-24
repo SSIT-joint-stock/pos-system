@@ -33,6 +33,10 @@ export function LoginView() {
   };
   // Handle store change
   const handleStoreChange = (storeId: string) => {
+    if (!storeId) {
+      setCurrentStoreLocal(null);
+      return;
+    }
     const selectedStore = stores.find((store) => store.id === storeId);
     setCurrentStoreLocal(selectedStore || null);
   };

@@ -1,14 +1,10 @@
 'use client';
-import { Input, Modal, Select, Table } from '@repo/design-system/components/ui';
+import { Modal, Table } from '@repo/design-system/components/ui';
 import FilterBar from '../components/filter-bar';
-import { BadgeAlert, Check, Download, Edit, Eye, ShoppingCart, Trash } from 'lucide-react';
+import { BadgeAlert, Download, Edit, Eye, Trash } from 'lucide-react';
 import React, { useState } from 'react';
-import Image from 'next/image';
 import { formatCurrency, formatDate } from '../../../../../main/src/utils/index';
 import { useOrders } from '../../../../../main/src/hooks/orders/use-orders';
-import { Order } from '@repo/design-system/types';
-import { OrderItem } from '@main/schemas/order/order.schema';
-
 const tableHeaders = [
   'Mã Đơn Hàng',
   'Khách Hàng',
