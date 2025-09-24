@@ -581,7 +581,7 @@ export function ManageView() {
                 >
                   <td className="px-4 py-2 text-xs font-medium text-gray-900">{product.name}</td>
                   <td className="px-4 py-2 text-xs font-medium text-gray-900">
-                    {product.inventory.quantity}
+                    {product?.inventory?.quantity}
                   </td>
                   <td className="px-4 py-2 text-xs text-gray-500">{product.sku}</td>
                   <td className="px-4 py-2 text-xs text-gray-500">
