@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev --port 3000",
+    "dev:debug": "cross-env NODE_OPTIONS='--inspect' && next dev --port 3000",
     "build": "rimraf .next & set NEXT_PUBLIC_DISABLE_ESLINT=true & next build",
     "start": "next start --port 3000",
     "lint": "eslint src",
