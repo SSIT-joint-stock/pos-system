@@ -17,7 +17,7 @@ export default function SettingsSidebar({ isExpand }: { isExpand: boolean }) {
         </div>
       </div>
       <div
-        onClick={logout}
+        onClick={() => logout()}
         className={`flex items-center font-medium group  ${isExpand ? 'gap-5' : 'gap-0'} ${isExpand ? 'w-full' : 'w-[40px] '} p-2  transition-all duration-300 cursor-pointer hover:bg-red-500 hover:text-white rounded-lg bg-red-50 text-red-500`}
       >
         <LogOut className="shrink-0" />

@@ -177,10 +177,10 @@ export default function useAuth() {
     if (res) showSuccessToast(res.data.message);
     return !!res;
   };
-  const logout = async () => {
+  const logout = async (redirectUrl?: string) => {
     const res = await requestWrapper(() => api.post(AUTH_ENDPOINTS.LOGOUT));
     if (res) showSuccessToast(res.data.message);
-    router.push(`${process.env.NEXT_PUBLIC_MAIN_URL}/auth/login`);
+    router.push(redirectUrl || `${process.env.NEXT_PUBLIC_MAIN_URL}/auth/login`);
     setAccessToken(null);
     setCurrentStore(null);
     setCurrentUser(null);
@@ -189,7 +189,7 @@ export default function useAuth() {
   // Redirect sang dashboard
   const goToDashboard = () => {
     router.push(
-      `${process.env.NEXT_PUBLIC_RETAIL_URL}/dashboard/store/${currentStore?.id}/overview`
+      `${process.env.NEXT_PUBLIC_RETAIL_BASE_URL}/dashboard/store/${currentStore?.id}/overview`
     );
   };
 
