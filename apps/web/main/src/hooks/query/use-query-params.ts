@@ -55,7 +55,6 @@ export function useQueryParams<T extends Record<string, FilterValue>>(
 
       params.append(queryKey, value?.toString());
     });
-    console.log(params);
     return params;
   };
 

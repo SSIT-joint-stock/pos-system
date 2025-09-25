@@ -41,7 +41,6 @@ export function useProduct() {
   // STATE
   const currentStore = useAtomValue(currentStoreAtom);
   const [products, setProducts] = useState<Product[]>([]);
-  console.log(products);
   const [product, setProduct] = useState<Product>();
   // FORM
   const createProductForm = useForm<CreateProductInput>({
