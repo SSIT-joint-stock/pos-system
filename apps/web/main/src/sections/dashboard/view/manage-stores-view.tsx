@@ -19,7 +19,11 @@ import {
   MapPin,
 } from 'lucide-react';
 import useStore from '../../../../../main/src/hooks/store/use-store';
+import useAuth from '../../../../../main/src/hooks/auth/use-auth';
 import { Store as StoreType } from '@repo/design-system/types/store';
+import { useSetAtom } from 'jotai';
+import { currentStoreAtom } from '@repo/design-system/stores/auth';
+import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 const tableHeaders = [
   'Tên Cửa Hàng',
   'Chủ Cửa Hàng',
@@ -32,15 +36,15 @@ const tableHeaders = [
 
 export function ManageStoresView() {
   const { stores, loading, getStores, createStoreForm, createStore } = useStore();
+  const { showSuccessToast } = useToast();
   const [selectedStore, setSelectedStore] = useState<StoreType>();
   const [openViewModal, setOpenViewModal] = useState(false);
   const [openCreateModal, setOpenCreateModal] = useState(false);
-
+  const setCurrentStore = useSetAtom(currentStoreAtom);
   const handleSwitchStore = (store: any) => {
-    // Logic để chuyển đổi sang store khác
-    console.log('Switching to store:', store.name);
-    // Có thể gọi API để set current store hoặc redirect
-    // Ví dụ: router.push(`/dashboard/store/${store.id}`);
+    setCurrentStore(store);
+    showSuccessToast('Chuyển đổi cửa hàng thành công!');
+    setOpenViewModal(false);
   };
   useEffect(() => {
     getStores();
