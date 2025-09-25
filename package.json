@@ -16,8 +16,8 @@
     "dev": "dotenv -e .env.development -- turbo run dev",
     "dev:all": "dotenv -e .env.development -- turbo run dev --filter=@pos/*",
     "dev:frontend": "dotenv -e .env.development -- turbo run dev --filter=@pos/web-*",
-    "dev:frontend:main": "dotenv -e .env.development -- turbo run dev --filter=@pos/web-main",
-    "dev:frontend:retail": "dotenv -e .env.development -- turbo run dev --filter=@pos/web-retail",
+    "dev:frontend:main": "cd apps/web/main && dotenv -e .env.development -- npm run dev",
+    "dev:frontend:retail": "cd apps/web/retail && dotenv -e .env.development -- npm run dev",
     "dev:backend": "dotenv -e .env.development -- turbo run dev --filter=@pos/server-api",
     "dev:workers": "cross-env-shell dotenv -e ./.env.development -- turbo run dev --parallel --filter=@pos/worker-*",
     "dev:worker:email": "cross-env-shell dotenv -e ./.env.development -- turbo run dev --filter=@pos/worker-email",
@@ -53,12 +53,16 @@
     "eslint": "^8.57.0",
     "husky": "^9.1.7",
     "prettier": "^3.2.5",
-    "turbo": "^2.0.0",
+    "turbo": "^2.2.3",
     "typescript": "^5.3.3"
   },
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=8.0.0"
+  },
+  "npmConfig": {
+    "legacy-peer-deps": true,
+    "prefer-dedupe": true
   },
   "packageManager": "npm@10.2.4",
   "dependencies": {

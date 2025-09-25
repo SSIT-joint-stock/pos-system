@@ -7,6 +7,7 @@ export const apps = [
         script: 'npm run start',
         cwd: join(cwd, 'apps/web/main'),
         watch: false,
+        env_file: join(cwd, '.env.production'),
         env_production: {
             NODE_ENV: 'production',
         },
@@ -19,6 +20,7 @@ export const apps = [
         script: 'npm run start',
         cwd: join(cwd, 'apps/web/retail'),
         watch: false,
+        env_file: join(cwd, '.env.production'),
         env_production: {
             NODE_ENV: 'production',
         },

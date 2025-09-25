@@ -20,6 +20,9 @@ const nextConfig = {
       },
     ],
   },
+  experimental: {
+    optimizePackageImports: ['@repo/design-system'],
+  },
 };
 
 export default nextConfig;

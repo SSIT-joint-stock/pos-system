@@ -23,17 +23,17 @@ BigInt.prototype.toJSON = function (): string {
 
 const prisma = globalThis.prisma ?? prismaClientSingleton();
 
-prisma.$use(async (params, next) => {
-	const before = Date.now();
+// prisma.$use(async (params, next) => {
+// 	const before = Date.now();
 
-	const result = await next(params) as unknown;
+// 	const result = await next(params) as unknown;
 
-	const after = Date.now();
+// 	const after = Date.now();
 
-	console.log(`Query ${params.model}.${params.action} took ${after - before}ms`);
+// 	console.log(`Query ${params.model}.${params.action} took ${after - before}ms`);
 
-	return result;
-})
+// 	return result;
+// })
 
 
 export default prisma;
