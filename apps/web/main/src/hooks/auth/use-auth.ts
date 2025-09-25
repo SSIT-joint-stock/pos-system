@@ -180,7 +180,7 @@ export default function useAuth() {
   const logout = async () => {
     const res = await requestWrapper(() => api.post(AUTH_ENDPOINTS.LOGOUT));
     if (res) showSuccessToast(res.data.message);
-    router.push(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/login`);
+    router.push(`${process.env.NEXT_PUBLIC_MAIN_URL}/auth/login`);
     setAccessToken(null);
     setCurrentStore(null);
     setCurrentUser(null);
@@ -188,7 +188,9 @@ export default function useAuth() {
   };
   // Redirect sang dashboard
   const goToDashboard = () => {
-    router.push(`http://localhost:3001/dashboard/store/${currentStore?.id}/overview`);
+    router.push(
+      `${process.env.NEXT_PUBLIC_RETAIL_URL}/dashboard/store/${currentStore?.id}/overview`
+    );
   };
 
   // ========== Expose ==========

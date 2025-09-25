@@ -3,20 +3,20 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  transpilePackages: ["@repo/design-system"],
+  transpilePackages: ['@repo/design-system'],
   images: {
     remotePatterns: [
       {
-        hostname: "app.easyposs.vn",
-        protocol: "https",
+        hostname: 'app.easyposs.vn',
+        protocol: 'https',
       },
       {
-        hostname: "scontent.fhan2-4.fna.fbcdn.net",
-        protocol: "https",
+        hostname: 'scontent.fhan2-4.fna.fbcdn.net',
+        protocol: 'https',
       },
       {
-        hostname: "scontent.fhan15-2.fna.fbcdn.net",
-        protocol: "https",
+        hostname: 'scontent.fhan15-2.fna.fbcdn.net',
+        protocol: 'https',
       },
     ],
   },
