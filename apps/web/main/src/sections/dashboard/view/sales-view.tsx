@@ -1,5 +1,5 @@
-"use client";
-import React, { useState } from "react";
+'use client';
+import React, { useState } from 'react';
 import {
   ChevronRight,
   CupSoda,
@@ -15,16 +15,16 @@ import {
   Utensils,
   Wrench,
   X,
-} from "lucide-react";
-import Image from "next/image";
-import { Select } from "@repo/design-system/components/ui";
-import useInventory from "../../../../../main/src/hooks/inventory/use-inventory";
-import { formatCurrency, formatDate } from "../../../../../main/src/utils/index";
-import api from "../../../../../main/src/libs/axios";
-import { useAtomValue } from "jotai";
-import { currentStoreAtom } from "@repo/design-system/stores/auth";
-import useToast from "@repo/design-system/hooks/client/use-toast-notification";
-import FilterBar from "../components/filter-bar";
+} from 'lucide-react';
+import Image from 'next/image';
+import { Select } from '@repo/design-system/components/ui';
+import useInventory from '../../../../../main/src/hooks/inventory/use-inventory';
+import { formatCurrency, formatDate } from '../../../../../main/src/utils/index';
+import api from '../../../../../main/src/libs/axios';
+import { useAtomValue } from 'jotai';
+import { currentStoreAtom } from '@repo/design-system/stores/auth';
+import useToast from '@repo/design-system/hooks/client/use-toast-notification';
+import FilterBar from '../components/filter-bar';
 
 // Define proper TypeScript interfaces
 interface Product {
@@ -45,33 +45,33 @@ interface Invoice {
   paymentMethod: string;
 }
 enum order_status {
-  PENDING = "PENDING",
-  CONFIRMED = "CONFIRMED",
-  PREPARING = "PREPARING",
-  DELIVERING = "DELIVERING",
-  COMPLETED = "COMPLETED",
-  CANCELLED = "CANCELLED",
+  PENDING = 'PENDING',
+  CONFIRMED = 'CONFIRMED',
+  PREPARING = 'PREPARING',
+  DELIVERING = 'DELIVERING',
+  COMPLETED = 'COMPLETED',
+  CANCELLED = 'CANCELLED',
 }
 
 const catagories = [
   {
-    title: "Tất cả",
+    title: 'Tất cả',
     icon: <ShoppingBasket size={20} />,
   },
   {
-    title: "Đồ ăn",
+    title: 'Đồ ăn',
     icon: <Utensils size={20} />,
   },
   {
-    title: "Đồ uống",
+    title: 'Đồ uống',
     icon: <CupSoda size={20} />,
   },
   {
-    title: "Đồ dùng",
+    title: 'Đồ dùng',
     icon: <Wrench size={20} />,
   },
   {
-    title: "khác",
+    title: 'khác',
     icon: <Ellipsis size={20} />,
   },
 ];
@@ -82,16 +82,16 @@ export function SalesView() {
   const [invoices, setInvoices] = useState<Invoice[]>([
     {
       id: 1,
-      name: "Hóa đơn ",
+      name: 'Hóa đơn ',
       products: [],
-      discountCode: "",
-      paymentMethod: "",
+      discountCode: '',
+      paymentMethod: '',
     },
   ]);
   const [activeInvoice, setActiveInvoice] = useState(1);
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [newName, setNewName] = useState("");
-  const [discountCode, setDiscountCode] = useState("");
+  const [newName, setNewName] = useState('');
+  const [discountCode, setDiscountCode] = useState('');
 
   // Thêm tab mới
   const addInvoice = () => {
@@ -100,8 +100,8 @@ export function SalesView() {
       id: newId,
       name: `Hóa đơn `,
       products: [],
-      discountCode: "",
-      paymentMethod: "",
+      discountCode: '',
+      paymentMethod: '',
     };
     setInvoices([...invoices, newInvoice]);
     setActiveInvoice(newId);
@@ -126,9 +126,11 @@ export function SalesView() {
 
   // Lưu tên mới
   const saveName = (id: number) => {
-    setInvoices(invoices.map((inv) => (inv.id === id ? { ...inv, name: newName.trim() || inv.name } : inv)));
+    setInvoices(
+      invoices.map((inv) => (inv.id === id ? { ...inv, name: newName.trim() || inv.name } : inv))
+    );
     setEditingId(null);
-    setNewName("");
+    setNewName('');
   };
 
   // Thêm sản phẩm vào hóa đơn hiện tại
@@ -137,8 +139,10 @@ export function SalesView() {
       invoices.map((inv) => {
         if (inv.id === activeInvoice) {
           // Kiểm tra xem sản phẩm đã có trong hóa đơn chưa
-          const existingProductIndex = inv.products.findIndex((p) => p.product_id === product.id);
-
+          const existingProductIndex = inv.products.findIndex(
+            (p) => p.product_id === product.product_id
+          );
+          console.log(existingProductIndex);
           if (existingProductIndex >= 0) {
             // Nếu đã có, tăng số lượng
             const updatedProducts = [...inv.products];
@@ -233,7 +237,7 @@ export function SalesView() {
         return inv;
       })
     );
-    setDiscountCode("");
+    setDiscountCode('');
   };
 
   // Cập nhật phương thức thanh toán
@@ -259,7 +263,10 @@ export function SalesView() {
   const productsCount = selectedProducts.length;
 
   // Tính tổng tiền
-  const subtotal = selectedProducts.reduce((sum, product) => sum + product.product.price * product.quantity, 0);
+  const subtotal = selectedProducts.reduce(
+    (sum, product) => sum + product.product.price * product.quantity,
+    0
+  );
   const discount = currentInvoice.discountCode ? subtotal * 0.1 : 0; // Giả sử giảm giá 10%
   const tax = subtotal * 0.05; // Giả sử thuế 5%
   const total = subtotal - discount + tax;
@@ -271,10 +278,10 @@ export function SalesView() {
     try {
       const body = {
         subtotal_amount: subtotal, // tổng tiền sản phẩm
-        discount_amount: discount, // nếu có mã giảm giá
+        discount_amount: Math.ceil(discount), // nếu có mã giảm giá
         tax_amount: Math.ceil(tax),
         total_amount: Math.ceil(total),
-        payment_method: currentInvoice.paymentMethod === "Chuyen khoan" ? "CREDIT_CARD" : "CASH",
+        payment_method: currentInvoice.paymentMethod === 'Chuyen khoan' ? 'CREDIT_CARD' : 'CASH',
         status: order_status.COMPLETED,
         order_items: currentInvoice.products.map((item) => ({
           product_id: item.product_id, // hoặc item.product.id nếu BE mong product_id
@@ -288,16 +295,16 @@ export function SalesView() {
         getInventories();
         clearAllProducts();
 
-        showSuccessToast("Tạo đơn hàng thành công");
+        showSuccessToast('Tạo đơn hàng thành công');
       }
     } catch {
-      showErrorToast("Tạo đơn hàng thất bại, vui lòng thử lại");
+      showErrorToast('Tạo đơn hàng thất bại, vui lòng thử lại');
     }
   };
   return (
     <div className="w-full bg-white px-3.5 rounded-xl shadow overflow-auto h-full pb-3.5">
       <div
-        className={`flex items-center justify-between  border-b-2 border-b-gray-300 py-6  ${open ? " w-[62%]" : " w-full"}`}
+        className={`flex items-center justify-between  border-b-2 border-b-gray-300 py-6  ${open ? ' w-[62%]' : ' w-full'}`}
       >
         <h1 className="text-xl font-semibold text-pos-blue-500 w-fit">Danh Sách Sản Phẩm</h1>
         <div className="flex-1 ml-8 mr-4">
@@ -305,9 +312,9 @@ export function SalesView() {
             setWidth="60%"
             hasBg={false}
             statusOptions={[
-              { value: "ACTIVE", label: "ACTIVE" },
-              { value: "INACTIVE", label: "INACTIVE" },
-              { value: "SOLD", label: "SOLD" },
+              { value: 'ACTIVE', label: 'ACTIVE' },
+              { value: 'INACTIVE', label: 'INACTIVE' },
+              { value: 'SOLD', label: 'SOLD' },
             ]}
             onFilterChange={(newFilters) => {
               setFilters(newFilters);
@@ -324,10 +331,13 @@ export function SalesView() {
           }}
           className="cursor-pointer flex items-center justify-center px-3.5 py-3 border border-gray-400 hover:border-pos-blue-400 rounded-md text-nowrap hover:bg-pos-blue-400 transition-all duration-300 group outline-none"
         >
-          <ShoppingCart size={16} className="text-gray-500 group-hover:text-white transition-all duration-300" />
+          <ShoppingCart
+            size={16}
+            className="text-gray-500 group-hover:text-white transition-all duration-300"
+          />
         </button>
       </div>
-      <div className={`mt-7 ${open ? " w-[62%]" : " w-full"}`}>
+      <div className={`mt-7 ${open ? ' w-[62%]' : ' w-full'}`}>
         <div className="flex items-center gap-5 ">
           {catagories.map((item, idx) => (
             <button
@@ -343,29 +353,31 @@ export function SalesView() {
 
       <>
         {inventories.length === 0 ? (
-          <div className={`${open ? " w-[62%]" : " w-full"} text-center text-lg italic text-gray-600 py-10`}>
+          <div
+            className={`${open ? ' w-[62%]' : ' w-full'} text-center text-lg italic text-gray-600 py-10`}
+          >
             Chưa có sản phẩm
           </div>
         ) : (
           <>
             <div
-              className={`grid ${open ? "grid-cols-4 w-[62%]" : "grid-cols-5 w-full"}  items-center justify-center gap-5 mt-12 space-y-3.5`}
+              className={`grid ${open ? 'grid-cols-4 w-[62%]' : 'grid-cols-5 w-full'}  items-center justify-center gap-5 mt-12 space-y-3.5`}
             >
               {inventories.map((product) => (
                 <div
                   onClick={() => {
                     if (product.quantity > 0) {
                       addToCart(product);
-                      showSuccessToast("Thêm vào giỏ hàng thành công");
+                      showSuccessToast('Thêm vào giỏ hàng thành công');
                     } else {
-                      showWarningToast("Sản phẩm hiện đã hết hàng");
+                      showWarningToast('Sản phẩm hiện đã hết hàng');
                     }
                   }}
                   key={product.id}
                   className="border border-gray-200 rounded-xl p-4 shadow scale-100 hover:scale-95 transition-all duration-300 cursor-pointer"
                 >
                   <Image
-                    src={"/placeholder.jpg"}
+                    src={'/placeholder.jpg'}
                     alt="sản phẩm"
                     width={500}
                     height={500}
@@ -374,8 +386,12 @@ export function SalesView() {
                   />
                   <div className="flex flex-col gap-2 mt-3 ">
                     <div className="flex items-center justify-between">
-                      <h2 className="text-xl font-semibold truncate text-gray-500">{product.product.name}</h2>
-                      <span className="text-xs text-gray-500 font-medium">{formatDate(product.createdAt)}</span>
+                      <h2 className="text-xl font-semibold truncate text-gray-500">
+                        {product.product.name}
+                      </h2>
+                      <span className="text-xs text-gray-500 font-medium">
+                        {formatDate(product.createdAt)}
+                      </span>
                     </div>
 
                     <div className="flex items-center justify-between">
@@ -386,7 +402,9 @@ export function SalesView() {
                     <div className="flex items-center justify-between  ">
                       <div className="flex items-center justify-center  gap-1.5">
                         <p className="text-sm text-gray-500">Giá: </p>
-                        <p className="text-lg font-semibold text-gray-600">{formatCurrency(product.product.price)}</p>
+                        <p className="text-lg font-semibold text-gray-600">
+                          {formatCurrency(product.product.price)}
+                        </p>
                       </div>
                       <button
                         disabled={product.quantity <= 0}
@@ -395,14 +413,14 @@ export function SalesView() {
                             addToCart(product);
                             // showSuccessToast('Thêm vào giỏ hàng thành công');
                           } else {
-                            showWarningToast("Sản phẩm hiện đã hết hàng");
+                            showWarningToast('Sản phẩm hiện đã hết hàng');
                           }
                         }}
-                        className={`flex items-center justify-center rounded-md border px-3 py-2 transition-all group duration-300 ${product.quantity <= 0 ? "border-gray-100 bg-gray-100 cursor-not-allowed" : "border-gray-200 hover:border-pos-blue-400 hover:bg-pos-blue-400 cursor-pointer "}`}
+                        className={`flex items-center justify-center rounded-md border px-3 py-2 transition-all group duration-300 ${product.quantity <= 0 ? 'border-gray-100 bg-gray-100 cursor-not-allowed' : 'border-gray-200 hover:border-pos-blue-400 hover:bg-pos-blue-400 cursor-pointer '}`}
                       >
                         <ShoppingCart
                           size={18}
-                          className={`transition-all duration-300 ${product.quantity <= 0 ? "text-gray-300" : "text-gray-500 group-hover:text-white"}`}
+                          className={`transition-all duration-300 ${product.quantity <= 0 ? 'text-gray-300' : 'text-gray-500 group-hover:text-white'}`}
                         />
                       </button>
                     </div>
@@ -418,7 +436,9 @@ export function SalesView() {
 
       <div
         className={`fixed top-0 right-0  h-screen overflow-auto bg-white shadow-lg z-50 transform transition-transform duration-300 ${
-          open ? "translate-x-0 transition-all duration-300" : "translate-x-full transition-all duration-300"
+          open
+            ? 'translate-x-0 transition-all duration-300'
+            : 'translate-x-full transition-all duration-300'
         } w-[32%] border border-gray-200 rounded-md shadow px-5 py-2}`}
       >
         <button
@@ -436,8 +456,8 @@ export function SalesView() {
               key={inv.id}
               className={`flex items-center gap-2 px-3 py-2 rounded-md cursor-pointer whitespace-nowrap transition-all ${
                 activeInvoice === inv.id
-                  ? "bg-pos-blue-400 text-white font-semibold"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  ? 'bg-pos-blue-400 text-white font-semibold'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
               {/* Nếu đang edit thì hiện input */}
@@ -447,11 +467,14 @@ export function SalesView() {
                   autoFocus
                   onChange={(e) => setNewName(e.target.value)}
                   onBlur={() => saveName(inv.id)}
-                  onKeyDown={(e) => e.key === "Enter" && saveName(inv.id)}
+                  onKeyDown={(e) => e.key === 'Enter' && saveName(inv.id)}
                   className="px-1 rounded bg-white  outline-none w-36 text-xs font-medium text-gray-500"
                 />
               ) : (
-                <span onClick={() => setActiveInvoice(inv.id)} onDoubleClick={() => startEditName(inv.id, inv.name)}>
+                <span
+                  onClick={() => setActiveInvoice(inv.id)}
+                  onDoubleClick={() => startEditName(inv.id, inv.name)}
+                >
                   {`${inv.name} ${index + 1}`}
                 </span>
               )}
@@ -502,10 +525,13 @@ export function SalesView() {
             <>
               <div className="h-[380px] overflow-y-scroll ">
                 {selectedProducts.map((item) => (
-                  <div key={item.product_id} className="flex items-center gap-3.5 border-b-2 border-b-gray-200 py-3.5">
+                  <div
+                    key={item.product_id}
+                    className="flex items-center gap-3.5 border-b-2 border-b-gray-200 py-3.5"
+                  >
                     <div className="">
                       <Image
-                        src={"/placeholder.jpg"}
+                        src={'/placeholder.jpg'}
                         alt="san pham"
                         width={80}
                         height={100}
@@ -542,7 +568,9 @@ export function SalesView() {
                             value={item.quantity}
                             min={1}
                             max={(() => {
-                              const inventoryProduct = inventories.find((p) => p.id === item.product_id);
+                              const inventoryProduct = inventories.find(
+                                (p) => p.id === item.product_id
+                              );
                               return inventoryProduct ? inventoryProduct.quantity : 1;
                             })()}
                             onChange={(e) => {
@@ -552,8 +580,12 @@ export function SalesView() {
                           />
                           <button
                             disabled={(() => {
-                              const inventoryProduct = inventories.find((p) => p.id === item.product_id);
-                              return inventoryProduct ? item.quantity >= inventoryProduct.quantity : false;
+                              const inventoryProduct = inventories.find(
+                                (p) => p.id === item.product_id
+                              );
+                              return inventoryProduct
+                                ? item.quantity >= inventoryProduct.quantity
+                                : false;
                             })()}
                             onClick={() => {
                               updateQuantity(item.product_id, item.quantity + 1);
@@ -564,7 +596,9 @@ export function SalesView() {
                           </button>
                         </div>
                         <div className="flex items-center gap-2">
-                          <div className="text-xl font-semibold">{formatCurrency(item.totalPrice)}</div>
+                          <div className="text-xl font-semibold">
+                            {formatCurrency(item.totalPrice)}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -612,7 +646,7 @@ export function SalesView() {
               </div>
 
               <Select
-                data={["Chuyển khoản", "Tiền mặt"]}
+                data={['Chuyển khoản', 'Tiền mặt']}
                 className="mt-2"
                 placeholder="Chọn phương thức thanh toán"
                 onChange={updatePaymentMethod as any}
