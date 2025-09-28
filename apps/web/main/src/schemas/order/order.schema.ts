@@ -70,7 +70,12 @@ export const CreateOrderSchema = z.object({
   customer_id: z.string().uuid().optional(),
   customer_name: z.string().optional(),
   payment_method: PaymentMethodEnum.default('CASH'),
-  order_item: z
+  status: OrderStatusEnum.default('PENDING'),
+  subtotal_amount: z.number().min(0),
+  discount_amount: z.number().min(0).optional(),
+  tax_amount: z.number().min(0).optional(),
+  total_amount: z.number().min(0),
+  order_items: z
     .array(
       z.object({
         product_id: z.string().uuid(),

@@ -26,6 +26,7 @@ export type ButtonProps = React.PropsWithChildren & {
   style?: React.CSSProperties;
   color?: string;
   disabled?: boolean;
+  loading?: boolean;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
 } & Omit<
     React.ComponentProps<typeof MantineButton>,
@@ -44,13 +45,15 @@ export function Button({
   children,
   color = '#3b82f6',
   disabled,
+  loading,
   onClick,
   ...rest
 }: ButtonProps) {
   return (
     <MantineButton
       onClick={onClick}
-      loading={disabled}
+      loading={loading}
+      disabled={disabled}
       color={color}
       variant={variant}
       radius={radius}
