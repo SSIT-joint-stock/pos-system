@@ -1,5 +1,9 @@
 export type InventoryStatus = 'ACTIVE' | 'INACTIVE' | 'SOLD';
-
+export enum payment_method {
+  CASH = 'CASH',
+  CREDIT_CARD = 'CREDIT_CARD',
+  DEBIT_CARD = 'DEBIT_CARD',
+}
 export interface InventoryProduct {
   name: string;
   price: number;

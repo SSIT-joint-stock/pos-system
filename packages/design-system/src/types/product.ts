@@ -1,3 +1,9 @@
+export enum ProductStatus {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+  SOLD = 'SOLD',
+}
+
 export interface Product {
   id: string;
   store_id: string;

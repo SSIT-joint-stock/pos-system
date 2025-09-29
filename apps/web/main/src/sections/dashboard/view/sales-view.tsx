@@ -1,23 +1,18 @@
 'use client';
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
-import useInventory from '../../../../../main/src/hooks/inventory/use-inventory';
 import { useOrders } from '../../../../../main/src/hooks/orders/use-orders';
+import { useProduct } from '../../../../../main/src/hooks/product/use-product';
 import { formatCurrency } from '../../../utils/';
 import { Button, Input, Modal, Select, Table } from '@repo/design-system/components/ui';
-import { Inventory } from '@repo/design-system/types/inventory';
 import { Filter, Minus, Plus, Trash2, User, X } from 'lucide-react';
 import Image from 'next/image';
-import React, { ChangeEvent, useMemo, useState } from 'react';
+import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { OrderStatusEnum } from '../../../../../main/src/schemas/order/order.schema';
+import { Product, ProductStatus } from '@repo/design-system/types';
+import { payment_method } from '@repo/design-system/types/inventory';
 
-type SelectedProduct = Inventory & { selectedQuantity: number };
+type SelectedProduct = Product & { selectedQuantity: number };
 type Invoice = SelectedProduct[];
-
-enum payment_method {
-  CASH = 'CASH',
-  CREDIT_CARD = 'CREDIT_CARD',
-  DEBIT_CARD = 'DEBIT_CARD',
-}
 
 const paymentMethods = [
   {
@@ -35,9 +30,10 @@ const paymentMethods = [
 ];
 
 export function SalesView() {
-  // HOOK
-  const { inventories } = useInventory();
+  // HOOK(
+
   const { showSuccessToast, showInfoToast } = useToast();
+  const { products, getProducts, setFilters } = useProduct();
   const { createOrder, loading } = useOrders();
 
   // STATE
@@ -51,11 +47,12 @@ export function SalesView() {
   const [changPaymentMethods, setChangePaymentMethods] = useState<payment_method | null>(
     payment_method.CASH
   );
+  const [search, setSearch] = useState<string>('');
   const updateCurrentInvoice = (newProducts: SelectedProduct[]) => {
     setSelectedProducts(newProducts);
     setInvoices((prev) => prev.map((inv, idx) => (idx === currentInvoice ? newProducts : inv)));
   };
-  const handleSelectProduct = (product: Inventory) => {
+  const handleSelectProduct = (product: Product) => {
     const exists = selectedProducts.find((p) => p.id === product.id);
     if (exists) {
       updateCurrentInvoice(
@@ -73,7 +70,11 @@ export function SalesView() {
       prev.map((p) => {
         if (p.id === id) {
           const newQuantity = (p.selectedQuantity || 1) + 1;
-          return { ...p, selectedQuantity: newQuantity > p.quantity ? p.quantity : newQuantity };
+          return {
+            ...p,
+            selectedQuantity:
+              newQuantity > p.inventory.quantity ? p.inventory.quantity : newQuantity,
+          };
         }
         return p;
       })
@@ -91,8 +92,8 @@ export function SalesView() {
       prev.map((p) => {
         if (p.id === id) {
           let safeValue = value;
-          if (value > p.quantity) {
-            safeValue = p.quantity;
+          if (value > p.inventory.quantity) {
+            safeValue = p.inventory.quantity;
           }
           return { ...p, selectedQuantity: safeValue };
         }
@@ -152,18 +153,16 @@ export function SalesView() {
   const handleApplyChangePrice = () => {
     if (!editingProductId) return;
     setSelectedProducts((prev) =>
-      prev.map((p) =>
-        p.id === editingProductId ? { ...p, product: { ...p.product, price: newPrice } } : p
-      )
+      prev.map((p) => (p.id === editingProductId ? { ...p, price: newPrice } : p))
     );
     showSuccessToast('Thay đổi đơn giá thành công!');
     setOpenModalChangePrice(false);
   };
   const handleCreateOrder = async () => {
     const orderItems = invoices[currentInvoice].map((p) => ({
-      product_id: p.product_id,
+      product_id: p.id,
       quantity: p.selectedQuantity,
-      price: p.product.price,
+      price: p.price,
     }));
 
     await createOrder({
@@ -175,10 +174,26 @@ export function SalesView() {
       payment_method: changPaymentMethods || payment_method.CASH,
       order_items: orderItems,
     });
+    getProducts();
   };
   const totalPrice = useMemo(() => {
-    return selectedProducts.reduce((sum, p) => sum + p.selectedQuantity * p.product.price, 0);
+    return selectedProducts.reduce((sum, p) => sum + p.selectedQuantity * p.price, 0);
   }, [selectedProducts]);
+  useEffect(() => {
+    setFilters((prev) => ({
+      ...prev,
+      product_status: ProductStatus.ACTIVE,
+    }));
+
+    const timeout = setTimeout(() => {
+      setFilters((prev) => ({
+        ...prev,
+        product_status: ProductStatus.ACTIVE,
+        q: search,
+      }));
+    }, 500);
+    return () => clearTimeout(timeout);
+  }, [search]);
 
   return (
     <>
@@ -259,8 +274,10 @@ export function SalesView() {
                         {idx + 1}
                       </td>
                       <td className="px-4 py-2 text-gray-900 flex flex-col gap-1">
-                        <span className="text-base font-semibold">{product.product.name}</span>
-                        <span className="text-xs font-medium">Tồn kho: {product.quantity}</span>
+                        <span className="text-base font-semibold">{product.name}</span>
+                        <span className="text-xs font-medium">
+                          Tồn kho: {product.inventory.quantity}
+                        </span>
                       </td>
 
                       <td className="px-4 py-2 text-gray-600">
@@ -284,22 +301,22 @@ export function SalesView() {
                           <button
                             className="cursor-pointer disabled:cursor-not-allowed"
                             onClick={() => handleIncreaseQuantity(product.id)}
-                            disabled={product.selectedQuantity === product.quantity}
+                            disabled={product.selectedQuantity === product.inventory.quantity}
                           >
                             <Plus size={14} />
                           </button>
                         </div>
                       </td>
                       <td
-                        onClick={() => handleOpenChangePrice(product.id, product.product.price)}
+                        onClick={() => handleOpenChangePrice(product.id, product.price)}
                         className="px-4 py-2 text-base text-gray-500 underline hover:cursor-pointer hover:text-pos-blue-500"
                       >
-                        {formatCurrency(product.product.price || 0)}
+                        {formatCurrency(product.price || 0)}
                       </td>
 
                       <td className="px-4 py-2 text-sm text-gray-500">0%</td>
                       <td className="px-4 py-2 text-base font-semibold text-gray-900 truncate">
-                        {formatCurrency(product.product.price * (product.selectedQuantity || 1))}
+                        {formatCurrency(product.price * (product.selectedQuantity || 1))}
                       </td>
                       <td className="">
                         <button
@@ -345,7 +362,12 @@ export function SalesView() {
           {/* RIGHT */}
           <div className="h-full w-full bg-white p-3 rounded-md">
             <div className="flex items-center">
-              <Input type="text" placeholder="Nhập tên sản phẩm" className="flex-1" />
+              <Input
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
+                type="text"
+                placeholder="Nhập tên sản phẩm"
+                className="flex-1"
+              />
               <div className="flex items-center gap-2">
                 <button className="ml-3 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors duration-200">
                   Tìm kiếm
@@ -355,52 +377,58 @@ export function SalesView() {
                 </button>
               </div>
             </div>
-            <div className="grid grid-cols-4 gap-2 mt-4">
-              {inventories?.map((product) => (
-                <div
-                  onClick={() => {
-                    const existing = selectedProducts.find((p) => p.id === product.id);
+            {products.length === 0 ? (
+              <div className="flex items-center justify-center h-screen">
+                <span className="text-xl font-semibold text-pos-blue-500">
+                  Không tìm thấy sản phẩm
+                </span>
+              </div>
+            ) : (
+              <div className="grid grid-cols-4 gap-2 mt-4">
+                {products?.map((product) => (
+                  <div
+                    onClick={() => {
+                      const existing = selectedProducts.find((p) => p.id === product.id);
 
-                    if (!existing) {
-                      if (product.quantity > 0) {
-                        handleSelectProduct(product);
+                      if (!existing) {
+                        if (product.inventory.quantity > 0) {
+                          handleSelectProduct(product);
+                        }
+                      } else {
+                        if (existing.selectedQuantity < product.inventory.quantity) {
+                          handleSelectProduct(product);
+                        }
                       }
-                    } else {
-                      if (existing.selectedQuantity < product.quantity) {
-                        handleSelectProduct(product);
-                      }
-                    }
-                  }}
-                  key={product?.id}
-                  className="bg-white p-3 rounded-xl border border-gray-100 hover:border-pos-blue-400 cursor-pointer duration-300 transition-all hover:shadow-md hover:shadow-pos-blue-100"
-                >
-                  <div className="relative w-full h-32">
-                    <Image
-                      src={'/placeholder.jpg'}
-                      alt="sản phẩm"
-                      width={500}
-                      height={500}
-                      className="rounded-xl object-cover"
-                      unoptimized
-                    />
-                    <div className="absolute bottom-2 left-2 py-1 px-2 bg-pos-blue-400 text-white rounded-md">
-                      <div className="text-xs font-medium">
-                        {formatCurrency(product.product.price)}
+                    }}
+                    key={product?.id}
+                    className="bg-white p-3 rounded-xl border border-gray-100 hover:border-pos-blue-400 cursor-pointer duration-300 transition-all hover:shadow-md hover:shadow-pos-blue-100"
+                  >
+                    <div className="relative w-full h-32">
+                      <Image
+                        src={'/placeholder.jpg'}
+                        alt="sản phẩm"
+                        width={500}
+                        height={500}
+                        className="rounded-xl object-cover"
+                        unoptimized
+                      />
+                      <div className="absolute bottom-2 left-2 py-1 px-2 bg-pos-blue-400 text-white rounded-md">
+                        <div className="text-xs font-medium">{formatCurrency(product.price)}</div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="mt-2 flex flex-col gap-1">
-                    <h2 className="text-base font-semibold text-gray-800 truncate">
-                      {product.product.name}
-                    </h2>
-                    <span className="text-sm font-medium text-gray-500">
-                      Số lượng: {product.quantity}
-                    </span>
+                    <div className="mt-2 flex flex-col gap-1">
+                      <h2 className="text-base font-semibold text-gray-800 truncate">
+                        {product.name}
+                      </h2>
+                      <span className="text-sm font-medium text-gray-500">
+                        Số lượng: {product.inventory.quantity}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

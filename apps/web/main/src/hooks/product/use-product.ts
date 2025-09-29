@@ -117,6 +117,7 @@ export function useProduct() {
     getProducts();
   }, [currentStore?.id, paginationParams, filters]);
   return {
+    getProducts,
     getProductById,
     createProduct,
     deleteProduct,

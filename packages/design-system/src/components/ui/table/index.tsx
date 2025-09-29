@@ -43,7 +43,7 @@ export function Table<T>({
       <div
         className={`overflow-y-auto flex-1 scrollbar-thin scrollbar-thumb-gray-50 scrollbar-track-transparent `}
       >
-        <table className="table-fixed w-full border-collapse ">
+        <table className="table-auto w-full border-collapse ">
           <thead className="sticky top-0 z-10 bg-gray-50">
             <tr className="text-left text-base text-gray-800">
               {tableHeaders.map((item, idx) => (
