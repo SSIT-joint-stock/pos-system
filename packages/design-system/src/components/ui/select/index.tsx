@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Select as MantineSelect, Group, Text } from '@mantine/core';
+import { Select as MantineSelect, Group, Text, CheckIcon } from '@mantine/core';
 import type { CSSProperties, ReactNode, ForwardedRef } from 'react';
 
 // Type size
@@ -78,6 +78,7 @@ export const Select = React.forwardRef<HTMLInputElement, SelectProps>(
           </span>
         )}
         <MantineSelect
+          withCheckIcon
           ref={ref}
           name={name}
           searchable={searchable}
@@ -97,23 +98,26 @@ export const Select = React.forwardRef<HTMLInputElement, SelectProps>(
           variant={variant}
           value={value}
           styles={{ input: { color } }}
-          renderOption={({ option }: { option: SelectDataItem }) => (
+          renderOption={({ option, checked }) => (
             <Group justify="space-between" className="w-full">
               <div className="flex flex-col">
                 <Text size="sm" fw={500}>
                   {option.label}
                 </Text>
-                {option.description && (
+                {(option as SelectDataItem).description && (
                   <Text size="xs" c="dimmed">
-                    {option.description}
+                    {(option as SelectDataItem).description}
                   </Text>
                 )}
               </div>
-              {option.member && (
-                <div className="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full">
-                  {option.member} thành viên
-                </div>
-              )}
+              <div className="flex items-center gap-2">
+                {(option as SelectDataItem).member && (
+                  <div className="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full">
+                    {(option as SelectDataItem).member} thành viên
+                  </div>
+                )}
+                {checked && checkIconPosition === 'right' && <CheckIcon size={8} />}
+              </div>
             </Group>
           )}
           comboboxProps={{
