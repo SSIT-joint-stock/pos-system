@@ -178,13 +178,13 @@ export function ManageStockView() {
   const handleResetFilters = () => {
     const defaultFilters: StockMovementFilters = {
       page: 1,
-      limit: 20,
+      limit: 10,
       sortBy: 'createdAt',
       sort: 'desc',
     };
     setFilters(defaultFilters);
     setTempFilters({});
-    handleGetStockMovements(defaultFilters);
+
     setOpenFilterModal(false);
   };
 
@@ -214,8 +214,12 @@ export function ManageStockView() {
   // Lần đầu load
   useEffect(() => {
     if (!currentStore?.id) return;
-    handleGetStockMovements();
-  }, [currentStore?.id]);
+    if (tempFilters) {
+      handleGetStockMovements(filters);
+    } else {
+      handleGetStockMovements();
+    }
+  }, [currentStore?.id, filters]);
 
   return (
     <>
@@ -245,12 +249,12 @@ export function ManageStockView() {
             onChange={(value) => onChangeFilterValue('type', value)}
             data={[
               { value: '', label: 'Tất cả loại' },
-              { value: 'ADJUSTMENT', label: 'Điều chỉnh' },
-              { value: 'PURCHASE', label: 'Nhập hàng' },
-              { value: 'SALE', label: 'Bán hàng' },
-              { value: 'RETURN_IN', label: 'Trả hàng về kho' },
-              { value: 'RETURN_OUT', label: 'Xuất trả hàng' },
-              { value: 'TRANSFER', label: 'Chuyển kho' },
+              { value: 'ADJUSTMENT', label: 'Điều chỉnh kho' },
+              { value: 'PURCHASE', label: 'Nhập hàng từ nhà cung cấp' },
+              { value: 'SALE', label: 'Bán hàng cho khách hàng' },
+              { value: 'RETURN_SALE', label: 'Nhận hàng trả từ khách hàng' },
+              { value: 'TRANSFER_IMPORT', label: 'Nhập hàng từ kho khác' },
+              { value: 'TRANSFER_EXPORT', label: 'Xuất hàng sang kho khác' },
             ]}
           />
 
@@ -289,30 +293,13 @@ export function ManageStockView() {
           </div>
 
           {/* Sắp xếp */}
-          <div className="grid grid-cols-2 gap-4">
-            <Select
-              label="Sắp xếp theo"
-              value={tempFilters.sortBy || filters.sortBy}
-              onChange={(value) => onChangeFilterValue('sortBy', value)}
-              data={[
-                { value: 'createdAt', label: 'Ngày tạo' },
-                { value: 'quantity', label: 'Số lượng' },
-              ]}
-            />
-            <Select
-              label="Thứ tự"
-              value={tempFilters.sort || filters.sort}
-              onChange={(value) => onChangeFilterValue('sort', value)}
-              data={[
-                { value: 'desc', label: 'Giảm dần' },
-                { value: 'asc', label: 'Tăng dần' },
-              ]}
-            />
-          </div>
 
           {/* Nút hành động */}
-          <div className="flex justify-end gap-4 pt-4 border-t border-gray-200">
-            <button onClick={handleResetFilters} className="text-gray-500 hover:underline">
+          <div className="flex justify-end gap-4 pt-4 border-t mt-6 border-gray-200">
+            <button
+              onClick={handleResetFilters}
+              className="text-gray-500 hover:underline cursor-pointer"
+            >
               Đặt lại
             </button>
             <button
@@ -320,7 +307,7 @@ export function ManageStockView() {
                 setOpenFilterModal(false);
                 setTempFilters({});
               }}
-              className="text-red-500 hover:underline"
+              className="text-red-500 hover:underline cursor-pointer"
             >
               Hủy
             </button>
@@ -373,8 +360,8 @@ export function ManageStockView() {
                         <label className="text-sm font-semibold text-gray-600 mb-1">
                           Tên sản phẩm
                         </label>
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                          <span className="text-gray-900 font-medium text-center">
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
+                          <span className="text-gray-900 font-medium ">
                             {selectedMovement.product.name}
                           </span>
                         </div>
@@ -551,6 +538,7 @@ export function ManageStockView() {
       <div className="flex flex-col h-full">
         {/* THANH HÀNH ĐỘNG */}
         <FilterBar
+          hasDatePicker={false}
           actions={
             <>
               <button className="bg-white border text-nowrap border-gray-200 rounded-md flex items-center gap-2 py-2 px-4 cursor-pointer hover:opacity-80 transition-opacity duration-300">

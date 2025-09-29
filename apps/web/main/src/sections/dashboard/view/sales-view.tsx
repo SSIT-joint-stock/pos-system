@@ -1,12 +1,12 @@
 'use client';
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
+import Image from 'next/image';
+import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { useOrders } from '../../../../../main/src/hooks/orders/use-orders';
 import { useProduct } from '../../../../../main/src/hooks/product/use-product';
 import { formatCurrency } from '../../../utils/';
 import { Button, Input, Modal, Select, Table } from '@repo/design-system/components/ui';
 import { Filter, Minus, Plus, Trash2, User, X } from 'lucide-react';
-import Image from 'next/image';
-import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { OrderStatusEnum } from '../../../../../main/src/schemas/order/order.schema';
 import { Product, ProductStatus } from '@repo/design-system/types';
 import { payment_method } from '@repo/design-system/types/inventory';
