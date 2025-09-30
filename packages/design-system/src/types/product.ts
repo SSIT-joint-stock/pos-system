@@ -20,4 +20,11 @@ export interface Product {
   inventory: {
     quantity: number;
   };
+  categories: [
+    {
+      id: string;
+      name: string;
+      description: string;
+    },
+  ];
 }

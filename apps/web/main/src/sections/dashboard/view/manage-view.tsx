@@ -3,7 +3,6 @@ import { Button, Input, Modal, Select, Table } from '@repo/design-system/compone
 import FilterBar from '../components/filter-bar';
 import {
   BadgeAlert,
-  CirclePlus,
   Download,
   Edit,
   Eye,
@@ -17,8 +16,12 @@ import {
 import React, { FormEvent, useEffect, useState } from 'react';
 import { formatCurrency, formatDate } from '../../../../../main/src/utils/index';
 import { useProduct } from '../../../../../main/src/hooks/product/use-product';
-import { Controller } from 'react-hook-form';
+import { Controller, set } from 'react-hook-form';
 import Image from 'next/image';
+import { MultiSelect, Textarea } from '@mantine/core';
+import useCategories, {
+  CategoryFormData,
+} from '../../../../../main/src/hooks/categories/use-categories';
 
 const tableHeaders = [
   'Sản Phẩm',
@@ -40,9 +43,15 @@ export function ManageView() {
   const [openViewModal, setOpenViewModal] = useState<boolean>(false);
   const [openEditModal, setOpenEditModal] = useState<boolean>(false);
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
+  const [openCreateCategoryModal, setOpenCreateCategoryModal] = useState<boolean>(false);
   const [inventoryModal, setInventorModal] = useState<boolean>(false);
   const [adjustValue, setAdjustValue] = useState({ delta: '0' });
   const [type, setType] = useState<string>('ADJUSTMENT');
+  const [formData, setFormData] = useState<CategoryFormData>({
+    name: '',
+    description: '',
+  });
+  const [formErrors, setFormErrors] = useState<Partial<CategoryFormData>>({});
   const {
     products,
     loading,
@@ -59,6 +68,7 @@ export function ManageView() {
     updateProduct,
     getProductById,
   } = useProduct();
+  const { categories, handleCreateCategory } = useCategories();
   useEffect(() => {
     if (product) {
       updateProductForm.reset({
@@ -70,23 +80,19 @@ export function ManageView() {
         image_url: product.image_url || '',
         description: product.description || '',
         product_status: product.product_status || 'ACTIVE',
+        categoryIds: product.categories?.map((category) => category.id) || [],
       });
     }
   }, [product, updateProductForm]);
-  console.log(product);
+
   return (
     <>
       {/* MODAL ADD PRODUCT */}
       <Modal
         opened={openAddModal}
-        size="lg"
+        size="70%"
         onClose={() => setOpenAddModal(false)}
-        title={
-          <div className="flex items-center  gap-2 text-sm text-gray-500 font-medium">
-            <CirclePlus size={16} />
-            <p>Thêm Sản Phẩm</p>
-          </div>
-        }
+        title={<span className="text-xl font-semibold text-pos-blue-500">Thêm Sản Phẩm</span>}
       >
         <form
           onSubmit={createProductForm.handleSubmit(async (data) => {
@@ -94,7 +100,7 @@ export function ManageView() {
             createProductForm.reset();
             setOpenAddModal(false);
           })}
-          className="space-y-4"
+          className="space-y-4 mt-2"
         >
           {/* Name */}
           <Input
@@ -103,7 +109,8 @@ export function ManageView() {
             name="name"
             label="Tên sản phẩm"
             size="sm"
-            radius="xs"
+            radius="sm"
+            withAsterisk
             placeholder="Nhập tên sản phẩm"
           />
 
@@ -114,9 +121,42 @@ export function ManageView() {
             name="sku"
             label="SKU"
             size="sm"
-            radius="xs"
+            radius="sm"
+            withAsterisk
             placeholder="Nhập mã SKU (duy nhất)"
           />
+          <div>
+            <span className="text-sm text-gray-500 font-medium">Nhóm danh mục</span>
+            <div className="flex items-center gap-2.5">
+              <Controller
+                name="categoryIds"
+                control={createProductForm.control}
+                render={({ field }) => (
+                  <MultiSelect
+                    {...field}
+                    comboboxProps={{
+                      middlewares: { flip: false, shift: false },
+                      transitionProps: { transition: 'pop', duration: 200 },
+                    }}
+                    searchable
+                    className="flex-1"
+                    placeholder="Chọn nhóm danh mục"
+                    data={[...categories].map((item) => ({ value: item.id, label: item.name }))}
+                    value={field.value || []}
+                    onChange={(val) => field.onChange(val)}
+                  />
+                )}
+              />
+
+              <Button
+                onClick={() => setOpenCreateCategoryModal(true)}
+                radius="md"
+                size="sm"
+                type="button"
+                title={<Plus size={16} />}
+              />
+            </div>
+          </div>
 
           {/* Barcode */}
           <Input
@@ -124,7 +164,7 @@ export function ManageView() {
             name="barcode"
             label="Barcode"
             size="sm"
-            radius="xs"
+            radius="sm"
             placeholder="Nhập barcode (nếu có)"
           />
 
@@ -136,7 +176,8 @@ export function ManageView() {
             name="price"
             label="Giá bán"
             size="sm"
-            radius="xs"
+            withAsterisk
+            radius="sm"
             placeholder="Nhập giá sản phẩm"
           />
 
@@ -146,9 +187,10 @@ export function ManageView() {
             error={createProductForm.formState.errors.cost?.message}
             type="number"
             name="cost"
+            withAsterisk
             label="Giá nhập"
             size="sm"
-            radius="xs"
+            radius="sm"
             placeholder="Nhập giá nhập của sản phẩm"
           />
 
@@ -168,7 +210,7 @@ export function ManageView() {
             name="description"
             label="Mô tả"
             size="sm"
-            radius="xs"
+            radius="sm"
             placeholder="Nhập mô tả sản phẩm"
           />
 
@@ -183,7 +225,7 @@ export function ManageView() {
                 label="Trạng thái"
                 placeholder="Chọn trạng thái"
                 size="sm"
-                radius="xs"
+                radius="sm"
                 data={[
                   { value: 'ACTIVE', label: 'ACTIVE' },
                   { value: 'INACTIVE', label: 'INACTIVE' },
@@ -207,6 +249,71 @@ export function ManageView() {
             <Button type="submit" title="Thêm sản phẩm" size="sm" radius="md" />
           </div>
         </form>
+      </Modal>
+      {/* MODAL ADD CATEGORY */}
+      <Modal
+        opened={openCreateCategoryModal}
+        onClose={() => {
+          setOpenCreateCategoryModal(false);
+          setFormData({ name: '', description: '' });
+          setFormErrors({});
+        }}
+        size="lg"
+        title={
+          <div className="flex items-center gap-3 font-semibold text-lg text-gray-600">
+            <div className="bg-green-100 p-2 rounded-lg">
+              <Plus size={18} className="text-green-600" />
+            </div>
+            <span>Tạo danh mục mới</span>
+          </div>
+        }
+      >
+        <div className="space-y-4">
+          <Input
+            label="Tên danh mục"
+            placeholder="Nhập tên danh mục..."
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            error={formErrors.name}
+            required
+            maxLength={255}
+          />
+
+          <Textarea
+            label="Mô tả"
+            placeholder="Nhập mô tả danh mục (tùy chọn)..."
+            value={formData.description}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            error={formErrors.description}
+            minRows={3}
+            maxLength={1000}
+          />
+
+          <div className="flex justify-end gap-4 pt-4 border-t border-gray-200">
+            <button
+              onClick={() => {
+                setOpenCreateCategoryModal(false);
+                setFormData({ name: '', description: '' });
+                setFormErrors({});
+              }}
+              className="text-red-500 hover:underline"
+            >
+              Hủy
+            </button>
+            <Button
+              onClick={() => {
+                handleCreateCategory(formData);
+                setOpenCreateCategoryModal(false);
+                setFormData({ name: '', description: '' });
+                setFormErrors({});
+              }}
+              title="Tạo danh mục"
+              size="sm"
+              radius="md"
+              // disabled={submitting}
+            />
+          </div>
+        </div>
       </Modal>
 
       {/* DELETE MODAL */}
@@ -390,7 +497,7 @@ export function ManageView() {
                       label="Trạng thái"
                       placeholder="Chọn trạng thái"
                       size="sm"
-                      radius="xs"
+                      radius="md"
                       data={[
                         { value: 'ACTIVE', label: 'ACTIVE' },
                         { value: 'INACTIVE', label: 'INACTIVE' },
@@ -429,10 +536,42 @@ export function ManageView() {
               <p className="text-gray-700">{product?.description || '—'}</p>
             </div>
           )}
+          {/* Categories */}
+          {openEditModal ? (
+            <Controller
+              name="categoryIds"
+              control={updateProductForm.control}
+              render={({ field }) => (
+                <MultiSelect
+                  radius={'md'}
+                  {...field}
+                  data={(categories || []).map((c) => ({
+                    value: c.id,
+                    label: c.name,
+                  }))}
+                  placeholder="Chọn nhóm danh mục"
+                  value={field.value || []}
+                  onChange={field.onChange}
+                  searchable
+                />
+              )}
+            />
+          ) : (
+            <>
+              {product?.categories && product?.categories.length > 0 && (
+                <>
+                  <p className="text-sm text-gray-500">Nhóm danh mục</p>
+                  <span className="px-4 py-1 mt-2  rounded text-xs font-medium bg-gray-100 text-gray-700">
+                    {product?.categories.map((c) => c.name).join(', ')}
+                  </span>
+                </>
+              )}
+            </>
+          )}
 
           {/* Created + Updated */}
           {product && product.createdAt && product.updatedAt && (
-            <div className="border-t border-gray-200 pt-4 flex items-center justify-between text-sm text-gray-500">
+            <div className="border-t border-gray-200 pt-4 mt-4 flex items-center justify-between text-sm text-gray-500">
               <p>Ngày tạo: {formatDate(product?.createdAt)}</p>
               <p>Lần cuối cập nhật: {formatDate(product?.updatedAt)}</p>
             </div>

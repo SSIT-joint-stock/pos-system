@@ -1,236 +1,63 @@
 'use client';
 import { Button, Modal, Select, Table } from '@repo/design-system/components/ui';
 import FilterBar from '../components/filter-bar';
-import { Download, Eye, Edit, Trash2, Plus, Filter, Calendar, X, Tag, Search } from 'lucide-react';
+import {
+  Download,
+  Eye,
+  Edit,
+  Trash2,
+  Plus,
+  Filter,
+  Calendar,
+  X,
+  Tag,
+  Search,
+  Trash,
+} from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { TextInput, Textarea } from '@mantine/core';
-import api from '../../../../../main/src/libs/axios';
-import { useAtom } from 'jotai';
-import { currentStoreAtom } from '@repo/design-system/stores/auth';
-import { toast } from 'react-toastify';
 import { formatDate } from '../../../../../main/src/utils';
+import useCategories, {
+  CategoryFilters,
+  CategoryFormData,
+} from '../../../../../main/src/hooks/categories/use-categories';
 
 const tableHeaders = ['ID', 'Tên danh mục', 'Mô tả', 'Ngày tạo', 'Ngày cập nhật', 'Thao tác'];
 
-// Interface cho Category
-export interface Category {
-  id: string;
-  store_id: string;
-  name: string;
-  description?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-// Interface cho bộ lọc
-interface CategoryFilters {
-  page: number;
-  limit: number;
-  sortBy: 'createdAt' | 'name' | 'updatedAt';
-  sort: 'asc' | 'desc';
-  startDate?: string;
-  endDate?: string;
-  search?: string;
-}
-
-// Interface cho form tạo/sửa category
-interface CategoryFormData {
-  name: string;
-  description: string;
-}
-
 export function ManageCategoriesView() {
+  // Modals state
   const [openViewModal, setOpenViewModal] = useState<boolean>(false);
   const [openCreateModal, setOpenCreateModal] = useState<boolean>(false);
   const [openEditModal, setOpenEditModal] = useState<boolean>(false);
   const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false);
   const [openFilterModal, setOpenFilterModal] = useState<boolean>(false);
 
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [submitting, setSubmitting] = useState<boolean>(false);
-  const [currentStore] = useAtom(currentStoreAtom);
+  // Hook
+  const {
+    loading,
+    submitting,
+    categories,
+    selectedCategory,
+    pagination,
+    filters,
+    setSelectedCategory,
+    handleGetCategories,
+    handleGetCategoryById,
+    handleCreateCategory,
+    handleUpdateCategory,
+    handleDeleteCategory,
+    applyFilters,
+    resetFilters,
+    changePage,
+  } = useCategories();
 
-  const [pagination, setPagination] = useState({
-    page: 1,
-    limit: 10,
-    total: 0,
-    totalPages: 0,
-  });
-
-  // Bộ lọc hiện tại
-  const [filters, setFilters] = useState<CategoryFilters>({
-    page: 1,
-    limit: 10,
-    sortBy: 'createdAt',
-    sort: 'desc',
-  });
-
-  // Bộ lọc tạm trong modal
+  // Local state
   const [tempFilters, setTempFilters] = useState<Partial<CategoryFilters>>({});
-
-  // Form data cho tạo/sửa category
   const [formData, setFormData] = useState<CategoryFormData>({
     name: '',
     description: '',
   });
-
-  // Validation errors
   const [formErrors, setFormErrors] = useState<Partial<CategoryFormData>>({});
-
-  // Lấy danh sách categories
-  const handleGetCategories = async (customFilters?: Partial<CategoryFilters>) => {
-    if (!currentStore?.id) return;
-
-    setLoading(true);
-    try {
-      const queryParams = new URLSearchParams();
-      const currentFilters = { ...filters, ...customFilters };
-
-      // Phân trang và sắp xếp
-      queryParams.append('page', currentFilters.page.toString());
-      queryParams.append('limit', currentFilters.limit.toString());
-      queryParams.append('sortBy', currentFilters.sortBy);
-      queryParams.append('sort', currentFilters.sort);
-
-      // Bộ lọc tùy chọn
-      if (currentFilters.startDate) queryParams.append('startDate', currentFilters.startDate);
-      if (currentFilters.endDate) queryParams.append('endDate', currentFilters.endDate);
-      if (currentFilters.search) queryParams.append('search', currentFilters.search);
-
-      const res = await api.get(`/stores/${currentStore.id}/categories?${queryParams.toString()}`);
-
-      setCategories(res.data.data || []);
-      if (res.data.pagination) {
-        setPagination(res.data.pagination);
-      }
-
-      setLoading(false);
-    } catch (error) {
-      setLoading(false);
-      console.error(error);
-      toast.error('Lỗi khi tải danh sách danh mục');
-    }
-  };
-
-  // Lấy chi tiết category
-  const handleGetCategoryById = async (id: string) => {
-    if (!currentStore?.id) return;
-
-    try {
-      const res = await api.get(`/stores/${currentStore.id}/categories/${id}`);
-      setSelectedCategory(res.data.data);
-    } catch (error) {
-      console.error(error);
-      toast.error('Lỗi khi tải chi tiết danh mục');
-    }
-  };
-
-  // Validate form
-  const validateForm = (data: CategoryFormData): Partial<CategoryFormData> => {
-    const errors: Partial<CategoryFormData> = {};
-
-    if (!data.name.trim()) {
-      errors.name = 'Tên danh mục là bắt buộc';
-    } else if (data.name.length > 255) {
-      errors.name = 'Tên danh mục không được vượt quá 255 ký tự';
-    }
-
-    if (data.description && data.description.length > 1000) {
-      errors.description = 'Mô tả không được vượt quá 1000 ký tự';
-    }
-
-    return errors;
-  };
-
-  // Tạo category mới
-  const handleCreateCategory = async () => {
-    if (!currentStore?.id) return;
-
-    const errors = validateForm(formData);
-    if (Object.keys(errors).length > 0) {
-      setFormErrors(errors);
-      return;
-    }
-
-    setSubmitting(true);
-    try {
-      await api.post(`/stores/${currentStore.id}/categories`, {
-        name: formData.name.trim(),
-        description: formData.description.trim() || undefined,
-      });
-
-      toast.success('Tạo danh mục thành công');
-      setOpenCreateModal(false);
-      setFormData({ name: '', description: '' });
-      setFormErrors({});
-      handleGetCategories();
-    } catch (error: any) {
-      console.error(error);
-      if (error.response?.data?.error?.code === 'CONFLICT') {
-        toast.error('Tên danh mục đã tồn tại');
-      } else {
-        toast.error('Lỗi khi tạo danh mục');
-      }
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  // Cập nhật category
-  const handleUpdateCategory = async () => {
-    if (!currentStore?.id || !selectedCategory) return;
-
-    const errors = validateForm(formData);
-    if (Object.keys(errors).length > 0) {
-      setFormErrors(errors);
-      return;
-    }
-
-    setSubmitting(true);
-    try {
-      await api.patch(`/stores/${currentStore.id}/categories/${selectedCategory.id}`, {
-        name: formData.name.trim(),
-        description: formData.description.trim() || undefined,
-      });
-
-      toast.success('Cập nhật danh mục thành công');
-      setOpenEditModal(false);
-      setSelectedCategory(null);
-      setFormData({ name: '', description: '' });
-      setFormErrors({});
-      handleGetCategories();
-    } catch (error: any) {
-      console.error(error);
-      if (error.response?.data?.error?.code === 'CONFLICT') {
-        toast.error('Tên danh mục đã tồn tại');
-      } else {
-        toast.error('Lỗi khi cập nhật danh mục');
-      }
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  // Xóa category
-  const handleDeleteCategory = async () => {
-    if (!currentStore?.id || !selectedCategory) return;
-
-    setSubmitting(true);
-    try {
-      await api.delete(`/stores/${currentStore.id}/categories/${selectedCategory.id}`);
-      toast.success('Xóa danh mục thành công');
-      setOpenDeleteModal(false);
-      setSelectedCategory(null);
-      handleGetCategories();
-    } catch (error) {
-      console.error(error);
-      toast.error('Lỗi khi xóa danh mục');
-    } finally {
-      setSubmitting(false);
-    }
-  };
 
   // Cập nhật bộ lọc tạm
   const onChangeFilterValue = (field: keyof CategoryFilters, value: any) => {
@@ -242,36 +69,27 @@ export function ManageCategoriesView() {
 
   // Áp dụng bộ lọc
   const handleApplyFilters = () => {
-    const newFilters = { ...filters, ...tempFilters, page: 1 };
-    setFilters(newFilters);
-    handleGetCategories(newFilters);
+    applyFilters(tempFilters);
     setOpenFilterModal(false);
     setTempFilters({});
   };
 
   // Reset bộ lọc
   const handleResetFilters = () => {
-    const defaultFilters: CategoryFilters = {
-      page: 1,
-      limit: 10,
-      sortBy: 'createdAt',
-      sort: 'desc',
-    };
-    setFilters(defaultFilters);
+    resetFilters();
     setTempFilters({});
-    handleGetCategories(defaultFilters);
     setOpenFilterModal(false);
   };
 
-  // Đổi trang
-  const handlePageChange = (newPage: number) => {
-    const newFilters = { ...filters, page: newPage };
-    setFilters(newFilters);
-    handleGetCategories(newFilters);
+  // Mở modal tạo
+  const handleOpenCreateModal = () => {
+    setFormData({ name: '', description: '' });
+    setFormErrors({});
+    setOpenCreateModal(true);
   };
 
   // Mở modal sửa
-  const handleOpenEditModal = (category: Category) => {
+  const handleOpenEditModal = (category: any) => {
     setSelectedCategory(category);
     setFormData({
       name: category.name,
@@ -282,23 +100,53 @@ export function ManageCategoriesView() {
   };
 
   // Mở modal xóa
-  const handleOpenDeleteModal = (category: Category) => {
+  const handleOpenDeleteModal = (category: any) => {
     setSelectedCategory(category);
     setOpenDeleteModal(true);
   };
 
-  // Reset form khi mở modal tạo
-  const handleOpenCreateModal = () => {
-    setFormData({ name: '', description: '' });
-    setFormErrors({});
-    setOpenCreateModal(true);
+  // Submit tạo mới
+  const handleSubmitCreate = async () => {
+    const result = await handleCreateCategory(formData);
+    if (result?.success) {
+      setOpenCreateModal(false);
+      setFormData({ name: '', description: '' });
+      setFormErrors({});
+    } else if (result?.errors) {
+      setFormErrors(result.errors);
+    }
   };
 
-  // Lần đầu load
+  // Submit cập nhật
+  const handleSubmitUpdate = async () => {
+    if (!selectedCategory) return;
+
+    const result = await handleUpdateCategory(selectedCategory.id, formData);
+    if (result?.success) {
+      setOpenEditModal(false);
+      setSelectedCategory(null);
+      setFormData({ name: '', description: '' });
+      setFormErrors({});
+    } else if (result?.errors) {
+      setFormErrors(result.errors);
+    }
+  };
+
+  // Submit xóa
+  const handleSubmitDelete = async () => {
+    if (!selectedCategory) return;
+
+    const result = await handleDeleteCategory(selectedCategory.id);
+    if (result?.success) {
+      setOpenDeleteModal(false);
+      setSelectedCategory(null);
+    }
+  };
+
+  // Load categories khi mount
   useEffect(() => {
-    if (!currentStore?.id) return;
     handleGetCategories();
-  }, [currentStore?.id]);
+  }, []);
 
   return (
     <>
@@ -318,7 +166,6 @@ export function ManageCategoriesView() {
         }
       >
         <div className="space-y-4">
-          {/* Tìm kiếm */}
           <TextInput
             label="Tìm kiếm theo tên"
             placeholder="Nhập tên danh mục..."
@@ -327,7 +174,6 @@ export function ManageCategoriesView() {
             leftSection={<Search size={16} />}
           />
 
-          {/* Ngày bắt đầu & kết thúc */}
           <div className="grid grid-cols-2 gap-4">
             <TextInput
               type="date"
@@ -343,7 +189,6 @@ export function ManageCategoriesView() {
             />
           </div>
 
-          {/* Sắp xếp */}
           <div className="grid grid-cols-2 gap-4">
             <Select
               label="Sắp xếp theo"
@@ -366,7 +211,6 @@ export function ManageCategoriesView() {
             />
           </div>
 
-          {/* Nút hành động */}
           <div className="flex justify-end gap-4 pt-4 border-t border-gray-200">
             <button onClick={handleResetFilters} className="text-gray-500 hover:underline">
               Đặt lại
@@ -436,7 +280,7 @@ export function ManageCategoriesView() {
               Hủy
             </button>
             <Button
-              onClick={handleCreateCategory}
+              onClick={handleSubmitCreate}
               title="Tạo danh mục"
               size="sm"
               radius="md"
@@ -499,7 +343,7 @@ export function ManageCategoriesView() {
               Hủy
             </button>
             <Button
-              onClick={handleUpdateCategory}
+              onClick={handleSubmitUpdate}
               title="Cập nhật"
               size="sm"
               radius="md"
@@ -550,7 +394,7 @@ export function ManageCategoriesView() {
                 Hủy
               </button>
               <Button
-                onClick={handleDeleteCategory}
+                onClick={handleSubmitDelete}
                 title="Xóa danh mục"
                 size="sm"
                 radius="md"
@@ -798,17 +642,17 @@ export function ManageCategoriesView() {
         {/* BẢNG */}
         <Table
           totalPages={pagination.totalPages}
-          onPageChange={handlePageChange}
+          onPageChange={changePage}
           tableHeaders={tableHeaders}
           data={categories}
           isLoading={loading}
-          renderRow={(category: Category, idx: number) => (
+          renderRow={(category: any, idx: number) => (
             <tr
               key={idx}
               className="border-b border-b-gray-100 hover:bg-gray-50 transition-colors duration-300"
             >
               <td className="px-4 py-2 text-xs font-mono text-gray-600">
-                {category.id.slice(0, 8)}...
+                {category.id.slice(0, 32)}...
               </td>
               <td className="px-4 py-2 text-xs font-medium text-gray-900">
                 <div className="flex items-center gap-2">
@@ -826,33 +670,33 @@ export function ManageCategoriesView() {
               <td className="px-4 py-2 text-xs text-gray-500">{formatDate(category.createdAt)}</td>
               <td className="px-4 py-2 text-xs text-gray-500">{formatDate(category.updatedAt)}</td>
               <td>
-                <div className="flex items-center gap-2 pl-4">
+                <div className="flex items-center gap-5 pl-4">
                   <button
+                    data-tooltip-target="tooltip-default"
                     onClick={() => {
                       setSelectedCategory(category);
                       handleGetCategoryById(category.id);
                       setOpenViewModal(true);
                     }}
-                    className="flex justify-center items-center cursor-pointer w-[36px] h-[36px] bg-gray-50 text-gray-500 rounded-md hover:opacity-100 hover:bg-blue-600 hover:text-white opacity-70 transition-all duration-200"
                     title="Xem chi tiết"
+                    className="flex justify-center items-center cursor-pointer w-[36px] h-[36px] bg-gray-50 text-gray-500 rounded-md hover:opacity-100 hover:bg-gray-700 hover:text-white opacity-70 transition-opacity duration-200"
                   >
                     <Eye size={16} />
                   </button>
 
                   <button
                     onClick={() => handleOpenEditModal(category)}
-                    className="flex justify-center items-center cursor-pointer w-[36px] h-[36px] bg-gray-50 text-gray-500 rounded-md hover:opacity-100 hover:bg-green-600 hover:text-white opacity-70 transition-all duration-200"
                     title="Chỉnh sửa"
+                    className="flex justify-center items-center cursor-pointer w-[36px] h-[36px]  bg-pos-blue-50 text-pos-blue-500 rounded-md hover:opacity-100 hover:bg-pos-blue-500 hover:text-pos-blue-50 opacity-70 transition-opacity duration-200"
                   >
                     <Edit size={16} />
                   </button>
-
                   <button
+                    title="Xóa"
                     onClick={() => handleOpenDeleteModal(category)}
-                    className="flex justify-center items-center cursor-pointer w-[36px] h-[36px] bg-gray-50 text-gray-500 rounded-md hover:opacity-100 hover:bg-red-600 hover:text-white opacity-70 transition-all duration-200"
-                    title="Xóa danh mục"
+                    className="flex justify-center items-center cursor-pointer w-[36px] h-[36px]  bg-red-50 text-red-500 rounded-md hover:opacity-100 hover:bg-red-500 hover:text-red-50 opacity-70 transition-opacity duration-200"
                   >
-                    <Trash2 size={16} />
+                    <Trash size={16} />
                   </button>
                 </div>
               </td>
