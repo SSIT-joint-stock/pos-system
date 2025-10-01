@@ -3,19 +3,18 @@ import { Button, Input, Modal, Select, Table } from '@repo/design-system/compone
 import FilterBar from '../components/filter-bar';
 import {
   BadgeAlert,
-  ChevronDown,
   ChevronRight,
   Download,
   Edit,
   Eye,
-  Filter,
   Pencil,
   Plus,
   ShoppingBag,
   ShoppingCart,
   Trash,
+  Upload,
 } from 'lucide-react';
-import React, { FormEvent, useEffect, useState } from 'react';
+import React, { FormEvent, useEffect, useRef, useState } from 'react';
 import { formatCurrency, formatDate } from '../../../../../main/src/utils/index';
 import { useProduct } from '../../../../../main/src/hooks/product/use-product';
 import { Controller } from 'react-hook-form';
@@ -41,6 +40,7 @@ const statusColors: Record<string, string> = {
 };
 
 export function ManageView() {
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [openAddModal, setOpenAddModal] = useState<boolean>(false);
   const [openViewModal, setOpenViewModal] = useState<boolean>(false);
   const [openEditModal, setOpenEditModal] = useState<boolean>(false);
@@ -65,6 +65,7 @@ export function ManageView() {
     pagination,
     paginationParams,
     applyStockMovement,
+    uploadProductByExcel,
     setPaginationParams,
     setFilters,
     createProduct,
@@ -768,9 +769,26 @@ export function ManageView() {
                 <Download size={16} />
                 <span className="text-gray-900 font-medium text-xs"> Xuất dữ liệu</span>
               </button>
-              <button className="bg-white border text-nowrap border-gray-200 rounded-md flex items-center gap-2 py-2 px-4 cursor-pointer hover:opacity-80 transition-opacity duration-300">
-                <Filter size={16} />
-                <span className="text-gray-900 font-medium text-xs">Lọc sản phẩm</span>
+              <button
+                disabled={loading}
+                onClick={() => fileInputRef.current?.click()}
+                className={`bg-white border text-nowrap border-gray-200 rounded-md flex items-center gap-2 py-2 px-4 cursor-pointer hover:opacity-80 transition-opacity duration-300 disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                <Upload size={16} />
+                <span className="text-gray-900 font-medium text-xs">Tải lên dữ liệu</span>
+                <input
+                  ref={fileInputRef}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      console.log(file);
+                      uploadProductByExcel(file);
+                    }
+                  }}
+                  hidden
+                  type="file"
+                  accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                />
               </button>
               <button
                 onClick={() => {

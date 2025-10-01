@@ -33,7 +33,7 @@ export function SalesView() {
   // HOOK(
 
   const { showSuccessToast, showInfoToast } = useToast();
-  const { products, getProducts, setFilters } = useProduct();
+  const { products, getProducts, setFilters, setPaginationParams } = useProduct();
   const { createOrder, loading } = useOrders();
 
   // STATE
@@ -184,6 +184,10 @@ export function SalesView() {
       ...prev,
       product_status: ProductStatus.ACTIVE,
     }));
+    setPaginationParams((prev) => ({
+      ...prev,
+      limit: 22,
+    }));
 
     const timeout = setTimeout(() => {
       setFilters((prev) => ({
@@ -194,7 +198,12 @@ export function SalesView() {
     }, 500);
     return () => clearTimeout(timeout);
   }, [search]);
-
+  const handleLoadMore = () => {
+    setPaginationParams((prev) => ({
+      ...prev,
+      limit: prev.limit + 22,
+    }));
+  };
   return (
     <>
       <div className="h-full overflow-hidden">
@@ -360,8 +369,8 @@ export function SalesView() {
           </div>
 
           {/* RIGHT */}
-          <div className="h-full w-full bg-white p-3 rounded-md">
-            <div className="flex items-center">
+          <div className="h-full w-full bg-white px-3 rounded-md ">
+            <div className="flex items-center sticky top-0 bg-white z-10 pt-4 pb-2">
               <Input
                 onChange={(e: ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
                 type="text"
@@ -378,55 +387,60 @@ export function SalesView() {
               </div>
             </div>
             {products.length === 0 ? (
-              <div className="flex items-center justify-center h-screen">
+              <div className="flex items-center justify-center h-screen ">
                 <span className="text-xl font-semibold text-pos-blue-500">
                   Không tìm thấy sản phẩm
                 </span>
               </div>
             ) : (
-              <div className="grid grid-cols-4 gap-2 mt-4">
-                {products?.map((product) => (
-                  <div
-                    onClick={() => {
-                      const existing = selectedProducts.find((p) => p.id === product.id);
+              <div className=" mt-4 overflow-y-scroll   h-[calc(100vh-128px)]">
+                <div className="grid grid-cols-4 gap-2">
+                  {products?.map((product) => (
+                    <div
+                      onClick={() => {
+                        const existing = selectedProducts.find((p) => p.id === product.id);
 
-                      if (!existing) {
-                        if (product.inventory.quantity > 0) {
-                          handleSelectProduct(product);
+                        if (!existing) {
+                          if (product.inventory.quantity > 0) {
+                            handleSelectProduct(product);
+                          }
+                        } else {
+                          if (existing.selectedQuantity < product.inventory.quantity) {
+                            handleSelectProduct(product);
+                          }
                         }
-                      } else {
-                        if (existing.selectedQuantity < product.inventory.quantity) {
-                          handleSelectProduct(product);
-                        }
-                      }
-                    }}
-                    key={product?.id}
-                    className="bg-white p-3 rounded-xl border border-gray-100 hover:border-pos-blue-400 cursor-pointer duration-300 transition-all hover:shadow-md hover:shadow-pos-blue-100"
-                  >
-                    <div className="relative w-full h-32">
-                      <Image
-                        src={'/placeholder.jpg'}
-                        alt="sản phẩm"
-                        width={500}
-                        height={500}
-                        className="rounded-xl object-cover"
-                        unoptimized
-                      />
-                      <div className="absolute bottom-2 left-2 py-1 px-2 bg-pos-blue-400 text-white rounded-md">
-                        <div className="text-xs font-medium">{formatCurrency(product.price)}</div>
+                      }}
+                      key={product?.id}
+                      className="bg-white p-3 rounded-xl border border-gray-100 hover:border-pos-blue-400 cursor-pointer duration-300 transition-all hover:shadow-md hover:shadow-pos-blue-100"
+                    >
+                      <div className="relative w-full h-32">
+                        <Image
+                          src={'/placeholder.jpg'}
+                          alt="sản phẩm"
+                          width={500}
+                          height={500}
+                          className="rounded-xl object-cover"
+                          unoptimized
+                        />
+                        <div className="absolute bottom-2 left-2 py-1 px-2 bg-pos-blue-400 text-white rounded-md">
+                          <div className="text-xs font-medium">{formatCurrency(product.price)}</div>
+                        </div>
+                      </div>
+
+                      <div className="mt-2 flex flex-col gap-1">
+                        <h2 className="text-sm font-semibold text-gray-800 truncate">
+                          {product.name}
+                        </h2>
+                        <span className="text-sm font-medium text-gray-500">
+                          Số lượng: {product.inventory.quantity}
+                        </span>
                       </div>
                     </div>
-
-                    <div className="mt-2 flex flex-col gap-1">
-                      <h2 className="text-base font-semibold text-gray-800 truncate">
-                        {product.name}
-                      </h2>
-                      <span className="text-sm font-medium text-gray-500">
-                        Số lượng: {product.inventory.quantity}
-                      </span>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+                <div className="flex items-center justify-center mt-4.5">
+                  <Button onClick={handleLoadMore} title="Tải thêm" style={{ width: '54%' }} />
+                </div>
               </div>
             )}
           </div>

@@ -111,6 +111,22 @@ export function useProduct() {
       showSuccessToast(res.data.message);
     }
   };
+  const uploadProductByExcel = async (file: File) => {
+    if (!currentStore?.id) return;
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await requestWrapper(() =>
+      api.post(`/stores/${currentStore?.id}/products/import-excel`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+    );
+    if (res?.data.success) {
+      getProducts();
+      showSuccessToast(res.data.message);
+    }
+  };
   useEffect(() => {
     if (!currentStore?.id) return;
     getProducts();
@@ -126,6 +142,7 @@ export function useProduct() {
     setPaginationParams,
     setSortBy,
     setSort,
+    uploadProductByExcel,
     pagination,
     paginationParams,
     filters,
