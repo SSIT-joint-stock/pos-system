@@ -44,11 +44,8 @@ export default function EmployeesView() {
         totalPages={members.length}
         tableHeaders={tableHeaders}
         data={members}
-        renderRow={(member, idx) => (
-          <tr
-            key={idx}
-            className="border-b border-b-gray-100 hover:bg-gray-50 transition-colors duration-300"
-          >
+        renderRow={(member) => (
+          <>
             <td className="px-4 py-2 text-xs font-medium text-gray-900">{member.user.id}</td>
             <td className="px-4 py-2 text-xs text-gray-500 font-medium">{member.user.username}</td>
             <td className="px-4 py-2 text-xs text-gray-500">{member.user.email}</td>
@@ -59,7 +56,7 @@ export default function EmployeesView() {
               </span>
             </td>
             <td className="px-4 py-2 text-xs text-gray-500">{formatDate(member.createdAt)}</td>
-            <td>
+            <>
               <div className="flex  items-center gap-5 pl-4">
                 <button
                   onClick={() => {
@@ -93,8 +90,8 @@ export default function EmployeesView() {
                   <Trash size={16} />
                 </button>
               </div>
-            </td>
-          </tr>
+            </>
+          </>
         )}
       />
       <Modal

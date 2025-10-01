@@ -248,6 +248,9 @@ export function OrdersView() {
 
         {/* TABLE AND PAGINATION */}
         <Table
+          total={pagination?.total}
+          page={pagination?.page}
+          limit={pagination?.limit}
           totalPages={pagination?.totalPages}
           pageSize={pagination?.limit ?? paginationParams.limit}
           onPageChange={(page) => setPaginationParams((prev) => ({ ...prev, page }))}
@@ -260,11 +263,8 @@ export function OrdersView() {
           tableHeaders={tableHeaders}
           data={orders}
           isLoading={loading}
-          renderRow={(order, idx) => (
-            <tr
-              key={idx}
-              className="border-b border-b-gray-100 hover:bg-gray-50 transition-colors duration-300"
-            >
+          renderRow={(order) => (
+            <>
               <td className="px-4 py-2 font-medium text-xs text-gray-500 truncate">
                 {order.code || `#${order.id}`}
               </td>
@@ -308,7 +308,7 @@ export function OrdersView() {
                   </button>
                 </div>
               </td>
-            </tr>
+            </>
           )}
         />
       </div>

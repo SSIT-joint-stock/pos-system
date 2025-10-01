@@ -641,16 +641,16 @@ export function ManageCategoriesView() {
 
         {/* BẢNG */}
         <Table
+          total={pagination?.total}
+          page={pagination?.page}
+          limit={pagination?.limit}
           totalPages={pagination.totalPages}
           onPageChange={changePage}
           tableHeaders={tableHeaders}
           data={categories}
           isLoading={loading}
-          renderRow={(category: any, idx: number) => (
-            <tr
-              key={idx}
-              className="border-b border-b-gray-100 hover:bg-gray-50 transition-colors duration-300"
-            >
+          renderRow={(category: any) => (
+            <>
               <td className="px-4 py-2 text-xs font-mono text-gray-600">
                 {category.id.slice(0, 32)}...
               </td>
@@ -700,7 +700,7 @@ export function ManageCategoriesView() {
                   </button>
                 </div>
               </td>
-            </tr>
+            </>
           )}
         />
       </div>

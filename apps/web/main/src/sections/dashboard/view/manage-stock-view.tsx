@@ -605,15 +605,15 @@ export function ManageStockView() {
         <Table
           totalPages={pagination.totalPages}
           // currentPage={pagination.page}
+          total={pagination?.total}
+          page={pagination?.page}
+          limit={pagination?.limit}
           onPageChange={handlePageChange}
           tableHeaders={tableHeaders}
           data={movements}
           isLoading={loading}
           renderRow={(movement: StockMovement, idx: number) => (
-            <tr
-              key={idx}
-              className="border-b border-b-gray-100 hover:bg-gray-50 transition-colors duration-300"
-            >
+            <>
               <td className="px-4 py-2 text-xs font-mono text-gray-600">
                 {movement.id.slice(0, 8)}...
               </td>
@@ -629,23 +629,6 @@ export function ManageStockView() {
                 </span>
               </td>
               <td className="px-4 py-2 text-xs font-bold">
-                {/* <div
-                  className={`border-2 rounded-lg p-4 text-center ${
-                    selectedMovement.quantity > 0
-                      ? 'bg-green-50 border-green-200'
-                      : 'bg-red-50 border-red-200'
-                  }`}
-                >
-                  <span
-                    className={`text-2xl font-bold ${
-                      selectedMovement.quantity > 0 ? 'text-green-600' : 'text-red-600'
-                    }`}
-                  >
-                    {selectedMovement.quantity > 0 ? '+' : ''}
-                    {selectedMovement.quantity.toLocaleString()}
-                  </span>
-                  <p className="text-xs text-gray-500 mt-1">đơn vị</p>
-                </div> */}
                 <span
                   className={`${movement.quantity > 0 ? 'text-green-600' : 'text-red-600'} text-sm font-medium`}
                 >
@@ -668,7 +651,7 @@ export function ManageStockView() {
                   </button>
                 </div>
               </td>
-            </tr>
+            </>
           )}
         />
       </div>

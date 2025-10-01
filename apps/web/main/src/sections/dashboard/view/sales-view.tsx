@@ -263,7 +263,6 @@ export function SalesView() {
                 className="h-full"
                 hasPagination={false}
                 tableHeaders={[
-                  'STT',
                   'Tên sản phẩm',
                   'Số lượng',
                   'Đơn giá',
@@ -273,69 +272,61 @@ export function SalesView() {
                 ]}
                 hasMarginTop={false}
                 data={selectedProducts}
-                renderRow={(product, idx) => (
+                renderRow={(product) => (
                   <>
-                    <tr
-                      key={product?.id || idx}
-                      className="border-b border-b-gray-100 hover:bg-gray-50 transition-colors duration-300"
-                    >
-                      <td className="px-4 py-2 text-xs font-medium text-gray-900 max-w-fit">
-                        {idx + 1}
-                      </td>
-                      <td className="px-4 py-2 text-gray-900 flex flex-col gap-1">
-                        <span className="text-base font-semibold">{product.name}</span>
-                        <span className="text-xs font-medium">
-                          Tồn kho: {product.inventory.quantity}
-                        </span>
-                      </td>
+                    <td className="px-4 py-2 text-gray-900 flex flex-col gap-1">
+                      <span className="text-base font-semibold truncate">{product.name}</span>
+                      <span className="text-xs font-medium">
+                        Tồn kho: {product.inventory.quantity}
+                      </span>
+                    </td>
 
-                      <td className="px-4 py-2 text-gray-600">
-                        <div className="flex items-center gap-1.5">
-                          <button
-                            className="cursor-pointer disabled:cursor-not-allowed"
-                            disabled={product.selectedQuantity === 1}
-                            onClick={() => handleDecreaseQuantity(product.id)}
-                          >
-                            <Minus size={14} />
-                          </button>
-
-                          <input
-                            type="text"
-                            value={String(product?.selectedQuantity)}
-                            onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                              handleChangQuantity(product.id, Number(e.target.value))
-                            }
-                            className="w-[34px] text-center outline-none text-xs font-medium text-gray-600"
-                          />
-                          <button
-                            className="cursor-pointer disabled:cursor-not-allowed"
-                            onClick={() => handleIncreaseQuantity(product.id)}
-                            disabled={product.selectedQuantity === product.inventory.quantity}
-                          >
-                            <Plus size={14} />
-                          </button>
-                        </div>
-                      </td>
-                      <td
-                        onClick={() => handleOpenChangePrice(product.id, product.price)}
-                        className="px-4 py-2 text-base text-gray-500 underline hover:cursor-pointer hover:text-pos-blue-500"
-                      >
-                        {formatCurrency(product.price || 0)}
-                      </td>
-
-                      <td className="px-4 py-2 text-sm text-gray-500">0%</td>
-                      <td className="px-4 py-2 text-base font-semibold text-gray-900 truncate">
-                        {formatCurrency(product.price * (product.selectedQuantity || 1))}
-                      </td>
-                      <td className="">
+                    <td className="px-4 py-2 text-gray-600">
+                      <div className="flex items-center gap-1.5">
                         <button
-                          onClick={() => handleRemoveSelectedProduct(product.id)}
-                          className="cursor-pointer w-[36px] h-[36px] flex items-center justify-center bg-red-50 text-red-500 rounded-md hover:opacity-100 hover:bg-red-500 hover:text-white opacity-70 transition-opacity duration-200"
+                          className="cursor-pointer disabled:cursor-not-allowed"
+                          disabled={product.selectedQuantity === 1}
+                          onClick={() => handleDecreaseQuantity(product.id)}
                         >
-                          <Trash2 size={16} />
+                          <Minus size={14} />
                         </button>
-                      </td>
-                    </tr>
+
+                        <input
+                          type="text"
+                          value={String(product?.selectedQuantity)}
+                          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                            handleChangQuantity(product.id, Number(e.target.value))
+                          }
+                          className="w-[34px] text-center outline-none text-xs font-medium text-gray-600"
+                        />
+                        <button
+                          className="cursor-pointer disabled:cursor-not-allowed"
+                          onClick={() => handleIncreaseQuantity(product.id)}
+                          disabled={product.selectedQuantity === product.inventory.quantity}
+                        >
+                          <Plus size={14} />
+                        </button>
+                      </div>
+                    </td>
+                    <td
+                      onClick={() => handleOpenChangePrice(product.id, product.price)}
+                      className="px-4 py-2 text-base text-gray-500 underline hover:cursor-pointer hover:text-pos-blue-500"
+                    >
+                      {formatCurrency(product.price || 0)}
+                    </td>
+
+                    <td className="px-4 py-2 text-sm text-gray-500">0%</td>
+                    <td className="px-4 py-2 text-base font-semibold text-gray-900 truncate">
+                      {formatCurrency(product.price * (product.selectedQuantity || 1))}
+                    </td>
+                    <td className="">
+                      <button
+                        onClick={() => handleRemoveSelectedProduct(product.id)}
+                        className="cursor-pointer w-[36px] h-[36px] flex items-center justify-center bg-red-50 text-red-500 rounded-md hover:opacity-100 hover:bg-red-500 hover:text-white opacity-70 transition-opacity duration-200"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </td>
                   </>
                 )}
               />

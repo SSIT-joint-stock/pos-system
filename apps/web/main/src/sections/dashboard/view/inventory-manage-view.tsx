@@ -251,18 +251,18 @@ export function InventoryManageView() {
 
         {/* TABLE */}
         <Table
+          total={pagination?.total}
+          page={pagination?.page}
+          limit={pagination?.limit}
+          totalPages={pagination?.totalPages}
           pageSize={pagination?.limit ?? paginationParams.limit}
           onPageChange={(page) => setPaginationParams((prev) => ({ ...prev, page }))}
           onPageSizeChange={(size) => setPaginationParams((prev) => ({ ...prev, limit: size }))}
-          totalPages={pagination?.totalPages}
           tableHeaders={tableHeaders}
           data={inventories}
           isLoading={loading}
-          renderRow={(inventory, idx) => (
-            <tr
-              key={inventory?.id || idx}
-              className="border-b border-b-gray-100 hover:bg-gray-50 transition-colors duration-300"
-            >
+          renderRow={(inventory) => (
+            <>
               <td className="px-4 py-2">
                 <div className="flex flex-col">
                   <span className="text-xs font-medium text-gray-900">
@@ -328,7 +328,7 @@ export function InventoryManageView() {
                   </button>
                 </div>
               </td>
-            </tr>
+            </>
           )}
         />
       </div>

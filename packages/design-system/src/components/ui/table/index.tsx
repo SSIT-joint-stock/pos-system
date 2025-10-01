@@ -3,8 +3,10 @@ import * as React from 'react';
 import { Select } from '../select';
 import { Pagination } from '../pagination';
 import { TableSkeleton } from '../loading-skeleton-table';
-
+import { numericalOrder } from '../../../../../../apps/web/main/src/utils';
 export type TableProps<T> = {
+  limit?: number;
+  total?: number;
   size?: string;
   tableHeaders: string[];
   data: T[];
@@ -22,8 +24,9 @@ export type TableProps<T> = {
 };
 
 export function Table<T>({
-  //   size,
+  total = 0,
   tableHeaders,
+  page = 1,
   data,
   renderRow,
   totalPages = 1,
@@ -32,9 +35,11 @@ export function Table<T>({
   onPageSizeChange,
   isLoading,
   hasMarginTop = true,
+  limit = 10,
   hasPagination = true,
   className,
 }: TableProps<T>) {
+  const finalHeader = ['STT', ...tableHeaders];
   return (
     <div
       className={`bg-white border border-black/10 p-5  ${hasMarginTop ? 'mt-5' : ''} flex-col flex overflow-y-auto shadow-md rounded-lg ${className}`}
@@ -46,7 +51,7 @@ export function Table<T>({
         <table className="table-auto w-full border-collapse ">
           <thead className="sticky top-0 z-10 bg-gray-50">
             <tr className="text-left text-base text-gray-800">
-              {tableHeaders.map((item, idx) => (
+              {finalHeader.map((item, idx) => (
                 <th key={idx} className="px-4 py-2 font-semibold text-nowrap">
                   {item}
                 </th>
@@ -56,15 +61,27 @@ export function Table<T>({
 
           <tbody>
             {isLoading ? (
-              <TableSkeleton numColumns={tableHeaders.length} numRows={pageSize} />
+              <TableSkeleton numColumns={finalHeader.length} numRows={pageSize} />
             ) : data.length === 0 ? (
               <tr>
-                <td colSpan={tableHeaders.length} className="text-center py-6 text-gray-500">
+                <td colSpan={finalHeader.length} className="text-center py-6 text-gray-500">
                   Không có dữ liệu
                 </td>
               </tr>
             ) : (
-              <>{data.map((row, idx) => renderRow(row, idx))}</>
+              <>
+                {data.map((item, idx) => (
+                  <tr
+                    key={idx}
+                    className="border-b border-b-gray-100 hover:bg-gray-50 transition-colors duration-300"
+                  >
+                    <td className="px-4 py-2 text-xs font-medium text-gray-900">
+                      {numericalOrder(idx, page, limit, total)}
+                    </td>
+                    {renderRow(item, idx)}
+                  </tr>
+                ))}
+              </>
             )}
           </tbody>
         </table>
@@ -73,17 +90,25 @@ export function Table<T>({
       {/* PAGINATION */}
       {hasPagination && (
         <div className="mt-5 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-800 font-medium">Hiển thị:</span>
-            <div className="w-fit">
-              <Select
-                value={String(pageSize)}
-                size="xs"
-                radius="sm"
-                data={['10', '20', '30', '40', '50']}
-                className="w-[10ch]"
-                onChange={(val) => onPageSizeChange?.(Number(val))}
-              />
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-800 font-medium">Hiển thị:</span>
+              <div className="w-fit">
+                <Select
+                  value={String(pageSize)}
+                  size="xs"
+                  radius="sm"
+                  data={['10', '20', '30', '40', '50']}
+                  className="w-[10ch]"
+                  onChange={(val) => onPageSizeChange?.(Number(val))}
+                />
+              </div>
+
+              <span className="text-sm text-gray-800 font-medium">{`Trang ${page} trong ${totalPages}`}</span>
+            </div>
+            <div className="text-sm text-gray-800 font-medium">
+              Tổng số lượng:{' '}
+              <span className="text-base text-pos-blue-500 font-semibold">{total}</span>
             </div>
           </div>
 

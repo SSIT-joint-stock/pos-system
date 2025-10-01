@@ -38,6 +38,7 @@ export function useProduct() {
     q: 'q',
     product_status: 'product_status',
   });
+  console.log(pagination);
   // STATE
   const currentStore = useAtomValue(currentStoreAtom);
   const [products, setProducts] = useState<Product[]>([]);

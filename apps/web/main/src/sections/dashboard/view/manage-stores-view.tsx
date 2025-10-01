@@ -290,10 +290,7 @@ export function ManageStoresView() {
           isLoading={loading}
           loading={<Loading />}
           renderRow={(store) => (
-            <tr
-              key={store.id}
-              className="border-b border-b-gray-100 hover:bg-gray-50 transition-colors duration-300"
-            >
+            <>
               <td className="px-4 py-3">
                 <div>
                   <p className="text-sm font-medium text-gray-900">{store.name}</p>
@@ -347,7 +344,7 @@ export function ManageStoresView() {
                   </button>
                 </div>
               </td>
-            </tr>
+            </>
           )}
         />
       </div>
