@@ -3,6 +3,8 @@ import { Button, Input, Modal, Select, Table } from '@repo/design-system/compone
 import FilterBar from '../components/filter-bar';
 import {
   BadgeAlert,
+  ChevronDown,
+  ChevronRight,
   Download,
   Edit,
   Eye,
@@ -16,7 +18,7 @@ import {
 import React, { FormEvent, useEffect, useState } from 'react';
 import { formatCurrency, formatDate } from '../../../../../main/src/utils/index';
 import { useProduct } from '../../../../../main/src/hooks/product/use-product';
-import { Controller, set } from 'react-hook-form';
+import { Controller } from 'react-hook-form';
 import Image from 'next/image';
 import { MultiSelect, Textarea } from '@mantine/core';
 import useCategories, {
@@ -52,6 +54,8 @@ export function ManageView() {
     description: '',
   });
   const [formErrors, setFormErrors] = useState<Partial<CategoryFormData>>({});
+  const [metaFields, setMetaFields] = useState<Record<string, string>>({});
+  const [openMetaFields, setOpenMetaFields] = useState<boolean>(false);
   const {
     products,
     loading,
@@ -96,103 +100,118 @@ export function ManageView() {
       >
         <form
           onSubmit={createProductForm.handleSubmit(async (data) => {
-            await createProduct(data);
+            const productData = {
+              ...data,
+              meta: metaFields,
+            };
+            await createProduct(productData);
             createProductForm.reset();
+            setMetaFields({});
             setOpenAddModal(false);
           })}
           className="space-y-4 mt-2"
         >
-          {/* Name */}
-          <Input
-            {...createProductForm.register('name')}
-            error={createProductForm.formState.errors.name?.message}
-            name="name"
-            label="Tên sản phẩm"
-            size="sm"
-            radius="sm"
-            withAsterisk
-            placeholder="Nhập tên sản phẩm"
-          />
-
-          {/* SKU */}
-          <Input
-            {...createProductForm.register('sku')}
-            error={createProductForm.formState.errors.sku?.message}
-            name="sku"
-            label="SKU"
-            size="sm"
-            radius="sm"
-            withAsterisk
-            placeholder="Nhập mã SKU (duy nhất)"
-          />
-          <div>
-            <span className="text-sm text-gray-500 font-medium">Nhóm danh mục</span>
-            <div className="flex items-center gap-2.5">
-              <Controller
-                name="categoryIds"
-                control={createProductForm.control}
-                render={({ field }) => (
-                  <MultiSelect
-                    {...field}
-                    comboboxProps={{
-                      middlewares: { flip: false, shift: false },
-                      transitionProps: { transition: 'pop', duration: 200 },
-                    }}
-                    searchable
-                    className="flex-1"
-                    placeholder="Chọn nhóm danh mục"
-                    data={[...categories].map((item) => ({ value: item.id, label: item.name }))}
-                    value={field.value || []}
-                    onChange={(val) => field.onChange(val)}
-                  />
-                )}
-              />
-
-              <Button
-                onClick={() => setOpenCreateCategoryModal(true)}
-                radius="md"
-                size="sm"
-                type="button"
-                title={<Plus size={16} />}
-              />
-            </div>
+          <div className="flex items-center gap-3.5">
+            {/* Name */}
+            <Input
+              className="flex-1"
+              {...createProductForm.register('name')}
+              error={createProductForm.formState.errors.name?.message}
+              name="name"
+              label="Tên sản phẩm"
+              size="sm"
+              radius="sm"
+              withAsterisk
+              placeholder="Nhập tên sản phẩm"
+            />
+            {/* SKU */}
+            <Input
+              className="flex-1"
+              {...createProductForm.register('sku')}
+              error={createProductForm.formState.errors.sku?.message}
+              name="sku"
+              label="SKU"
+              size="sm"
+              radius="sm"
+              withAsterisk
+              placeholder="Nhập mã SKU (duy nhất)"
+            />
           </div>
 
-          {/* Barcode */}
-          <Input
-            {...createProductForm.register('barcode')}
-            name="barcode"
-            label="Barcode"
-            size="sm"
-            radius="sm"
-            placeholder="Nhập barcode (nếu có)"
-          />
+          <div className="flex items-center gap-3.5">
+            {/* Price */}
+            <Input
+              className="flex-1"
+              {...createProductForm.register('price', { valueAsNumber: true })}
+              error={createProductForm.formState.errors.price?.message}
+              type="number"
+              name="price"
+              label="Giá bán"
+              size="sm"
+              withAsterisk
+              radius="sm"
+              placeholder="Nhập giá sản phẩm"
+            />
 
-          {/* Price */}
-          <Input
-            {...createProductForm.register('price', { valueAsNumber: true })}
-            error={createProductForm.formState.errors.price?.message}
-            type="number"
-            name="price"
-            label="Giá bán"
-            size="sm"
-            withAsterisk
-            radius="sm"
-            placeholder="Nhập giá sản phẩm"
-          />
+            {/* Cost */}
+            <Input
+              className="flex-1"
+              {...createProductForm.register('cost', { valueAsNumber: true })}
+              error={createProductForm.formState.errors.cost?.message}
+              type="number"
+              name="cost"
+              withAsterisk
+              label="Giá nhập"
+              size="sm"
+              radius="sm"
+              placeholder="Nhập giá nhập của sản phẩm"
+            />
+          </div>
 
-          {/* Cost */}
-          <Input
-            {...createProductForm.register('cost', { valueAsNumber: true })}
-            error={createProductForm.formState.errors.cost?.message}
-            type="number"
-            name="cost"
-            withAsterisk
-            label="Giá nhập"
-            size="sm"
-            radius="sm"
-            placeholder="Nhập giá nhập của sản phẩm"
-          />
+          <div className="flex items-center gap-3.5">
+            {/* Barcode */}
+            <Input
+              className="flex-1"
+              {...createProductForm.register('barcode')}
+              name="barcode"
+              label="Barcode"
+              size="sm"
+              radius="sm"
+              placeholder="Nhập barcode (nếu có)"
+            />
+            <div className="flex-1">
+              <span className="text-sm text-gray-500 font-medium">Nhóm danh mục</span>
+              <div className="flex items-center gap-2.5">
+                <Controller
+                  name="categoryIds"
+                  control={createProductForm.control}
+                  render={({ field }) => (
+                    <MultiSelect
+                      {...field}
+                      comboboxProps={{
+                        middlewares: { flip: false, shift: false },
+                        transitionProps: { transition: 'pop', duration: 200 },
+                      }}
+                      searchable
+                      className="flex-1"
+                      placeholder="Chọn nhóm danh mục"
+                      data={[...categories].map((item) => ({ value: item.id, label: item.name }))}
+                      value={field.value || []}
+                      onChange={(val) => field.onChange(val)}
+                    />
+                  )}
+                />
+
+                <Button
+                  onClick={() => setOpenCreateCategoryModal(true)}
+                  radius="md"
+                  size="sm"
+                  type="button"
+                  title={<Plus size={16} />}
+                />
+              </div>
+            </div>
+          </div>
 
           {/* Image URL */}
           <Input
@@ -221,6 +240,7 @@ export function ManageView() {
             control={createProductForm.control}
             render={({ field }) => (
               <Select
+                position="bottom"
                 {...field}
                 label="Trạng thái"
                 placeholder="Chọn trạng thái"
@@ -234,9 +254,76 @@ export function ManageView() {
             )}
           />
 
-          {/* Meta
-            <Textarea label="Meta (JSON)" placeholder='Ví dụ: {"color":"red","size":"L"}' autosize minRows={3} /> */}
+          <div className="flex flex-col">
+            <div
+              onClick={() => setOpenMetaFields(!openMetaFields)}
+              className="bg-pos-blue-50 h-fit p-2 rounded-md text-pos-blue-500 flex items-center justify-between cursor-pointer"
+            >
+              <span className={`text-base font-semibold `}>Thuộc tính bổ sung (Meta Data)</span>
+              <ChevronRight
+                className={`${openMetaFields ? 'rotate-90' : ''} transition-transform duration-300`}
+              />
+            </div>
 
+            <div
+              className={`${openMetaFields ? 'opacity-100 visible  max-h-fit' : ' opacity-0 invisible max-h-0'}   duration-200 transition-all `}
+            >
+              {/* Hiển thị các meta fields */}
+              {Object.entries(metaFields).map(([key, value], index) => (
+                <div key={index} className="flex items-center gap-3.5 mt-3.5">
+                  <Input
+                    size="sm"
+                    radius="sm"
+                    className="flex-1"
+                    placeholder="Tên thuộc tính (vd: color)"
+                    value={key}
+                    onChange={(e) => {
+                      const entries = Object.entries(metaFields);
+                      const oldKey = entries[index][0];
+                      const newMeta = { ...metaFields };
+                      delete newMeta[oldKey];
+                      newMeta[e.target.value] = value;
+                      setMetaFields(newMeta);
+                    }}
+                  />
+                  <Input
+                    size="sm"
+                    radius="sm"
+                    className="flex-1"
+                    placeholder="Giá trị (vd: red)"
+                    value={value}
+                    onChange={(e) => {
+                      setMetaFields({ ...metaFields, [key]: e.target.value });
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const entries = Object.entries(metaFields);
+                      entries.splice(index, 1);
+                      setMetaFields(Object.fromEntries(entries));
+                    }}
+                    className="text-red-500 hover:bg-red-50 p-2 rounded transition-colors"
+                    title="Xóa thuộc tính"
+                  >
+                    <Trash size={16} />
+                  </button>
+                </div>
+              ))}
+
+              <button
+                type="button"
+                onClick={() => {
+                  const newKey = `key_${Object.keys(metaFields).length + 1}`;
+                  setMetaFields({ ...metaFields, [newKey]: '' });
+                }}
+                className="border border-pos-blue-500 rounded-md text-pos-blue-500 text-xs flex items-center gap-2 w-fit py-1.5 px-3.5 mt-3.5 cursor-pointer hover:opacity-80 transition-opacity"
+              >
+                <Plus size={16} />
+                <span>Thêm thuộc tính</span>
+              </button>
+            </div>
+          </div>
           {/* Action buttons */}
           <div className="flex justify-end items-center gap-4 pt-4 border-t border-gray-200">
             <button
@@ -328,8 +415,9 @@ export function ManageView() {
               Hành động này không thể hoàn tác. Tất cả dữ liệu liên quan của trường này sẽ biến mất.
             </div>
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 w-full">
             <Button
+              style={{ width: '100%' }}
               color="red"
               size={'md'}
               onClick={() => {
@@ -338,7 +426,7 @@ export function ManageView() {
                 }
                 setDeleteModal(false);
               }}
-              className="bg-red-600 rounded-lg text-white cursor-pointer font-bold w-full "
+              className="bg-red-600 rounded-lg text-white cursor-pointer font-bold "
               title="Xác nhận xóa"
             />
 
@@ -361,7 +449,7 @@ export function ManageView() {
           setOpenViewModal(false);
           setOpenEditModal(false);
         }}
-        size="xl"
+        size="70%"
         title={
           openEditModal ? (
             <div className="flex items-center gap-2 font-medium text-gray-600">
@@ -383,22 +471,25 @@ export function ManageView() {
             }
             setOpenEditModal(false);
           })}
-          className={`${openEditModal ? 'space-y-4' : '"space-y-6"'}`}
+          className={`${openEditModal ? 'space-y-3.5' : '"space-y-5.5"'}`}
         >
           {/* IMAGE + INFO GRID */}
           <div
-            className={`${openEditModal ? 'flex flex-col gap-6' : 'grid grid-cols-1 md:grid-cols-3 gap-6'}`}
+            className={`${openEditModal ? 'flex flex-col gap-5.5' : 'grid grid-cols-1 md:grid-cols-3 gap-5.5'}`}
           >
             {/* IMAGE */}
-            <div className="flex flex-col items-center">
-              <Image
-                width={1000}
-                height={1000}
-                src={'/placeholder.jpg'}
-                alt={product?.name || 'Image name'}
-                className="w-48 h-48 object-cover rounded-lg shadow"
-                unoptimized
-              />
+            <div>
+              <div className={`${openEditModal ? 'flex items-center justify-center' : ''}`}>
+                <Image
+                  width={1000}
+                  height={1000}
+                  src={'/placeholder.jpg'}
+                  alt={product?.name || 'Image name'}
+                  className="w-48 h-48 object-cover rounded-lg shadow"
+                  unoptimized
+                />
+              </div>
+
               {openEditModal && (
                 <Input
                   size="sm"
@@ -542,18 +633,21 @@ export function ManageView() {
               name="categoryIds"
               control={updateProductForm.control}
               render={({ field }) => (
-                <MultiSelect
-                  radius={'md'}
-                  {...field}
-                  data={(categories || []).map((c) => ({
-                    value: c.id,
-                    label: c.name,
-                  }))}
-                  placeholder="Chọn nhóm danh mục"
-                  value={field.value || []}
-                  onChange={field.onChange}
-                  searchable
-                />
+                <>
+                  <span className="text-sm font-medium text-gray-500">Nhóm danh mục</span>
+                  <MultiSelect
+                    radius={'md'}
+                    {...field}
+                    data={(categories || []).map((c) => ({
+                      value: c.id,
+                      label: c.name,
+                    }))}
+                    placeholder="Chọn nhóm danh mục"
+                    value={field.value || []}
+                    onChange={field.onChange}
+                    searchable
+                  />
+                </>
               )}
             />
           ) : (
@@ -743,6 +837,7 @@ export function ManageView() {
                   <td>
                     <div className="flex items-center gap-5 pl-4">
                       <button
+                        title="Xem chi tiết"
                         data-tooltip-target="tooltip-default"
                         onClick={() => {
                           setOpenViewModal(true);
@@ -754,6 +849,7 @@ export function ManageView() {
                       </button>
 
                       <button
+                        title="Sửa sản phẩm"
                         onClick={() => {
                           setOpenEditModal(true);
                           getProductById(product.id);
@@ -763,6 +859,7 @@ export function ManageView() {
                         <Edit size={16} />
                       </button>
                       <button
+                        title="Điều chỉnh số lượng"
                         onClick={() => {
                           setInventorModal(true);
                           getProductById(product.id);
@@ -772,6 +869,7 @@ export function ManageView() {
                         <ShoppingBag size={16} />
                       </button>
                       <button
+                        title="Xóa sản phẩm"
                         onClick={() => {
                           setDeleteModal(true);
                           getProductById(product.id);
