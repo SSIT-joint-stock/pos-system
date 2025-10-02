@@ -128,10 +128,34 @@ export function useProduct() {
       showSuccessToast(res.data.message);
     }
   };
+  const exampleProductExcel = async () => {
+    if (!currentStore?.id) return;
+    const res = await requestWrapper(() =>
+      api.post(
+        `/stores/${currentStore?.id}/products/example-product-excel`,
+        {},
+        {
+          responseType: 'blob',
+        }
+      )
+    );
+    const url = window.URL.createObjectURL(new Blob([res?.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'example-product-excel.xlsx';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+    showSuccessToast('Download successfully!!');
+  };
   useEffect(() => {
     if (!currentStore?.id) return;
     getProducts();
   }, [currentStore?.id, paginationParams, filters]);
+
   return {
     getProducts,
     getProductById,
@@ -144,6 +168,7 @@ export function useProduct() {
     setSortBy,
     setSort,
     uploadProductByExcel,
+    exampleProductExcel,
     pagination,
     paginationParams,
     filters,

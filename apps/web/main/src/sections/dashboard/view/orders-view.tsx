@@ -16,7 +16,7 @@ const tableHeaders = [
   'Ngày Tạo',
   'Thao Tác',
 ];
-const tableHeadersSelected = ['STT', 'Tên sản phẩm', 'Số lượng', 'Đơn giá', 'Thành tiền'];
+const tableHeadersSelected = ['Tên sản phẩm', 'Số lượng', 'Đơn giá', 'Thành tiền'];
 
 const statusColors: Record<string, string> = {
   PROCESSING: 'text-blue-500 bg-blue-50 py-1.5 px-2.5 rounded-md',
@@ -147,12 +147,8 @@ export function OrdersView() {
             hasPagination={false}
             tableHeaders={tableHeadersSelected}
             data={selectedOrder?.order_item || []}
-            renderRow={(product, idx) => (
-              <tr
-                key={idx}
-                className="border-b border-b-gray-100 hover:bg-gray-50 transition-colors duration-300"
-              >
-                <td className="px-4 py-2 font-medium text-sm text-gray-500">{idx + 1}</td>
+            renderRow={(product) => (
+              <>
                 <td className="px-4 py-2 font-medium text-sm text-gray-500">
                   {product.product?.name || 'Tên sản phẩm'}
                 </td>
@@ -163,7 +159,7 @@ export function OrdersView() {
                 <td className="px-4 py-2 font-medium text-sm text-gray-500">
                   {formatCurrency(product.price * product.quantity)}
                 </td>
-              </tr>
+              </>
             )}
           />
 

@@ -4,7 +4,7 @@ import Image from 'next/image';
 import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { useOrders } from '../../../../../main/src/hooks/orders/use-orders';
 import { useProduct } from '../../../../../main/src/hooks/product/use-product';
-import { formatCurrency } from '../../../utils/';
+import { formatCurrency, truncateText } from '../../../utils/';
 import { Button, Input, Modal, Select, Table } from '@repo/design-system/components/ui';
 import { Filter, Minus, Plus, Trash2, User, X } from 'lucide-react';
 import { OrderStatusEnum } from '../../../../../main/src/schemas/order/order.schema';
@@ -275,7 +275,9 @@ export function SalesView() {
                 renderRow={(product) => (
                   <>
                     <td className="px-4 py-2 text-gray-900 flex flex-col gap-1">
-                      <span className="text-base font-semibold truncate">{product.name}</span>
+                      <span className="text-base font-semibold truncate">
+                        {truncateText(product.name, 28)}
+                      </span>
                       <span className="text-xs font-medium">
                         Tồn kho: {product.inventory.quantity}
                       </span>
@@ -476,15 +478,18 @@ export function SalesView() {
             defaultValue={paymentMethods[0].value}
             data={paymentMethods}
           />
-          <div className="flex items-center gap-2 ">
-            <Input
-              defaultValue={totalPrice}
-              disabled
-              placeholder="Số tiền khách trả"
-              type="number"
-              style={{ flex: 1 }}
-            />
-            <Button title="Trả đủ" />
+          <div className="flex flex-col gap-1">
+            <span className="text-sm  text-gray-500"> Số tiền khách trả </span>
+            <div className="flex items-center gap-2 ">
+              <Input
+                defaultValue={totalPrice}
+                disabled
+                placeholder="Số tiền khách trả"
+                type="number"
+                style={{ flex: 1 }}
+              />
+              <Button title="Trả đủ" />
+            </div>
           </div>
           <hr className="border-b border-b-white border-t-gray-400 " />
           <div className="grid grid-cols-2 justify-between">

@@ -1,5 +1,6 @@
 'use client';
 import { Button, Input, Modal, Select, Table } from '@repo/design-system/components/ui';
+import { useClickOutside } from '../../../../../../../packages/design-system/src/hooks/client';
 import FilterBar from '../components/filter-bar';
 import {
   BadgeAlert,
@@ -41,6 +42,7 @@ const statusColors: Record<string, string> = {
 
 export function ManageView() {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploadMenuRef = useRef<HTMLDivElement>(null);
   const [openAddModal, setOpenAddModal] = useState<boolean>(false);
   const [openViewModal, setOpenViewModal] = useState<boolean>(false);
   const [openEditModal, setOpenEditModal] = useState<boolean>(false);
@@ -56,6 +58,8 @@ export function ManageView() {
   const [formErrors, setFormErrors] = useState<Partial<CategoryFormData>>({});
   const [metaFields, setMetaFields] = useState<Record<string, string>>({});
   const [openMetaFields, setOpenMetaFields] = useState<boolean>(false);
+  const [openUploadOption, setOpenUploadOption] = useState<boolean>(false);
+
   const {
     products,
     loading,
@@ -72,8 +76,10 @@ export function ManageView() {
     deleteProduct,
     updateProduct,
     getProductById,
+    exampleProductExcel,
   } = useProduct();
   const { categories, handleCreateCategory } = useCategories();
+  useClickOutside(uploadMenuRef, () => setOpenUploadOption(false));
   useEffect(() => {
     if (product) {
       updateProductForm.reset({
@@ -769,27 +775,54 @@ export function ManageView() {
                 <Download size={16} />
                 <span className="text-gray-900 font-medium text-xs"> Xuất dữ liệu</span>
               </button>
-              <button
-                disabled={loading}
-                onClick={() => fileInputRef.current?.click()}
-                className={`bg-white border text-nowrap border-gray-200 rounded-md flex items-center gap-2 py-2 px-4 cursor-pointer hover:opacity-80 transition-opacity duration-300 disabled:opacity-50 disabled:cursor-not-allowed`}
-              >
-                <Upload size={16} />
-                <span className="text-gray-900 font-medium text-xs">Tải lên dữ liệu</span>
-                <input
-                  ref={fileInputRef}
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      console.log(file);
-                      uploadProductByExcel(file);
-                    }
-                  }}
-                  hidden
-                  type="file"
-                  accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                />
-              </button>
+
+              <div className="relative" ref={uploadMenuRef}>
+                <button
+                  onClick={() => setOpenUploadOption((prev) => !prev)}
+                  disabled={loading}
+                  className={`bg-white border text-nowrap border-gray-200  rounded-md flex items-center gap-2 py-2 px-4 cursor-pointer hover:opacity-80 transition-opacity duration-300 disabled:opacity-50 disabled:cursor-not-allowed`}
+                >
+                  <Upload size={16} />
+                  <span className="text-gray-900 font-medium text-xs">Tải lên dữ liệu</span>
+                </button>
+
+                {openUploadOption && (
+                  <div className="absolute top-full left-0 mt-1 z-50 flex flex-col  rounded-md shadow-md shadow-gray-100">
+                    <button
+                      disabled={loading}
+                      onClick={() => fileInputRef.current?.click()}
+                      className={`bg-white  text-nowrap  py-1 px-4 text-left hover:bg-gray-50 rounded-t-md  cursor-pointer  disabled:opacity-50 disabled:cursor-not-allowed`}
+                    >
+                      <span className="text-gray-900 font-medium text-sm">
+                        Tải lên dữ liệu (Excel)
+                      </span>
+                      <input
+                        ref={fileInputRef}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            console.log(file);
+                            uploadProductByExcel(file);
+                          }
+                        }}
+                        hidden
+                        type="file"
+                        accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                      />
+                    </button>
+                    <button
+                      disabled={loading}
+                      onClick={exampleProductExcel}
+                      className={`bg-white  text-nowrap  hover:bg-gray-50   py-2 px- text-left rounded-b-md cursor-pointer  disabled:opacity-50 disabled:cursor-not-allowed`}
+                    >
+                      <span className="text-gray-900 font-medium text-sm">
+                        Tải file mẫu (Excel)
+                      </span>
+                    </button>
+                  </div>
+                )}
+              </div>
+
               <button
                 onClick={() => {
                   setOpenAddModal(true);
