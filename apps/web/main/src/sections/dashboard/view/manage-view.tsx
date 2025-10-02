@@ -770,20 +770,20 @@ export function ManageView() {
             <>
               <button
                 onClick={() => window.print()}
-                className="bg-white border text-nowrap border-gray-200 rounded-md flex items-center gap-2 py-2 px-4  cursor-pointer hover:opacity-80 transition-opacity duration-300"
+                className="bg-white border text-nowrap border-gray-200 rounded-md flex items-center gap-2 py-2 px-4  cursor-pointer hover:opacity-80 transition-opacity duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Download size={16} />
-                <span className="text-gray-900 font-medium text-xs"> Xuất dữ liệu</span>
+                <span className="text-gray-900 font-medium text-sm"> Xuất dữ liệu</span>
               </button>
 
               <div className="relative" ref={uploadMenuRef}>
                 <button
                   onClick={() => setOpenUploadOption((prev) => !prev)}
                   disabled={loading}
-                  className={`bg-white border text-nowrap border-gray-200  rounded-md flex items-center gap-2 py-2 px-4 cursor-pointer hover:opacity-80 transition-opacity duration-300 disabled:opacity-50 disabled:cursor-not-allowed`}
+                  className={`bg-white border text-nowrap border-gray-200 rounded-md flex items-center gap-2 py-2 px-4  cursor-pointer hover:opacity-80 transition-opacity duration-300 disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
                   <Upload size={16} />
-                  <span className="text-gray-900 font-medium text-xs">Tải lên dữ liệu</span>
+                  <span className="text-gray-900 font-medium text-sm">Tải lên dữ liệu</span>
                 </button>
 
                 {openUploadOption && (
@@ -791,7 +791,7 @@ export function ManageView() {
                     <button
                       disabled={loading}
                       onClick={() => fileInputRef.current?.click()}
-                      className={`bg-white  text-nowrap  py-1 px-4 text-left hover:bg-gray-50 rounded-t-md  cursor-pointer  disabled:opacity-50 disabled:cursor-not-allowed`}
+                      className={`bg-white  text-nowrap  py-2 px-4 text-left hover:bg-gray-50 rounded-t-md  cursor-pointer  disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
                       <span className="text-gray-900 font-medium text-sm">
                         Tải lên dữ liệu (Excel)
@@ -813,7 +813,7 @@ export function ManageView() {
                     <button
                       disabled={loading}
                       onClick={exampleProductExcel}
-                      className={`bg-white  text-nowrap  hover:bg-gray-50   py-2 px- text-left rounded-b-md cursor-pointer  disabled:opacity-50 disabled:cursor-not-allowed`}
+                      className={`bg-white  text-nowrap  hover:bg-gray-50   py-2 px-4 text-left rounded-b-md cursor-pointer  disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
                       <span className="text-gray-900 font-medium text-sm">
                         Tải file mẫu (Excel)
@@ -830,7 +830,7 @@ export function ManageView() {
                 className="bg-pos-blue-50 border text-nowrap  border-pos-blue-500 rounded-md flex items-center gap-2 py-2 px-4  text-pos-blue-500 cursor-pointer hover:opacity-80 transition-opacity duration-300"
               >
                 <Plus size={16} />
-                <span className="font-medium text-xs "> Thêm sản phẩm</span>
+                <span className="font-medium text-sm "> Thêm sản phẩm</span>
               </button>
             </>
           }
