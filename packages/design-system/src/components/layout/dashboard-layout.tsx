@@ -9,6 +9,7 @@ import {
 import api from '../../../../../apps/web/main/src/libs/axios';
 import { Loading } from '../ui';
 import Sidebar from '../../../../../apps/web/main/src/sections/dashboard/components/sidebar-screen';
+import HeaderSidebar from '../../../../../apps/web/main/src/sections/dashboard/components/header-sidebar';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [isExpand, setIsExpand] = useState(false);
@@ -69,7 +70,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <aside className="flex-shrink-0">
         <Sidebar isExpand={isExpand} setIsExpand={setIsExpand} />
       </aside>
-      <main className="flex-1 p-4 overflow-auto bg-gray-50 scrollbar-fixed">{children}</main>
+      <div className="flex  flex-col w-full bg-gray-50">
+        <HeaderSidebar />
+        <main className="flex-1 p-4 overflow-auto  scrollbar-fixed">{children}</main>
+      </div>
     </div>
   );
 }

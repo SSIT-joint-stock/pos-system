@@ -11,7 +11,6 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { title } from 'process';
 export default function MenuSidebar({
   isExpand,
   setIsExpand,
@@ -94,6 +93,7 @@ export default function MenuSidebar({
             // Submenu item has children
             <div key={idx} className="flex flex-col w-full">
               <button
+                title={item.title}
                 onClick={() => {
                   setIsExpand(true);
                   setOpenSubmenu(openSubmenu === idx ? null : idx);
@@ -135,6 +135,7 @@ export default function MenuSidebar({
         // Submenu item has no children
         return (
           <Link
+            title={item.title}
             key={idx}
             href={item.path}
             className={`flex items-center gap-5 p-2 rounded-lg  transition-all duration-300 w-full font-medium ${isExpand === false && 'flex items-center justify-center'}   ${item.path === pathName ? 'bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white' : 'text-gray-500 hover:bg-pos-blue-50 hover:text-pos-blue-400'}`}
