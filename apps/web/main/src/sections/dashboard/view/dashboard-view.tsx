@@ -3,14 +3,15 @@ import useStatistics from '../../../../../main/src/hooks/statistics/use-statisti
 import {
   ChartPoint,
   ItemBoxChart,
+  ItemTopProducts,
   LineChart,
   PieChart,
 } from '@repo/design-system/components/shared/chart-screen';
-import { ItemNotification } from '@repo/design-system/components/shared/chart-screen/';
+import { Select } from '@repo/design-system/components/ui';
 import { Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 export function DashboardView() {
-  const { notifications, cache, handleChangeTimeType } = useStatistics();
+  const { cache, handleChangeTimeType } = useStatistics();
   const [revenue, setRevenue] = useState<ChartPoint | null>(null);
   const revenueItems = cache.find((item) => item.key === 'revenue');
   console.log('revenueItems', revenueItems);
@@ -26,10 +27,7 @@ export function DashboardView() {
         <ItemBoxChart title="Tiền Nhập Hàng Tháng Này" value={900000000} percent={36} />
         <ItemBoxChart title="Tổng Tiền Lãi Tháng Này" value={30102005} percent={10} />
         <ItemBoxChart title="Tổng Doanh Thu Tháng" value={500000000000} percent={5} />
-        <ItemBoxChart title="Tổng Doanh Thu Tháng" value={500000000000} percent={5} />
-        <ItemBoxChart title="Tổng Doanh Thu Tháng" value={500000000000} percent={5} />
-        <ItemBoxChart title="Tổng Doanh Thu Tháng" value={500000000000} percent={5} />
-        <ItemBoxChart title="Tổng Doanh Thu Tháng" value={500000000000} percent={5} />
+
         <div className="flex items-center justify-center h-full w-full group  hover:bg-white transition-all duration-300 border-2 border-dashed border-pos-blue-500 bg-pos-blue-100 rounded-2xl">
           <Plus
             className=" text-pos-blue-500  text-center group-hover:rotate-90 transition-all duration-200"
@@ -42,11 +40,19 @@ export function DashboardView() {
           <LineChart data={revenue} onChangeTypeTime={handleChangeTimeType} keyChart="revenue" />
         </div>
 
-        <div className="overflow-hidden  bg-white  rounded-2xl shadow-md  px-3.5 py-5 ">
-          <h2 className="text-xl font-medium text-gray-800 ">Thông Báo</h2>
+        <div className="overflow-hidden overflow-y-scroll bg-white  rounded-2xl shadow-md ">
+          <div className="flex items-center justify-between p-4 sticky top-0 bg-white">
+            <h2 className="text-xl font-semibold text-gray-800">Sản phẩm bán chạy</h2>
+            <Select
+              size="sm"
+              defaultValue="Theo doanh thu giảm dần"
+              data={['Theo doanh thu giảm dần', 'Theo doanh thu tăng dần']}
+              position="bottom"
+            />
+          </div>
 
-          <div className="mt-3 w-full h-full overflow-y-scroll pb-5">
-            <ItemNotification notifications={notifications} />
+          <div className=" w-full h-full ">
+            <ItemTopProducts />
           </div>
         </div>
       </div>

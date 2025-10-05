@@ -19,10 +19,25 @@ interface CacheItem {
   type: string;
   data?: any;
 }
+interface ProductItem {
+  id: string;
+  name: string;
+  image_url: string;
+  inventory: {
+    quantity: string;
+  };
+  price: number;
+}
+interface TopProduct {
+  product: ProductItem;
+  quantitySold: number;
+  total: number;
+}
 
 export default function useStatistics() {
   const typeTimeValue: TypeTime = { day: 'day', week: 'week', month: 'month' };
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [topsProducts, setTopsProducts] = useState<TopProduct[]>([]);
   const [cache, setCache] = useState<CacheItem[]>([
     {
       key: 'revenue',
@@ -82,6 +97,14 @@ export default function useStatistics() {
     );
     setCache(updated);
   };
+  const getTopProducts = async () => {
+    const res = await requestWrapper(() =>
+      api.get(`/stores/${currentStore?.id}/statistics/top-products`)
+    );
+    if (res?.data.success) {
+      setTopsProducts(res?.data?.data);
+    }
+  };
 
   const handleChangeTimeType = async (key: string, type: 'day' | 'week' | 'month') => {
     const newData = await fetchStatisticByKey(key, type);
@@ -92,6 +115,7 @@ export default function useStatistics() {
 
   useEffect(() => {
     if (currentStore?.id) {
+      getTopProducts();
       fetchStatistic();
       getNotifications();
     }
@@ -101,6 +125,7 @@ export default function useStatistics() {
     loading,
     notifications,
     cache,
+    topsProducts,
     fetchStatistic,
     getNotifications,
     setCache,

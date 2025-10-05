@@ -50,7 +50,7 @@ export function LineChart({
             return (
               <div className="bg-white shadow-lg border border-gray-100 px-4.5 py-3.5 rounded-xl text-sm">
                 <p className="text-gray-800 font-semibold mb-1 flex items-center gap-1">
-                  <span>Tháng </span> <span className="text-pos-blue-600">{label}</span>
+                  <span>Thời gian: </span> <span className="text-pos-blue-600">{label}</span>
                 </p>
                 <p className="text-gray-500">
                   Doanh thu:{' '}
