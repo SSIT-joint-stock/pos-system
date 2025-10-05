@@ -4,12 +4,11 @@ import { Bell, MessageCircle, MessageCircleQuestion } from 'lucide-react';
 import { currentUserAtom } from '@repo/design-system/stores/auth';
 import { useAtomValue } from 'jotai';
 import Image from 'next/image';
-
 export default function HeaderSidebar() {
   const currentUser = useAtomValue(currentUserAtom);
 
   return (
-    <header className="bg-white shadow-md shadow-gray-100 px-8 flex items-stretch justify-between h-16">
+    <header className="bg-white shadow-md shadow-gray-100 px-8 flex items-stretch justify-between h-16 ">
       <span className="text-lg font-semibold text-gray-800 self-center">
         {currentUser?.username}
       </span>
