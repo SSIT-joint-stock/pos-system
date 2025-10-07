@@ -28,7 +28,7 @@ export function ItemTopProducts() {
                   className="rounded-md object-cover"
                 />
               </div>
-              <div className="flex flex-col justify-between flex-1 ml-3">
+              <div className="flex flex-col justify-between flex-1 mx-3">
                 <h3 className="text-base text-pos-blue-800 font-semibold">
                   {truncateText(item.product.name, 40)}
                 </h3>

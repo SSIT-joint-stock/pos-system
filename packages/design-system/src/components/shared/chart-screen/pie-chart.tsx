@@ -1,48 +1,34 @@
-import { DonutChart as MantinePieChart } from "@mantine/charts";
-import React, { useEffect, useRef, useState } from "react";
-
-export function PieChart() {
-  const pieChartColors = [
-    "#FF6384", // pink/red
-    "#36A2EB", // blue
-    "#FFCE56", // yellow
-    "#4BC0C0", // teal
-    "#9966FF", // purple
-    "#FF9F40", // orange
-    "#E57373", // light red
-    "#64B5F6", // light blue
-    "#81C784", // green
-    "#BA68C8", // violet
-    "#FFD54F", // amber
-    "#4DD0E1", // cyan
-    "#F06292", // pink
-    "#9575CD", // indigo
-    "#AED581", // light green
-    "#7986CB", // muted blue
-    "#FF8A65", // coral
-    "#A1887F", // brown/stone
-    "#90A4AE", // slate
-    "#DCE775", // lime
-  ];
-  const data = [
-    { name: "Đồ ăn", value: 400 },
-    { name: "Đồ uống", value: 300 },
-    { name: "Đồ cá nhân và gia dụng", value: 100 },
-    { name: "Thực phẩm đông lạnh", value: 200 },
-    { name: "Thuốc lá", value: 200 },
-    { name: "Khác", value: 160 },
-  ];
-  const total = data.reduce((sum, item) => (sum += item.value), 0);
-  const dataWithColor = data.map((item, idx) => {
-    return {
-      ...item,
-      color: pieChartColors[idx],
-    };
-  });
-
+import { DonutChart as MantinePieChart } from '@mantine/charts';
+import React, { useEffect, useRef, useState } from 'react';
+import { formatCurrency, getColorFromName } from '../../../../../../apps/web/main/src/utils';
+import SlidingTabs from './sliding-line-chart';
+export interface PieChartProps {
+  categories: {
+    name: string;
+    value: number;
+  }[];
+  total: number;
+}
+export function PieChart({
+  data,
+  onChangeTypeTime,
+  keyChart,
+}: {
+  data: PieChartProps | null;
+  onChangeTypeTime: (key: string, type: 'day' | 'week' | 'month') => void;
+  keyChart: string;
+}) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const chartData =
+    data?.categories.map((item) => {
+      return {
+        name: item.name,
+        value: Math.max(item.value, 10000),
+        color: getColorFromName(item.name),
+        rawValue: item.value,
+      };
+    }) || [];
   const [size, setSize] = useState(500);
-
   useEffect(() => {
     if (!containerRef.current) return;
 
@@ -62,33 +48,69 @@ export function PieChart() {
   useEffect(() => {}, [size]);
   return (
     <>
-      <div className="flex gap-10 px-10 py-5 items-center h-full w-full bg-white  rounded-2xl overflow-y-hidden">
-        <div className="flex gap-5 flex-col w-full h-full ">
-          <h2 className="font-bold text-2xl  ">Doanh Thu Theo Ngành Hàng </h2>
-          <div className="flex flex-wrap scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-amber-100/0 max-w-[300px] max-h-[200px] gap-3 overflow-y-scroll">
-            {dataWithColor.map((item, idx) => (
-              <div
-                key={idx}
-                className=" flex gap-3 items-center w-fit h-fit bg-zinc-100 px-2 font-bold py-1 rounded-md shadow-xs "
-              >
-                <div className={` w-4 h-4 `} style={{ backgroundColor: item.color }} />
-                <p className="truncate text-sm">{`${item.name} - ${((item.value * 100) / total).toFixed(0)} %`}</p>
-              </div>
-            ))}
+      <div className="flex items-center justify-between w-full">
+        <h2 className="font-semibold text-2xl  ">Doanh Thu Theo Ngành Hàng </h2>
+
+        <SlidingTabs onChangeTypeTime={(type) => onChangeTypeTime(keyChart, type)} />
+      </div>
+      <div className={'w-full h-full'}>
+        {chartData.length === 0 ? (
+          <div className="w-full h-full flex items-center justify-center">
+            <p className="text-2xl font-bold">Chưa có dữ liệu</p>
           </div>
-        </div>
-        <div ref={containerRef} className="h-full w-full flex items-center justify-center">
-          <MantinePieChart
-            h={size}
-            w={size}
-            data={dataWithColor}
-            withLabels
-            labelsType="percent"
-            withTooltip
-            tooltipDataSource="segment"
-            thickness={30}
-          />
-        </div>
+        ) : (
+          <div className="grid grid-cols-[0.8fr_1fr] gap-4 justify-between mt-6">
+            <div className="flex flex-wrap scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-amber-100/0 w-fit h-fit gap-3 overflow-y-scroll">
+              {chartData?.map((item, idx) => (
+                <div
+                  key={idx}
+                  className=" flex gap-3 items-center w-fit h-fit bg-zinc-100 px-2 font-bold py-1 rounded-md shadow-xs "
+                >
+                  <div className={` w-4 h-4 `} style={{ backgroundColor: item.color }} />
+                  <p className="truncate text-sm">{`${item.name} - ${formatCurrency(item.value)} `}</p>
+                </div>
+              ))}
+            </div>
+
+            <div ref={containerRef} className="flex items-center justify-center">
+              <>
+                <MantinePieChart
+                  h={300}
+                  w={500}
+                  size={260}
+                  data={chartData || []}
+                  withLabels
+                  tooltipAnimationDuration={200}
+                  tooltipProps={{
+                    content: ({ payload }) => {
+                      if (!payload?.length) return null;
+                      const item = payload[0];
+
+                      return (
+                        <div className="bg-white shadow-lg border border-gray-100 px-4.5 py-3.5 rounded-xl text-sm">
+                          <p className="text-gray-800 font-semibold mb-1 flex items-center gap-1">
+                            <span>Ngành hàng: </span>{' '}
+                            <span className="text-pos-blue-600">{item.name}</span>
+                          </p>
+                          <p className="text-gray-500">
+                            Doanh thu:{' '}
+                            <span className="text-pos-blue-600 font-bold">
+                              {formatCurrency(item.value)}
+                            </span>
+                          </p>
+                        </div>
+                      );
+                    },
+                  }}
+                  labelsType="value"
+                  withTooltip
+                  tooltipDataSource="segment"
+                  thickness={30}
+                />
+              </>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

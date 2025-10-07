@@ -21,11 +21,9 @@ export function LineChart({
   }));
 
   return (
-    <div className="relative w-full h-full pt-20">
-      <div className="absolute top-5 left-5 z-10">
+    <>
+      <div className="flex items-center justify-between mb-6">
         <p className="text-2xl font-bold">Doanh Thu</p>
-      </div>
-      <div className="absolute top-5 right-5 z-10">
         <SlidingTabs onChangeTypeTime={(type) => onChangeTypeTime(keyChart, type)} />
       </div>
 
@@ -61,6 +59,6 @@ export function LineChart({
           },
         }}
       />
-    </div>
+    </>
   );
 }

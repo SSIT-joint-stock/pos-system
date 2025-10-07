@@ -1,6 +1,3 @@
 export * from './pie-chart';
 export * from './line-chart';
-export * from './item-box-chart';
 export * from './sliding-line-chart';
-export * from './item-notification';
-export * from './item-top-products';

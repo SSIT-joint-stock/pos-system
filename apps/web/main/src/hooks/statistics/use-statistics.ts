@@ -33,11 +33,25 @@ interface TopProduct {
   quantitySold: number;
   total: number;
 }
+interface LowStockProduct {
+  product: ProductItem;
+  totalSold30Days: number;
+  daysRemaining: number;
+  avgDailySales: number;
+  status: string;
+}
+export interface SummaryRevenue {
+  orderCount: number;
+  totalRevenue: number;
+  customerCount: number;
+  totalProduct: number;
+}
 
 export default function useStatistics() {
   const typeTimeValue: TypeTime = { day: 'day', week: 'week', month: 'month' };
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [topsProducts, setTopsProducts] = useState<TopProduct[]>([]);
+  const [lowStockProducts, setLowStockProducts] = useState<LowStockProduct[]>([]);
   const [cache, setCache] = useState<CacheItem[]>([
     {
       key: 'revenue',
@@ -105,6 +119,14 @@ export default function useStatistics() {
       setTopsProducts(res?.data?.data);
     }
   };
+  const getLowStockProducts = async () => {
+    const res = await requestWrapper(() =>
+      api.get(`/stores/${currentStore?.id}/statistics/low-stock-product`)
+    );
+    if (res?.data.success) {
+      setLowStockProducts(res?.data?.data);
+    }
+  };
 
   const handleChangeTimeType = async (key: string, type: 'day' | 'week' | 'month') => {
     const newData = await fetchStatisticByKey(key, type);
@@ -115,10 +137,12 @@ export default function useStatistics() {
 
   useEffect(() => {
     if (currentStore?.id) {
+      getLowStockProducts();
       getTopProducts();
       fetchStatistic();
       getNotifications();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentStore?.id]);
 
   return {
@@ -126,6 +150,7 @@ export default function useStatistics() {
     notifications,
     cache,
     topsProducts,
+    lowStockProducts,
     fetchStatistic,
     getNotifications,
     setCache,
