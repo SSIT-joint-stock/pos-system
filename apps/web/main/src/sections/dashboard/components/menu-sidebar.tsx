@@ -1,9 +1,11 @@
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { useAtom } from 'jotai';
 import {
-  BadgeDollarSign,
+  BookUser,
   ChevronRight,
   LayoutDashboard,
+  NotepadText,
+  Package,
   PackageSearch,
   ShoppingCart,
   Store,
@@ -34,7 +36,7 @@ export default function MenuSidebar({
     },
     {
       title: 'Quản lý kho',
-      icon: <BadgeDollarSign className="shrink-0" />,
+      icon: <Package className="shrink-0" />,
       children: [
         {
           title: 'Sản phẩm',
@@ -78,15 +80,48 @@ export default function MenuSidebar({
         },
       ],
     },
+
     {
-      title: 'Quản lý nhân viên',
+      title: 'Nhân viên',
       path: `/dashboard/store/${currentStore?.id}/employees`,
       icon: <Users className="shrink-0" />,
+    },
+    {
+      title: 'Danh bạ',
+      icon: <BookUser className="shrink-0" />,
+      children: [
+        {
+          title: 'Khách hàng',
+          path: `/dashboard/store/${currentStore?.id}/store-info`,
+        },
+      ],
+    },
+    {
+      title: 'Báo cáo',
+      icon: <NotepadText className="shrink-0" />,
+      children: [
+        {
+          title: 'Doanh thu theo sản phẩm',
+          path: `/dashboard/store/${currentStore?.id}/overview`,
+        },
+        {
+          title: 'Doanh thu theo ngày',
+          path: `/dashboard/store/${currentStore?.id}/manage-stores`,
+        },
+        {
+          title: 'Sản phẩm bán chạy',
+          path: `/dashboard/store/${currentStore?.id}/manage-stores`,
+        },
+        {
+          title: 'Báo cáo cuối ngày',
+          path: `/dashboard/store/${currentStore?.id}/manage-stores`,
+        },
+      ],
     },
   ];
 
   return (
-    <div className="flex-1 flex flex-col items-start gap-4 overflow-x-hidden overflow-y-auto  w-full">
+    <div className="flex-1 flex flex-col items-start gap-4 overflow-x-hidden overflow-y-scroll scrollbar-none  w-full ">
       {pageItems.map((item, idx) => {
         if (item.children) {
           return (
@@ -103,7 +138,7 @@ export default function MenuSidebar({
     ${
       item.children.some((child) => child.path === pathName)
         ? 'bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white'
-        : 'text-gray-500 hover:bg-pos-blue-50 hover:text-pos-blue-400'
+        : 'text-gray-700 hover:bg-pos-blue-50 hover:text-pos-blue-400'
     }`}
               >
                 <span className="font-medium">{item.icon}</span>
@@ -123,7 +158,7 @@ export default function MenuSidebar({
                   <Link
                     key={cIdx}
                     href={child.path}
-                    className={`text-sm font-medium rounded-md p-2  ${child.path === pathName ? 'bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white' : 'text-gray-500 hover:bg-pos-blue-50 hover:text-pos-blue-400'}`}
+                    className={`text-sm font-medium rounded-md p-2  ${child.path === pathName ? 'bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white' : 'text-gray-700 hover:bg-pos-blue-50 hover:text-pos-blue-400'}`}
                   >
                     {child.title}
                   </Link>
@@ -138,7 +173,7 @@ export default function MenuSidebar({
             title={item.title}
             key={idx}
             href={item.path}
-            className={`flex items-center gap-5 p-2 rounded-lg  transition-all duration-300 w-full font-medium ${isExpand === false && 'flex items-center justify-center'}   ${item.path === pathName ? 'bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white' : 'text-gray-500 hover:bg-pos-blue-50 hover:text-pos-blue-400'}`}
+            className={`flex items-center gap-5 p-2 rounded-lg  transition-all duration-300 w-full font-medium ${isExpand === false && 'flex items-center justify-center'}   ${item.path === pathName ? 'bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white' : 'text-gray-700 hover:bg-pos-blue-50 hover:text-pos-blue-400'}`}
           >
             <span>{item.icon}</span>
             {isExpand && <p className="truncate">{item.title}</p>}

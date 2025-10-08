@@ -73,7 +73,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {!isSalesPages && <Sidebar isExpand={isExpand} setIsExpand={setIsExpand} />}
       <div className="flex  flex-col w-full h-screen bg-gray-50 overflow-auto scrollbar-fixed">
         {!isSalesPages && <HeaderSidebar />}
-        <main className="flex-1 p-4 overflow-auto  scrollbar-fixed">{children}</main>
+        <main
+          className={`${isSalesPages ? 'flex-1 p-0 overflow-auto  scrollbar-fixed' : 'flex-1 p-4 overflow-auto  scrollbar-fixed'}`}
+        >
+          {children}
+        </main>
       </div>
     </div>
   );

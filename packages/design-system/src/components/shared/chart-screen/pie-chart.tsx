@@ -51,7 +51,16 @@ export function PieChart({
       <div className="flex items-center justify-between w-full">
         <h2 className="font-semibold text-2xl  ">Doanh Thu Theo Ngành Hàng </h2>
 
-        <SlidingTabs onChangeTypeTime={(type) => onChangeTypeTime(keyChart, type)} />
+        <SlidingTabs
+          data={[
+            { name: 'Ngày', value: 'day' },
+            { name: 'Tuần', value: 'week' },
+            { name: 'Tháng', value: 'month' },
+          ]}
+          onChangeTypeData={(value) =>
+            onChangeTypeTime(keyChart, value as 'day' | 'week' | 'month')
+          }
+        />
       </div>
       <div className={'w-full h-full'}>
         {chartData.length === 0 ? (

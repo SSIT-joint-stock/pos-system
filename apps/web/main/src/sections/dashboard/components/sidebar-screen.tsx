@@ -3,7 +3,6 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
 import SettingsSidebar from './settings-sidebar';
-import AccountManagement from './account-management';
 import MenuSidebar from './menu-sidebar';
 export default function SideBar({
   isExpand,
@@ -60,7 +59,7 @@ export default function SideBar({
 
         {/* User account management */}
 
-        <AccountManagement isExpand={isExpand} />
+        {/* <AccountManagement isExpand={isExpand} /> */}
 
         {/* Menu */}
         <MenuSidebar

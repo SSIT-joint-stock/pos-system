@@ -24,7 +24,16 @@ export function LineChart({
     <>
       <div className="flex items-center justify-between mb-6">
         <p className="text-2xl font-bold">Doanh Thu</p>
-        <SlidingTabs onChangeTypeTime={(type) => onChangeTypeTime(keyChart, type)} />
+        <SlidingTabs
+          data={[
+            { name: 'Ngày', value: 'day' },
+            { name: 'Tuần', value: 'week' },
+            { name: 'Tháng', value: 'month' },
+          ]}
+          onChangeTypeData={(value) =>
+            onChangeTypeTime(keyChart, value as 'day' | 'week' | 'month')
+          }
+        />
       </div>
 
       <MantineLineChart

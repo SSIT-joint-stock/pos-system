@@ -13,7 +13,7 @@ export type TypeTime = {
   week: 'week';
   month: 'month';
 };
-
+export type TypeNotification = 'all' | 'order' | 'product';
 interface CacheItem {
   key: string;
   type: string;
@@ -52,6 +52,8 @@ export default function useStatistics() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [topsProducts, setTopsProducts] = useState<TopProduct[]>([]);
   const [lowStockProducts, setLowStockProducts] = useState<LowStockProduct[]>([]);
+  const [typeNotification, setTypeNotification] = useState<TypeNotification>('all');
+
   const [cache, setCache] = useState<CacheItem[]>([
     {
       key: 'revenue',
@@ -66,16 +68,23 @@ export default function useStatistics() {
       type: typeTimeValue.day,
     },
   ]);
+  const [loadingNoti, setLoadingNoti] = useState(false);
   const currentStore = useAtomValue(currentStoreAtom);
   const { loading, requestWrapper } = useRequestHelper();
   const getNotifications = async () => {
     if (!currentStore?.id) return;
-    const res = await requestWrapper(() =>
-      api.get(`/stores/${currentStore?.id}/statistics/notifications`)
-    );
-    if (res?.data.success) {
-      console.log('res', res.data.data);
-      setNotifications(res?.data?.data?.notifications);
+    try {
+      setLoadingNoti(true);
+      const res = await api.get(
+        `/stores/${currentStore?.id}/statistics/notifications?type=${typeNotification}`
+      );
+
+      if (res?.data.success) {
+        setLoadingNoti(false);
+        setNotifications(res?.data?.data);
+      }
+    } catch {
+      setLoadingNoti(false);
     }
   };
   const fetchStatisticByKey = async (key: string, type: string) => {
@@ -134,13 +143,14 @@ export default function useStatistics() {
       prev.map((item) => (item.key === key ? { ...item, type, data: newData } : item))
     );
   };
-
+  const handleChangeTypeNotification = async (value: TypeNotification) => {
+    setTypeNotification(value);
+  };
   useEffect(() => {
     if (currentStore?.id) {
       getLowStockProducts();
       getTopProducts();
       fetchStatistic();
-      getNotifications();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentStore?.id]);
@@ -151,9 +161,13 @@ export default function useStatistics() {
     cache,
     topsProducts,
     lowStockProducts,
+    loadingNoti,
+    typeNotification,
     fetchStatistic,
     getNotifications,
     setCache,
     handleChangeTimeType,
+    setTypeNotification,
+    handleChangeTypeNotification,
   };
 }

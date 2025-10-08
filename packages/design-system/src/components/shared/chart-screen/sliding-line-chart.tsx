@@ -1,20 +1,18 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useRef, useState, useLayoutEffect } from 'react';
 export default function SlidingTabs({
-  onChangeTypeTime,
+  data,
+  onChangeTypeData,
 }: {
-  onChangeTypeTime: (type: 'day' | 'week' | 'month') => void;
+  data: {
+    name: string;
+    value: string;
+  }[];
+  onChangeTypeData: (value: string) => void;
 }) {
   const [active, setActive] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const indicatorRef = useRef<HTMLDivElement>(null);
-
-  const tabs = [
-    { name: 'Ngày', value: 'day' },
-    { name: 'Tuần', value: 'week' },
-    { name: 'Tháng', value: 'month' },
-  ];
-
   useLayoutEffect(() => {
     const btn = containerRef.current?.querySelectorAll<HTMLButtonElement>('button')[active];
     if (btn && indicatorRef.current) {
@@ -30,11 +28,11 @@ export default function SlidingTabs({
           ref={indicatorRef}
           className="absolute top-1 bottom-1 bg-white  rounded-md shadow-2xl shadow-pos-blue-100 transition-all duration-300 border border-pos-blue-200"
         />
-        {tabs.map((item, i) => (
+        {data.map((item, i) => (
           <button
             key={item.name}
             onClick={() => {
-              onChangeTypeTime(item.value as 'day' | 'week' | 'month');
+              onChangeTypeData(item.value);
               setActive(i);
             }}
             className={`relative cursor-pointer z-10 px-5 py-1 text-center text-xs font-medium whitespace-nowrap  ${

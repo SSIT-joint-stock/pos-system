@@ -6,7 +6,6 @@ import { truncateText } from '../../../../../../apps/web/main/src/utils';
 
 export function ItemLowStock() {
   const { lowStockProducts } = useStatistics();
-  console.log(lowStockProducts);
   return (
     <>
       {lowStockProducts?.length === 0 ? (
