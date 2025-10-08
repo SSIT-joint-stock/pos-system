@@ -8,3 +8,4 @@ export * from "./info-store-view";
 export * from "./manage-stores-view";
 export * from "./inventory-manage-view";
 export * from "./manage-stock-view";
+export * from "./purchase-orders";
