@@ -1,6 +1,8 @@
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { useAtom } from 'jotai';
 import {
+  BadgeDollarSign,
+  Car,
   BookUser,
   ChevronRight,
   LayoutDashboard,
@@ -55,6 +57,11 @@ export default function MenuSidebar({
           path: `/dashboard/store/${currentStore?.id}/manage-categories`,
         },
       ],
+    },
+    {
+      title: 'Phiếu nhập hàng',
+      path: `/dashboard/store/${currentStore?.id}/purchase-orders`,
+      icon: <Car className="shrink-0" />,
     },
     {
       title: 'Bán hàng',
@@ -138,7 +145,7 @@ export default function MenuSidebar({
     ${
       item.children.some((child) => child.path === pathName)
         ? 'bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white'
-        : 'text-gray-700 hover:bg-pos-blue-50 hover:text-pos-blue-400'
+        : 'text-gray-500 hover:bg-pos-blue-50 hover:text-pos-blue-400'
     }`}
               >
                 <span className="font-medium">{item.icon}</span>
@@ -158,7 +165,7 @@ export default function MenuSidebar({
                   <Link
                     key={cIdx}
                     href={child.path}
-                    className={`text-sm font-medium rounded-md p-2  ${child.path === pathName ? 'bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white' : 'text-gray-700 hover:bg-pos-blue-50 hover:text-pos-blue-400'}`}
+                    className={`text-sm font-medium rounded-md p-2  ${child.path === pathName ? 'bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white' : 'text-gray-500 hover:bg-pos-blue-50 hover:text-pos-blue-400'}`}
                   >
                     {child.title}
                   </Link>
@@ -173,7 +180,7 @@ export default function MenuSidebar({
             title={item.title}
             key={idx}
             href={item.path}
-            className={`flex items-center gap-5 p-2 rounded-lg  transition-all duration-300 w-full font-medium ${isExpand === false && 'flex items-center justify-center'}   ${item.path === pathName ? 'bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white' : 'text-gray-700 hover:bg-pos-blue-50 hover:text-pos-blue-400'}`}
+            className={`flex items-center gap-5 p-2 rounded-lg  transition-all duration-300 w-full font-medium ${isExpand === false && 'flex items-center justify-center'}   ${item.path === pathName ? 'bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white' : 'text-gray-500 hover:bg-pos-blue-50 hover:text-pos-blue-400'}`}
           >
             <span>{item.icon}</span>
             {isExpand && <p className="truncate">{item.title}</p>}
