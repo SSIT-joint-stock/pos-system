@@ -3,7 +3,7 @@
 import api from '../../../../main/src/libs/axios';
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 import { Product } from '@repo/design-system/types';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRequestHelper } from '../use-request-helper';
 import { useAtomValue } from 'jotai';
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
@@ -38,7 +38,6 @@ export function useProduct() {
     q: 'q',
     product_status: 'product_status',
   });
-  console.log(pagination);
   // STATE
   const currentStore = useAtomValue(currentStoreAtom);
   const [products, setProducts] = useState<Product[]>([]);
@@ -151,10 +150,6 @@ export function useProduct() {
     window.URL.revokeObjectURL(url);
     showSuccessToast('Download successfully!!');
   };
-  useEffect(() => {
-    if (!currentStore?.id) return;
-    getProducts();
-  }, [currentStore?.id, paginationParams, filters]);
 
   return {
     getProducts,
@@ -169,6 +164,7 @@ export function useProduct() {
     setSort,
     uploadProductByExcel,
     exampleProductExcel,
+    setProducts,
     pagination,
     paginationParams,
     filters,

@@ -1,8 +1,6 @@
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { useAtom } from 'jotai';
 import {
-  BadgeDollarSign,
-  Car,
   BookUser,
   ChevronRight,
   LayoutDashboard,
@@ -12,6 +10,7 @@ import {
   ShoppingCart,
   Store,
   Users,
+  Truck,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -61,7 +60,7 @@ export default function MenuSidebar({
     {
       title: 'Phiếu nhập hàng',
       path: `/dashboard/store/${currentStore?.id}/purchase-orders`,
-      icon: <Car className="shrink-0" />,
+      icon: <Truck className="shrink-0" />,
     },
     {
       title: 'Bán hàng',

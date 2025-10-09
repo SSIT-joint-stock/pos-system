@@ -4,12 +4,10 @@ import { useClickOutside } from '../../../../../../../packages/design-system/src
 import FilterBar from '../components/filter-bar';
 import {
   BadgeAlert,
-  ChevronRight,
   Download,
   Edit,
   Eye,
   Pencil,
-  Plus,
   ShoppingBag,
   ShoppingCart,
   Trash,
@@ -20,10 +18,10 @@ import { formatCurrency, formatDate } from '../../../../../main/src/utils/index'
 import { useProduct } from '../../../../../main/src/hooks/product/use-product';
 import { Controller } from 'react-hook-form';
 import Image from 'next/image';
-import { MultiSelect, Textarea } from '@mantine/core';
-import useCategories, {
-  CategoryFormData,
-} from '../../../../../main/src/hooks/categories/use-categories';
+import { MultiSelect } from '@mantine/core';
+import useCategories from '../../../../../main/src/hooks/categories/use-categories';
+import { currentStoreAtom } from '@repo/design-system/stores/auth';
+import { useAtomValue } from 'jotai';
 
 const tableHeaders = [
   'Sản Phẩm',
@@ -43,42 +41,35 @@ const statusColors: Record<string, string> = {
 export function ManageView() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const uploadMenuRef = useRef<HTMLDivElement>(null);
-  const [openAddModal, setOpenAddModal] = useState<boolean>(false);
   const [openViewModal, setOpenViewModal] = useState<boolean>(false);
   const [openEditModal, setOpenEditModal] = useState<boolean>(false);
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
-  const [openCreateCategoryModal, setOpenCreateCategoryModal] = useState<boolean>(false);
   const [inventoryModal, setInventorModal] = useState<boolean>(false);
   const [adjustValue, setAdjustValue] = useState({ delta: '0' });
   const [type, setType] = useState<string>('ADJUSTMENT');
-  const [formData, setFormData] = useState<CategoryFormData>({
-    name: '',
-    description: '',
-  });
-  const [formErrors, setFormErrors] = useState<Partial<CategoryFormData>>({});
-  const [metaFields, setMetaFields] = useState<Record<string, string>>({});
-  const [openMetaFields, setOpenMetaFields] = useState<boolean>(false);
+
   const [openUploadOption, setOpenUploadOption] = useState<boolean>(false);
 
   const {
     products,
     loading,
-    createProductForm,
     product,
     updateProductForm,
     pagination,
     paginationParams,
+    filters,
     applyStockMovement,
     uploadProductByExcel,
     setPaginationParams,
     setFilters,
-    createProduct,
     deleteProduct,
     updateProduct,
     getProductById,
     exampleProductExcel,
+    getProducts,
   } = useProduct();
-  const { categories, handleCreateCategory } = useCategories();
+  const { categories } = useCategories();
+  const currentStore = useAtomValue(currentStoreAtom);
   useClickOutside(uploadMenuRef, () => setOpenUploadOption(false));
   useEffect(() => {
     if (product) {
@@ -95,321 +86,13 @@ export function ManageView() {
       });
     }
   }, [product, updateProductForm]);
+  useEffect(() => {
+    if (!currentStore?.id) return;
+    getProducts();
+  }, [currentStore?.id, paginationParams, filters]);
 
   return (
     <>
-      {/* MODAL ADD PRODUCT */}
-      <Modal
-        opened={openAddModal}
-        size="70%"
-        onClose={() => setOpenAddModal(false)}
-        title={<span className="text-xl font-semibold text-pos-blue-500">Thêm Sản Phẩm</span>}
-      >
-        <form
-          onSubmit={createProductForm.handleSubmit(async (data) => {
-            const productData = {
-              ...data,
-              meta: metaFields,
-            };
-            await createProduct(productData);
-            createProductForm.reset();
-            setMetaFields({});
-            setOpenAddModal(false);
-          })}
-          className="space-y-4 mt-2"
-        >
-          <div className="flex items-center gap-3.5">
-            {/* Name */}
-            <Input
-              className="flex-1"
-              {...createProductForm.register('name')}
-              error={createProductForm.formState.errors.name?.message}
-              name="name"
-              label="Tên sản phẩm"
-              size="sm"
-              radius="sm"
-              withAsterisk
-              placeholder="Nhập tên sản phẩm"
-            />
-            {/* SKU */}
-            <Input
-              className="flex-1"
-              {...createProductForm.register('sku')}
-              error={createProductForm.formState.errors.sku?.message}
-              name="sku"
-              label="SKU"
-              size="sm"
-              radius="sm"
-              withAsterisk
-              placeholder="Nhập mã SKU (duy nhất)"
-            />
-          </div>
-
-          <div className="flex items-center gap-3.5">
-            {/* Price */}
-            <Input
-              className="flex-1"
-              {...createProductForm.register('price', { valueAsNumber: true })}
-              error={createProductForm.formState.errors.price?.message}
-              type="number"
-              name="price"
-              label="Giá bán"
-              size="sm"
-              withAsterisk
-              radius="sm"
-              placeholder="Nhập giá sản phẩm"
-            />
-
-            {/* Cost */}
-            <Input
-              className="flex-1"
-              {...createProductForm.register('cost', { valueAsNumber: true })}
-              error={createProductForm.formState.errors.cost?.message}
-              type="number"
-              name="cost"
-              withAsterisk
-              label="Giá nhập"
-              size="sm"
-              radius="sm"
-              placeholder="Nhập giá nhập của sản phẩm"
-            />
-          </div>
-
-          <div className="flex items-center gap-3.5">
-            {/* Barcode */}
-            <Input
-              className="flex-1"
-              {...createProductForm.register('barcode')}
-              name="barcode"
-              label="Barcode"
-              size="sm"
-              radius="sm"
-              placeholder="Nhập barcode (nếu có)"
-            />
-            <div className="flex-1">
-              <span className="text-sm text-gray-500 font-medium">Nhóm danh mục</span>
-              <div className="flex items-center gap-2.5">
-                <Controller
-                  name="categoryIds"
-                  control={createProductForm.control}
-                  render={({ field }) => (
-                    <MultiSelect
-                      {...field}
-                      comboboxProps={{
-                        middlewares: { flip: false, shift: false },
-                        transitionProps: { transition: 'pop', duration: 200 },
-                      }}
-                      searchable
-                      className="flex-1"
-                      placeholder="Chọn nhóm danh mục"
-                      data={[...categories].map((item) => ({ value: item.id, label: item.name }))}
-                      value={field.value || []}
-                      onChange={(val) => field.onChange(val)}
-                    />
-                  )}
-                />
-
-                <Button
-                  onClick={() => setOpenCreateCategoryModal(true)}
-                  radius="md"
-                  size="sm"
-                  type="button"
-                  title={<Plus size={16} />}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Image URL */}
-          <Input
-            {...createProductForm.register('image_url')}
-            name="image_url"
-            label="Image URL"
-            size="sm"
-            radius="xs"
-            placeholder="https://example.com/image.png"
-          />
-
-          {/* Description */}
-          <Input
-            {...createProductForm.register('description')}
-            name="description"
-            label="Mô tả"
-            size="sm"
-            radius="sm"
-            placeholder="Nhập mô tả sản phẩm"
-          />
-
-          {/* Product Status */}
-
-          <Controller
-            name="product_status"
-            control={createProductForm.control}
-            render={({ field }) => (
-              <Select
-                position="bottom"
-                {...field}
-                label="Trạng thái"
-                placeholder="Chọn trạng thái"
-                size="sm"
-                radius="sm"
-                data={[
-                  { value: 'ACTIVE', label: 'ACTIVE' },
-                  { value: 'INACTIVE', label: 'INACTIVE' },
-                ]}
-              />
-            )}
-          />
-
-          <div className="flex flex-col">
-            <div
-              onClick={() => setOpenMetaFields(!openMetaFields)}
-              className="bg-pos-blue-50 h-fit p-2 rounded-md text-pos-blue-500 flex items-center justify-between cursor-pointer"
-            >
-              <span className={`text-base font-semibold `}>Thuộc tính bổ sung (Meta Data)</span>
-              <ChevronRight
-                className={`${openMetaFields ? 'rotate-90' : ''} transition-transform duration-300`}
-              />
-            </div>
-
-            <div
-              className={`${openMetaFields ? 'opacity-100 visible  max-h-fit' : ' opacity-0 invisible max-h-0'}   duration-200 transition-all `}
-            >
-              {/* Hiển thị các meta fields */}
-              {Object.entries(metaFields).map(([key, value], index) => (
-                <div key={index} className="flex items-center gap-3.5 mt-3.5">
-                  <Input
-                    size="sm"
-                    radius="sm"
-                    className="flex-1"
-                    placeholder="Tên thuộc tính (vd: color)"
-                    value={key}
-                    onChange={(e) => {
-                      const entries = Object.entries(metaFields);
-                      const oldKey = entries[index][0];
-                      const newMeta = { ...metaFields };
-                      delete newMeta[oldKey];
-                      newMeta[e.target.value] = value;
-                      setMetaFields(newMeta);
-                    }}
-                  />
-                  <Input
-                    size="sm"
-                    radius="sm"
-                    className="flex-1"
-                    placeholder="Giá trị (vd: red)"
-                    value={value}
-                    onChange={(e) => {
-                      setMetaFields({ ...metaFields, [key]: e.target.value });
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const entries = Object.entries(metaFields);
-                      entries.splice(index, 1);
-                      setMetaFields(Object.fromEntries(entries));
-                    }}
-                    className="text-red-500 hover:bg-red-50 p-2 rounded transition-colors"
-                    title="Xóa thuộc tính"
-                  >
-                    <Trash size={16} />
-                  </button>
-                </div>
-              ))}
-
-              <button
-                type="button"
-                onClick={() => {
-                  const newKey = `key_${Object.keys(metaFields).length + 1}`;
-                  setMetaFields({ ...metaFields, [newKey]: '' });
-                }}
-                className="border border-pos-blue-500 rounded-md text-pos-blue-500 text-xs flex items-center gap-2 w-fit py-1.5 px-3.5 mt-3.5 cursor-pointer hover:opacity-80 transition-opacity"
-              >
-                <Plus size={16} />
-                <span>Thêm thuộc tính</span>
-              </button>
-            </div>
-          </div>
-          {/* Action buttons */}
-          <div className="flex justify-end items-center gap-4 pt-4 border-t border-gray-200">
-            <button
-              type="button"
-              onClick={() => setOpenAddModal(false)}
-              className="text-red-500 hover:bg-red-50 duration-300 py-2 px-6 transition-colors cursor-pointer rounded-md"
-            >
-              Hủy
-            </button>
-            <Button type="submit" title="Thêm sản phẩm" size="sm" radius="md" />
-          </div>
-        </form>
-      </Modal>
-      {/* MODAL ADD CATEGORY */}
-      <Modal
-        opened={openCreateCategoryModal}
-        onClose={() => {
-          setOpenCreateCategoryModal(false);
-          setFormData({ name: '', description: '' });
-          setFormErrors({});
-        }}
-        size="lg"
-        title={
-          <div className="flex items-center gap-3 font-semibold text-lg text-gray-600">
-            <div className="bg-green-100 p-2 rounded-lg">
-              <Plus size={18} className="text-green-600" />
-            </div>
-            <span>Tạo danh mục mới</span>
-          </div>
-        }
-      >
-        <div className="space-y-4">
-          <Input
-            label="Tên danh mục"
-            placeholder="Nhập tên danh mục..."
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            error={formErrors.name}
-            required
-            maxLength={255}
-          />
-
-          <Textarea
-            label="Mô tả"
-            placeholder="Nhập mô tả danh mục (tùy chọn)..."
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            error={formErrors.description}
-            minRows={3}
-            maxLength={1000}
-          />
-
-          <div className="flex justify-end gap-4 pt-4 border-t border-gray-200">
-            <button
-              onClick={() => {
-                setOpenCreateCategoryModal(false);
-                setFormData({ name: '', description: '' });
-                setFormErrors({});
-              }}
-              className="text-red-500 hover:underline"
-            >
-              Hủy
-            </button>
-            <Button
-              onClick={() => {
-                handleCreateCategory(formData);
-                setOpenCreateCategoryModal(false);
-                setFormData({ name: '', description: '' });
-                setFormErrors({});
-              }}
-              title="Tạo danh mục"
-              size="sm"
-              radius="md"
-              // disabled={submitting}
-            />
-          </div>
-        </div>
-      </Modal>
-
       {/* DELETE MODAL */}
       <Modal opened={deleteModal} size="sm" onClose={() => setDeleteModal(false)}>
         <div className="space-y-3 flex flex-col items-center">
@@ -748,6 +431,8 @@ export function ManageView() {
           <Button type="submit" title={'Áp dụng điều chỉnh'} />
         </form>
       </Modal>
+
+      {/* TABLE AND FILTER */}
       <div className="flex flex-col h-full ">
         {/* ACTION */}
         <FilterBar
@@ -768,14 +453,6 @@ export function ManageView() {
           }}
           actions={
             <>
-              <button
-                onClick={() => window.print()}
-                className="bg-white border text-nowrap border-gray-200 rounded-md flex items-center gap-2 py-2 px-4  cursor-pointer hover:opacity-80 transition-opacity duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Download size={16} />
-                <span className="text-gray-900 font-medium text-sm"> Xuất dữ liệu</span>
-              </button>
-
               <div className="relative" ref={uploadMenuRef}>
                 <button
                   onClick={() => setOpenUploadOption((prev) => !prev)}
@@ -822,15 +499,12 @@ export function ManageView() {
                   </div>
                 )}
               </div>
-
               <button
-                onClick={() => {
-                  setOpenAddModal(true);
-                }}
-                className="bg-pos-blue-50 border text-nowrap  border-pos-blue-500 rounded-md flex items-center gap-2 py-2 px-4  text-pos-blue-500 cursor-pointer hover:opacity-80 transition-opacity duration-300"
+                onClick={() => window.print()}
+                className="bg-white border text-nowrap border-gray-200 rounded-md flex items-center gap-2 py-2 px-4  cursor-pointer hover:opacity-80 transition-opacity duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Plus size={16} />
-                <span className="font-medium text-sm "> Thêm sản phẩm</span>
+                <Download size={16} />
+                <span className="text-gray-900 font-medium text-sm"> Xuất dữ liệu</span>
               </button>
             </>
           }

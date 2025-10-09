@@ -10,6 +10,8 @@ import { Filter, Minus, Plus, Trash2, User, X } from 'lucide-react';
 import { OrderStatusEnum } from '../../../../../main/src/schemas/order/order.schema';
 import { Product, ProductStatus } from '@repo/design-system/types';
 import { payment_method } from '@repo/design-system/types/inventory';
+import { currentStoreAtom } from '@repo/design-system/stores/auth';
+import { useAtomValue } from 'jotai';
 
 type SelectedProduct = Product & { selectedQuantity: number };
 type Invoice = SelectedProduct[];
@@ -32,9 +34,11 @@ const paymentMethods = [
 export function SalesView() {
   // HOOK(
 
-  const { showSuccessToast, showInfoToast } = useToast();
-  const { products, getProducts, setFilters, setPaginationParams } = useProduct();
+  const { showSuccessToast } = useToast();
+  const { products, getProducts, setFilters, setPaginationParams, paginationParams, filters } =
+    useProduct();
   const { createOrder, loading } = useOrders();
+  const currentStore = useAtomValue(currentStoreAtom);
 
   // STATE
   const [openModalChangePrice, setOpenModalChangePrice] = useState(false);
@@ -200,6 +204,10 @@ export function SalesView() {
     }, 500);
     return () => clearTimeout(timeout);
   }, [search]);
+  useEffect(() => {
+    if (!currentStore?.id) return;
+    getProducts();
+  }, [currentStore?.id, paginationParams, filters]);
   const handleLoadMore = () => {
     setPaginationParams((prev) => ({
       ...prev,
@@ -278,7 +286,7 @@ export function SalesView() {
                 renderRow={(product) => (
                   <>
                     <td className="px-4 py-2 text-gray-900 flex flex-col gap-1">
-                      <span className="text-base font-semibold truncate">
+                      <span title={product.name} className="text-base font-semibold truncate">
                         {truncateText(product.name, 28)}
                       </span>
                       <span className="text-xs font-medium">
@@ -421,7 +429,10 @@ export function SalesView() {
                       </div>
 
                       <div className="mt-4 flex flex-col gap-1">
-                        <h2 className="text-sm font-semibold text-gray-800 truncate">
+                        <h2
+                          title={product.name}
+                          className="text-sm font-semibold text-gray-800 truncate"
+                        >
                           {product.name}
                         </h2>
                         <span className="text-sm font-medium text-gray-500">
