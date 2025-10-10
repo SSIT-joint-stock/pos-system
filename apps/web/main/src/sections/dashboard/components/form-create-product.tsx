@@ -1,3 +1,4 @@
+'use client';
 import { formatCurrency } from '../../../../../main/src/utils';
 import useCategories from '../../../../../main/src/hooks/categories/use-categories';
 import { useProduct } from '../../../../../main/src/hooks/product/use-product';
@@ -56,6 +57,7 @@ export default function FormCreateProduct({
     }, 500);
 
     return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, filters.q, isFocusInputSearch, currentStore?.id]);
   console.log(products);
   console.log(search);

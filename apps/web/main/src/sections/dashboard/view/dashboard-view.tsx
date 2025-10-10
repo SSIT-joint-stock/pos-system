@@ -17,6 +17,7 @@ import {
 import { Select } from '@repo/design-system/components/ui';
 import { Download, Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import SlidingTabs from '@repo/design-system/components/shared/chart-screen/sliding-line-chart';
 export function DashboardView() {
   const { cache, handleChangeTimeType } = useStatistics();
   const [revenue, setRevenue] = useState<ChartPoint | null>(null);
@@ -34,23 +35,39 @@ export function DashboardView() {
 
   return (
     <div className="flex  h-fit w-full gap-5 flex-col pb-6">
-      <div className="grid sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3   w-full overflow-x-auto min-h-fit">
-        <ItemBoxChart title={'Tổng đơn hàng'} value={revenueSummary?.orderCount} />
-        <ItemBoxChart
-          value={formatCurrency(revenueSummary?.totalRevenue)}
-          title={'Tổng doanh thu'}
-        />
-        <ItemBoxChart
-          title={`Tổng số lượng sản phẩm được mua`}
-          value={revenueSummary?.totalProduct}
-        />
-        <ItemBoxChart title={'Tổng số lượng khách hàng'} value={revenueSummary?.customerCount} />
-
-        <div className="flex items-center justify-center h-full w-full group  hover:bg-white transition-all duration-300 border-2 border-dashed border-pos-blue-500 bg-pos-blue-100 rounded-md">
-          <Plus
-            className=" text-pos-blue-500  text-center group-hover:rotate-90 transition-all duration-200"
-            strokeWidth={2}
+      <div className="flex flex-col gap-2">
+        <div className="flex justify-end t">
+          <div className="w-fit bg-white rounded-md py-2 px-3">
+            <SlidingTabs
+              data={[
+                { name: 'Ngày', value: 'day' },
+                { name: 'Tuần', value: 'week' },
+                { name: 'Tháng', value: 'month' },
+              ]}
+              onChangeTypeData={(value) =>
+                handleChangeTimeType('summary-revenue', value as 'day' | 'week' | 'month')
+              }
+            />
+          </div>
+        </div>
+        <div className="grid sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3   w-full overflow-x-auto min-h-fit">
+          <ItemBoxChart title={'Tổng đơn hàng'} value={revenueSummary?.orderCount} />
+          <ItemBoxChart
+            value={formatCurrency(revenueSummary?.totalRevenue)}
+            title={'Tổng doanh thu'}
           />
+          <ItemBoxChart
+            title={`Tổng số lượng sản phẩm được bán`}
+            value={revenueSummary?.totalProduct}
+          />
+          <ItemBoxChart title={'Tổng số lượng khách hàng'} value={revenueSummary?.customerCount} />
+
+          <div className="flex items-center justify-center h-full w-full group  hover:bg-white transition-all duration-300 border-2 border-dashed border-pos-blue-500 bg-pos-blue-100 rounded-md">
+            <Plus
+              className=" text-pos-blue-500  text-center group-hover:rotate-90 transition-all duration-200"
+              strokeWidth={2}
+            />
+          </div>
         </div>
       </div>
       <div className="grid grid-cols-[0.9fr_0.4fr] gap-4 w-full  h-full">

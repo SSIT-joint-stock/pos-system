@@ -12,6 +12,7 @@ import { Product, ProductStatus } from '@repo/design-system/types';
 import { payment_method } from '@repo/design-system/types/inventory';
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { useAtomValue } from 'jotai';
+import FormCreateCustomer from '../components/form-create-customer';
 
 type SelectedProduct = Product & { selectedQuantity: number };
 type Invoice = SelectedProduct[];
@@ -542,45 +543,7 @@ export function SalesView() {
         size="xl"
         onClose={() => setOpenModalCreateCustomer(false)}
       >
-        <form className="flex flex-col gap-4">
-          <div className="flex items-center gap-3">
-            <Input
-              withAsterisk
-              label="Tên khách hàng"
-              name="name"
-              placeholder="Nhập tên khách hàng"
-              className="flex-1"
-            />
-            <Input
-              label="Số điện thoại"
-              name="phone"
-              placeholder="Nhập số điên thoại"
-              className="flex-1"
-            />
-          </div>
-          <div className="flex items-center gap-3">
-            <Input
-              label="Email"
-              name="email"
-              placeholder="Nhập email khách hàng"
-              className="flex-1"
-            />
-            <Input
-              label="Địa chỉ"
-              name="address"
-              placeholder="Nhập địa chỉ khách hàng"
-              className="flex-1"
-            />
-          </div>
-          <div className="flex items-center gap-3">
-            <Input label="Thành phố" name="city" placeholder="Nhập thành phố" className="flex-1" />
-            <Input label="Mã zip" name="zip" placeholder="Nhập mã zip" className="flex-1" />
-          </div>
-
-          <div className="flex items-center ">
-            <Button loading={loading} title="Thanh toán" style={{ flex: 1 }} />
-          </div>
-        </form>
+        <FormCreateCustomer />
       </Modal>
     </div>
   );

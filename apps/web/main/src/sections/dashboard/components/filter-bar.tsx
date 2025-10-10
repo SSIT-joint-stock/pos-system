@@ -21,6 +21,7 @@ type FilterBarProps = {
   hasBg?: boolean;
   setWidth?: string;
   hasDatePicker?: boolean;
+  placeholderInputSearch?: string;
 };
 
 export default function FilterBar({
@@ -32,6 +33,7 @@ export default function FilterBar({
   hasBg = true,
   setWidth = '34%',
   hasDatePicker = true,
+  placeholderInputSearch,
 }: FilterBarProps) {
   const [status, setStatus] = React.useState<string | undefined>(undefined);
   const [category, setCategory] = React.useState<string | undefined>(undefined);
@@ -90,7 +92,7 @@ export default function FilterBar({
             size="xs"
             leftSection={<Search size={16} />}
             variant="unstyled"
-            placeholder="Tìm kiếm sản phẩm"
+            placeholder={placeholderInputSearch ?? 'Tìm kiếm sản phẩm'}
             data={['T-Shirt', 'Cap', 'Shoes', 'Watch', 'Sunglass']}
             className="flex-1 py-[1px] text-sm text-gray-900 font-medium placeholder:font-normal"
             rightSection={

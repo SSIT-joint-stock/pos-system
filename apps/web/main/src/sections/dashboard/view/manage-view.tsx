@@ -94,43 +94,6 @@ export function ManageView() {
   return (
     <>
       {/* DELETE MODAL */}
-      <Modal opened={deleteModal} size="sm" onClose={() => setDeleteModal(false)}>
-        <div className="space-y-3 flex flex-col items-center">
-          <div className="flex flex-col gap-3 items-center justify-center">
-            <div className="justify-center flex rounded-full bg-red-100 w-fit text-red-500 p-3.5">
-              <BadgeAlert size={38} />
-            </div>
-            <div className="text-lg font-bold text-center">Bạn Có Chắc Chắn Muốn Xóa?</div>
-            <div className="text-sm text-gray-500 text-center">
-              Hành động này không thể hoàn tác. Tất cả dữ liệu liên quan của trường này sẽ biến mất.
-            </div>
-          </div>
-          <div className="flex flex-col gap-2 w-full">
-            <Button
-              style={{ width: '100%' }}
-              color="red"
-              size={'md'}
-              onClick={() => {
-                if (product && product.id) {
-                  deleteProduct(product.id);
-                }
-                setDeleteModal(false);
-              }}
-              className="bg-red-600 rounded-lg text-white cursor-pointer font-bold "
-              title="Xác nhận xóa"
-            />
-
-            <button
-              onClick={() => {
-                setDeleteModal(false);
-              }}
-              className="cursor-pointer"
-            >
-              Hủy
-            </button>
-          </div>
-        </div>
-      </Modal>
 
       {/* MODAL VIEW and EDIT PRODUCT */}
       <Modal

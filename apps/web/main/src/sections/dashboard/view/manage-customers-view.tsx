@@ -1,131 +1,158 @@
-"use client";
+'use client';
 import {
+  BadgeAlert,
   Download,
   Edit,
   EllipsisVertical,
   IdCard,
   Mail,
   MapPinned,
+  Pen,
   Phone,
   Plus,
   Table2,
   Tag,
   Trash,
   Upload,
-} from "lucide-react";
-import React from "react";
-import FilterBar from "../components/filter-bar";
-import Image from "next/image";
-import { Modal, Table } from "@repo/design-system/components/ui";
-import { formatDate } from "@repo/utils";
+} from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
+import { Button, Modal, Pagination, Table } from '@repo/design-system/components/ui';
+import { formatDate } from '@repo/utils';
+import FormCreateCustomer from '../components/form-create-customer';
+import { currentStoreAtom } from '@repo/design-system/stores/auth';
+import { useAtomValue } from 'jotai';
+import { useCustomer } from '../../../../../main/src/hooks/customers/use-customer';
+import { Customer } from '@repo/design-system/types';
+import FilterBar from '../components/filter-bar';
+import { useClickOutside } from '@repo/design-system/hooks/client';
 
 const tableHeaders = [
-  "ID",
-  "Tên Khách Hàng",
-  "Số Điện Thoại",
-  "Email",
-  "Địa Chỉ",
-  "Thành Phố",
-  "Mã Bưu Điện",
-  "Quốc Gia",
-  "Ngày Tạo",
-  "Cập Nhật Lần Cuối",
-  "Thao Tác",
-];
-
-const customerInfor = [
-  {
-    id: "b3b9b9a2-31e5-4d0d-83b9-4cc1f1b9d1f0",
-    store_id: "d5a4e1c0-5a9a-4d3b-8f22-10a8e7a2b1c3",
-    name: "Nguyễn Văn An",
-    phone: "0905123456",
-    email: "an.nguyen@example.com",
-    address: "123 Đường Trần Hưng Đạo",
-    city: "Hà Nội",
-    state: "Hoàn Kiếm",
-    zip: "100000",
-    country: "Việt Nam",
-    createdAt: new Date("2025-01-05T09:00:00Z"),
-    updatedAt: new Date("2025-01-05T09:00:00Z"),
-  },
-  {
-    id: "4fba91b0-60a2-4e72-b317-21864d49df92",
-    store_id: "d5a4e1c0-5a9a-4d3b-8f22-10a8e7a2b1c3",
-    name: "Trần Thị Mai",
-    phone: "0912987654",
-    email: "mai.tran@example.com",
-    address: "45 Nguyễn Văn Cừ",
-    city: "Hải Phòng",
-    state: "Ngô Quyền",
-    zip: "180000",
-    country: "Việt Nam",
-    createdAt: new Date("2025-02-10T13:20:00Z"),
-    updatedAt: new Date("2025-02-10T13:20:00Z"),
-  },
-  {
-    id: "fcb9df8c-68ef-47de-9a2a-8f2927e9faaa",
-    store_id: "d5a4e1c0-5a9a-4d3b-8f22-10a8e7a2b1c3",
-    name: "Lê Hoàng Long",
-    phone: "0987123987",
-    email: "long.le@example.com",
-    address: "78 Pasteur",
-    city: "TP. Hồ Chí Minh",
-    state: "Quận 3",
-    zip: "700000",
-    country: "Việt Nam",
-    createdAt: new Date("2025-03-01T08:45:00Z"),
-    updatedAt: new Date("2025-03-01T08:45:00Z"),
-  },
-  {
-    id: "bb1b2a33-f1df-4c62-bb73-b2cb453fdd91",
-    store_id: "d5a4e1c0-5a9a-4d3b-8f22-10a8e7a2b1c3",
-    name: "Phạm Thị Hương",
-    phone: "0974111222",
-    email: "huong.pham@example.com",
-    address: "12 Lê Lợi",
-    city: "Đà Nẵng",
-    state: "Hải Châu",
-    zip: "550000",
-    country: "Việt Nam",
-    createdAt: new Date("2025-03-20T10:15:00Z"),
-    updatedAt: new Date("2025-03-20T10:15:00Z"),
-  },
-  {
-    id: "ea2a1129-7ec2-4df6-a1a8-446d3ef5b0c5",
-    store_id: "d5a4e1c0-5a9a-4d3b-8f22-10a8e7a2b1c3",
-    name: "Đỗ Trung Thành",
-    phone: "0965234891",
-    email: "thanh.do@example.com",
-    address: "89 Lý Thường Kiệt",
-    city: "Huế",
-    state: "Phú Nhuận",
-    zip: "530000",
-    country: "Việt Nam",
-    createdAt: new Date("2025-04-02T15:30:00Z"),
-    updatedAt: new Date("2025-04-02T15:30:00Z"),
-  },
+  'Tên Khách Hàng',
+  'Số Điện Thoại',
+  'Email',
+  'Địa Chỉ',
+  'Thành Phố',
+  'Mã Bưu Điện',
+  'Ngày Tạo',
+  'Thao Tác',
 ];
 
 export function ManageCustomersView() {
-  const [active, setActive] = React.useState("table");
-  const [openAddModal, setOpenAddModal] = React.useState(false);
+  const openMenuRef = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState('table');
+  const [openAddModal, setOpenAddModal] = useState(false);
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [editModal, setEditModal] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer>();
+  const [isOpenOptionCard, setIsOpenOptionCard] = useState(false);
+
+  const currentStore = useAtomValue(currentStoreAtom);
+  const {
+    getCustomers,
+    deleteCustomer,
+    createCustomer,
+    updateCustomer,
+    setPaginationParams,
+    setFilters,
+    customers,
+    createCustomerForm,
+    updateCustomerForm,
+    pagination,
+    paginationParams,
+    filters,
+    loading,
+  } = useCustomer();
+  const setMenu = (customerId: string) => {
+    setSelectedCustomer(customers.find((customer) => customer.id === customerId));
+    setIsOpenOptionCard(true);
+  };
+  useClickOutside(openMenuRef, () => {
+    setIsOpenOptionCard(false);
+  });
+  useEffect(() => {
+    if (!currentStore?.id) return;
+    getCustomers();
+  }, [currentStore?.id, paginationParams, filters]);
 
   return (
     <>
       {/* modal add customer */}
       <Modal
-        title="Them Khach hang moi "
-        size="lg"
+        title="Thêm khách hàng mới "
+        size="xl"
         opened={openAddModal}
         onClose={() => {
           setOpenAddModal(false);
         }}
       >
-        <div className=""></div>
+        <FormCreateCustomer
+          setOpenAddModal={setOpenAddModal}
+          createCustomer={createCustomer}
+          createCustomerForm={createCustomerForm}
+          onSuccess={() => {
+            getCustomers();
+          }}
+        />
+      </Modal>
+      {/* modal eidt customer */}
+      <Modal
+        title="Sửa thông tin khách hàng"
+        size="xl"
+        opened={editModal}
+        onClose={() => {
+          setEditModal(false);
+        }}
+      >
+        <FormCreateCustomer
+          isEditForm
+          selectedCustomer={selectedCustomer}
+          updateCustomer={updateCustomer}
+          updateCustomerForm={updateCustomerForm}
+          setOpenEditModal={setEditModal}
+          onSuccess={() => {
+            getCustomers();
+          }}
+        />
+      </Modal>
+      <Modal opened={deleteModal} size="lg" onClose={() => setDeleteModal(false)}>
+        <div className="space-y-3 flex flex-col items-center">
+          <div className="flex flex-col gap-3 items-center justify-center">
+            <div className="justify-center flex rounded-full bg-red-100 w-fit text-red-500 p-3.5">
+              <BadgeAlert size={38} />
+            </div>
+            <div className="text-lg font-bold text-center">Bạn Có Chắc Chắn Muốn Xóa?</div>
+            <div className="text-sm text-gray-500 text-center">
+              Hành động này không thể hoàn tác. Tất cả dữ liệu liên quan của trường này sẽ biến mất.
+            </div>
+          </div>
+          <div className="flex flex-col gap-2 w-full">
+            <Button
+              style={{ width: '100%' }}
+              color="red"
+              size={'md'}
+              onClick={() => {
+                deleteCustomer(selectedCustomer?.id || '');
+                setDeleteModal(false);
+              }}
+              className="bg-red-600 rounded-lg text-white cursor-pointer font-bold "
+              title="Xác nhận xóa"
+            />
+
+            <button
+              onClick={() => {
+                setDeleteModal(false);
+              }}
+              className="cursor-pointer"
+            >
+              Hủy
+            </button>
+          </div>
+        </div>
       </Modal>
       <div className="space-y-6 bg-white rounded-lg px-5 py-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-pos-blue-500">Quan Ly Khach Hang</h2>
+          <h2 className="text-2xl font-bold text-pos-blue-500">Quản Lý Khách Hàng</h2>
           <button
             onClick={() => {
               setOpenAddModal(true);
@@ -133,110 +160,70 @@ export function ManageCustomersView() {
             className="flex items-center justify-center gap-2 px-3 py-2 rounded-md bg-pos-blue-500 cursor-pointer hover:bg-pos-blue-600 transition-all duration-300"
           >
             <Plus className="text-white" size={18} />
-            <span className="text-white font-semibold text-sm">Them khach hang</span>
+            <span className="text-white font-semibold text-sm">Thêm khách hàng</span>
           </button>
         </div>
         <div className="flex items-center justify-between">
-          <div className="flex items-center justify-center gap-5">
-            {/* Bang */}
-            <div
-              onClick={() => {
-                setActive("table");
-              }}
-              className={`flex items-center py-1.5 justify-center gap-2 cursor-pointer
+          <div className="flex items-center gap-3">
+            <span className="text-lg font-semibold text-gray-700">Hiển thị theo: </span>
+            <div className="flex items-center gap-5">
+              {/* Bang */}
+              <div
+                onClick={() => {
+                  setActive('table');
+                }}
+                className={`flex items-center py-1.5 justify-center gap-2 cursor-pointer
   bg-left-bottom bg-no-repeat bg-gradient-to-r from-blue-500 to-blue-500
   transition-all duration-300 ease-out
   ${
-    active === "table"
-      ? "bg-[length:100%_3px]" // Khi active → giữ full gạch chân
-      : "bg-[length:0%_2px] hover:bg-[length:100%_3px]"
+    active === 'table'
+      ? 'bg-[length:100%_3px]' // Khi active → giữ full gạch chân
+      : 'bg-[length:0%_2px] hover:bg-[length:100%_3px]'
   } // Hover mới trượt
 `}
-            >
-              <Table2 size={20} className="text-gray-700" />
-              <span className="text-lg font-semibold text-gray-700">Bang</span>
-            </div>
+              >
+                <Table2 size={20} className="text-gray-700" />
+                <span className="text-lg font-semibold text-gray-700">Bảng</span>
+              </div>
 
-            {/* The */}
-            <div
-              onClick={() => {
-                setActive("card");
-              }}
-              className={`flex items-center py-1.5 justify-center gap-2 cursor-pointer
+              {/* The */}
+              <div
+                onClick={() => {
+                  setActive('card');
+                }}
+                className={`flex items-center py-1.5 justify-center gap-2 cursor-pointer
   bg-left-bottom bg-no-repeat bg-gradient-to-r from-blue-500 to-blue-500
   transition-all duration-300 ease-out
   ${
-    active === "card"
-      ? "bg-[length:100%_3px]" // Khi active → giữ full gạch chân
-      : "bg-[length:0%_2px] hover:bg-[length:100%_3px]"
+    active === 'card'
+      ? 'bg-[length:100%_3px]' // Khi active → giữ full gạch chân
+      : 'bg-[length:0%_2px] hover:bg-[length:100%_3px]'
   } // Hover mới trượt
 `}
-            >
-              <IdCard size={28} className="text-gray-700" />
-              <span className="text-lg font-semibold text-gray-700">The</span>
+              >
+                <IdCard size={28} className="text-gray-700" />
+                <span className="text-lg font-semibold text-gray-700">Thẻ</span>
+              </div>
             </div>
           </div>
           {/* ACTION */}
           <FilterBar
+            placeholderInputSearch="Tìm kiếm khách hàng"
             hasBg={false}
-            statusOptions={[
-              { value: "ACTIVE", label: "ACTIVE" },
-              { value: "INACTIVE", label: "INACTIVE" },
-              { value: "SOLD", label: "SOLD" },
-            ]}
-            //   onFilterChange={(newFilters) => {
-            //     setFilters((prev) => ({
-            //       ...prev,
-            //       ...newFilters,
-            //       product_status: newFilters.status,
-            //     }));
-            //   }}
-            //   onSearch={(value) => {
-            //     setFilters((prev) => ({ ...prev, q: value }));
-            //   }}
+            setWidth="100%"
+            hasDatePicker={false}
+            onSearch={(value) => {
+              setFilters((prev) => ({ ...prev, q: value }));
+            }}
             actions={
               <>
                 <div className="relative ml-2">
                   <button
-                    //   onClick={() => setOpenUploadOption((prev) => !prev)}
-                    //   disabled={loading}
                     className={`bg-white border text-nowrap border-gray-200 rounded-md flex items-center gap-2 py-2 px-4  cursor-pointer hover:opacity-80 transition-opacity duration-300 disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
                     <Upload size={16} />
                     <span className="text-gray-900 font-medium text-sm">Tải lên dữ liệu</span>
                   </button>
-
-                  {/* {openUploadOption && (
-                  <div className="absolute top-full left-0 mt-1 z-50 flex flex-col  rounded-md shadow-md shadow-gray-100">
-                    <button
-                      disabled={loading}
-                      onClick={() => fileInputRef.current?.click()}
-                      className={`bg-white  text-nowrap  py-2 px-4 text-left hover:bg-gray-50 rounded-t-md  cursor-pointer  disabled:opacity-50 disabled:cursor-not-allowed`}
-                    >
-                      <span className="text-gray-900 font-medium text-sm">Tải lên dữ liệu (Excel)</span>
-                      <input
-                        ref={fileInputRef}
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            console.log(file);
-                            uploadProductByExcel(file);
-                          }
-                        }}
-                        hidden
-                        type="file"
-                        accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                      />
-                    </button>
-                    <button
-                      disabled={loading}
-                      onClick={exampleProductExcel}
-                      className={`bg-white  text-nowrap  hover:bg-gray-50   py-2 px-4 text-left rounded-b-md cursor-pointer  disabled:opacity-50 disabled:cursor-not-allowed`}
-                    >
-                      <span className="text-gray-900 font-medium text-sm">Tải file mẫu (Excel)</span>
-                    </button>
-                  </div>
-                )} */}
                 </div>
                 <button
                   onClick={() => window.print()}
@@ -249,11 +236,11 @@ export function ManageCustomersView() {
             }
           />
         </div>
-        {active === "card" ? (
+        {active === 'card' ? (
           <>
             {/*CARD*/}
             <div className="grid grid-cols-3 mt-8 gap-6">
-              {customerInfor.map((customer) => (
+              {customers.map((customer) => (
                 <>
                   <div className="  border border-gray-200/20 shadow rounded-lg">
                     <div className="flex items-center justify-between bg-gray-200/30 px-5 py-5 rounded-lg">
@@ -263,34 +250,77 @@ export function ManageCustomersView() {
                           width={1000}
                           height={1000}
                           src={
-                            "https://img.freepik.com/free-psd/3d-illustration-human-avatar-profile_23-2150671159.jpg?semt=ais_hybrid&w=740&q=80"
+                            'https://img.freepik.com/free-psd/3d-illustration-human-avatar-profile_23-2150671159.jpg?semt=ais_hybrid&w=740&q=80'
                           }
                           className="rounded-full w-14 h-14"
                         />
                         <div className="">
-                          <p className="text-md font-semibold text-gray-700">{customer.name}</p>
+                          <p className="text-sm font-semibold text-gray-700">{customer.name}</p>
                           <p className="text-sm text-gray-400">{customer.id}</p>
                         </div>
                       </div>
-                      <EllipsisVertical className="text-gray-400" />
+                      <div ref={openMenuRef} className="relative">
+                        <button
+                          onClick={() => setMenu(customer?.id)}
+                          className="cursor-pointer hover:bg-gray-200 transition-colors duration-300 rounded-full p-2"
+                        >
+                          <EllipsisVertical size={20} className="text-gray-400" />
+                        </button>
+                        <div
+                          className={`${isOpenOptionCard && selectedCustomer?.id === customer.id ? 'opacity-100 visible' : 'opacity-0 invisible'} absolute top-full mt-2 right-0 w-28  h-fit z-10 bg-white rounded-md py-2 px-1 shadow-lg text-sm font-medium transition-all duration-200 ease-in-out `}
+                        >
+                          <button
+                            onClick={() => {
+                              setSelectedCustomer(customer);
+                              setEditModal(true);
+                            }}
+                            className="flex items-center gap-3 p-2 hover:bg-gray-50 w-full duration-300 transition-colors cursor-pointer"
+                          >
+                            <Pen size={14} />
+                            <span className="text-gray-600">Sửa</span>
+                          </button>
+                          <button
+                            onClick={() => {
+                              setSelectedCustomer(customer);
+                              setDeleteModal(true);
+                            }}
+                            className="flex items-center gap-3 p-2 text-red-500 hover:bg-red-50 w-full duration-300 transition-colors cursor-pointer"
+                          >
+                            <Trash size={14} />
+                            Xóa
+                          </button>
+                        </div>
+                      </div>
                     </div>
                     <div className="flex flex-col mb-3 gap-3 px-5 py-1.5 mt-2.5">
                       <div className="flex items-center gap-3">
                         <Mail size={20} className="text-gray-400" />
-                        <span className="text-pos-blue-400">{customer.email}</span>
+                        <span className="text-pos-blue-500">
+                          {customer.email || (
+                            <span className="text-gray-500 italic text-sm">Chưa có email</span>
+                          )}
+                        </span>
                       </div>
                       <div className="flex items-center gap-3">
                         <Phone size={20} className="text-gray-400" />
-                        <span className="text-pos-blue-400">{customer.phone}</span>
+                        <span className="text-pos-blue-500">
+                          {customer.phone || (
+                            <span className="text-gray-500 italic text-sm">Chưa có sdt</span>
+                          )}
+                        </span>
                       </div>
                       <div className="flex items-center gap-3">
                         <MapPinned size={20} className="text-gray-400" />
-                        <span className="text-gray-600">{customer.address}</span>
+                        <span className="text-gray-600">
+                          {customer.address || (
+                            <span className="text-gray-500 italic text-sm">Chưa có địa chỉ</span>
+                          )}
+                        </span>
                       </div>
                       <div className="flex items-center gap-3">
                         <Tag size={20} className="text-gray-400" />
-                        <div className="bg-green-500/10 rounded-full text-center px-3 py-0.5 text-green-500">
-                          Dang hoat dong
+                        <div className="bg-green-500/10 rounded-full text-sm text-center px-3 py-0.5 text-green-500">
+                          Đang hoạt đông
                         </div>
                       </div>
                     </div>
@@ -298,34 +328,84 @@ export function ManageCustomersView() {
                 </>
               ))}
             </div>
+            {/*PAGINATION*/}
+            <div className="flex items-center justify-center w-full h-full">
+              <Pagination
+                total={Number(pagination?.totalPages)}
+                onChange={(page) => setPaginationParams((prev) => ({ ...prev, page }))}
+              />
+            </div>
           </>
         ) : (
           <>
             {/*Table*/}
             <Table
-              className="mt-5"
+              // className="mt-5"
+              total={pagination?.total}
+              page={pagination?.page}
+              totalPages={pagination?.totalPages}
+              limit={pagination?.limit}
+              pageSize={pagination?.limit ?? paginationParams.limit}
+              onPageChange={(page) =>
+                setPaginationParams((prev) => ({
+                  ...prev,
+                  page,
+                }))
+              }
+              onPageSizeChange={(size) =>
+                setPaginationParams((prev) => ({
+                  ...prev,
+                  limit: size,
+                }))
+              }
               tableHeaders={tableHeaders}
-              data={customerInfor}
+              data={customers}
+              isLoading={loading}
               renderRow={(customer) => {
                 return (
                   <>
-                    <td className="px-4 py-2 text-sm text-gray-700">{customer.id}</td>
                     <td className="px-4 py-2 text-sm text-gray-700">{customer.name}</td>
-                    <td className="px-4 py-2 text-sm text-gray-700">{customer.phone}</td>
-                    <td className="px-4 py-2 text-sm text-gray-700">{customer.email}</td>
-                    <td className="px-4 py-2 text-sm text-gray-700">{customer.address}</td>
-                    <td className="px-4 py-2 text-sm text-gray-700">{customer.city}</td>
-                    <td className="px-4 py-2 text-sm text-gray-700">{customer.zip}</td>
-                    <td className="px-4 py-2 text-sm text-gray-700">{customer.country}</td>
-                    <td className="px-4 py-2 text-sm text-gray-700">{formatDate(customer.createdAt)}</td>
-                    <td className="px-4 py-2 text-sm text-gray-700">{formatDate(customer.updatedAt)}</td>
+                    <td className="px-4 py-2 text-xs text-gray-700">
+                      {customer.phone || (
+                        <span className="text-xs text-gray-500 italic">Không có dữ liệu</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-2 text-xs text-gray-700">
+                      {customer.email || (
+                        <span className=" text-gray-500 italic">Không có dữ liệu</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-2 text-xs text-gray-700">
+                      {customer.address || (
+                        <span className=" text-gray-500 italic">Không có dữ liệu</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-2 text-xs text-gray-700">
+                      {customer.city || (
+                        <span className=" text-gray-500 italic">Không có dữ liệu</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-2 text-xs text-gray-700">
+                      {customer.zip || (
+                        <span className=" text-gray-500 italic">Không có dữ liệu</span>
+                      )}
+                    </td>
+                    {/* <td className="px-4 py-2 text-sm text-gray-700">
+                      {customer.country || (
+                        <span className="text-sm text-gray-500 italic">Không có dữ liệu</span>
+                      )}
+                    </td> */}
+                    <td className="px-4 py-2 text-xs text-gray-700">
+                      {formatDate(customer.createdAt)}
+                    </td>
+
                     <td>
                       <div className="flex items-center gap-5 pl-4">
                         <button
-                          title="Sửa sản phẩm"
+                          title="Sửa thông tin khách hàng"
                           onClick={() => {
-                            //   setOpenEditModal(true);
-                            //   getProductById(product.id);
+                            setEditModal(true);
+                            setSelectedCustomer(customer);
                           }}
                           className="flex justify-center items-center cursor-pointer w-[36px] h-[36px]  bg-pos-blue-50 text-pos-blue-500 rounded-md hover:opacity-100 hover:bg-pos-blue-500 hover:text-pos-blue-50 opacity-70 transition-opacity duration-200"
                         >
@@ -333,10 +413,10 @@ export function ManageCustomersView() {
                         </button>
 
                         <button
-                          title="Xóa sản phẩm"
+                          title="Xóa khách hàng"
                           onClick={() => {
-                            //   setDeleteModal(true);
-                            //   getProductById(product.id);
+                            setSelectedCustomer(customer);
+                            setDeleteModal(true);
                           }}
                           className="flex justify-center items-center cursor-pointer w-[36px] h-[36px]  bg-red-50 text-red-500 rounded-md hover:opacity-100 hover:bg-red-500 hover:text-white opacity-70 transition-opacity duration-200 ml-auto"
                         >
