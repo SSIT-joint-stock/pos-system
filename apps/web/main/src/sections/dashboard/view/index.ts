@@ -9,3 +9,4 @@ export * from "./manage-stores-view";
 export * from "./inventory-manage-view";
 export * from "./manage-stock-view";
 export * from "./purchase-orders";
+export * from "./manage-customers-view";
