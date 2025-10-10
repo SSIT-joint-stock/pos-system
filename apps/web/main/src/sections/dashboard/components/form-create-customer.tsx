@@ -1,5 +1,8 @@
 'use client';
-import { CreateCustomerInput, UpdateCustomerInput } from '@main/schemas/customer/customer.schema';
+import {
+  CreateCustomerInput,
+  UpdateCustomerInput,
+} from '../../../schemas/customer/customer.schema';
 import { Button, Input } from '@repo/design-system/components/ui';
 import { Customer } from '@repo/design-system/types';
 import React, { useEffect } from 'react';

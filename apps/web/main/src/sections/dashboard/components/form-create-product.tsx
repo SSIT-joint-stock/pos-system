@@ -1,6 +1,6 @@
 'use client';
 import { formatCurrency } from '../../../../../main/src/utils';
-import useCategories from '../../../../../main/src/hooks/categories/use-categories';
+import { useCategories } from '../../../../../main/src/hooks/categories/use-categories';
 import { useProduct } from '../../../../../main/src/hooks/product/use-product';
 import { MultiSelect } from '@mantine/core';
 import { Button, Input, Select } from '@repo/design-system/components/ui';
@@ -36,7 +36,7 @@ export default function FormCreateProduct({
     setProducts,
     filters,
   } = useProduct();
-  const { categories } = useCategories();
+  const { categories, getCategories } = useCategories();
 
   useClickOutside(refFocusInputSearch, () => setIsFocusInputSearch(false));
   useEffect(() => {
@@ -59,8 +59,10 @@ export default function FormCreateProduct({
     return () => clearTimeout(timeout);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, filters.q, isFocusInputSearch, currentStore?.id]);
-  console.log(products);
-  console.log(search);
+  useEffect(() => {
+    if (!currentStore?.id) return;
+    getCategories();
+  }, [currentStore?.id]);
   return (
     <>
       <div ref={refFocusInputSearch} className="mt-4 relative">

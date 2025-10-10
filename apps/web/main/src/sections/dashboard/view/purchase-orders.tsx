@@ -14,11 +14,11 @@ import {
   Search,
   Trash,
 } from 'lucide-react';
-import { Drawer, Menu, Textarea } from '@mantine/core';
-import useCategories, {
-  CategoryFormData,
-} from '../../../../../main/src/hooks/categories/use-categories';
+import { Drawer, Menu } from '@mantine/core';
+
 import FormCreateProduct from '../components/form-create-product';
+import { useCategories } from '../../../../../main/src/hooks/categories/use-categories';
+import FormCreateCategory from '../components/form-create-category';
 
 const tableHeaders = [
   'Mã SP',
@@ -203,12 +203,9 @@ export function PurchaseOrders() {
   const [openAddSupplier, setOpenAddSupplier] = React.useState(false);
   const [openAddProduct, setOpenAddProduct] = React.useState(false);
   const [openAction, setOpenAction] = React.useState(false);
-  const [formData, setFormData] = useState<CategoryFormData>({
-    name: '',
-    description: '',
-  });
-  const { handleCreateCategory } = useCategories();
-  const [formErrors, setFormErrors] = useState<Partial<CategoryFormData>>({});
+
+  const { createCategory, createCategoryForm, loading } = useCategories();
+
   const [openCreateCategoryModal, setOpenCreateCategoryModal] = useState<boolean>(false);
 
   const handleOpenTutorial = () => {
@@ -222,6 +219,13 @@ export function PurchaseOrders() {
   };
   const handleOpenAction = () => {
     setOpenAction(true);
+  };
+  const handleSubmitCreate = async (data: any) => {
+    const result = await createCategory(data);
+    if (result) {
+      setOpenCreateCategoryModal(false);
+      createCategoryForm.reset();
+    }
   };
   return (
     <div className="flex flex-col gap-3 h-full overflow-hidden">
@@ -339,8 +343,6 @@ export function PurchaseOrders() {
         opened={openCreateCategoryModal}
         onClose={() => {
           setOpenCreateCategoryModal(false);
-          setFormData({ name: '', description: '' });
-          setFormErrors({});
         }}
         size="lg"
         title={
@@ -352,52 +354,12 @@ export function PurchaseOrders() {
           </div>
         }
       >
-        <div className="space-y-4">
-          <Input
-            label="Tên danh mục"
-            placeholder="Nhập tên danh mục..."
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            error={formErrors.name}
-            required
-            maxLength={255}
-          />
-
-          <Textarea
-            label="Mô tả"
-            placeholder="Nhập mô tả danh mục (tùy chọn)..."
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            error={formErrors.description}
-            minRows={3}
-            maxLength={1000}
-          />
-
-          <div className="flex justify-end gap-4 pt-4 border-t border-gray-200">
-            <button
-              onClick={() => {
-                setOpenCreateCategoryModal(false);
-                setFormData({ name: '', description: '' });
-                setFormErrors({});
-              }}
-              className="text-red-500 hover:underline"
-            >
-              Hủy
-            </button>
-            <Button
-              onClick={() => {
-                handleCreateCategory(formData);
-                setOpenCreateCategoryModal(false);
-                setFormData({ name: '', description: '' });
-                setFormErrors({});
-              }}
-              title="Tạo danh mục"
-              size="sm"
-              radius="md"
-              // disabled={submitting}
-            />
-          </div>
-        </div>
+        <FormCreateCategory
+          createCategoryForm={createCategoryForm}
+          handleSubmitCreate={handleSubmitCreate}
+          setOpenCreateModal={setOpenCreateCategoryModal}
+          loading={loading}
+        />
       </Modal>
 
       <div className="flex items-center justify-between">
