@@ -37,6 +37,7 @@ export type SelectProps = {
   onChange?: (value: string) => void;
   position?: PositionOptions;
   variant?: VariantSelect;
+  onSearchChange?: (value: string) => void;
 } & Omit<
   React.ComponentProps<typeof MantineSelect>,
   'size' | 'radius' | 'data' | 'error' | 'placeholder' | 'disabled' | 'defaultValue'
@@ -66,6 +67,7 @@ export const Select = React.forwardRef<HTMLInputElement, SelectProps>(
       value,
       position = 'top',
       variant = 'default',
+      onSearchChange,
       ...rest
     },
     ref: ForwardedRef<HTMLInputElement>
@@ -80,6 +82,7 @@ export const Select = React.forwardRef<HTMLInputElement, SelectProps>(
         <MantineSelect
           withCheckIcon
           ref={ref}
+          nothingFoundMessage="Không tìm thấy"
           name={name}
           searchable={searchable}
           onChange={onChange}
@@ -95,6 +98,8 @@ export const Select = React.forwardRef<HTMLInputElement, SelectProps>(
           error={error}
           disabled={disabled}
           className={className}
+          onSearchChange={onSearchChange}
+          searchValue={rest.searchValue}
           variant={variant}
           value={value}
           styles={{ input: { color } }}
