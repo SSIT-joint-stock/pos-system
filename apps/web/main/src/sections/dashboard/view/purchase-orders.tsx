@@ -19,13 +19,13 @@ import { Drawer, Menu } from '@mantine/core';
 import FormCreateProduct from '../components/form-create-product';
 import { useCategories } from '../../../../../main/src/hooks/categories/use-categories';
 import FormCreateCategory from '../components/form-create-category';
-
+import { Product } from '@repo/design-system/types';
+import { formatCurrency } from '../../../../../main/src/utils';
+import { useProduct } from '../../../../../main/src/hooks/product/use-product';
+import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 const tableHeaders = [
   'Mã SP',
   'Tên sản phẩm',
-  'Số lô',
-  'Hạn dùng',
-  'Đơn vị',
   'Số lượng',
   'Giá nhập',
   'Giá bán',
@@ -35,178 +35,21 @@ const tableHeaders = [
   'Thành tiền',
   'Hành động',
 ];
-const purchaseOrders = [
-  {
-    stt: 1,
-    maSP: 'SP001',
-    tenSP: 'Sản phẩm A',
-    soLo: 'L001',
-    hanDung: '12/2025',
-    donVi: 'Cái',
-    soLuong: 100,
-    giaNhap: 50000,
-    giaBan: 70000,
-    chietKhauPhanTram: 5,
-    chietKhauBangTien: 2500,
-    vatPhanTram: 10,
-    thanhTien: 4750000,
-    hanhDong: 'Xóa',
-  },
-  {
-    stt: 2,
-    maSP: 'SP002',
-    tenSP: 'Sản phẩm B',
-    soLo: 'L002',
-    hanDung: '11/2024',
-    donVi: 'Hộp',
-    soLuong: 50,
-    giaNhap: 80000,
-    giaBan: 100000,
-    chietKhauPhanTram: 0,
-    chietKhauBangTien: 0,
-    vatPhanTram: 5,
-    thanhTien: 4000000,
-    hanhDong: 'Xóa',
-  },
-  {
-    stt: 3,
-    maSP: 'SP003',
-    tenSP: 'Sản phẩm C',
-    soLo: 'L003',
-    hanDung: '01/2026',
-    donVi: 'Chai',
-    soLuong: 200,
-    giaNhap: 30000,
-    giaBan: 45000,
-    chietKhauPhanTram: 10,
-    chietKhauBangTien: 3000,
-    vatPhanTram: 8,
-    thanhTien: 5400000,
-    hanhDong: 'Xóa',
-  },
-  {
-    stt: 3,
-    maSP: 'SP003',
-    tenSP: 'Sản phẩm C',
-    soLo: 'L003',
-    hanDung: '01/2026',
-    donVi: 'Chai',
-    soLuong: 200,
-    giaNhap: 30000,
-    giaBan: 45000,
-    chietKhauPhanTram: 10,
-    chietKhauBangTien: 3000,
-    vatPhanTram: 8,
-    thanhTien: 5400000,
-    hanhDong: 'Xóa',
-  },
-  {
-    stt: 3,
-    maSP: 'SP003',
-    tenSP: 'Sản phẩm C',
-    soLo: 'L003',
-    hanDung: '01/2026',
-    donVi: 'Chai',
-    soLuong: 200,
-    giaNhap: 30000,
-    giaBan: 45000,
-    chietKhauPhanTram: 10,
-    chietKhauBangTien: 3000,
-    vatPhanTram: 8,
-    thanhTien: 5400000,
-    hanhDong: 'Xóa',
-  },
-  {
-    stt: 3,
-    maSP: 'SP003',
-    tenSP: 'Sản phẩm C',
-    soLo: 'L003',
-    hanDung: '01/2026',
-    donVi: 'Chai',
-    soLuong: 200,
-    giaNhap: 30000,
-    giaBan: 45000,
-    chietKhauPhanTram: 10,
-    chietKhauBangTien: 3000,
-    vatPhanTram: 8,
-    thanhTien: 5400000,
-    hanhDong: 'Xóa',
-  },
-  {
-    stt: 3,
-    maSP: 'SP003',
-    tenSP: 'Sản phẩm C',
-    soLo: 'L003',
-    hanDung: '01/2026',
-    donVi: 'Chai',
-    soLuong: 200,
-    giaNhap: 30000,
-    giaBan: 45000,
-    chietKhauPhanTram: 10,
-    chietKhauBangTien: 3000,
-    vatPhanTram: 8,
-    thanhTien: 5400000,
-    hanhDong: 'Xóa',
-  },
-  {
-    stt: 3,
-    maSP: 'SP003',
-    tenSP: 'Sản phẩm C',
-    soLo: 'L003',
-    hanDung: '01/2026',
-    donVi: 'Chai',
-    soLuong: 200,
-    giaNhap: 30000,
-    giaBan: 45000,
-    chietKhauPhanTram: 10,
-    chietKhauBangTien: 3000,
-    vatPhanTram: 8,
-    thanhTien: 5400000,
-    hanhDong: 'Xóa',
-  },
-  {
-    stt: 3,
-    maSP: 'SP003',
-    tenSP: 'Sản phẩm C',
-    soLo: 'L003',
-    hanDung: '01/2026',
-    donVi: 'Chai',
-    soLuong: 200,
-    giaNhap: 30000,
-    giaBan: 45000,
-    chietKhauPhanTram: 10,
-    chietKhauBangTien: 3000,
-    vatPhanTram: 8,
-    thanhTien: 5400000,
-    hanhDong: 'Xóa',
-  },
-  {
-    stt: 3,
-    maSP: 'SP003',
-    tenSP: 'Sản phẩm C',
-    soLo: 'L003',
-    hanDung: '01/2026',
-    donVi: 'Chai',
-    soLuong: 200,
-    giaNhap: 30000,
-    giaBan: 45000,
-    chietKhauPhanTram: 10,
-    chietKhauBangTien: 3000,
-    vatPhanTram: 8,
-    thanhTien: 5400000,
-    hanhDong: 'Xóa',
-  },
-];
 
 export function PurchaseOrders() {
   const [openTutorial, setOpenTutorial] = React.useState(false);
   const [openAddSupplier, setOpenAddSupplier] = React.useState(false);
   const [openAddProduct, setOpenAddProduct] = React.useState(false);
   const [openAction, setOpenAction] = React.useState(false);
+  const [openCreateCategoryModal, setOpenCreateCategoryModal] = useState<boolean>(false);
+  const [selectProduct, setSelectProduct] = useState<Product>({} as Product);
+  const [selectProducts, setSelectProducts] = useState<Partial<Product>[]>([]);
+  const [isEditSelectProduct, setIsEditSelectProduct] = useState<boolean>(false);
+  const [isCreateSelectProduct, setIsCreateSelectProduct] = useState<boolean>(false);
 
   const { createCategory, createCategoryForm, loading } = useCategories();
-
-  const [openCreateCategoryModal, setOpenCreateCategoryModal] = useState<boolean>(false);
+  const { createInvoiceProduct } = useProduct();
+  const { showInfoToast } = useToast();
 
   const handleOpenTutorial = () => {
     setOpenTutorial(true);
@@ -227,6 +70,54 @@ export function PurchaseOrders() {
       createCategoryForm.reset();
     }
   };
+  const handleChangeProductField = (
+    index: number,
+    field: keyof Product | 'quantity',
+    value: any
+  ) => {
+    setSelectProducts((prev) => {
+      const updated = [...prev];
+      const product = updated[index];
+
+      if (field === 'quantity') {
+        // quantity nằm trong inventory
+        updated[index] = {
+          ...product,
+          inventory: {
+            ...product.inventory,
+            quantity: Number(value),
+          },
+        };
+      } else {
+        // các field còn lại (price, cost, name, ...)
+        updated[index] = {
+          ...product,
+          [field]: ['price', 'cost'].includes(field) ? Number(value) : value,
+        };
+      }
+
+      return updated;
+    });
+  };
+  const totalAmount = React.useMemo(() => {
+    return selectProducts.reduce((acc, p) => acc + (p.cost ?? 0) * (p.inventory?.quantity ?? 0), 0);
+  }, [selectProducts]);
+  const handleSubmitCreateInvoiceProducts = async () => {
+    const items = selectProducts.map((p) => ({
+      product_id: p.id,
+      name: p.name,
+      sku: p.sku,
+      cost: Number(p.cost) ?? 0,
+      price: Number(p.price) ?? 0,
+      barcode: p.barcode,
+      initial_quantity: Number(p.inventory?.quantity) ?? 1,
+      description: p.description,
+      meta: {},
+    }));
+    await createInvoiceProduct(items as any);
+    setSelectProducts([]);
+  };
+
   return (
     <div className="flex flex-col gap-3 h-full overflow-hidden">
       {/* Tutorial Modal */}
@@ -316,7 +207,7 @@ export function PurchaseOrders() {
       </Modal>
       {/* Add Product Modal */}
       <Drawer
-        title="Thêm sản phẩm mới"
+        title={isEditSelectProduct ? 'Cập nhật sản phẩm' : 'Thêm sản phẩm mới'}
         position="right"
         size="xl"
         opened={openAddProduct}
@@ -326,13 +217,23 @@ export function PurchaseOrders() {
       >
         <div className="bg-gray-100 rounded-md p-4 ">
           <div className="flex items-center justify-between">
-            <h3 className="text-xl text-pos-blue-500 font-bold ">Tạo sản phẩm</h3>
-            <button className=" border border-pos-blue-500 rounded-md  px-8 py-1 text-pos-blue-500 cursor-pointer hover:bg-gray-100">
+            <h3 className="text-xl text-pos-blue-500 font-bold ">
+              {isEditSelectProduct ? 'Cập nhật sản phẩm' : 'Tạo sản phẩm'}
+            </h3>
+            <button
+              onClick={() => setSelectProduct({} as Product)}
+              className=" border border-pos-blue-500 rounded-md  px-8 py-1 text-pos-blue-500 cursor-pointer hover:bg-gray-100"
+            >
               Làm mới
             </button>
           </div>
           <FormCreateProduct
+            selectProduct={selectProduct}
             openAddProduct={openAddProduct}
+            isEditSelectProduct={isEditSelectProduct}
+            isCreateSelectProduct={isCreateSelectProduct}
+            setSelectProducts={setSelectProducts as React.Dispatch<React.SetStateAction<any>>}
+            setSelectProduct={setSelectProduct}
             setOpenAddProduct={setOpenAddProduct}
             setOpenCreateCategoryModal={setOpenCreateCategoryModal}
           />
@@ -362,7 +263,7 @@ export function PurchaseOrders() {
         />
       </Modal>
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between bg-white px-4 py-2 rounded-md">
         <div className="flex items-center gap-3">
           <NotepadText size={30} className="text-pos-blue-500" />
           <h1 className="text-2xl font-bold text-pos-blue-500">PHIẾU NHẬP HÀNG</h1>
@@ -467,7 +368,12 @@ export function PurchaseOrders() {
 
               <Button
                 size="sm"
-                onClick={handleOpenAddProduct}
+                onClick={() => {
+                  handleOpenAddProduct();
+                  setIsEditSelectProduct(false);
+                  setIsCreateSelectProduct(true);
+                  setSelectProduct({} as Product);
+                }}
                 className="flex items-center justify-center w-8 h-8 rounded-md bg-pos-blue-500 hover:bg-pos-blue-600 transition-all"
               >
                 Thêm sản phẩm
@@ -479,43 +385,61 @@ export function PurchaseOrders() {
 
       {/* Danh sách sản phẩm trong phiếu nhập */}
 
-      <div className="flex-1 h-full">
+      <div className="flex-1 overflow-y-scroll">
         <Table
           hasMarginTop={false}
           tableHeaders={tableHeaders}
-          data={purchaseOrders}
+          data={selectProducts || []}
           hasPagination={false}
           className="h-full"
-          renderRow={(product) => {
+          renderRow={(product, index) => {
             return (
               <>
-                <td className="px-4 py-2 text-sm text-gray-700">{product.maSP}</td>
-                <td className="px-4 py-2 text-sm text-gray-700">{product.tenSP}</td>
-                <td className="px-4 py-2 text-sm text-gray-700">{product.soLo}</td>
-                <td className="px-4 py-2 text-sm text-gray-700">{product.hanDung}</td>
-                <td className="px-4 py-2 text-sm text-gray-700">{product.donVi}</td>
-                <td className="px-4 py-2 text-sm text-gray-700">{product.soLuong}</td>
+                <td className="px-4 py-2 text-sm text-gray-700">{product.sku}</td>
+                <td className="px-4 py-2 text-sm text-gray-700">{product.name}</td>
+
                 <td className="px-4 py-2 text-sm text-gray-700">
-                  {product.giaNhap.toLocaleString()}
+                  <Input
+                    type="number"
+                    min={1}
+                    size="sm"
+                    value={String(product.inventory?.quantity) ?? 0}
+                    onChange={(e) => handleChangeProductField(index, 'quantity', e.target.value)}
+                    className="w-24 text-right"
+                  />
                 </td>
                 <td className="px-4 py-2 text-sm text-gray-700">
-                  {product.giaBan.toLocaleString()}
+                  <Input
+                    type="number"
+                    size="sm"
+                    value={String(product.cost) ?? 0}
+                    onChange={(e) => handleChangeProductField(index, 'cost', e.target.value)}
+                    className="w-24 text-right"
+                  />
                 </td>
-                <td className="px-4 py-2 text-sm text-gray-700">{product.chietKhauPhanTram}%</td>
                 <td className="px-4 py-2 text-sm text-gray-700">
-                  {product.chietKhauBangTien.toLocaleString()}
+                  <Input
+                    type="number"
+                    size="sm"
+                    value={String(product.price) ?? 0}
+                    onChange={(e) => handleChangeProductField(index, 'price', e.target.value)}
+                    className="w-24 text-right"
+                  />
                 </td>
-                <td className="px-4 py-2 text-sm text-gray-700">{product.vatPhanTram}%</td>
-                <td className="px-4 py-2 text-sm text-gray-700">
-                  {product.thanhTien.toLocaleString()}
-                </td>
+                <td className="px-4 py-2 text-sm text-gray-700">{0}%</td>
+                <td className="px-4 py-2 text-sm text-gray-700">{0}%</td>
+                <td className="px-4 py-2 text-sm text-gray-700">{0}%</td>
+                <td className="px-4 py-2 text-sm text-gray-700">{formatCurrency(totalAmount)}</td>
                 <td>
                   <div className="flex items-center gap-5 pl-4">
                     <button
                       title="Sửa sản phẩm"
                       onClick={() => {
-                        //   setOpenEditModal(true);
-                        //   getProductById(product.id);
+                        // handleOpenAddProduct();
+                        // setIsEditSelectProduct(true);
+                        // setIsCreateSelectProduct(false);
+                        // setSelectProduct(product as Product);
+                        showInfoToast('Tính năng đang được cập nhật');
                       }}
                       className="flex justify-center items-center cursor-pointer w-[36px] h-[36px]  bg-pos-blue-50 text-pos-blue-500 rounded-md hover:opacity-100 hover:bg-pos-blue-500 hover:text-pos-blue-50 opacity-70 transition-opacity duration-200"
                     >
@@ -524,10 +448,9 @@ export function PurchaseOrders() {
 
                     <button
                       title="Xóa sản phẩm"
-                      onClick={() => {
-                        //   setDeleteModal(true);
-                        //   getProductById(product.id);
-                      }}
+                      onClick={() =>
+                        setSelectProducts((prev) => prev.filter((p) => p.sku !== product.sku))
+                      }
                       className="flex justify-center items-center cursor-pointer w-[36px] h-[36px]  bg-red-50 text-red-500 rounded-md hover:opacity-100 hover:bg-red-500 hover:text-white opacity-70 transition-opacity duration-200 ml-auto"
                     >
                       <Trash size={16} />
@@ -543,12 +466,16 @@ export function PurchaseOrders() {
         <Input
           size="sm"
           type="number"
-          placeholder="0 đ"
+          // placeholder="0 đ"
+          // disabled
           className="placeholder:text-gray-800 font-bold"
+          value={String(totalAmount * selectProducts.length)}
         />
         <div className="flex items-center justify-between border border-gray-300 rounded-md px-4 py-1">
           <span className="text-sm text-gray-600 font-medium">Tổng tiền hàng:</span>
-          <span className="text-lg text-pos-blue-500 font-bold">0 đ</span>
+          <span className="text-lg text-pos-blue-500 font-bold">
+            {formatCurrency(totalAmount * selectProducts.length)}
+          </span>
         </div>
         <button className="flex items-center justify-center gap-3 border border-pos-blue-500 hover:border-pos-blue-600 text-pos-blue-500 hover:text-pos-blue-600 font-medium rounded-lg px-3 py-1 transition-all duration-300 shadow-sm">
           <CircleCheck size={18} />
@@ -556,15 +483,24 @@ export function PurchaseOrders() {
         </button>
         <div className="flex items-center justify-between border border-gray-300 rounded-md px-4 py-1">
           <span className="text-sm text-gray-600 font-medium">Hoàn tiền:</span>
-          <span className="text-lg text-pos-blue-500 font-bold">0 đ</span>
+          <span className="text-lg text-pos-blue-500 font-bold">
+            {' '}
+            {formatCurrency(totalAmount * selectProducts.length)}
+          </span>
         </div>
-        <button className="flex items-center justify-center gap-3 bg-pos-blue-500 hover:bg-pos-blue-600 text-white font-medium rounded-lg px-3 py-1 transition-all duration-300 shadow-sm">
+        <button
+          onClick={handleSubmitCreateInvoiceProducts}
+          className="flex items-center justify-center gap-3 bg-pos-blue-500 hover:bg-pos-blue-600 text-white font-medium rounded-lg px-3 py-1 transition-all duration-300 shadow-sm cursor-pointer"
+        >
           <Receipt size={18} />
           <span>Thanh toán</span>
         </button>
         <div className="flex items-center justify-between border border-gray-300 rounded-md px-4 py-1">
           <span className="text-sm text-gray-600 font-medium">Cần trả nhà cung cấp:</span>
-          <span className="text-lg text-pos-blue-500 font-bold">0 đ</span>
+          <span className="text-lg text-pos-blue-500 font-bold">
+            {' '}
+            {formatCurrency(totalAmount * selectProducts.length)}
+          </span>
         </div>
       </div>
     </div>

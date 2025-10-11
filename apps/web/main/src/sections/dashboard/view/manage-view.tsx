@@ -47,7 +47,7 @@ export function ManageView() {
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
   const [inventoryModal, setInventorModal] = useState<boolean>(false);
   const [adjustValue, setAdjustValue] = useState({ delta: '0' });
-  const [type, setType] = useState<string>('ADJUSTMENT');
+  const [type, setType] = useState<string>('SALE');
 
   const [openUploadOption, setOpenUploadOption] = useState<boolean>(false);
 
@@ -411,13 +411,8 @@ export function ManageView() {
             position="bottom"
             label="Loại điều chỉnh"
             data={[
-              { label: 'Điều chỉnh thủ công', value: 'ADJUSTMENT' },
               { label: 'Bán hàng', value: 'SALE' },
-              { label: 'Nhập hàng', value: 'PURCHASE' },
               { label: 'Trả hàng bán', value: 'RETURN_SALE' },
-              { label: 'Trả hàng mua', value: 'RETURN_PURCHASE' },
-              { label: 'Chuyển kho nhập', value: 'TRANSFER_IMPORT' },
-              { label: 'Chuyển kho xuất', value: 'TRANSFER_EXPORT' },
             ]}
             value={type}
             onChange={(value) => setType(value || 'ADJUSTMENT')}
@@ -437,6 +432,7 @@ export function ManageView() {
       <div className="flex flex-col h-full ">
         {/* ACTION */}
         <FilterBar
+          dataComplete={products?.map((p) => p.name) || []}
           statusOptions={[
             { value: 'ACTIVE', label: 'ACTIVE' },
             { value: 'INACTIVE', label: 'INACTIVE' },

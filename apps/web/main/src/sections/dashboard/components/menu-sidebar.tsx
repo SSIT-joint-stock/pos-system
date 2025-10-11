@@ -103,28 +103,28 @@ export default function MenuSidebar({
         },
       ],
     },
-    {
-      title: 'Báo cáo',
-      icon: <NotepadText className="shrink-0" />,
-      children: [
-        {
-          title: 'Doanh thu theo sản phẩm',
-          path: `/dashboard/store/${currentStore?.id}/overview`,
-        },
-        {
-          title: 'Doanh thu theo ngày',
-          path: `/dashboard/store/${currentStore?.id}/manage-stores`,
-        },
-        {
-          title: 'Sản phẩm bán chạy',
-          path: `/dashboard/store/${currentStore?.id}/manage-stores`,
-        },
-        {
-          title: 'Báo cáo cuối ngày',
-          path: `/dashboard/store/${currentStore?.id}/manage-stores`,
-        },
-      ],
-    },
+    // {
+    //   title: 'Báo cáo',
+    //   icon: <NotepadText className="shrink-0" />,
+    //   children: [
+    //     {
+    //       title: 'Doanh thu theo sản phẩm',
+    //       path: `/dashboard/store/${currentStore?.id}/overview`,
+    //     },
+    //     {
+    //       title: 'Doanh thu theo ngày',
+    //       path: `/dashboard/store/${currentStore?.id}/manage-stores`,
+    //     },
+    //     {
+    //       title: 'Sản phẩm bán chạy',
+    //       path: `/dashboard/store/${currentStore?.id}/manage-stores`,
+    //     },
+    //     {
+    //       title: 'Báo cáo cuối ngày',
+    //       path: `/dashboard/store/${currentStore?.id}/manage-stores`,
+    //     },
+    //   ],
+    // },
   ];
 
   return (

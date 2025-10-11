@@ -1,9 +1,10 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 import { formatCurrency } from '../../../../../main/src/utils';
 import { useCategories } from '../../../../../main/src/hooks/categories/use-categories';
 import { useProduct } from '../../../../../main/src/hooks/product/use-product';
 import { MultiSelect } from '@mantine/core';
-import { Button, Input, Select } from '@repo/design-system/components/ui';
+import { Button, Input, Loading, Select } from '@repo/design-system/components/ui';
 import { useClickOutside } from '@repo/design-system/hooks/client';
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { useAtomValue } from 'jotai';
@@ -11,34 +12,53 @@ import { ChevronRight, Plus, Trash } from 'lucide-react';
 import Image from 'next/image';
 import React, { useEffect, useRef, useState } from 'react';
 import { Controller } from 'react-hook-form';
+import { Product } from '@repo/design-system/types';
+import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 
 export default function FormCreateProduct({
   setOpenAddProduct,
   setOpenCreateCategoryModal,
+  setSelectProduct,
+  setSelectProducts,
   openAddProduct,
+  selectProduct,
+  isEditSelectProduct,
+  isCreateSelectProduct,
 }: {
   setOpenAddProduct: React.Dispatch<React.SetStateAction<boolean>>;
   setOpenCreateCategoryModal: React.Dispatch<React.SetStateAction<boolean>>;
+  setSelectProduct?: React.Dispatch<React.SetStateAction<Product>>;
+  setSelectProducts?: React.Dispatch<React.SetStateAction<Partial<Product>[]>>;
   openAddProduct: boolean;
+  selectProduct?: Product;
+  isEditSelectProduct?: boolean;
+  isCreateSelectProduct?: boolean;
 }) {
+  console.log(selectProduct);
   const refFocusInputSearch = useRef<HTMLDivElement>(null);
   const [metaFields, setMetaFields] = useState<Record<string, string>>({});
   const [openMetaFields, setOpenMetaFields] = useState<boolean>(false);
   const [isFocusInputSearch, setIsFocusInputSearch] = useState<boolean>(false);
   const [search, setSearch] = useState<string>('');
+
   const currentStore = useAtomValue(currentStoreAtom);
   const {
     createProductForm,
-    createProduct,
-    setFilters,
+    updateProductForm,
     products,
+    filters,
+    loading,
+
+    setFilters,
     getProducts,
     setProducts,
-    filters,
+    setPaginationParams,
   } = useProduct();
   const { categories, getCategories } = useCategories();
-
-  useClickOutside(refFocusInputSearch, () => setIsFocusInputSearch(false));
+  const { showSuccessToast } = useToast();
+  useClickOutside(refFocusInputSearch, () => {
+    setIsFocusInputSearch(false);
+  });
   useEffect(() => {
     if (!currentStore?.id) return;
     if (!isFocusInputSearch) return;
@@ -48,6 +68,10 @@ export default function FormCreateProduct({
         setFilters((prev) => ({
           ...prev,
           q: search,
+        }));
+        setPaginationParams((prev) => ({
+          ...prev,
+          limit: 20,
         }));
         getProducts();
       }
@@ -63,6 +87,49 @@ export default function FormCreateProduct({
     if (!currentStore?.id) return;
     getCategories();
   }, [currentStore?.id]);
+  // Effect cho việc chọn product từ dropdown
+  useEffect(() => {
+    if (!selectProduct) return;
+    if (isEditSelectProduct) return;
+
+    if (isCreateSelectProduct && !isEditSelectProduct) {
+      createProductForm.reset({
+        name: selectProduct?.name ?? '',
+        sku: selectProduct?.sku ?? '',
+        price: selectProduct?.price ?? 0,
+        cost: selectProduct?.cost ?? 0,
+        barcode: selectProduct?.barcode ?? '',
+        categoryIds: selectProduct?.categories?.map((c) => c.id) ?? [],
+        image_url: selectProduct?.image_url ?? '',
+        description: selectProduct?.description ?? '',
+        product_status: selectProduct?.product_status ?? 'ACTIVE',
+      });
+
+      setMetaFields(selectProduct?.meta ?? {});
+      setIsFocusInputSearch(false);
+    }
+  }, [selectProduct, isEditSelectProduct, isCreateSelectProduct]);
+
+  // Effect riêng cho việc edit product
+  useEffect(() => {
+    if (!isEditSelectProduct && !selectProduct && !isCreateSelectProduct) return;
+
+    updateProductForm.reset({
+      name: selectProduct?.name ?? '',
+      sku: selectProduct?.sku ?? '',
+      price: selectProduct?.price ?? 0,
+      cost: selectProduct?.cost ?? 0,
+      barcode: selectProduct?.barcode ?? '',
+      categoryIds: selectProduct?.categories?.map((c) => c.id) ?? [],
+      image_url: selectProduct?.image_url ?? '',
+      description: selectProduct?.description ?? '',
+      product_status: selectProduct?.product_status ?? 'ACTIVE',
+    });
+
+    setMetaFields(selectProduct?.meta ?? {});
+    setSearch(''); // Clear search
+    setIsFocusInputSearch(false);
+  }, [isEditSelectProduct, selectProduct, isCreateSelectProduct, selectProduct?.sku]);
   return (
     <>
       <div ref={refFocusInputSearch} className="mt-4 relative">
@@ -73,9 +140,11 @@ export default function FormCreateProduct({
           placeholder="Tìm kiếm hàng hóa"
           label="Tìm kiếm sản phẩm"
           onChange={(e) => setSearch(e.target.value)}
+          value={selectProduct?.name || search}
+          rightSection={loading ? <Loading color="#3b82f6" size="sm" /> : null}
         />
         <div
-          className={`absolute top-full mt-1 left-0 w-xl  bg-white z-50 shadow-md rounded-md  p-3 ${isFocusInputSearch ? 'opacity-100 visible' : 'opacity-0 invisible'} duration-200 transition-all ease-in-out`}
+          className={`absolute top-full mt-1 left-0 w-xl  bg-white z-50 shadow-md rounded-md  p-3   ${isFocusInputSearch ? 'opacity-100 visible' : 'opacity-0 invisible'}  duration-200 transition-all ease-in-out`}
         >
           {/* nội dung gợi ý */}
           {products.length === 0 ? (
@@ -87,6 +156,10 @@ export default function FormCreateProduct({
               <div className="flex flex-col gap-2 h-72 overflow-hidden overflow-y-auto">
                 {products.map((product) => (
                   <div
+                    onClick={() => {
+                      setSelectProduct?.(product);
+                      setIsFocusInputSearch(false);
+                    }}
                     key={product.id}
                     className="bg-gray-50/80 py-2 px-4 flex items-center gap-2 rounded-md hover:bg-gray-100 duration-200 transition-colors cursor-pointer"
                   >
@@ -132,19 +205,44 @@ export default function FormCreateProduct({
           const productData = {
             ...data,
             meta: metaFields,
+            inventory: {
+              quantity: 1,
+            },
           };
-          await createProduct(productData);
-          createProductForm.reset();
+          if (setSelectProducts) {
+            setSelectProducts((prev) => [...prev, productData]);
+          }
           setMetaFields({});
-          setOpenAddProduct(false);
+          // setOpenAddProduct(false);
+          setSelectProduct?.(undefined as unknown as Product);
+          setSearch('');
+          createProductForm.reset({
+            name: '',
+            sku: '',
+            price: 0,
+            cost: 0,
+            barcode: '',
+            categoryIds: [],
+            image_url: '',
+            description: '',
+            product_status: 'ACTIVE',
+          });
+
+          showSuccessToast('Thêm sản phẩm thành công');
         })}
         className="space-y-3.5 mt-6"
       >
         {/* Name */}
         <Input
           className="flex-1"
-          {...createProductForm.register('name')}
-          error={createProductForm.formState.errors.name?.message}
+          {...(isEditSelectProduct
+            ? updateProductForm.register('name')
+            : createProductForm.register('name'))}
+          error={
+            isEditSelectProduct
+              ? updateProductForm.formState.errors.name?.message
+              : createProductForm.formState.errors.name?.message
+          }
           name="name"
           label="Tên sản phẩm"
           size="sm"
@@ -155,8 +253,14 @@ export default function FormCreateProduct({
         {/* SKU */}
         <Input
           className="flex-1"
-          {...createProductForm.register('sku')}
-          error={createProductForm.formState.errors.sku?.message}
+          {...(isEditSelectProduct
+            ? updateProductForm.register('sku')
+            : createProductForm.register('sku'))}
+          error={
+            isEditSelectProduct
+              ? updateProductForm.formState.errors.sku?.message
+              : createProductForm.formState.errors.sku?.message
+          }
           name="sku"
           label="SKU"
           size="sm"
@@ -168,8 +272,14 @@ export default function FormCreateProduct({
         {/* Price */}
         <Input
           className="flex-1"
-          {...createProductForm.register('price', { valueAsNumber: true })}
-          error={createProductForm.formState.errors.price?.message}
+          {...(isEditSelectProduct
+            ? updateProductForm.register('price', { valueAsNumber: true })
+            : createProductForm.register('price', { valueAsNumber: true }))}
+          error={
+            isEditSelectProduct
+              ? updateProductForm.formState.errors.price?.message
+              : createProductForm.formState.errors.price?.message
+          }
           type="number"
           name="price"
           label="Giá bán"
@@ -182,8 +292,14 @@ export default function FormCreateProduct({
         {/* Cost */}
         <Input
           className="flex-1"
-          {...createProductForm.register('cost', { valueAsNumber: true })}
-          error={createProductForm.formState.errors.cost?.message}
+          {...(isEditSelectProduct
+            ? updateProductForm.register('cost', { valueAsNumber: true })
+            : createProductForm.register('cost', { valueAsNumber: true }))}
+          error={
+            isEditSelectProduct
+              ? updateProductForm.formState.errors.cost?.message
+              : createProductForm.formState.errors.cost?.message
+          }
           type="number"
           name="cost"
           withAsterisk
@@ -196,7 +312,9 @@ export default function FormCreateProduct({
         {/* Barcode */}
         <Input
           className="flex-1"
-          {...createProductForm.register('barcode')}
+          {...(isEditSelectProduct
+            ? updateProductForm.register('barcode')
+            : createProductForm.register('barcode'))}
           name="barcode"
           label="Barcode"
           size="sm"
@@ -208,7 +326,11 @@ export default function FormCreateProduct({
           <div className="flex items-center gap-2.5">
             <Controller
               name="categoryIds"
-              control={createProductForm.control}
+              control={
+                isEditSelectProduct
+                  ? (updateProductForm.control as any)
+                  : (createProductForm.control as any)
+              }
               render={({ field }) => (
                 <MultiSelect
                   {...field}
@@ -224,6 +346,7 @@ export default function FormCreateProduct({
                   onChange={(val) => field.onChange(val)}
                 />
               )}
+              defaultValue={selectProduct?.categories?.map((c) => c.id) ?? []}
             />
 
             <Button
@@ -238,7 +361,9 @@ export default function FormCreateProduct({
 
         {/* Image URL */}
         <Input
-          {...createProductForm.register('image_url')}
+          {...(isEditSelectProduct
+            ? updateProductForm.register('image_url')
+            : createProductForm.register('image_url'))}
           name="image_url"
           label="Image URL"
           size="sm"
@@ -248,7 +373,9 @@ export default function FormCreateProduct({
 
         {/* Description */}
         <Input
-          {...createProductForm.register('description')}
+          {...(isEditSelectProduct
+            ? updateProductForm.register('description')
+            : createProductForm.register('description'))}
           name="description"
           label="Mô tả"
           size="sm"
@@ -260,7 +387,11 @@ export default function FormCreateProduct({
 
         <Controller
           name="product_status"
-          control={createProductForm.control}
+          control={
+            isEditSelectProduct
+              ? (updateProductForm.control as any)
+              : (createProductForm.control as any)
+          }
           render={({ field }) => (
             <Select
               position="bottom"

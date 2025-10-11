@@ -72,6 +72,7 @@ export function SalesView() {
   const [isOpenMenuSettings, setIsOpenMenuSettings] = useState<boolean>(false);
   const [customerSearch, setCustomerSearch] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+
   const updateCurrentInvoice = (newProducts: SelectedProduct[]) => {
     setSelectedProducts(newProducts);
     setInvoices((prev) => prev.map((inv, idx) => (idx === currentInvoice ? newProducts : inv)));
@@ -250,7 +251,6 @@ export function SalesView() {
     }));
   };
   useClickOutside(openMenuSettingsRef, () => setIsOpenMenuSettings(false));
-  console.log(selectedCustomer);
   return (
     <div className="h-screen flex flex-col gap-2 overflow-hidden p-4">
       <header className="bg-white w-full py-2 px-3 flex-shrink-0 flex items-center justify-between ">
@@ -364,7 +364,7 @@ export function SalesView() {
             </div>
 
             {/* TABLE */}
-            <div className="flex-1 min-h-0">
+            <div className="flex-1 min-h-0 overflow-y-scroll">
               <Table
                 className="h-full"
                 hasPagination={false}
