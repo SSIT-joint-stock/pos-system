@@ -112,11 +112,13 @@ export function PurchaseOrders() {
       barcode: p.barcode,
       initial_quantity: Number(p.inventory?.quantity) ?? 1,
       description: p.description,
+      categoryIds: p.categoryIds?.map((c) => c) ?? [],
       meta: {},
     }));
     await createInvoiceProduct(items as any);
     setSelectProducts([]);
   };
+  console.log(selectProducts);
 
   return (
     <div className="flex flex-col gap-3 h-full overflow-hidden">
@@ -395,7 +397,7 @@ export function PurchaseOrders() {
           renderRow={(product, index) => {
             return (
               <>
-                <td className="px-4 py-2 text-sm text-gray-700">{product.sku}</td>
+                <td className="px-4 py-2 text-sm text-gray-700">{product.sku || 'N/A'}</td>
                 <td className="px-4 py-2 text-sm text-gray-700">{product.name}</td>
 
                 <td className="px-4 py-2 text-sm text-gray-700">

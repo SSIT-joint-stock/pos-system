@@ -1,4 +1,5 @@
 // eslint-disable-next-line filenames/match-regex
+import { skip } from 'node:test';
 import { z } from 'zod';
 
 export const ProductSchema = z.object({
@@ -6,9 +7,7 @@ export const ProductSchema = z.object({
   name: z.string().nonempty({
     message: 'Vui lòng nhập tên sản phẩm',
   }),
-  sku: z.string().nonempty({
-    message: 'Vui lòng nhập mã sử dụng',
-  }),
+  sku: z.string().optional(),
   barcode: z.string().optional(),
   price: z
     .number()
@@ -44,6 +43,8 @@ export const CreateProductSchema = ProductSchema.omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  sku: z.string().optional(),
 });
 
 export const CreateInvoiceProductSchema = CreateProductSchema.extend({
@@ -57,7 +58,15 @@ export const CreateInvoiceProductSchema = CreateProductSchema.extend({
     .default(1),
 });
 
-export const UpdateProductSchema = CreateProductSchema.partial();
+export const UpdateProductSchema = ProductSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  sku: z.string().nonempty({
+    message: 'Vui lòng nhập mã sản phẩm',
+  }),
+});
 
 // Inferred types
 export type Product = z.infer<typeof ProductSchema>;

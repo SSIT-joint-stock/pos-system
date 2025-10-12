@@ -21,6 +21,7 @@ export interface Product {
     quantity: number;
   };
   meta: Record<string, any>;
+  categoryIds?: string[];
   categories: [
     {
       id: string;

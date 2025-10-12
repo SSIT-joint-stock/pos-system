@@ -34,7 +34,6 @@ export default function FormCreateProduct({
   isEditSelectProduct?: boolean;
   isCreateSelectProduct?: boolean;
 }) {
-  console.log(selectProduct);
   const refFocusInputSearch = useRef<HTMLDivElement>(null);
   const [metaFields, setMetaFields] = useState<Record<string, string>>({});
   const [openMetaFields, setOpenMetaFields] = useState<boolean>(false);
@@ -64,7 +63,7 @@ export default function FormCreateProduct({
     if (!isFocusInputSearch) return;
 
     const timeout = setTimeout(() => {
-      if (search.trim() !== '') {
+      if (search?.trim() !== '') {
         setFilters((prev) => ({
           ...prev,
           q: search,
@@ -107,29 +106,30 @@ export default function FormCreateProduct({
 
       setMetaFields(selectProduct?.meta ?? {});
       setIsFocusInputSearch(false);
+      setSearch(selectProduct.name);
     }
   }, [selectProduct, isEditSelectProduct, isCreateSelectProduct]);
 
-  // Effect riêng cho việc edit product
-  useEffect(() => {
-    if (!isEditSelectProduct && !selectProduct && !isCreateSelectProduct) return;
+  // // Effect riêng cho việc edit product
+  // useEffect(() => {
+  //   if (!isEditSelectProduct && !selectProduct && !isCreateSelectProduct) return;
 
-    updateProductForm.reset({
-      name: selectProduct?.name ?? '',
-      sku: selectProduct?.sku ?? '',
-      price: selectProduct?.price ?? 0,
-      cost: selectProduct?.cost ?? 0,
-      barcode: selectProduct?.barcode ?? '',
-      categoryIds: selectProduct?.categories?.map((c) => c.id) ?? [],
-      image_url: selectProduct?.image_url ?? '',
-      description: selectProduct?.description ?? '',
-      product_status: selectProduct?.product_status ?? 'ACTIVE',
-    });
+  //   updateProductForm.reset({
+  //     name: selectProduct?.name ?? '',
+  //     sku: selectProduct?.sku ?? '',
+  //     price: selectProduct?.price ?? 0,
+  //     cost: selectProduct?.cost ?? 0,
+  //     barcode: selectProduct?.barcode ?? '',
+  //     categoryIds: selectProduct?.categories?.map((c) => c.id) ?? [],
+  //     image_url: selectProduct?.image_url ?? '',
+  //     description: selectProduct?.description ?? '',
+  //     product_status: selectProduct?.product_status ?? 'ACTIVE',
+  //   });
 
-    setMetaFields(selectProduct?.meta ?? {});
-    setSearch(''); // Clear search
-    setIsFocusInputSearch(false);
-  }, [isEditSelectProduct, selectProduct, isCreateSelectProduct, selectProduct?.sku]);
+  //   setMetaFields(selectProduct?.meta ?? {});
+  //   setSearch(''); // Clear search
+  //   setIsFocusInputSearch(false);
+  // }, [isEditSelectProduct, selectProduct, isCreateSelectProduct, selectProduct?.sku]);
   return (
     <>
       <div ref={refFocusInputSearch} className="mt-4 relative">
@@ -139,8 +139,8 @@ export default function FormCreateProduct({
           size="sm"
           placeholder="Tìm kiếm hàng hóa"
           label="Tìm kiếm sản phẩm"
+          value={search}
           onChange={(e) => setSearch(e.target.value)}
-          value={selectProduct?.name || search}
           rightSection={loading ? <Loading color="#3b82f6" size="sm" /> : null}
         />
         <div

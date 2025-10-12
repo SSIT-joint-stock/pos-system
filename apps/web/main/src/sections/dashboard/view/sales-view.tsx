@@ -198,9 +198,10 @@ export function SalesView() {
       status: OrderStatusEnum.Enum.COMPLETED,
       payment_method: changPaymentMethods || payment_method.CASH,
       order_items: orderItems,
-      customer_id: selectedCustomer?.id || '',
+      customer_id: selectedCustomer?.id,
       customer_name: selectedCustomer?.name || '',
     });
+    setSelectedCustomer(null);
     getProducts();
   };
   const totalPrice = useMemo(() => {
