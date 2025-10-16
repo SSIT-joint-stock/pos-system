@@ -1,0 +1,173 @@
+'use client';
+import { useEffect, useState } from 'react';
+import { useRequestHelper } from '../use-request-helper';
+import api from '../../../../main/src/libs/axios';
+import { useAtomValue } from 'jotai';
+import { currentStoreAtom } from '@repo/design-system/stores/auth';
+export interface Notification {
+  title: string;
+  time: string;
+}
+export type TypeTime = {
+  day: 'day';
+  week: 'week';
+  month: 'month';
+};
+export type TypeNotification = 'all' | 'order' | 'product';
+interface CacheItem {
+  key: string;
+  type: string;
+  data?: any;
+}
+interface ProductItem {
+  id: string;
+  name: string;
+  image_url: string;
+  inventory: {
+    quantity: string;
+  };
+  price: number;
+}
+interface TopProduct {
+  product: ProductItem;
+  quantitySold: number;
+  total: number;
+}
+interface LowStockProduct {
+  product: ProductItem;
+  totalSold30Days: number;
+  daysRemaining: number;
+  avgDailySales: number;
+  status: string;
+}
+export interface SummaryRevenue {
+  orderCount: number;
+  totalRevenue: number;
+  customerCount: number;
+  totalProduct: number;
+}
+
+export default function useStatistics() {
+  const typeTimeValue: TypeTime = { day: 'day', week: 'week', month: 'month' };
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [topsProducts, setTopsProducts] = useState<TopProduct[]>([]);
+  const [lowStockProducts, setLowStockProducts] = useState<LowStockProduct[]>([]);
+  const [typeNotification, setTypeNotification] = useState<TypeNotification>('all');
+
+  const [cache, setCache] = useState<CacheItem[]>([
+    {
+      key: 'revenue',
+      type: typeTimeValue.day,
+    },
+    {
+      key: 'summary-revenue',
+      type: typeTimeValue.day,
+    },
+    {
+      key: 'revenue-by-category',
+      type: typeTimeValue.day,
+    },
+  ]);
+  const [loadingNoti, setLoadingNoti] = useState(false);
+  const currentStore = useAtomValue(currentStoreAtom);
+  const { loading, requestWrapper } = useRequestHelper();
+  const getNotifications = async () => {
+    if (!currentStore?.id) return;
+    try {
+      setLoadingNoti(true);
+      const res = await api.get(
+        `/stores/${currentStore?.id}/statistics/notifications?type=${typeNotification}`
+      );
+
+      if (res?.data.success) {
+        setLoadingNoti(false);
+        setNotifications(res?.data?.data);
+      }
+    } catch {
+      setLoadingNoti(false);
+    }
+  };
+  const fetchStatisticByKey = async (key: string, type: string) => {
+    if (!currentStore?.id) return;
+    let url = '';
+    switch (key) {
+      case 'revenue':
+        url = `/stores/${currentStore?.id}/statistics/revenue?type=${type}`;
+        break;
+      case 'summary-revenue':
+        url = `/stores/${currentStore?.id}/statistics/summary-revenue?type=${type}`;
+        break;
+      case 'revenue-by-category':
+        url = `/stores/${currentStore?.id}/statistics/revenue-by-category?type=${type}`;
+        break;
+      default:
+        return null;
+    }
+    const res = await requestWrapper(() => api.get(url));
+    if (res?.data.success) {
+      return res?.data?.data;
+    }
+  };
+  const fetchStatistic = async () => {
+    const updated = await Promise.all(
+      cache.map(async (item) => {
+        const data = await fetchStatisticByKey(item.key, item.type);
+        return {
+          ...item,
+          data,
+        };
+      })
+    );
+    setCache(updated);
+  };
+  const getTopProducts = async () => {
+    const res = await requestWrapper(() =>
+      api.get(`/stores/${currentStore?.id}/statistics/top-products`)
+    );
+    if (res?.data.success) {
+      setTopsProducts(res?.data?.data);
+    }
+  };
+  const getLowStockProducts = async () => {
+    const res = await requestWrapper(() =>
+      api.get(`/stores/${currentStore?.id}/statistics/low-stock-product`)
+    );
+    if (res?.data.success) {
+      setLowStockProducts(res?.data?.data);
+    }
+  };
+
+  const handleChangeTimeType = async (key: string, type: 'day' | 'week' | 'month') => {
+    const newData = await fetchStatisticByKey(key, type);
+    setCache((prev) =>
+      prev.map((item) => (item.key === key ? { ...item, type, data: newData } : item))
+    );
+  };
+  const handleChangeTypeNotification = async (value: TypeNotification) => {
+    setTypeNotification(value);
+  };
+  useEffect(() => {
+    if (currentStore?.id) {
+      getLowStockProducts();
+      getTopProducts();
+      fetchStatistic();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStore?.id]);
+
+  return {
+    loading,
+    notifications,
+    cache,
+    topsProducts,
+    lowStockProducts,
+    loadingNoti,
+    typeNotification,
+    fetchStatistic,
+    getNotifications,
+    setCache,
+    handleChangeTimeType,
+    setTypeNotification,
+    handleChangeTypeNotification,
+  };
+}

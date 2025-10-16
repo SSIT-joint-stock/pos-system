@@ -3,7 +3,6 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
 import SettingsSidebar from './settings-sidebar';
-import AccountManagement from './account-management';
 import MenuSidebar from './menu-sidebar';
 export default function SideBar({
   isExpand,
@@ -15,7 +14,7 @@ export default function SideBar({
   const [openSubmenu, setOpenSubmenu] = useState<number | null>(null);
   return (
     <div
-      className={`h-screen relative  flex flex-col bg-white overflow-x-none shadow-[4px_0_6px_rgba(0,0,0,0.1)] transition-all duration-300 ${isExpand ? 'w-56' : 'w-20'} }`}
+      className={`h-screen relative  flex flex-col bg-white overflow-x-none shadow-md shadow-gray-100 transition-all duration-300 ${isExpand ? 'w-56' : 'w-20'} }`}
     >
       {/* Toggle button */}
       <div className="w-fit absolute top-1/2 -translate-y-1/2  -right-4 flex justify-end">
@@ -60,7 +59,7 @@ export default function SideBar({
 
         {/* User account management */}
 
-        <AccountManagement isExpand={isExpand} />
+        {/* <AccountManagement isExpand={isExpand} /> */}
 
         {/* Menu */}
         <MenuSidebar

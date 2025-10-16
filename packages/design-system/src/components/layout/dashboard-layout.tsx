@@ -9,8 +9,12 @@ import {
 import api from '../../../../../apps/web/main/src/libs/axios';
 import { Loading } from '../ui';
 import Sidebar from '../../../../../apps/web/main/src/sections/dashboard/components/sidebar-screen';
+import HeaderSidebar from '../../../../../apps/web/main/src/sections/dashboard/components/header-sidebar';
+import { usePathname } from 'next/navigation';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const pathName = usePathname();
+  const isSalesPages = pathName.endsWith('/sales');
   const [isExpand, setIsExpand] = useState(false);
   const [hydrated, setHydrated] = useState(false);
   const store = getDefaultStore();
@@ -66,10 +70,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="flex w-screen h-screen ">
-      <aside className="flex-shrink-0">
-        <Sidebar isExpand={isExpand} setIsExpand={setIsExpand} />
-      </aside>
-      <main className="flex-1 p-4 overflow-auto bg-gray-50 scrollbar-fixed">{children}</main>
+      {!isSalesPages && <Sidebar isExpand={isExpand} setIsExpand={setIsExpand} />}
+      <div className="flex  flex-col w-full h-screen bg-gray-50 overflow-auto scrollbar-fixed">
+        {!isSalesPages && <HeaderSidebar />}
+        <main
+          className={`${isSalesPages ? 'flex-1 p-0 overflow-auto  scrollbar-fixed' : 'flex-1 p-4 overflow-auto  scrollbar-fixed'}`}
+        >
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

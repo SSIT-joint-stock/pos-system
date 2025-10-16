@@ -10,6 +10,8 @@ import { Filter, Minus, Plus, Trash2, User, X } from 'lucide-react';
 import { OrderStatusEnum } from '../../../../../main/src/schemas/order/order.schema';
 import { Product, ProductStatus } from '@repo/design-system/types';
 import { payment_method } from '@repo/design-system/types/inventory';
+import { currentStoreAtom } from '@repo/design-system/stores/auth';
+import { useAtomValue } from 'jotai';
 
 type SelectedProduct = Product & { selectedQuantity: number };
 type Invoice = SelectedProduct[];
@@ -32,22 +34,26 @@ const paymentMethods = [
 export function SalesView() {
   // HOOK(
 
-  const { showSuccessToast, showInfoToast } = useToast();
-  const { products, getProducts, setFilters, setPaginationParams } = useProduct();
+  const { showSuccessToast } = useToast();
+  const { products, getProducts, setFilters, setPaginationParams, paginationParams, filters } =
+    useProduct();
   const { createOrder, loading } = useOrders();
+  const currentStore = useAtomValue(currentStoreAtom);
 
   // STATE
+  const [openModalChangePrice, setOpenModalChangePrice] = useState(false);
+  const [openModalOrder, setOpenModalOrder] = useState(false);
+  const [openModalCreateCustomer, setOpenModalCreateCustomer] = useState(false);
   const [selectedProducts, setSelectedProducts] = useState<SelectedProduct[]>([]);
   const [currentInvoice, setCurrentInvoice] = useState<number>(0);
   const [invoices, setInvoices] = useState<Invoice[]>([[]]);
-  const [openModalChangePrice, setOpenModalChangePrice] = useState(false);
-  const [openModalOrder, setOpenModalOrder] = useState(false);
   const [newPrice, setNewPrice] = useState(0);
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const [changPaymentMethods, setChangePaymentMethods] = useState<payment_method | null>(
     payment_method.CASH
   );
   const [search, setSearch] = useState<string>('');
+
   const updateCurrentInvoice = (newProducts: SelectedProduct[]) => {
     setSelectedProducts(newProducts);
     setInvoices((prev) => prev.map((inv, idx) => (idx === currentInvoice ? newProducts : inv)));
@@ -198,6 +204,10 @@ export function SalesView() {
     }, 500);
     return () => clearTimeout(timeout);
   }, [search]);
+  useEffect(() => {
+    if (!currentStore?.id) return;
+    getProducts();
+  }, [currentStore?.id, paginationParams, filters]);
   const handleLoadMore = () => {
     setPaginationParams((prev) => ({
       ...prev,
@@ -205,11 +215,12 @@ export function SalesView() {
     }));
   };
   return (
-    <>
-      <div className="h-full overflow-hidden">
-        <div className="grid grid-cols-[1fr_0.6fr] gap-3 h-full">
+    <div className="h-screen flex flex-col gap-2 overflow-hidden p-4">
+      <header className="bg-white w-full p-6 flex-shrink-0"></header>
+      <div className="flex-1 overflow-hidden">
+        <div className="grid grid-cols-[1fr_0.6fr] gap-3 h-full overflow-hidden">
           {/* LEFT */}
-          <div className="flex flex-col gap-2 h-full min-h-0">
+          <div className="flex flex-col gap-2  h-full overflow-hidden">
             <div className="bg-white flex items-center justify-between p-2 rounded-md flex-shrink-0">
               <div className="flex items-center text-nowrap gap-4   ">
                 <div className="max-w-[580px] overflow-y-scroll flex items-center gap-4">
@@ -249,7 +260,7 @@ export function SalesView() {
                   <span>Khách lẻ</span>
                 </div>
                 <button
-                  onClick={() => showInfoToast('Tính năng đang được cập nhật')}
+                  onClick={() => setOpenModalCreateCustomer(true)}
                   className="bg-pos-blue-50 text-pos-blue-500 hover:bg-pos-blue-500 hover:text-white transition-all duration-300 py-2 px-4 rounded-md text-sm font-medium cursor-pointer border border-pos-blue-500"
                 >
                   Thêm khách hàng
@@ -275,7 +286,7 @@ export function SalesView() {
                 renderRow={(product) => (
                   <>
                     <td className="px-4 py-2 text-gray-900 flex flex-col gap-1">
-                      <span className="text-base font-semibold truncate">
+                      <span title={product.name} className="text-base font-semibold truncate">
                         {truncateText(product.name, 28)}
                       </span>
                       <span className="text-xs font-medium">
@@ -362,8 +373,8 @@ export function SalesView() {
           </div>
 
           {/* RIGHT */}
-          <div className="h-full w-full bg-white px-3 rounded-md ">
-            <div className="flex items-center sticky top-0 bg-white z-10 pt-4 pb-2">
+          <div className="w-full bg-white px-3 rounded-md flex flex-col h-full overflow-hidden">
+            <div className="flex flex-shrink-0 items-center sticky top-0 bg-white z-10 pt-4 pb-2">
               <Input
                 onChange={(e: ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
                 type="text"
@@ -379,31 +390,28 @@ export function SalesView() {
                 </button>
               </div>
             </div>
+
             {products.length === 0 ? (
-              <div className="flex items-center justify-center h-screen ">
+              <div className="flex items-center justify-center flex-1">
                 <span className="text-xl font-semibold text-pos-blue-500">
                   Không tìm thấy sản phẩm
                 </span>
               </div>
             ) : (
-              <div className=" mt-4 overflow-y-scroll   h-[calc(100vh-128px)]">
+              <div className="flex-1 min-h-0 overflow-y-auto pb-4">
                 <div className="grid grid-cols-4 gap-2">
                   {products?.map((product) => (
                     <div
+                      key={product?.id}
                       onClick={() => {
                         const existing = selectedProducts.find((p) => p.id === product.id);
-
                         if (!existing) {
-                          if (product.inventory.quantity > 0) {
-                            handleSelectProduct(product);
-                          }
+                          if (product.inventory.quantity > 0) handleSelectProduct(product);
                         } else {
-                          if (existing.selectedQuantity < product.inventory.quantity) {
+                          if (existing.selectedQuantity < product.inventory.quantity)
                             handleSelectProduct(product);
-                          }
                         }
                       }}
-                      key={product?.id}
                       className="bg-white p-3 rounded-xl border border-gray-100 hover:border-pos-blue-400 cursor-pointer duration-300 transition-all hover:shadow-md hover:shadow-pos-blue-100"
                     >
                       <div className="relative w-full h-32">
@@ -420,8 +428,11 @@ export function SalesView() {
                         </div>
                       </div>
 
-                      <div className="mt-2 flex flex-col gap-1">
-                        <h2 className="text-sm font-semibold text-gray-800 truncate">
+                      <div className="mt-4 flex flex-col gap-1">
+                        <h2
+                          title={product.name}
+                          className="text-sm font-semibold text-gray-800 truncate"
+                        >
                           {product.name}
                         </h2>
                         <span className="text-sm font-medium text-gray-500">
@@ -431,7 +442,8 @@ export function SalesView() {
                     </div>
                   ))}
                 </div>
-                <div className="flex items-center justify-center mt-4.5">
+
+                <div className="flex items-center justify-center mt-4">
                   <Button onClick={handleLoadMore} title="Tải thêm" style={{ width: '54%' }} />
                 </div>
               </div>
@@ -466,7 +478,7 @@ export function SalesView() {
       <Modal
         title={'Xác nhận thanh toán'}
         opened={openModalOrder}
-        size="lg"
+        size="xl"
         onClose={() => setOpenModalOrder(false)}
       >
         <div className="flex flex-col gap-4">
@@ -524,6 +536,52 @@ export function SalesView() {
           </div>
         </div>
       </Modal>
-    </>
+      <Modal
+        title={'Thêm khách hàng mới'}
+        opened={openModalCreateCustomer}
+        size="xl"
+        onClose={() => setOpenModalCreateCustomer(false)}
+      >
+        <form className="flex flex-col gap-4">
+          <div className="flex items-center gap-3">
+            <Input
+              withAsterisk
+              label="Tên khách hàng"
+              name="name"
+              placeholder="Nhập tên khách hàng"
+              className="flex-1"
+            />
+            <Input
+              label="Số điện thoại"
+              name="phone"
+              placeholder="Nhập số điên thoại"
+              className="flex-1"
+            />
+          </div>
+          <div className="flex items-center gap-3">
+            <Input
+              label="Email"
+              name="email"
+              placeholder="Nhập email khách hàng"
+              className="flex-1"
+            />
+            <Input
+              label="Địa chỉ"
+              name="address"
+              placeholder="Nhập địa chỉ khách hàng"
+              className="flex-1"
+            />
+          </div>
+          <div className="flex items-center gap-3">
+            <Input label="Thành phố" name="city" placeholder="Nhập thành phố" className="flex-1" />
+            <Input label="Mã zip" name="zip" placeholder="Nhập mã zip" className="flex-1" />
+          </div>
+
+          <div className="flex items-center ">
+            <Button loading={loading} title="Thanh toán" style={{ flex: 1 }} />
+          </div>
+        </form>
+      </Modal>
+    </div>
   );
 }
