@@ -3,10 +3,10 @@ import { z } from 'zod';
 
 export const CustomerSchema = z.object({
   id: z.string().uuid(),
-  name: z.string().min(1).nonempty({
+  name: z.string().nonempty({
     message: 'Vui lòng nhập tên khách hàng',
   }),
-  phone: z.string().min(1).optional(),
+  phone: z.string().optional(),
   email: z.string().optional(),
   address: z.string().optional(),
   city: z.string().optional(),
@@ -23,9 +23,9 @@ export const CreateCustomerSchema = CustomerSchema.omit({
   updatedAt: true,
 });
 
-export const UpdateProductSchema = CreateCustomerSchema.partial();
+export const UpdateCustomerSchema = CreateCustomerSchema.partial();
 
 // Inferred types
 export type Customer = z.infer<typeof CustomerSchema>;
 export type CreateCustomerInput = z.infer<typeof CreateCustomerSchema>;
-export type UpdateCustomerInput = z.infer<typeof UpdateProductSchema>;
+export type UpdateCustomerInput = z.infer<typeof UpdateCustomerSchema>;

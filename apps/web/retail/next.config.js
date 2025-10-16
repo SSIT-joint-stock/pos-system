@@ -18,6 +18,10 @@ const nextConfig = {
         hostname: "down-vn.img.susercontent.com",
         protocol: "https",
       },
+      {
+        hostname: "img.freepik.com",
+        protocol: "https",
+      },
     ],
   },
 };

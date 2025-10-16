@@ -36,7 +36,9 @@ export default function SideBar({
       {/* Menu items */}
       <div className=" h-full flex flex-col gap-2 p-4 ">
         {/* Should be to component */}
-        <div className="flex items-center gap-4 mb-4">
+        <div
+          className={`flex items-center gap-4 mb-4 ${isExpand ? 'justify-start' : 'justify-center'}`}
+        >
           <div className="w-10 h-10 flex items-center justify-center">
             <Image
               src="/logo.png"

@@ -92,38 +92,39 @@ export default function MenuSidebar({
       path: `/dashboard/store/${currentStore?.id}/employees`,
       icon: <Users className="shrink-0" />,
     },
+
     {
       title: 'Danh bạ',
       icon: <BookUser className="shrink-0" />,
       children: [
         {
           title: 'Khách hàng',
-          path: `/dashboard/store/${currentStore?.id}/store-info`,
+          path: `/dashboard/store/${currentStore?.id}/manage-customers`,
         },
       ],
     },
-    {
-      title: 'Báo cáo',
-      icon: <NotepadText className="shrink-0" />,
-      children: [
-        {
-          title: 'Doanh thu theo sản phẩm',
-          path: `/dashboard/store/${currentStore?.id}/overview`,
-        },
-        {
-          title: 'Doanh thu theo ngày',
-          path: `/dashboard/store/${currentStore?.id}/manage-stores`,
-        },
-        {
-          title: 'Sản phẩm bán chạy',
-          path: `/dashboard/store/${currentStore?.id}/manage-stores`,
-        },
-        {
-          title: 'Báo cáo cuối ngày',
-          path: `/dashboard/store/${currentStore?.id}/manage-stores`,
-        },
-      ],
-    },
+    // {
+    //   title: 'Báo cáo',
+    //   icon: <NotepadText className="shrink-0" />,
+    //   children: [
+    //     {
+    //       title: 'Doanh thu theo sản phẩm',
+    //       path: `/dashboard/store/${currentStore?.id}/overview`,
+    //     },
+    //     {
+    //       title: 'Doanh thu theo ngày',
+    //       path: `/dashboard/store/${currentStore?.id}/manage-stores`,
+    //     },
+    //     {
+    //       title: 'Sản phẩm bán chạy',
+    //       path: `/dashboard/store/${currentStore?.id}/manage-stores`,
+    //     },
+    //     {
+    //       title: 'Báo cáo cuối ngày',
+    //       path: `/dashboard/store/${currentStore?.id}/manage-stores`,
+    //     },
+    //   ],
+    // },
   ];
 
   return (

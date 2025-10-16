@@ -1,17 +1,23 @@
 'use client';
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 import Image from 'next/image';
-import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
+import React, { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useOrders } from '../../../../../main/src/hooks/orders/use-orders';
 import { useProduct } from '../../../../../main/src/hooks/product/use-product';
 import { formatCurrency, truncateText } from '../../../utils/';
 import { Button, Input, Modal, Select, Table } from '@repo/design-system/components/ui';
-import { Filter, Minus, Plus, Trash2, User, X } from 'lucide-react';
+import { Filter, Keyboard, LogOut, Minus, Plus, Settings, Trash2, User, X } from 'lucide-react';
 import { OrderStatusEnum } from '../../../../../main/src/schemas/order/order.schema';
-import { Product, ProductStatus } from '@repo/design-system/types';
+import { Customer, Product, ProductStatus } from '@repo/design-system/types';
 import { payment_method } from '@repo/design-system/types/inventory';
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { useAtomValue } from 'jotai';
+import FormCreateCustomer from '../components/form-create-customer';
+import Logo from '../../../../../main/src/components/common/Logo';
+import { Burger } from '@mantine/core';
+import { useRouter } from 'next/navigation';
+import { useClickOutside } from '@repo/design-system/hooks/client';
+import { useCustomer } from '../../../../../main/src/hooks/customers/use-customer';
 
 type SelectedProduct = Product & { selectedQuantity: number };
 type Invoice = SelectedProduct[];
@@ -34,11 +40,21 @@ const paymentMethods = [
 export function SalesView() {
   // HOOK(
 
-  const { showSuccessToast } = useToast();
+  const { showSuccessToast, showInfoToast } = useToast();
   const { products, getProducts, setFilters, setPaginationParams, paginationParams, filters } =
     useProduct();
   const { createOrder, loading } = useOrders();
+  const {
+    customers,
+    filters: customersFilters,
+    setFilters: setCustomersFilters,
+    createCustomerForm,
+    getCustomers,
+    createCustomer,
+  } = useCustomer();
   const currentStore = useAtomValue(currentStoreAtom);
+  const router = useRouter();
+  const openMenuSettingsRef = useRef<HTMLDivElement>(null);
 
   // STATE
   const [openModalChangePrice, setOpenModalChangePrice] = useState(false);
@@ -53,6 +69,9 @@ export function SalesView() {
     payment_method.CASH
   );
   const [search, setSearch] = useState<string>('');
+  const [isOpenMenuSettings, setIsOpenMenuSettings] = useState<boolean>(false);
+  const [customerSearch, setCustomerSearch] = useState('');
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
 
   const updateCurrentInvoice = (newProducts: SelectedProduct[]) => {
     setSelectedProducts(newProducts);
@@ -179,7 +198,10 @@ export function SalesView() {
       status: OrderStatusEnum.Enum.COMPLETED,
       payment_method: changPaymentMethods || payment_method.CASH,
       order_items: orderItems,
+      customer_id: selectedCustomer?.id,
+      customer_name: selectedCustomer?.name || '',
     });
+    setSelectedCustomer(null);
     getProducts();
   };
   const totalPrice = useMemo(() => {
@@ -208,56 +230,130 @@ export function SalesView() {
     if (!currentStore?.id) return;
     getProducts();
   }, [currentStore?.id, paginationParams, filters]);
+  useEffect(() => {
+    if (!currentStore?.id) return;
+    getCustomers();
+  }, [currentStore?.id, customersFilters]);
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setCustomersFilters((prev) => ({
+        ...prev,
+        q: customerSearch,
+      }));
+    }, 500); // debounce 500ms
+
+    return () => clearTimeout(timeout);
+  }, [customerSearch]);
+
   const handleLoadMore = () => {
     setPaginationParams((prev) => ({
       ...prev,
       limit: prev.limit + 22,
     }));
   };
+  useClickOutside(openMenuSettingsRef, () => setIsOpenMenuSettings(false));
   return (
     <div className="h-screen flex flex-col gap-2 overflow-hidden p-4">
-      <header className="bg-white w-full p-6 flex-shrink-0"></header>
+      <header className="bg-white w-full py-2 px-3 flex-shrink-0 flex items-center justify-between ">
+        <div className="flex items-center gap-8">
+          <Logo link={`/dashboard/store/${currentStore?.id}/overview`} />
+          <div className="flex items-center text-nowrap gap-4   ">
+            <div className="max-w-[600px] overflow-y-scroll flex items-center gap-4">
+              {invoices.map((invoice, idx) => (
+                <div
+                  onClick={() => handleSwitchInvoice(idx)}
+                  key={idx}
+                  className={`flex items-center gap-3 text-base font-medium px-4 cursor-pointer py-2  rounded-md transition-all duration-200 ${
+                    currentInvoice === idx
+                      ? 'text-pos-blue-500 bg-pos-blue-50'
+                      : 'text-gray-800 hover:bg-gray-100'
+                  }`}
+                >
+                  <span>Đơn hàng {idx + 1}</span>
+                  {idx === invoices.length - 1 && invoices.length > 1 && (
+                    <button onClick={(e) => handleRemoveInvoice(idx, e)} className="cursor-pointer">
+                      <X size={16} />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={handleAddInvoices}
+              className="hover:cursor-pointer hover:text-pos-blue-500 hover:bg-pos-blue-50 transition-all duration-300 p-2 rounded-full text-gray-500 bg-gray-100"
+            >
+              <Plus size={20} />
+            </button>
+          </div>
+        </div>
+        <div className="flex items-center gap-3.5">
+          <span className="text-gray-500 font-medium text-sm bg-gray-50 p-2 rounded-md">
+            {currentStore?.name}
+          </span>
+          <div className="relative">
+            <Burger
+              className="cursor-pointer p-2"
+              opened={isOpenMenuSettings}
+              onClick={() => setIsOpenMenuSettings(!isOpenMenuSettings)}
+              size={22}
+              aria-label="Toggle navigation"
+            />
+            <div
+              ref={openMenuSettingsRef}
+              className={`absolute top-full right-0 w-52 h-fit py-3 px-2 bg-white mt-3 z-50 shadow-md shadow-pos-blue-100 rounded-md text-sm text-gray-500 transition-all duration-200 ease-in-out ${isOpenMenuSettings ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
+            >
+              <button
+                onClick={() => showInfoToast('Tính năng đang được phát triển')}
+                className="flex items-center gap-5 hover:bg-gray-50 rounded-md p-2 cursor-pointer w-full"
+              >
+                <Settings size={18} />
+                Thiết lập
+              </button>
+              <button
+                onClick={() => showInfoToast('Tính năng đang được phát triển')}
+                className="flex items-center gap-5 hover:bg-gray-50 rounded-md p-2 cursor-pointer w-full"
+              >
+                <Keyboard size={18} /> Phím tắt
+              </button>
+              <button
+                onClick={() => router.back()}
+                className="flex items-center gap-5 hover:bg-gray-50 rounded-md p-2 cursor-pointer w-full"
+              >
+                <LogOut size={18} /> Thoát bán hàng
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
       <div className="flex-1 overflow-hidden">
         <div className="grid grid-cols-[1fr_0.6fr] gap-3 h-full overflow-hidden">
           {/* LEFT */}
           <div className="flex flex-col gap-2  h-full overflow-hidden">
             <div className="bg-white flex items-center justify-between p-2 rounded-md flex-shrink-0">
-              <div className="flex items-center text-nowrap gap-4   ">
-                <div className="max-w-[580px] overflow-y-scroll flex items-center gap-4">
-                  {invoices.map((invoice, idx) => (
-                    <div
-                      onClick={() => handleSwitchInvoice(idx)}
-                      key={idx}
-                      className={`flex items-center gap-3 text-base font-medium px-4 cursor-pointer py-2  rounded-md transition-all duration-200 ${
-                        currentInvoice === idx
-                          ? 'text-pos-blue-500 bg-pos-blue-50'
-                          : 'text-gray-800 hover:bg-gray-100'
-                      }`}
-                    >
-                      <span>Đơn hàng {idx + 1}</span>
-                      {idx === invoices.length - 1 && invoices.length > 1 && (
-                        <button
-                          onClick={(e) => handleRemoveInvoice(idx, e)}
-                          className="cursor-pointer"
-                        >
-                          <X size={16} />
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-                <button
-                  onClick={handleAddInvoices}
-                  className="hover:cursor-pointer hover:text-pos-blue-500 hover:bg-pos-blue-50 transition-all duration-300 p-2 rounded-full text-gray-500 bg-gray-100"
-                >
-                  <Plus size={20} />
-                </button>
-              </div>
-
+              <Select
+                rightSection={<User size={16} />}
+                clearable
+                searchable
+                onSearchChange={setCustomerSearch}
+                searchValue={customerSearch}
+                value={selectedCustomer?.id}
+                onChange={(value) => {
+                  const found = customers.find((c) => c.id === value);
+                  setSelectedCustomer(found || null);
+                }}
+                data={customers.map((customer) => ({
+                  value: customer.id,
+                  label: customer.name,
+                }))}
+                placeholder="Tìm kiếm khách hàng"
+                position="bottom"
+                size="sm"
+                style={{ minWidth: 360 }}
+              />
               <div className="flex items-center gap-6">
-                <div className="flex items-center gap-2 py-2.5 px-5 text-white bg-pos-blue-500 rounded-md text-sm font-medium opacity-70">
+                <div className="flex items-center gap-2 py-2 px-4 text-white bg-pos-blue-500 rounded-md  font-medium opacity-70">
                   <User size={16} />
-                  <span>Khách lẻ</span>
+                  <span>{selectedCustomer?.name ?? 'Khách lẻ'}</span>
                 </div>
                 <button
                   onClick={() => setOpenModalCreateCustomer(true)}
@@ -269,7 +365,7 @@ export function SalesView() {
             </div>
 
             {/* TABLE */}
-            <div className="flex-1 min-h-0">
+            <div className="flex-1 min-h-0 overflow-y-scroll">
               <Table
                 className="h-full"
                 hasPagination={false}
@@ -542,45 +638,14 @@ export function SalesView() {
         size="xl"
         onClose={() => setOpenModalCreateCustomer(false)}
       >
-        <form className="flex flex-col gap-4">
-          <div className="flex items-center gap-3">
-            <Input
-              withAsterisk
-              label="Tên khách hàng"
-              name="name"
-              placeholder="Nhập tên khách hàng"
-              className="flex-1"
-            />
-            <Input
-              label="Số điện thoại"
-              name="phone"
-              placeholder="Nhập số điên thoại"
-              className="flex-1"
-            />
-          </div>
-          <div className="flex items-center gap-3">
-            <Input
-              label="Email"
-              name="email"
-              placeholder="Nhập email khách hàng"
-              className="flex-1"
-            />
-            <Input
-              label="Địa chỉ"
-              name="address"
-              placeholder="Nhập địa chỉ khách hàng"
-              className="flex-1"
-            />
-          </div>
-          <div className="flex items-center gap-3">
-            <Input label="Thành phố" name="city" placeholder="Nhập thành phố" className="flex-1" />
-            <Input label="Mã zip" name="zip" placeholder="Nhập mã zip" className="flex-1" />
-          </div>
-
-          <div className="flex items-center ">
-            <Button loading={loading} title="Thanh toán" style={{ flex: 1 }} />
-          </div>
-        </form>
+        <FormCreateCustomer
+          setOpenAddModal={setOpenModalCreateCustomer}
+          createCustomer={createCustomer}
+          createCustomerForm={createCustomerForm}
+          onSuccess={() => {
+            getCustomers();
+          }}
+        />
       </Modal>
     </div>
   );

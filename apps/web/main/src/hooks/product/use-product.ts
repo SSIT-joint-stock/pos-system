@@ -9,6 +9,8 @@ import { useAtomValue } from 'jotai';
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { useForm } from 'react-hook-form';
 import {
+  CreateInvoiceProductInput,
+  CreateInvoiceProductSchema,
   CreateProductInput,
   CreateProductSchema,
   UpdateProductInput,
@@ -48,6 +50,9 @@ export function useProduct() {
   });
   const updateProductForm = useForm<UpdateProductInput>({
     resolver: zodResolver(UpdateProductSchema),
+  });
+  const createInvoiceProductForm = useForm<CreateInvoiceProductInput>({
+    resolver: zodResolver(CreateInvoiceProductSchema),
   });
   // ACTION FUNCTION
   const getProducts = async () => {
@@ -150,6 +155,15 @@ export function useProduct() {
     window.URL.revokeObjectURL(url);
     showSuccessToast('Download successfully!!');
   };
+  const createInvoiceProduct = async (data: CreateInvoiceProductInput) => {
+    if (!currentStore?.id) return;
+    const res = await requestWrapper(() =>
+      api.post(`/stores/${currentStore?.id}/products/invoice-create-product`, data)
+    );
+    if (res?.data.success) {
+      showSuccessToast(res.data.message);
+    }
+  };
 
   return {
     getProducts,
@@ -165,6 +179,7 @@ export function useProduct() {
     uploadProductByExcel,
     exampleProductExcel,
     setProducts,
+    createInvoiceProduct,
     pagination,
     paginationParams,
     filters,
@@ -172,6 +187,7 @@ export function useProduct() {
     loading,
     createProductForm,
     updateProductForm,
+    createInvoiceProductForm,
     product,
   };
 }

@@ -11,6 +11,8 @@ interface Pagination {
   totalPages: number;
   total: number;
   limit: number;
+  hasNext: boolean;
+  hasPrev: boolean;
 }
 
 export type FilterValue = string | number | boolean | [string, string] | undefined;

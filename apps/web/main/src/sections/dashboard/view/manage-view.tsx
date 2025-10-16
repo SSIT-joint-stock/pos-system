@@ -19,10 +19,10 @@ import { useProduct } from '../../../../../main/src/hooks/product/use-product';
 import { Controller } from 'react-hook-form';
 import Image from 'next/image';
 import { MultiSelect } from '@mantine/core';
-import useCategories from '../../../../../main/src/hooks/categories/use-categories';
+
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { useAtomValue } from 'jotai';
-
+import { useCategories } from '../../../../../main/src/hooks/categories/use-categories';
 const tableHeaders = [
   'Sản Phẩm',
   'Số lượng',
@@ -33,9 +33,19 @@ const tableHeaders = [
   'Ngày Tạo',
   'Thao Tác',
 ];
+
 const statusColors: Record<string, string> = {
-  ACTIVE: ' text-pos-blue-500',
-  INACTIVE: 'text-gray-700',
+  ACTIVE: ' text-green-500 bg-green-50 py-1.5 px-2.5 rounded-md',
+  INACTIVE: 'text-red-500 bg-red-50 py-1.5 px-2.5 rounded-md',
+};
+
+const formatProductStatus = (status: string) => {
+  const translations: Record<string, string> = {
+    ACTIVE: 'Đang kinh doanh ',
+    INACTIVE: 'Ngừng kinh doanh',
+    SOLD: 'Đã bán',
+  };
+  return translations[status] || status;
 };
 
 export function ManageView() {
@@ -46,7 +56,7 @@ export function ManageView() {
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
   const [inventoryModal, setInventorModal] = useState<boolean>(false);
   const [adjustValue, setAdjustValue] = useState({ delta: '0' });
-  const [type, setType] = useState<string>('ADJUSTMENT');
+  const [type, setType] = useState<string>('SALE');
 
   const [openUploadOption, setOpenUploadOption] = useState<boolean>(false);
 
@@ -68,7 +78,7 @@ export function ManageView() {
     exampleProductExcel,
     getProducts,
   } = useProduct();
-  const { categories } = useCategories();
+  const { categories, getCategories } = useCategories();
   const currentStore = useAtomValue(currentStoreAtom);
   useClickOutside(uploadMenuRef, () => setOpenUploadOption(false));
   useEffect(() => {
@@ -90,7 +100,10 @@ export function ManageView() {
     if (!currentStore?.id) return;
     getProducts();
   }, [currentStore?.id, paginationParams, filters]);
-
+  useEffect(() => {
+    if (!currentStore?.id) return;
+    getCategories();
+  }, [currentStore?.id]);
   return (
     <>
       {/* DELETE MODAL */}
@@ -210,10 +223,16 @@ export function ManageView() {
 
               {/* SKU */}
               {openEditModal ? (
-                <Input size="sm" {...updateProductForm.register('sku')} name="sku" label="SKU" />
+                <Input
+                  size="sm"
+                  {...updateProductForm.register('sku')}
+                  error={updateProductForm.formState.errors.sku?.message}
+                  name="sku"
+                  label="Mã sản phẩm"
+                />
               ) : (
                 <div>
-                  <p className="text-sm text-gray-500">SKU</p>
+                  <p className="text-sm text-gray-500">Mã sản phẩm</p>
                   <p className="font-medium text-gray-800">{product?.sku}</p>
                 </div>
               )}
@@ -280,8 +299,8 @@ export function ManageView() {
                       size="sm"
                       radius="md"
                       data={[
-                        { value: 'ACTIVE', label: 'ACTIVE' },
-                        { value: 'INACTIVE', label: 'INACTIVE' },
+                        { value: 'ACTIVE', label: 'Đang kinh doanh' },
+                        { value: 'INACTIVE', label: 'Ngừng kinh doanh' },
                       ]}
                     />
                   )}
@@ -410,13 +429,8 @@ export function ManageView() {
             position="bottom"
             label="Loại điều chỉnh"
             data={[
-              { label: 'Điều chỉnh thủ công', value: 'ADJUSTMENT' },
               { label: 'Bán hàng', value: 'SALE' },
-              { label: 'Nhập hàng', value: 'PURCHASE' },
               { label: 'Trả hàng bán', value: 'RETURN_SALE' },
-              { label: 'Trả hàng mua', value: 'RETURN_PURCHASE' },
-              { label: 'Chuyển kho nhập', value: 'TRANSFER_IMPORT' },
-              { label: 'Chuyển kho xuất', value: 'TRANSFER_EXPORT' },
             ]}
             value={type}
             onChange={(value) => setType(value || 'ADJUSTMENT')}
@@ -436,6 +450,7 @@ export function ManageView() {
       <div className="flex flex-col h-full ">
         {/* ACTION */}
         <FilterBar
+          dataComplete={[...new Set(products?.map((p) => p.name) || [])]}
           statusOptions={[
             { value: 'ACTIVE', label: 'ACTIVE' },
             { value: 'INACTIVE', label: 'INACTIVE' },
@@ -548,7 +563,7 @@ export function ManageView() {
                   <span
                     className={`text-xs font-medium rounded-xl ${statusColors[product.product_status]}`}
                   >
-                    {product.product_status}
+                    {formatProductStatus(product.product_status)}
                   </span>
                 </td>
                 <td className="px-4 py-2 text-xs text-gray-500">{formatDate(product.createdAt)}</td>

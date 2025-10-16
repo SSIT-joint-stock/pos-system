@@ -16,7 +16,7 @@ const tableHeaders = [
   'Ngày Tạo',
   'Thao Tác',
 ];
-const tableHeadersSelected = ['Tên sản phẩm', 'Số lượng', 'Đơn giá', 'Thành tiền'];
+const tableHeadersSelected = ['Mã sản phẩm', 'Tên sản phẩm', 'Số lượng', 'Đơn giá', 'Thành tiền'];
 
 const statusColors: Record<string, string> = {
   PROCESSING: 'text-blue-500 bg-blue-50 py-1.5 px-2.5 rounded-md',
@@ -87,6 +87,7 @@ export function OrdersView() {
     setSelectedOrder(order);
     setOpenViewModal(true);
   };
+  console.log(selectedOrder);
 
   return (
     <>
@@ -121,7 +122,7 @@ export function OrdersView() {
               <div className="flex-1 p-2">
                 <div className="text-gray-500">Thông tin KH</div>
                 <div className="text-gray-900 font-medium">
-                  {selectedOrder?.customer?.name || 'Khách lẻ'}
+                  {selectedOrder?.customer_name || 'Khách lẻ'}
                 </div>
               </div>
 
@@ -149,6 +150,9 @@ export function OrdersView() {
             data={selectedOrder?.order_item || []}
             renderRow={(product) => (
               <>
+                <td className="px-4 py-2 font-medium text-sm text-gray-500">
+                  {product.product?.sku || 'N/A'}
+                </td>
                 <td className="px-4 py-2 font-medium text-sm text-gray-500">
                   {product.product?.name || 'Tên sản phẩm'}
                 </td>

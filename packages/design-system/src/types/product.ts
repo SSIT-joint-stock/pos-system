@@ -20,6 +20,8 @@ export interface Product {
   inventory: {
     quantity: number;
   };
+  meta: Record<string, any>;
+  categoryIds?: string[];
   categories: [
     {
       id: string;
