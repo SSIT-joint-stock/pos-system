@@ -1,27 +1,31 @@
 'use client';
-import { Modal, Table } from '@repo/design-system/components/ui';
+import { Button, Modal, Table } from '@repo/design-system/components/ui';
 import FilterBar from '../components/filter-bar';
 import { BadgeAlert, Download, Edit, Eye, Trash } from 'lucide-react';
 import React, { useState } from 'react';
 import { formatCurrency, formatDate } from '../../../../../main/src/utils/index';
 import { useOrders } from '../../../../../main/src/hooks/orders/use-orders';
+import { Order } from '@repo/design-system/types';
+import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 const tableHeaders = [
   'Mã Đơn Hàng',
   'Khách Hàng',
   'Giá',
+  'Phương Thức Thanh Toán',
   'Trạng Thái Đơn Hàng',
   'Ngày Tạo',
   'Thao Tác',
 ];
+const tableHeadersSelected = ['Tên sản phẩm', 'Số lượng', 'Đơn giá', 'Thành tiền'];
 
 const statusColors: Record<string, string> = {
-  PROCESSING: 'text-blue-500',
-  RETURNED: 'text-red-900',
-  PENDING: 'text-orange-500',
-  CANCELLED: 'text-red-600',
-  COMPLETED: 'text-green-700',
-  PAID: 'text-green-700',
-  REFUNDED: 'text-red-900',
+  PROCESSING: 'text-blue-500 bg-blue-50 py-1.5 px-2.5 rounded-md',
+  RETURNED: 'text-red-900 bg-red-50  py-1.5 px-2.5 rounded-md',
+  PENDING: 'text-orange-500 bg-orange-50  py-1.5 px-2.5 rounded-md',
+  CANCELLED: 'text-red-600 bg-red-50  py-1.5 px-2.5 rounded-md',
+  COMPLETED: 'text-green-500 bg-green-50  py-1.5 px-2.5 rounded-md',
+  PAID: 'text-green-700 bg-green-50  py-1.5 px-2.5 rounded-md',
+  REFUNDED: 'text-red-900 bg-red-50  py-1.5 px-2.5 rounded-md',
 };
 
 const statusLabels: Record<string, string> = {
@@ -36,28 +40,24 @@ const statusLabels: Record<string, string> = {
 
 const paymentMethodLabels: Record<string, string> = {
   CASH: 'Tiền mặt',
-  BANK_TRANSFER: 'Chuyển khoản',
-  MOMO: 'Momo',
-  ZALO_PAY: 'Zalo Pay',
+  DEBIT_CARD: 'Chuyển khoản',
   CREDIT_CARD: 'Thẻ tín dụng',
 };
 
 export function OrdersView() {
+  const { showInfoToast } = useToast();
   const {
     orders,
-
     loading,
     pagination,
-    updateOrderForm,
     paginationParams,
     setPaginationParams,
     setFilters,
     deleteOrder,
   } = useOrders();
-
   // Local state for modals
-  const [selectedOrder, setSelectedOrder] = useState<any>(null);
-  const [openEditModal, setOpenEditModal] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<Order>();
+  // const [openEditModal, setOpenEditModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
   const [openViewModal, setOpenViewModal] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -71,10 +71,8 @@ export function OrdersView() {
     try {
       setDeleteLoading(true);
       const success = await deleteOrder(selectedOrder.id);
-
       if (success) {
         setDeleteModal(false);
-        setSelectedOrder(null);
       }
     } catch (error) {
       console.error('Error deleting order:', error);
@@ -85,33 +83,117 @@ export function OrdersView() {
 
   // Handle update order
 
-  const handleViewOrder = (order: any) => {
+  const handleViewOrder = (order: Order) => {
     setSelectedOrder(order);
     setOpenViewModal(true);
   };
 
-  const handleEditOrder = (order: any) => {
-    setSelectedOrder(order);
-    setOpenEditModal(true);
-
-    // Populate form with current values
-    updateOrderForm.reset({
-      customer_name: order.customer_name,
-      payment_method: order.payment_method,
-    });
-  };
-
-  const closeModals = () => {
-    setOpenEditModal(false);
-    setOpenViewModal(false);
-    setSelectedOrder(null);
-    updateOrderForm.reset();
-  };
-
   return (
     <>
-      {/* VIEW/EDIT MODAL */}
+      {/* VIEW */}
+      <Modal
+        title={
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-gray-500">
+              Chi tiết đơn hàng - ${selectedOrder?.id}
+            </span>
+            <span
+              className={`text-sm font-medium rounded-xl ${statusColors[selectedOrder?.status ?? '']}`}
+            >
+              {statusLabels[selectedOrder?.status ?? ''] || selectedOrder?.status}
+            </span>
+          </div>
+        }
+        opened={openViewModal}
+        size="70%"
+        onClose={() => setOpenViewModal(false)}
+      >
+        <div className="flex flex-col gap-8">
+          <div className="border border-gray-200 rounded-md overflow-hidden">
+            <div className="flex divide-x divide-gray-200 text-sm">
+              {/* Mã đơn hàng */}
+              <div className="flex-1 p-2">
+                <div className="text-gray-500">Mã đơn hàng</div>
+                <div className="text-gray-900 font-medium truncate">{selectedOrder?.id}</div>
+              </div>
 
+              {/* Thông tin KH */}
+              <div className="flex-1 p-2">
+                <div className="text-gray-500">Thông tin KH</div>
+                <div className="text-gray-900 font-medium">
+                  {selectedOrder?.customer?.name || 'Khách lẻ'}
+                </div>
+              </div>
+
+              {/* Hình thức TT */}
+              <div className="flex-1 p-2">
+                <div className="text-gray-500">Hình thức TT</div>
+                <div className="text-gray-900 font-medium">
+                  {paymentMethodLabels[selectedOrder?.payment_method ?? 'CASH']}
+                </div>
+              </div>
+
+              {/* Ngày tạo */}
+              <div className="flex-1 p-2">
+                <div className="text-gray-500">Ngày tạo</div>
+                <div className="text-gray-900 font-medium">
+                  {formatDate(selectedOrder?.createdAt ?? '')}
+                </div>
+              </div>
+            </div>
+          </div>
+          <Table
+            hasMarginTop={false}
+            hasPagination={false}
+            tableHeaders={tableHeadersSelected}
+            data={selectedOrder?.order_item || []}
+            renderRow={(product) => (
+              <>
+                <td className="px-4 py-2 font-medium text-sm text-gray-500">
+                  {product.product?.name || 'Tên sản phẩm'}
+                </td>
+                <td className="px-4 py-2 font-medium text-sm text-gray-500">{product.quantity}</td>
+                <td className="px-4 py-2 font-medium text-sm text-gray-500">
+                  {formatCurrency(product.product?.price || 0)}
+                </td>
+                <td className="px-4 py-2 font-medium text-sm text-gray-500">
+                  {formatCurrency(product.price * product.quantity)}
+                </td>
+              </>
+            )}
+          />
+
+          <div className="bg-gray-100 p-4 rounded-md flex flex-col gap-3.5">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-gray-600">Tạm tính</span>
+              <span className="text-base font-semibold text-gray-900">
+                {formatCurrency(selectedOrder?.total_amount || 0)}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-gray-600">Khách trả</span>
+              <span className="text-base font-semibold text-pos-blue-500">
+                {formatCurrency(selectedOrder?.total_amount || 0)}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-gray-600">Tiền nợ</span>
+              <span className="text-base font-semibold text-gray-900">{formatCurrency(0)}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-gray-600">Tiền thừa</span>
+              <span className="text-base font-semibold text-gray-900">{formatCurrency(0)}</span>
+            </div>
+          </div>
+          <div className="flex items-center justify-end gap-4">
+            <Button
+              onClick={() => showInfoToast('Tính năng đang được cập nhật')}
+              title="In hóa đơn"
+            />
+            <Button title="Hủy" onClick={() => setOpenViewModal(false)} color="#ccc" />
+          </div>
+        </div>
+      </Modal>
       {/* DELETE MODAL */}
       <Modal opened={deleteModal} size="sm" onClose={() => setDeleteModal(false)}>
         <div className="space-y-3 flex flex-col items-center">
@@ -162,6 +244,9 @@ export function OrdersView() {
 
         {/* TABLE AND PAGINATION */}
         <Table
+          total={pagination?.total}
+          page={pagination?.page}
+          limit={pagination?.limit}
           totalPages={pagination?.totalPages}
           pageSize={pagination?.limit ?? paginationParams.limit}
           onPageChange={(page) => setPaginationParams((prev) => ({ ...prev, page }))}
@@ -174,17 +259,17 @@ export function OrdersView() {
           tableHeaders={tableHeaders}
           data={orders}
           isLoading={loading}
-          renderRow={(order, idx) => (
-            <tr
-              key={idx}
-              className="border-b border-b-gray-100 hover:bg-gray-50 transition-colors duration-300"
-            >
+          renderRow={(order) => (
+            <>
               <td className="px-4 py-2 font-medium text-xs text-gray-500 truncate">
                 {order.code || `#${order.id}`}
               </td>
               <td className="px-4 py-2 font-medium">{order.customer_name || 'Khách lẻ'}</td>
-              <td className="px-4 py-2 text-sm text-gray-500">
+              <td className="px-4 py-2 text-sm text-gray-500 font-medium">
                 {formatCurrency(order.total_amount)}
+              </td>
+              <td className="px-4 py-2 text-sm text-gray-500">
+                {paymentMethodLabels[order.payment_method]}
               </td>
               <td className="px-4 py-2">
                 <span className={`text-sm font-medium rounded-xl ${statusColors[order.status]}`}>
@@ -203,8 +288,8 @@ export function OrdersView() {
                     <Eye size={16} />
                   </button>
                   <button
+                    onClick={() => showInfoToast('Tính năng đang được cập nhật')}
                     className="flex justify-center items-center cursor-pointer w-[36px] h-[36px] bg-pos-blue-50 text-pos-blue-500 rounded-md hover:opacity-100 hover:bg-pos-blue-500 hover:text-pos-blue-50 opacity-70 transition-opacity duration-200"
-                    onClick={() => handleEditOrder(order)}
                   >
                     <Edit size={16} />
                   </button>
@@ -219,7 +304,7 @@ export function OrdersView() {
                   </button>
                 </div>
               </td>
-            </tr>
+            </>
           )}
         />
       </div>

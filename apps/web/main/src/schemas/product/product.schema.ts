@@ -24,7 +24,8 @@ export const ProductSchema = z.object({
     .transform((val) => (val === '' ? undefined : val)),
   description: z.string().optional(),
   product_status: z.enum(['ACTIVE', 'INACTIVE']).default('ACTIVE'),
-  meta: z.string().optional(),
+  categoryIds: z.array(z.string().uuid()).optional(),
+  meta: z.record(z.any()).default({}).optional(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime().optional(),
 });
