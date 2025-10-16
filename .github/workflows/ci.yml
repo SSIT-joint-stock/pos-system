@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - develop
+      - mvp
     paths-ignore:
       - 'docs/**'
       - '*.md'
