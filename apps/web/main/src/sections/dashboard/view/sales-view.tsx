@@ -5,7 +5,7 @@ import React, { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react'
 import { useOrders } from '../../../../../main/src/hooks/orders/use-orders';
 import { useProduct } from '../../../../../main/src/hooks/product/use-product';
 import { formatCurrency, truncateText } from '../../../utils/';
-import { Button, Input, Modal, Select, Table } from '@repo/design-system/components/ui';
+import { Button, Checkbox, Input, Modal, Select, Table } from '@repo/design-system/components/ui';
 import { Filter, Keyboard, LogOut, Minus, Plus, Settings, Trash2, User, X } from 'lucide-react';
 import { OrderStatusEnum } from '../../../../../main/src/schemas/order/order.schema';
 import { Customer, Product, ProductStatus } from '@repo/design-system/types';
@@ -14,7 +14,7 @@ import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { useAtomValue } from 'jotai';
 import FormCreateCustomer from '../components/form-create-customer';
 import Logo from '../../../../../main/src/components/common/Logo';
-import { Burger } from '@mantine/core';
+import { Burger, Switch } from '@mantine/core';
 import { useRouter } from 'next/navigation';
 import { useClickOutside } from '@repo/design-system/hooks/client';
 import { useCustomer } from '../../../../../main/src/hooks/customers/use-customer';
@@ -72,6 +72,10 @@ export function SalesView() {
   const [isOpenMenuSettings, setIsOpenMenuSettings] = useState<boolean>(false);
   const [customerSearch, setCustomerSearch] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [isCustomerPayFull, setIsCustomerPayFull] = useState<boolean>(true);
+  const [priceCustomerPay, setPriceCustomerPay] = useState<string>('');
+  const [isFocusedInputPriceCustomerPay, setIsFocusedInputPriceCustomerPay] =
+    useState<boolean>(false);
 
   const updateCurrentInvoice = (newProducts: SelectedProduct[]) => {
     setSelectedProducts(newProducts);
@@ -207,6 +211,7 @@ export function SalesView() {
   const totalPrice = useMemo(() => {
     return selectedProducts.reduce((sum, p) => sum + p.selectedQuantity * p.price, 0);
   }, [selectedProducts]);
+  console.log('totalPrice', totalPrice);
   useEffect(() => {
     setFilters((prev) => ({
       ...prev,
@@ -244,6 +249,11 @@ export function SalesView() {
 
     return () => clearTimeout(timeout);
   }, [customerSearch]);
+  useEffect(() => {
+    if (isCustomerPayFull && !isFocusedInputPriceCustomerPay) {
+      setPriceCustomerPay(String(totalPrice));
+    }
+  }, [isCustomerPayFull, totalPrice]);
 
   const handleLoadMore = () => {
     setPaginationParams((prev) => ({
@@ -539,14 +549,17 @@ export function SalesView() {
                   ))}
                 </div>
 
-                <div className="flex items-center justify-center mt-4">
-                  <Button onClick={handleLoadMore} title="Tải thêm" style={{ width: '54%' }} />
-                </div>
+                {products.length >= paginationParams.limit && (
+                  <div className="flex items-center justify-center mt-4">
+                    <Button onClick={handleLoadMore} title="Tải thêm" style={{ width: '54%' }} />
+                  </div>
+                )}
               </div>
             )}
           </div>
         </div>
       </div>
+      {/* CHANGE PRICE BEFORE SALE PRODUCTS */}
       <Modal
         opened={openModalChangePrice}
         onClose={() => setOpenModalChangePrice(false)}
@@ -571,6 +584,7 @@ export function SalesView() {
           <Button size="sm" title="Thay đổi" style={{ width: '100%' }} type="submit" />
         </form>
       </Modal>
+      {/* MODAL FOR ORDER */}
       <Modal
         title={'Xác nhận thanh toán'}
         opened={openModalOrder}
@@ -590,14 +604,54 @@ export function SalesView() {
             <span className="text-sm  text-gray-500"> Số tiền khách trả </span>
             <div className="flex items-center gap-2 ">
               <Input
-                defaultValue={totalPrice}
-                disabled
+                value={priceCustomerPay.replace(/\B(?=(\d{3})+(?!\d))/g, '.')}
                 placeholder="Số tiền khách trả"
-                type="number"
+                type="text"
                 style={{ flex: 1 }}
+                onFocus={() => setIsFocusedInputPriceCustomerPay(true)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                  const value = e.target.value.replace(/\D/g, '');
+                  setPriceCustomerPay(value);
+                  if (totalPrice > Number(value)) {
+                    setIsCustomerPayFull(false);
+                  } else if (totalPrice <= Number(value) || totalPrice - Number(value) === 0) {
+                    setIsCustomerPayFull(true);
+                  }
+                }}
               />
-              <Button title="Trả đủ" />
+              <Button
+                size="sm"
+                onClick={() => {
+                  setIsCustomerPayFull(true);
+                  setPriceCustomerPay(String(totalPrice));
+                }}
+                title="Trả đủ"
+              />
             </div>
+          </div>
+          <div className="flex items-center justify-between">
+            <Checkbox
+              checked={!isCustomerPayFull || priceCustomerPay === '0'}
+              onChange={() => {
+                setIsCustomerPayFull((prev) => !prev);
+                if (isCustomerPayFull) {
+                  setPriceCustomerPay('0');
+                } else {
+                  setPriceCustomerPay(String(totalPrice));
+                }
+              }}
+              size="sm"
+              radius="sm"
+              label="Khách ghi nợ"
+            />
+            <span
+              className={`text-sm  ${isCustomerPayFull && Number(priceCustomerPay) >= totalPrice ? 'text-green-500 font-medium' : 'text-red-500 font-semibold'}`}
+            >
+              {isCustomerPayFull && totalPrice - Number(priceCustomerPay || 0) <= 0
+                ? 'Tiền thừa trả lại khách: ' +
+                  formatCurrency(Number(priceCustomerPay || 0) - totalPrice)
+                : `Khách chưa trả đủ: ${formatCurrency(totalPrice - Number(priceCustomerPay || 0))}`}
+            </span>
           </div>
           <hr className="border-b border-b-white border-t-gray-400 " />
           <div className="grid grid-cols-2 justify-between">
@@ -617,6 +671,10 @@ export function SalesView() {
             <span className="text-right text-pos-blue-500 font-semibold text-lg">
               {formatCurrency(totalPrice)}
             </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-medium text-gray-800">Tự động in hóa đơn khi thanh toán</p>
+            <Switch />
           </div>
           <div className="flex items-center ">
             <Button
