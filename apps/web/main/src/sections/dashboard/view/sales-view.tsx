@@ -849,15 +849,15 @@ export function SalesView() {
         </div>
 
         <div className="flex justify-end mt-4">
-          <Button
+          {/* <Button
             title="In hóa đơn"
             onClick={() => {
               const element = document.getElementById("invoice-print");
               if (element) html2pdf().from(element).save("invoice.pdf");
               setSelectedCustomer(null);
             }}
-          />
-          {/* <Button
+          /> */}
+          <Button
             title="In hóa đơn"
             onClick={() => {
               const invoice = document.getElementById("invoice-print");
@@ -874,7 +874,7 @@ export function SalesView() {
               document.body.innerHTML = originalContent;
               window.location.reload(); // hoặc setState để render lại nếu cần
             }}
-          /> */}
+          />
         </div>
       </Modal>
     </div>
