@@ -1,12 +1,10 @@
-'use client';
-import {
-  CreateCustomerInput,
-  UpdateCustomerInput,
-} from '../../../schemas/customer/customer.schema';
-import { Button, Input } from '@repo/design-system/components/ui';
-import { Customer } from '@repo/design-system/types';
-import React, { useEffect } from 'react';
-import { UseFormReturn } from 'react-hook-form';
+"use client";
+import { CreateCustomerInput, UpdateCustomerInput } from "../../../schemas/customer/customer.schema";
+import { Button, Input } from "@repo/design-system/components/ui";
+import { Customer } from "@repo/design-system/types";
+import React, { useEffect } from "react";
+import { UseFormReturn } from "react-hook-form";
+import { toast } from "react-toastify";
 
 interface FormCreateCustomerProps {
   createCustomer?: (data: CreateCustomerInput) => Promise<any>;
@@ -49,14 +47,14 @@ export default function FormCreateCustomer({
   useEffect(() => {
     if (isEditForm && selectedCustomer && updateCustomerForm) {
       updateCustomerForm.reset({
-        name: selectedCustomer.name || '',
-        phone: selectedCustomer.phone || '',
-        email: selectedCustomer.email || '',
-        address: selectedCustomer.address || '',
-        city: selectedCustomer.city || '',
-        state: selectedCustomer.state || '',
-        zip: selectedCustomer.zip || '',
-        country: selectedCustomer.country || '',
+        name: selectedCustomer.name || "",
+        phone: selectedCustomer.phone || "",
+        email: selectedCustomer.email || "",
+        address: selectedCustomer.address || "",
+        city: selectedCustomer.city || "",
+        state: selectedCustomer.state || "",
+        zip: selectedCustomer.zip || "",
+        country: selectedCustomer.country || "",
       });
     }
   }, [isEditForm, selectedCustomer, updateCustomerForm]);
@@ -73,9 +71,7 @@ export default function FormCreateCustomer({
         <Input
           withAsterisk={isEditForm ? false : true}
           label="Tên khách hàng"
-          {...(isEditForm
-            ? updateCustomerForm?.register('name')
-            : createCustomerForm?.register('name'))}
+          {...(isEditForm ? updateCustomerForm?.register("name") : createCustomerForm?.register("name"))}
           error={createCustomerForm?.formState.errors.name?.message}
           name="name"
           placeholder="Nhập tên khách hàng"
@@ -83,10 +79,13 @@ export default function FormCreateCustomer({
         />
         <Input
           label="Số điện thoại"
-          {...(isEditForm
-            ? updateCustomerForm?.register('phone')
-            : createCustomerForm?.register('phone'))}
+          {...(isEditForm ? updateCustomerForm?.register("phone") : createCustomerForm?.register("phone"))}
           name="phone"
+          type="text"
+          onChange={(e) => {
+            const onlyNums = e.target.value.replace(/[^0-9]/g, "");
+            e.target.value = onlyNums;
+          }}
           placeholder="Nhập số điên thoại"
           className="flex-1"
         />
@@ -94,18 +93,14 @@ export default function FormCreateCustomer({
       <div className="flex items-center gap-3">
         <Input
           label="Email"
-          {...(isEditForm
-            ? updateCustomerForm?.register('email')
-            : createCustomerForm?.register('email'))}
+          {...(isEditForm ? updateCustomerForm?.register("email") : createCustomerForm?.register("email"))}
           name="email"
           placeholder="Nhập email khách hàng"
           className="flex-1"
         />
         <Input
           label="Địa chỉ"
-          {...(isEditForm
-            ? updateCustomerForm?.register('address')
-            : createCustomerForm?.register('address'))}
+          {...(isEditForm ? updateCustomerForm?.register("address") : createCustomerForm?.register("address"))}
           name="address"
           placeholder="Nhập địa chỉ khách hàng"
           className="flex-1"
@@ -114,18 +109,14 @@ export default function FormCreateCustomer({
       <div className="flex items-center gap-3">
         <Input
           label="Thành phố"
-          {...(isEditForm
-            ? updateCustomerForm?.register('city')
-            : createCustomerForm?.register('city'))}
+          {...(isEditForm ? updateCustomerForm?.register("city") : createCustomerForm?.register("city"))}
           name="city"
           placeholder="Nhập thành phố"
           className="flex-1"
         />
         <Input
           label="Mã zip"
-          {...(isEditForm
-            ? updateCustomerForm?.register('zip')
-            : createCustomerForm?.register('zip'))}
+          {...(isEditForm ? updateCustomerForm?.register("zip") : createCustomerForm?.register("zip"))}
           name="zip"
           placeholder="Nhập mã zip"
           className="flex-1"
@@ -135,12 +126,10 @@ export default function FormCreateCustomer({
       <div className="flex items-center ">
         <Button
           disabled={
-            isEditForm
-              ? updateCustomerForm?.formState.isSubmitting
-              : createCustomerForm?.formState.isSubmitting
+            isEditForm ? updateCustomerForm?.formState.isSubmitting : createCustomerForm?.formState.isSubmitting
           }
           type="submit"
-          title={isEditForm ? 'Sửa khách hàng' : 'Tạo khách hàng'}
+          title={isEditForm ? "Sửa khách hàng" : "Tạo khách hàng"}
           style={{ flex: 1 }}
         />
       </div>
