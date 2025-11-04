@@ -256,7 +256,8 @@ export function SalesView() {
     });
     setInvoiceData(invoices[currentInvoice]);
     setTimeout(() => setOpenModalInvoice(true), 0);
-    setSelectedCustomer(null);
+
+    // setSelectedCustomer(null);
     getProducts();
   };
   const totalPrice = useMemo(() => {
@@ -786,8 +787,27 @@ export function SalesView() {
             onClick={() => {
               const element = document.getElementById("invoice-print");
               if (element) html2pdf().from(element).save("invoice.pdf");
+              setSelectedCustomer(null);
             }}
           />
+          {/* <Button
+            title="In hóa đơn"
+            onClick={() => {
+              const invoice = document.getElementById("invoice-print");
+              if (!invoice) return;
+
+              // Ẩn những phần không cần in
+              const originalContent = document.body.innerHTML;
+              document.body.innerHTML = invoice.outerHTML;
+
+              // Gọi cửa sổ in
+              window.print();
+
+              // Khôi phục lại giao diện gốc
+              document.body.innerHTML = originalContent;
+              window.location.reload(); // hoặc setState để render lại nếu cần
+            }}
+          /> */}
         </div>
       </Modal>
     </div>
