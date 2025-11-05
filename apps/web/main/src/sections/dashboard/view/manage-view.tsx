@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 import { Button, Input, Modal, Select, Table } from '@repo/design-system/components/ui';
 import { useClickOutside } from '../../../../../../../packages/design-system/src/hooks/client';

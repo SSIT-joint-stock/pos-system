@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 import Image from 'next/image';
@@ -18,8 +19,7 @@ import { Burger, Switch } from '@mantine/core';
 import { useRouter } from 'next/navigation';
 import { useClickOutside } from '@repo/design-system/hooks/client';
 import { useCustomer } from '../../../../../main/src/hooks/customers/use-customer';
-
-import html2pdf from 'html2pdf.js'; // ✅ đúng
+import html2pdf from 'html2pdf.js';
 
 import Invoice from '../components/invoice';
 
