@@ -44,7 +44,7 @@ const formatProductStatus = (status: string) => {
   const translations: Record<string, string> = {
     ACTIVE: 'Đang kinh doanh ',
     INACTIVE: 'Ngừng kinh doanh',
-    SOLD: 'Đã bán',
+    SOLD: 'Đã bán hết',
   };
   return translations[status] || status;
 };
@@ -453,9 +453,9 @@ export function ManageView() {
         <FilterBar
           dataComplete={[...new Set(products?.map((p) => p.name) || [])]}
           statusOptions={[
-            { value: 'ACTIVE', label: 'ACTIVE' },
-            { value: 'INACTIVE', label: 'INACTIVE' },
-            { value: 'SOLD', label: 'SOLD' },
+            { value: 'ACTIVE', label: 'Đang kinh doanh ' },
+            { value: 'INACTIVE', label: 'Ngừng kinh doanh' },
+            { value: 'SOLD', label: 'Đã bán hết' },
           ]}
           onFilterChange={(newFilters) => {
             setFilters((prev) => ({

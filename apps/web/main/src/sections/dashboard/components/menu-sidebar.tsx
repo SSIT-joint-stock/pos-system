@@ -1,3 +1,4 @@
+import { Tooltip } from '@mantine/core';
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { useAtom } from 'jotai';
 import {
@@ -103,28 +104,6 @@ export default function MenuSidebar({
         },
       ],
     },
-    // {
-    //   title: 'Báo cáo',
-    //   icon: <NotepadText className="shrink-0" />,
-    //   children: [
-    //     {
-    //       title: 'Doanh thu theo sản phẩm',
-    //       path: `/dashboard/store/${currentStore?.id}/overview`,
-    //     },
-    //     {
-    //       title: 'Doanh thu theo ngày',
-    //       path: `/dashboard/store/${currentStore?.id}/manage-stores`,
-    //     },
-    //     {
-    //       title: 'Sản phẩm bán chạy',
-    //       path: `/dashboard/store/${currentStore?.id}/manage-stores`,
-    //     },
-    //     {
-    //       title: 'Báo cáo cuối ngày',
-    //       path: `/dashboard/store/${currentStore?.id}/manage-stores`,
-    //     },
-    //   ],
-    // },
   ];
 
   return (
@@ -134,29 +113,37 @@ export default function MenuSidebar({
           return (
             // Submenu item has children
             <div key={idx} className="flex flex-col w-full">
-              <button
-                title={item.title}
-                onClick={() => {
-                  setIsExpand(true);
-                  setOpenSubmenu(openSubmenu === idx ? null : idx);
-                }}
-                className={`flex cursor-pointer items-center gap-5 p-2 rounded-lg transition-all duration-300 w-full font-medium
+              <Tooltip
+                color="rgba(125, 124, 124, 1)"
+                withArrow
+                transitionProps={{ transition: 'fade-right', duration: 300 }}
+                label={item.title}
+                position="right"
+                disabled={isExpand}
+              >
+                <button
+                  onClick={() => {
+                    setIsExpand(true);
+                    setOpenSubmenu(openSubmenu === idx ? null : idx);
+                  }}
+                  className={`flex cursor-pointer items-center gap-5 p-2 rounded-lg transition-all duration-300 w-full font-medium
     ${isExpand === false ? 'flex items-center justify-center' : ''}
     ${
       item.children.some((child) => child.path === pathName)
         ? 'bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white'
         : 'text-gray-500 hover:bg-pos-blue-50 hover:text-pos-blue-400'
     }`}
-              >
-                <span className="font-medium">{item.icon}</span>
-                {isExpand && <p className="truncate font-medium">{item.title}</p>}
-                {isExpand && (
-                  <ChevronRight
-                    size={16}
-                    className={`ml-auto transition-transform duration-300 ${openSubmenu === idx ? 'rotate-90' : ''}`}
-                  />
-                )}
-              </button>
+                >
+                  <span className="font-medium">{item.icon}</span>
+                  {isExpand && <p className="truncate font-medium">{item.title}</p>}
+                  {isExpand && (
+                    <ChevronRight
+                      size={16}
+                      className={`ml-auto transition-transform duration-300 ${openSubmenu === idx ? 'rotate-90' : ''}`}
+                    />
+                  )}
+                </button>
+              </Tooltip>
               {/* Submenu dropdown */}
               <div
                 className={`flex flex-col pl-4 gap-1 transition-all duration-300 border-l border-l-gray-400 ${isExpand && openSubmenu === idx ? 'max-h-40 opacity-100 visible mt-2 ' : 'max-h-0 opacity-0 p-0 invisible mt-0'}`}
@@ -176,15 +163,24 @@ export default function MenuSidebar({
         }
         // Submenu item has no children
         return (
-          <Link
-            title={item.title}
+          <Tooltip
+            withArrow
+            color="rgba(125, 124, 124, 1)"
+            transitionProps={{ transition: 'fade-right', duration: 300 }}
+            label={item.title}
+            position="right"
+            disabled={isExpand}
             key={idx}
-            href={item.path}
-            className={`flex items-center gap-5 p-2 rounded-lg  transition-all duration-300 w-full font-medium ${isExpand === false && 'flex items-center justify-center'}   ${item.path === pathName ? 'bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white' : 'text-gray-500 hover:bg-pos-blue-50 hover:text-pos-blue-400'}`}
           >
-            <span>{item.icon}</span>
-            {isExpand && <p className="truncate">{item.title}</p>}
-          </Link>
+            <Link
+              key={idx}
+              href={item.path}
+              className={`flex items-center gap-5 p-2 rounded-lg  transition-all duration-300 w-full font-medium ${isExpand === false && 'flex items-center justify-center'}   ${item.path === pathName ? 'bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white' : 'text-gray-500 hover:bg-pos-blue-50 hover:text-pos-blue-400'}`}
+            >
+              <span>{item.icon}</span>
+              {isExpand && <p className="truncate">{item.title}</p>}
+            </Link>
+          </Tooltip>
         );
       })}
     </div>

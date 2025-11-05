@@ -11,6 +11,8 @@ type VariantSelect = 'filled' | 'default' | 'unstyled';
 export type SelectDataItem = {
   value: string;
   label: string;
+  sort?: string;
+  sortBy?: string;
   description?: string;
   member?: number;
 };

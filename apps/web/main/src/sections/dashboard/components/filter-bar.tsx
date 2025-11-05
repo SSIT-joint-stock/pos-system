@@ -87,20 +87,21 @@ export default function FilterBar({
             handleSearchClick();
           }}
           style={{ width: setWidth }}
-          className={` flex items-center border border-gray-200 rounded-md overflow-hidden`}
+          className={` flex items-center overflow-hidden`}
         >
           <AutoComplete
             onChange={setSearchValue}
-            size="xs"
+            size="sm"
+            radius="sm"
             leftSection={<Search size={16} />}
-            variant="unstyled"
+            // variant="unstyled"
             placeholder={placeholderInputSearch ?? 'Tìm kiếm sản phẩm'}
             data={dataComplete || ['T-Shirt', 'Cap', 'Shoes', 'Watch', 'Sunglass']}
-            className="flex-1 py-[1px] text-sm text-gray-900 font-medium placeholder:font-normal"
+            className="flex-1"
             rightSection={
               <button
                 onClick={handleSearchClick}
-                className="bg-pos-blue-500 text-white p-2"
+                className="bg-pos-blue-500 text-white "
                 title="Tìm kiếm"
               >
                 <Search size={16} />
@@ -118,7 +119,7 @@ export default function FilterBar({
               placeholder="Trạng thái"
               value={status}
               onChange={(value) => setStatus(value ?? undefined)}
-              size="xs"
+              size="sm"
               radius="sm"
               className="w-[200px] text-sm font-medium"
             />
@@ -138,18 +139,18 @@ export default function FilterBar({
           )}
 
           {hasDatePicker && (
-            <div className="w-[26ch] border border-gray-200 rounded-md outline-none">
+            <div className="w-[26ch] rounded-md outline-none">
               <DatePickerInput
                 type="range"
-                variant="unstyled"
-                radius="md"
+                // variant="unstyled"
+                radius="sm"
                 clearable
                 placeholder="VD: 15/08/2025-22/08/2025"
-                size="xs"
+                size="sm"
                 value={date}
                 onChange={(val) => setDate((val as string[]) || [])}
                 rightSection={<Calendar1 size={16} />}
-                className="w-full text-nowrap py-[1px] px-2 text-sm text-gray-900 font-medium placeholder:font-normal placeholder:text-gray-900"
+                // className="w-full text-nowrap border border-gray-500 py-[1px] px-2 text-sm text-gray-900 font-medium placeholder:font-normal placeholder:text-gray-900"
               />
             </div>
           )}

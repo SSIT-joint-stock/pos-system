@@ -18,9 +18,10 @@ import {
 } from '../../../../main/src/schemas/product/product.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FilterValue, useQueryParams } from '../query/use-query-params';
-interface ProductFilters extends Record<string, FilterValue> {
+export interface ProductFilters extends Record<string, FilterValue> {
   q?: string;
   product_status?: string;
+  categories?: string;
 }
 
 export function useProduct() {
@@ -28,10 +29,13 @@ export function useProduct() {
   const { showSuccessToast } = useToast();
   const {
     paginationParams,
-    setPaginationParams,
+    sort,
+    sortBy,
     filters,
-    setFilters,
     pagination,
+
+    setPaginationParams,
+    setFilters,
     setPagination,
     buildParams,
     setSortBy,
@@ -39,6 +43,7 @@ export function useProduct() {
   } = useQueryParams<ProductFilters>({
     q: 'q',
     product_status: 'product_status',
+    categories: 'categories',
   });
   // STATE
   const currentStore = useAtomValue(currentStoreAtom);
@@ -189,5 +194,7 @@ export function useProduct() {
     updateProductForm,
     createInvoiceProductForm,
     product,
+    sort,
+    sortBy,
   };
 }
