@@ -55,6 +55,8 @@ export interface Order {
   discount_amount: number;
   tax_amount: number;
   total_amount: number;
+  customer_pay_amount: number;
+  change_amount: number;
   payment_method: PaymentMethod;
   status: OrderStatus;
   createdAt: string; // ISO string

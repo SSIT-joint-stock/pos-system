@@ -99,11 +99,7 @@ export default function FilterBar({
             data={dataComplete || ['T-Shirt', 'Cap', 'Shoes', 'Watch', 'Sunglass']}
             className="flex-1"
             rightSection={
-              <button
-                onClick={handleSearchClick}
-                className="bg-pos-blue-500 text-white "
-                title="Tìm kiếm"
-              >
+              <button onClick={handleSearchClick} className=" " title="Tìm kiếm">
                 <Search size={16} />
               </button>
             }

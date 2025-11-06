@@ -25,6 +25,7 @@ export type InputProps = React.PropsWithChildren & {
   isInputPassword?: boolean;
   color?: string;
   withAsterisk?: boolean;
+  styles?: Record<string, any>;
 } & Omit<React.ComponentProps<'input'>, 'size' | 'type' | 'onChange' | 'value'>;
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
@@ -47,6 +48,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       isInputPassword,
       error,
       withAsterisk,
+      styles,
       ...rest
     },
     ref: ForwardedRef<HTMLInputElement>
@@ -65,6 +67,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       leftSection,
       rightSection,
       withAsterisk,
+      styles,
       ...rest,
     };
 

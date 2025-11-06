@@ -5,12 +5,11 @@ import Invoice from '../components/invoice';
 import FormCreateCustomer from '../components/form-create-customer';
 import Logo from '../../../../../main/src/components/common/Logo';
 import Image from 'next/image';
-import html2pdf from 'html2pdf.js';
 import React, { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useOrders } from '../../../../../main/src/hooks/orders/use-orders';
 import { useProduct } from '../../../../../main/src/hooks/product/use-product';
 import { formatCurrency, truncateText } from '../../../utils/';
-import { Button, Checkbox, Input, Modal, Select, Table } from '@repo/design-system/components/ui';
+import { Button, Input, Modal, Select, Table } from '@repo/design-system/components/ui';
 import {
   Keyboard,
   LogOut,
@@ -28,16 +27,17 @@ import { Customer, Product, ProductStatus } from '@repo/design-system/types';
 import { payment_method } from '@repo/design-system/types/inventory';
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { useAtomValue } from 'jotai';
-import { Burger, Switch, Tooltip } from '@mantine/core';
+import { Burger, Tooltip } from '@mantine/core';
 import { useRouter } from 'next/navigation';
 import { useClickOutside } from '@repo/design-system/hooks/client';
 import { useCustomer } from '../../../../../main/src/hooks/customers/use-customer';
 import FiltersProducts from '../components/filter-products';
+import BillOrder from '../components/bill-order';
 
-type SelectedProduct = Product & { selectedQuantity: number };
+export type SelectedProduct = Product & { selectedQuantity: number };
 type Invoice = SelectedProduct[];
 
-const paymentMethods = [
+export const paymentMethods = [
   {
     label: 'Tiền mặt',
     value: payment_method.CASH,
@@ -105,7 +105,7 @@ export function SalesView() {
     useState<boolean>(false);
   const [isOpenFilterProducts, setIsOpenFilterProducts] = useState<boolean>(false);
   const [selectedCategoriesIds, setSelectedCategoriesIds] = useState<string[]>([]);
-
+  const [newOrderId, setNewOrderId] = useState<string>('');
   const updateCurrentInvoice = (newProducts: SelectedProduct[]) => {
     setSelectedProducts(newProducts);
     setInvoices((prev) => prev.map((inv, idx) => (idx === currentInvoice ? newProducts : inv)));
@@ -210,9 +210,14 @@ export function SalesView() {
   // Áp dụng thay đổi
   const handleApplyChangePrice = () => {
     if (!editingProductId) return;
-    setSelectedProducts((prev) =>
-      prev.map((p) => (p.id === editingProductId ? { ...p, price: newPrice } : p))
+
+    const updated = selectedProducts.map((p) =>
+      p.id === editingProductId ? { ...p, price: newPrice } : p
     );
+
+    setSelectedProducts(updated);
+    updateCurrentInvoice(updated);
+
     showSuccessToast('Thay đổi đơn giá thành công!');
     setOpenModalChangePrice(false);
   };
@@ -222,23 +227,25 @@ export function SalesView() {
       quantity: p.selectedQuantity,
       price: p.price,
     }));
-
-    await createOrder({
+    const newOrder = await createOrder({
       subtotal_amount: totalPrice,
       discount_amount: 0,
       tax_amount: 0,
       total_amount: totalPrice,
-      status: OrderStatusEnum.Enum.COMPLETED,
+      customer_pay_amount: Number(priceCustomerPay),
       payment_method: changPaymentMethods || payment_method.CASH,
       order_items: orderItems,
       customer_id: selectedCustomer?.id,
       customer_name: selectedCustomer?.name || '',
     });
-    setInvoiceData(invoices[currentInvoice]);
-    setTimeout(() => setOpenModalInvoice(true), 0);
-
-    // setSelectedCustomer(null);
-    getProducts();
+    if (newOrder) {
+      setNewOrderId(newOrder.orderId);
+      setInvoiceData(invoices[currentInvoice]);
+      setOpenModalOrder(false);
+      setOpenModalInvoice(true);
+      getProducts();
+      setSelectedProducts([]);
+    }
   };
   const totalPrice = useMemo(() => {
     return selectedProducts.reduce((sum, p) => sum + p.selectedQuantity * p.price, 0);
@@ -295,6 +302,7 @@ export function SalesView() {
     }));
   };
   useClickOutside(openMenuSettingsRef, () => setIsOpenMenuSettings(false));
+  console.log(invoiceData);
   return (
     <>
       <div className="h-screen flex flex-col gap-2 overflow-hidden p-4">
@@ -630,114 +638,23 @@ export function SalesView() {
           </form>
         </Modal>
         {/* MODAL FOR ORDER */}
-        <Modal
-          title={'Xác nhận thanh toán'}
-          opened={openModalOrder}
-          size="xl"
-          onClose={() => setOpenModalOrder(false)}
-        >
-          <div className="flex flex-col gap-4">
-            <Select
-              name="paymentMethod"
-              onChange={(value) => setChangePaymentMethods(value as payment_method)}
-              position="bottom"
-              label={'Phương thức thanh toán'}
-              defaultValue={paymentMethods[0].value}
-              data={paymentMethods}
-            />
-            <div className="flex flex-col gap-1">
-              <span className="text-sm  text-gray-500"> Số tiền khách trả </span>
-              <div className="flex items-center gap-2 ">
-                <Input
-                  value={priceCustomerPay.replace(/\B(?=(\d{3})+(?!\d))/g, '.')}
-                  placeholder="Số tiền khách trả"
-                  type="text"
-                  style={{ flex: 1 }}
-                  onFocus={() => setIsFocusedInputPriceCustomerPay(true)}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                    const value = e.target.value.replace(/\D/g, '');
-                    setPriceCustomerPay(value);
-                    if (totalPrice > Number(value)) {
-                      setIsCustomerPayFull(false);
-                    } else if (totalPrice <= Number(value) || totalPrice - Number(value) === 0) {
-                      setIsCustomerPayFull(true);
-                    }
-                  }}
-                />
-                <Button
-                  size="sm"
-                  onClick={() => {
-                    setIsCustomerPayFull(true);
-                    setPriceCustomerPay(String(totalPrice));
-                  }}
-                  title="Trả đủ"
-                />
-              </div>
-            </div>
-            <div className="flex items-center justify-between">
-              <Checkbox
-                checked={!isCustomerPayFull || priceCustomerPay === '0'}
-                onChange={() => {
-                  setIsCustomerPayFull((prev) => !prev);
-                  if (isCustomerPayFull) {
-                    setPriceCustomerPay('0');
-                  } else {
-                    setPriceCustomerPay(String(totalPrice));
-                  }
-                }}
-                size="sm"
-                radius="sm"
-                label="Khách ghi nợ"
-              />
-              <span
-                className={`text-sm  ${isCustomerPayFull && Number(priceCustomerPay) >= totalPrice ? 'text-green-500 font-medium' : 'text-red-500 font-semibold'}`}
-              >
-                {isCustomerPayFull && totalPrice - Number(priceCustomerPay || 0) <= 0
-                  ? 'Tiền thừa trả lại khách: ' +
-                    formatCurrency(Number(priceCustomerPay || 0) - totalPrice)
-                  : `Khách chưa trả đủ: ${formatCurrency(totalPrice - Number(priceCustomerPay || 0))}`}
-              </span>
-            </div>
-            <hr className="border-b border-b-white border-t-gray-400 " />
-            <div className="grid grid-cols-2 justify-between">
-              <span> Tổng tiền trước thuế </span>{' '}
-              <span className="text-right">{formatCurrency(totalPrice)}</span>
-            </div>
-            <div className="grid grid-cols-2 justify-between">
-              <span> Thuế đơn hàng </span>
-              <span className="text-right">0 %</span>
-            </div>
-            <div className="grid grid-cols-2 justify-between">
-              <span> Tổng tiền thuế </span>
-              <span className="text-right">{formatCurrency(0)}</span>
-            </div>
-            <div className="grid grid-cols-2 justify-between">
-              <span className="text-pos-blue-500 font-semibold text-lg">
-                {' '}
-                Tổng tiền thanh toán{' '}
-              </span>
-              <span className="text-right text-pos-blue-500 font-semibold text-lg">
-                {formatCurrency(totalPrice)}
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-medium text-gray-800">Tự động in hóa đơn khi thanh toán</p>
-              <Switch />
-            </div>
-            <div className="flex items-center ">
-              <Button
-                loading={loading}
-                onClick={() => {
-                  handleCreateOrder();
-                  setOpenModalOrder(false);
-                  setSelectedProducts([]);
-                }}
-                title="Thanh toán"
-                style={{ flex: 1 }}
-              />
-            </div>
-          </div>
-        </Modal>
+        <BillOrder
+          setChangePaymentMethods={setChangePaymentMethods}
+          setOpenModalOrder={setOpenModalOrder}
+          setPriceCustomerPay={setPriceCustomerPay}
+          setIsCustomerPayFull={setIsCustomerPayFull}
+          handleCreateOrder={handleCreateOrder}
+          setSelectedProducts={setSelectedProducts}
+          setIsFocusedInputPriceCustomerPay={setIsFocusedInputPriceCustomerPay}
+          setOpenModalInvoice={setOpenModalInvoice}
+          openModalOrder={openModalOrder}
+          paymentMethods={paymentMethods}
+          priceCustomerPay={priceCustomerPay}
+          isCustomerPayFull={isCustomerPayFull}
+          totalPrice={totalPrice}
+          loading={loading}
+        />
+        {/* MODAL FOR ADD CUSTOMER */}
         <Modal
           title={'Thêm khách hàng mới'}
           opened={openModalCreateCustomer}
@@ -753,14 +670,13 @@ export function SalesView() {
             }}
           />
         </Modal>
-        {/* ✅ MODAL HÓA ĐƠN - THÊM Ở CUỐI TRƯỚC KHI ĐÓNG DIV */}
-        <Modal
+        {/* ✅ MODAL HÓA ĐƠN */}
+        {/* <Modal
           title={'Hóa đơn thanh toán'}
           opened={openModalInvoice}
           size="xl"
           onClose={() => setOpenModalInvoice(false)}
         >
-          {/* Component hiển thị hóa đơn */}
           <div id="invoice-print" className="bg-white p-4 rounded-md">
             <Invoice
               store={{
@@ -790,7 +706,14 @@ export function SalesView() {
               }}
             />
           </div>
-        </Modal>
+        </Modal> */}
+        <Invoice
+          openModalInvoice={openModalInvoice}
+          newOrderId={newOrderId}
+          priceCustomerPay={priceCustomerPay}
+          setOpenModalInvoice={setOpenModalInvoice}
+          setSelectedProducts={setSelectedProducts}
+        />
       </div>
       <FiltersProducts
         isOpenFilterProducts={isOpenFilterProducts}

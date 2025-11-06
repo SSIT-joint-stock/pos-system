@@ -22,18 +22,31 @@ import {
 import React, { useEffect, useState } from 'react';
 import StatCard from '../components/stat-card';
 import useStore from '../../../../../main/src/hooks/store/use-store';
-import { Modal, Input, Button } from '@repo/design-system/components/ui';
+import { Modal, Input, Button, Select } from '@repo/design-system/components/ui';
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { useAtomValue } from 'jotai';
+import useToast from '@repo/design-system/hooks/client/use-toast-notification';
+import api from '../../../../../main/src/libs/axios';
+import { Controller } from 'react-hook-form';
 
+interface bank {
+  id: string;
+  name: string;
+  code: string;
+  bin: string;
+  shortName: string;
+  logo: string;
+}
 export function InfoStoreView() {
   const { store, stats, updateStore, updateStoreForm, getStoreDetail } = useStore();
+  const { showErrorToast } = useToast();
   const currentStore = useAtomValue(currentStoreAtom);
 
   const [openEditModal, setOpenEditModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
   const [selectedStore, setSelectedStore] = useState<any>();
-
+  const [banks, setBanks] = useState<bank[]>([]);
+  const [selectedBank, setSelectedBank] = useState<bank | null>(null);
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
@@ -53,7 +66,7 @@ export function InfoStoreView() {
 
   const handleConfirmDelete = () => {
     // Logic xóa store
-    console.log('Deleting store:', selectedStore);
+
     // API call để xóa store
     setDeleteModal(false);
     // Redirect hoặc refresh data
@@ -62,6 +75,33 @@ export function InfoStoreView() {
     if (!currentStore?.id) return;
     getStoreDetail();
   }, [currentStore?.id]);
+  useEffect(() => {
+    if (store) {
+      updateStoreForm.reset({
+        name: store.name || '',
+        description: store.description || '',
+        phone_number: store.phone_number || '',
+        address: store.address || '',
+        business_hour: store.business_hour || '',
+        bank_code: store.bank_code || '',
+        bank_name: store.bank_name || '',
+        bank_account_number: store.bank_account_number || '',
+        bank_account_name: store.bank_account_name || '',
+      });
+    }
+  }, [store]);
+  useEffect(() => {
+    const fetchBanks = async () => {
+      try {
+        const res = await api.get('/common/banks');
+        setBanks(res?.data?.data?.data || []);
+      } catch {
+        showErrorToast('Lỗi khi tải danh sách ngân hàng');
+      }
+    };
+
+    fetchBanks();
+  }, []);
 
   return (
     <>
@@ -90,7 +130,7 @@ export function InfoStoreView() {
         </section>
 
         {/* Additional Statistics */}
-        <section className="grid grid-cols-4 items-center gap-6">
+        {/* <section className="grid grid-cols-4 items-center gap-6">
           <StatCard
             icon={DollarSign}
             title="Doanh thu tháng"
@@ -124,7 +164,7 @@ export function InfoStoreView() {
             bgColor="bg-purple-50"
             textColor="text-purple-600"
           />
-        </section>
+        </section> */}
 
         {/* Store Information */}
         <div className="bg-white rounded-xl shadow p-6">
@@ -266,7 +306,7 @@ export function InfoStoreView() {
         </div>
 
         {/* Recent Activity or Quick Stats */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="bg-white p-6 rounded-xl shadow">
             <h3 className="text-lg font-semibold text-gray-800 mb-4">Hoạt động gần đây</h3>
             <div className="space-y-3">
@@ -320,22 +360,29 @@ export function InfoStoreView() {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* EDIT MODAL */}
-      <Modal opened={openEditModal} size="lg" onClose={() => setOpenEditModal(false)}>
-        <div className="flex items-center border-b border-b-gray-200 pb-2.5 mb-4 gap-2.5">
-          <Edit size={18} className="text-pos-blue-500" />
-          <div className="flex items-center gap-2">
-            <h3 className="text-gray-700">Chỉnh sửa cửa hàng:</h3>
-            <h3 className="text-pos-blue-400 font-semibold">{selectedStore?.name}</h3>
-          </div>
-        </div>
-
-        <div className="space-y-4">
+      <Modal
+        opened={openEditModal}
+        size="80%"
+        onClose={() => setOpenEditModal(false)}
+        title={
+          <>
+            <div className="flex items-center gap-2.5">
+              <Edit size={18} className="text-pos-blue-500" />
+              <div className="flex items-center gap-2">
+                <h3 className="text-gray-700">Chỉnh sửa cửa hàng:</h3>
+                <h3 className="text-pos-blue-400 font-semibold">{store?.name}</h3>
+              </div>
+            </div>
+          </>
+        }
+      >
+        <div className="space-y-4 mt-4">
           <div className="border-b border-b-gray-200 pb-4">
-            <h3 className="font-semibold text-gray-800 mb-3">Thông tin cơ bản</h3>
+            <h3 className="font-semibold text-2xl text-gray-800 mb-3">Thông tin cơ bản</h3>
 
             <div className="grid grid-cols-1 gap-4 text-sm">
               <div className="space-y-4">
@@ -345,22 +392,86 @@ export function InfoStoreView() {
                     size="sm"
                     name="name"
                     radius="md"
-                    label="Tên cửa hàng:"
+                    label="Tên cửa hàng"
                     placeholder="Nhập tên cửa hàng"
-                    defaultValue={selectedStore?.name}
                   />
                 </div>
 
                 <div>
-                  <label className="text-gray-500 block mb-1"></label>
+                  <label className="text-gray-500 block mb-1">Mô tả cửa hàng</label>
                   <textarea
                     {...updateStoreForm.register('description')}
                     name="description"
-                    className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                    className="w-full p-2  rounded-md text-sm border border-gray-300 focus:border-pos-blue-500 focus:ring-pos-blue-500 outline-none resize-none"
                     rows={4}
-                    defaultValue={selectedStore?.description}
                     placeholder="Nhập mô tả cửa hàng"
                   />
+                </div>
+                {/* BANK */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Controller
+                      control={updateStoreForm.control}
+                      name="bank_code"
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          searchable
+                          label="Ngân hàng"
+                          placeholder="Chọn ngân hàng"
+                          size="sm"
+                          radius="md"
+                          data={banks.map((bank) => ({
+                            label: `${bank.shortName} - (${bank.name})`,
+                            value: bank.bin,
+                          }))}
+                          onChange={(value) => {
+                            field.onChange(value);
+                            setSelectedBank(banks.find((bank) => bank.bin === value) || null);
+                          }}
+                        />
+                      )}
+                    />
+                  </div>
+
+                  <div>
+                    <Input
+                      {...updateStoreForm.register('bank_name')}
+                      value={
+                        selectedBank ? selectedBank.name : updateStoreForm.getValues('bank_name')
+                      }
+                      label="Tên ngân hàng hiển thị"
+                      name="bank_name"
+                      size="sm"
+                      radius="md"
+                      placeholder="Nhập tên ngân hàng hiển thị trên hóa đơn"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Input
+                      {...updateStoreForm.register('bank_account_number')}
+                      name="bank_account_number"
+                      label="Số tài khoản"
+                      size="sm"
+                      radius="md"
+                      placeholder="Nhập số tài khoản"
+                    />
+                  </div>
+
+                  <div>
+                    <Input
+                      {...updateStoreForm.register('bank_account_name')}
+                      name="bank_account_name"
+                      label="Tên người thụ hưởng"
+                      size="sm"
+                      radius="md"
+                      placeholder="Nhập tên người thụ hưởng"
+                      styles={{ input: { textTransform: 'uppercase' } }}
+                    />
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -372,7 +483,6 @@ export function InfoStoreView() {
                       size="sm"
                       radius="md"
                       placeholder="Nhập số điện thoại"
-                      defaultValue={selectedStore?.phone_number || ''}
                     />
                   </div>
 
@@ -384,7 +494,6 @@ export function InfoStoreView() {
                       size="sm"
                       radius="md"
                       placeholder="Nhập địa chỉ"
-                      defaultValue={selectedStore?.address || ''}
                     />
                   </div>
                 </div>
@@ -393,11 +502,10 @@ export function InfoStoreView() {
                   <Input
                     {...updateStoreForm.register('business_hour')}
                     name="business_hour"
-                    label="Giờ làm việc:"
+                    label="Giờ làm việc"
                     size="sm"
                     radius="md"
                     placeholder="VD: 8:00 - 22:00"
-                    defaultValue={selectedStore?.business_hour || ''}
                   />
                 </div>
               </div>

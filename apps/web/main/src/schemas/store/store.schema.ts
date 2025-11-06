@@ -8,6 +8,10 @@ export const StoreSchema = z.object({
   phone_number: z.string().optional(),
   business_hour: z.string().optional(),
   address: z.string().optional(),
+  bank_code: z.string().optional(),
+  bank_name: z.string().optional(),
+  bank_account_number: z.string().optional(),
+  bank_account_name: z.string().toUpperCase().optional(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime().optional(),
 });
