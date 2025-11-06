@@ -10,8 +10,10 @@ import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 const tableHeaders = [
   'Mã Đơn Hàng',
   'Khách Hàng',
-  'Giá',
-  'Phương Thức Thanh Toán',
+  'Giá bán',
+  'Đã thanh toán',
+  'Công nợ',
+  'Phương Thức TT',
   'Trạng Thái Đơn Hàng',
   'Ngày Tạo',
   'Thao Tác',
@@ -19,17 +21,17 @@ const tableHeaders = [
 const tableHeadersSelected = ['Mã sản phẩm', 'Tên sản phẩm', 'Số lượng', 'Đơn giá', 'Thành tiền'];
 
 const statusColors: Record<string, string> = {
-  PROCESSING: 'text-blue-500 bg-blue-50 py-1.5 px-2.5 rounded-md',
-  RETURNED: 'text-red-900 bg-red-50  py-1.5 px-2.5 rounded-md',
-  PENDING: 'text-orange-500 bg-orange-50  py-1.5 px-2.5 rounded-md',
-  CANCELLED: 'text-red-600 bg-red-50  py-1.5 px-2.5 rounded-md',
-  COMPLETED: 'text-green-500 bg-green-50  py-1.5 px-2.5 rounded-md',
-  PAID: 'text-green-700 bg-green-50  py-1.5 px-2.5 rounded-md',
-  REFUNDED: 'text-red-900 bg-red-50  py-1.5 px-2.5 rounded-md',
+  OVERAGE: 'text-blue-500 bg-blue-50 py-1.5 px-2.5 rounded-xs',
+  RETURNED: 'text-red-900 bg-red-50  py-1.5 px-2.5 rounded-xs',
+  PENDING: 'text-orange-500 bg-orange-50  py-1.5 px-2.5 rounded-xs',
+  CANCELLED: 'text-red-600 bg-red-50  py-1.5 px-2.5 rounded-xs',
+  COMPLETED: 'text-green-500 bg-green-50  py-1.5 px-2.5 rounded-xs',
+  PAID: 'text-green-700 bg-green-50  py-1.5 px-2.5 rounded-xs',
+  REFUNDED: 'text-red-900 bg-red-50  py-1.5 px-2.5 rounded-xs',
 };
 
 const statusLabels: Record<string, string> = {
-  PROCESSING: 'Đang xử lý',
+  OVERAGE: 'Trả thừa',
   RETURNED: 'Đã trả hàng',
   PENDING: 'Chờ thanh toán',
   CANCELLED: 'Đã hủy',
@@ -177,17 +179,19 @@ export function OrdersView() {
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-gray-600">Khách trả</span>
               <span className="text-base font-semibold text-pos-blue-500">
-                {formatCurrency(selectedOrder?.total_amount || 0)}
+                {formatCurrency(selectedOrder?.customer_pay_amount || 0)}
               </span>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-600">Tiền nợ</span>
-              <span className="text-base font-semibold text-gray-900">{formatCurrency(0)}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-600">Tiền thừa</span>
-              <span className="text-base font-semibold text-gray-900">{formatCurrency(0)}</span>
-            </div>
+            {selectedOrder && (
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-600">
+                  {selectedOrder?.change_amount < 0 ? 'Tiền nợ' : 'Tiền thừa'}
+                </span>
+                <span className="text-base font-semibold text-gray-900">
+                  {formatCurrency(Math.abs(selectedOrder?.change_amount || 0))}
+                </span>
+              </div>
+            )}
           </div>
           <div className="flex items-center justify-end gap-4">
             <Button
@@ -272,6 +276,22 @@ export function OrdersView() {
               <td className="px-4 py-2 text-sm text-gray-500 font-medium">
                 {formatCurrency(order.total_amount)}
               </td>
+              <td className="px-4 py-2 text-sm text-gray-500 font-medium">
+                {formatCurrency(order.customer_pay_amount)}
+              </td>
+              {order.change_amount > 0 && (
+                <td className="px-4 py-2 text-sm  font-medium text-pos-blue-500">
+                  Nợ KH: {formatCurrency(order.change_amount)}
+                </td>
+              )}
+              {order.change_amount < 0 && (
+                <td className="px-4 py-2 text-sm text-red-500 font-medium">
+                  KH nợ: {formatCurrency(Math.abs(order.change_amount))}
+                </td>
+              )}
+              {order.change_amount === 0 && (
+                <td className="px-4 py-2 text-sm text-green-500 font-medium">Trả đủ</td>
+              )}
               <td className="px-4 py-2 text-sm text-gray-500">
                 {paymentMethodLabels[order.payment_method]}
               </td>
