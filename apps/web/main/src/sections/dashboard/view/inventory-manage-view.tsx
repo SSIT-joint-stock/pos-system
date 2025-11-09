@@ -1,27 +1,40 @@
-'use client';
-import React, { useState } from 'react';
-import { Button, Modal, Select, Table } from '@repo/design-system/components/ui';
-import FilterBar from '../components/filter-bar';
-import { Download, Eye, Package, TrendingDown, RotateCcw, HandCoins } from 'lucide-react';
-import { NumberInput } from '@mantine/core';
-import useInventory from '../../../../../main/src/hooks/inventory/use-inventory';
-import { Inventory } from '@repo/design-system/types/inventory';
-import { formatCurrency, formatDate } from '../../../../../main/src/utils/';
+"use client";
+import React, { useState } from "react";
+import {
+  Button,
+  Modal,
+  Select,
+  Table,
+} from "@repo/design-system/components/ui";
+import FilterBar from "../components/filter-bar";
+import {
+  Download,
+  Eye,
+  Package,
+  TrendingDown,
+  RotateCcw,
+  HandCoins,
+} from "lucide-react";
+import { NumberInput } from "@mantine/core";
+import useInventory from "../../../../../main/src/hooks/inventory/use-inventory";
+import { Inventory } from "@repo/design-system/types/inventory";
+import { formatCurrency, formatDate } from "../../../../../main/src/utils/";
+import * as XLSX from "xlsx";
 
 const tableHeaders = [
-  'Sản Phẩm',
-  'Số Lượng',
-  'Giảm Giá',
-  'Tổng Giá Trị',
-  'Trạng Thái',
-  'Ngày Tạo',
-  'Thao Tác',
+  "Sản Phẩm",
+  "Số Lượng",
+  "Giảm Giá",
+  "Tổng Giá Trị",
+  "Trạng Thái",
+  "Ngày Tạo",
+  "Thao Tác",
 ];
 
 const statusColors = {
-  ACTIVE: 'text-green-600 bg-green-50',
-  INACTIVE: 'text-gray-600 bg-gray-50',
-  SOLD: 'text-blue-600 bg-blue-50',
+  ACTIVE: "text-green-600 bg-green-50",
+  INACTIVE: "text-gray-600 bg-gray-50",
+  SOLD: "text-blue-600 bg-blue-50",
 };
 
 export function InventoryManageView() {
@@ -44,17 +57,44 @@ export function InventoryManageView() {
 
   // Form states
   const [revalueData, setRevalueData] = useState({ discount: 0, total: 0 });
-  const [statusData, setStatusData] = useState({ status: 'ACTIVE' });
+  const [statusData, setStatusData] = useState({ status: "ACTIVE" });
 
   const handleRevalue = async () => {
-    revalueInventory(selectedInventory?.id ?? '', revalueData.discount, revalueData.total);
+    revalueInventory(
+      selectedInventory?.id ?? "",
+      revalueData.discount,
+      revalueData.total
+    );
     setOpenRevalueModal(false);
   };
 
   const handleSetStatus = async () => {
-    setStatus(selectedInventory?.id ?? '', statusData.status);
+    setStatus(selectedInventory?.id ?? "", statusData.status);
     setOpenStatusModal(false);
   };
+
+  const handleExportExcel = () => {
+    if (!inventories || inventories.length === 0) {
+      alert("Không có dữ liệu để xuất");
+      return;
+    }
+
+    const formatted = inventories.map((inv: Inventory) => ({
+      "Sản phẩm": inv.product?.name,
+      "Số lượng": inv.quantity,
+      "Giảm giá (%)": inv.discount,
+      "Tổng giá trị (VND)": inv.total,
+      "Trạng thái": inv.status,
+      "Ngày tạo": formatDate(inv.createdAt),
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(formatted);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Tồn kho");
+
+    XLSX.writeFile(workbook, "inventory.xlsx");
+  };
+
   return (
     <>
       {/* VIEW MODAL */}
@@ -77,7 +117,9 @@ export function InventoryManageView() {
             </div>
             <div>
               <p className="font-medium text-gray-700">Sản phẩm</p>
-              <p className="text-gray-600">{selectedInventory?.product?.name}</p>
+              <p className="text-gray-600">
+                {selectedInventory?.product?.name}
+              </p>
             </div>
             <div>
               <p className="font-medium text-gray-700">Số lượng</p>
@@ -90,9 +132,9 @@ export function InventoryManageView() {
             <div>
               <p className="font-medium text-gray-700">Tổng giá trị</p>
               <p className="text-gray-600">
-                {Intl.NumberFormat('vi-VN', {
-                  style: 'currency',
-                  currency: 'VND',
+                {Intl.NumberFormat("vi-VN", {
+                  style: "currency",
+                  currency: "VND",
                 }).format(Number(selectedInventory?.total))}
               </p>
             </div>
@@ -120,7 +162,8 @@ export function InventoryManageView() {
           <div className="border-t border-gray-300 pt-4">
             {selectedInventory && selectedInventory.updatedAt && (
               <p className="text-sm text-gray-500">
-                Lần cuối cập nhật: {new Date(selectedInventory?.updatedAt).toLocaleString()}
+                Lần cuối cập nhật:{" "}
+                {new Date(selectedInventory?.updatedAt).toLocaleString()}
               </p>
             )}
           </div>
@@ -151,7 +194,10 @@ export function InventoryManageView() {
             placeholder="Nhập phần trăm giảm giá"
             value={revalueData.discount}
             onChange={(value) =>
-              setRevalueData((prev) => ({ ...prev, discount: Number(value ?? 0) }))
+              setRevalueData((prev) => ({
+                ...prev,
+                discount: Number(value ?? 0),
+              }))
             }
             min={0}
             max={100}
@@ -161,7 +207,9 @@ export function InventoryManageView() {
             label="Tổng giá trị"
             placeholder="Nhập tổng giá trị mới"
             value={revalueData.total}
-            onChange={(value) => setRevalueData((prev) => ({ ...prev, total: Number(value ?? 0) }))}
+            onChange={(value) =>
+              setRevalueData((prev) => ({ ...prev, total: Number(value ?? 0) }))
+            }
             min={0}
           />
 
@@ -173,7 +221,12 @@ export function InventoryManageView() {
             >
               Hủy
             </button>
-            <Button onClick={handleRevalue} title="Cập nhật" size="sm" radius="md" />
+            <Button
+              onClick={handleRevalue}
+              title="Cập nhật"
+              size="sm"
+              radius="md"
+            />
           </div>
         </div>
       </Modal>
@@ -204,11 +257,11 @@ export function InventoryManageView() {
             label="Trạng thái mới"
             placeholder="Chọn trạng thái"
             value={statusData.status}
-            onChange={(value) => setStatusData({ status: value ?? 'ACTIVE' })}
+            onChange={(value) => setStatusData({ status: value ?? "ACTIVE" })}
             data={[
-              { value: 'ACTIVE', label: 'ACTIVE' },
-              { value: 'INACTIVE', label: 'INACTIVE' },
-              { value: 'SOLD', label: 'SOLD' },
+              { value: "ACTIVE", label: "ACTIVE" },
+              { value: "INACTIVE", label: "INACTIVE" },
+              { value: "SOLD", label: "SOLD" },
             ]}
           />
 
@@ -220,7 +273,12 @@ export function InventoryManageView() {
             >
               Hủy
             </button>
-            <Button onClick={handleSetStatus} title="Cập nhật" size="sm" radius="md" />
+            <Button
+              onClick={handleSetStatus}
+              title="Cập nhật"
+              size="sm"
+              radius="md"
+            />
           </div>
         </div>
       </Modal>
@@ -229,9 +287,9 @@ export function InventoryManageView() {
         {/* ACTION BAR */}
         <FilterBar
           statusOptions={[
-            { value: 'ACTIVE', label: 'ACTIVE' },
-            { value: 'INACTIVE', label: 'INACTIVE' },
-            { value: 'SOLD', label: 'SOLD' },
+            { value: "ACTIVE", label: "ACTIVE" },
+            { value: "INACTIVE", label: "INACTIVE" },
+            { value: "SOLD", label: "SOLD" },
           ]}
           onFilterChange={(newFilters) => {
             setFilters(newFilters);
@@ -241,9 +299,14 @@ export function InventoryManageView() {
           }}
           actions={
             <>
-              <button className="bg-white border text-nowrap border-gray-200 rounded-md flex items-center gap-2 py-2 px-4 cursor-pointer hover:opacity-80 transition-opacity duration-300">
+              <button
+                onClick={handleExportExcel}
+                className="bg-white border text-nowrap border-gray-200 rounded-md flex items-center gap-2 py-2 px-4 cursor-pointer hover:opacity-80 transition-opacity duration-300"
+              >
                 <Download size={16} />
-                <span className="text-gray-900 font-medium text-xs">Xuất dữ liệu</span>
+                <span className="text-gray-900 font-medium text-xs">
+                  Xuất dữ liệu
+                </span>
               </button>
             </>
           }
@@ -256,8 +319,12 @@ export function InventoryManageView() {
           limit={pagination?.limit}
           totalPages={pagination?.totalPages}
           pageSize={pagination?.limit ?? paginationParams.limit}
-          onPageChange={(page) => setPaginationParams((prev) => ({ ...prev, page }))}
-          onPageSizeChange={(size) => setPaginationParams((prev) => ({ ...prev, limit: size }))}
+          onPageChange={(page) =>
+            setPaginationParams((prev) => ({ ...prev, page }))
+          }
+          onPageSizeChange={(size) =>
+            setPaginationParams((prev) => ({ ...prev, limit: size }))
+          }
           tableHeaders={tableHeaders}
           data={inventories}
           isLoading={loading}
@@ -269,16 +336,20 @@ export function InventoryManageView() {
                     {inventory.product.name}
                   </span>
                   <span className="text-xs text-gray-500">
-                    Giá:{' '}
-                    {Intl.NumberFormat('vi-VN', {
-                      style: 'currency',
-                      currency: 'VND',
+                    Giá:{" "}
+                    {Intl.NumberFormat("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
                     }).format(Number(inventory.product.price))}
                   </span>
                 </div>
               </td>
-              <td className="px-4 py-2 text-xs text-gray-900 font-medium">{inventory.quantity}</td>
-              <td className="px-4 py-2 text-xs text-gray-500">{inventory.discount}%</td>
+              <td className="px-4 py-2 text-xs text-gray-900 font-medium">
+                {inventory.quantity}
+              </td>
+              <td className="px-4 py-2 text-xs text-gray-500">
+                {inventory.discount}%
+              </td>
               <td className="px-4 py-2 text-xs text-gray-900 font-medium">
                 {formatCurrency(inventory.total)}
               </td>

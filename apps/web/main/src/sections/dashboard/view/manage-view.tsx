@@ -1,8 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-'use client';
-import { Button, Input, Modal, Select, Table } from '@repo/design-system/components/ui';
-import { useClickOutside } from '../../../../../../../packages/design-system/src/hooks/client';
-import FilterBar from '../components/filter-bar';
+"use client";
+import {
+  Button,
+  Input,
+  Modal,
+  Select,
+  Table,
+} from "@repo/design-system/components/ui";
+import { useClickOutside } from "../../../../../../../packages/design-system/src/hooks/client";
+import FilterBar from "../components/filter-bar";
 import {
   BadgeAlert,
   Download,
@@ -13,38 +19,42 @@ import {
   ShoppingCart,
   Trash,
   Upload,
-} from 'lucide-react';
-import React, { FormEvent, useEffect, useRef, useState } from 'react';
-import { formatCurrency, formatDate } from '../../../../../main/src/utils/index';
-import { useProduct } from '../../../../../main/src/hooks/product/use-product';
-import { Controller } from 'react-hook-form';
-import Image from 'next/image';
-import { MultiSelect } from '@mantine/core';
+} from "lucide-react";
+import React, { FormEvent, useEffect, useRef, useState } from "react";
+import {
+  formatCurrency,
+  formatDate,
+} from "../../../../../main/src/utils/index";
+import * as XLSX from "xlsx";
+import { useProduct } from "../../../../../main/src/hooks/product/use-product";
+import { Controller } from "react-hook-form";
+import Image from "next/image";
+import { MultiSelect } from "@mantine/core";
 
-import { currentStoreAtom } from '@repo/design-system/stores/auth';
-import { useAtomValue } from 'jotai';
-import { useCategories } from '../../../../../main/src/hooks/categories/use-categories';
+import { currentStoreAtom } from "@repo/design-system/stores/auth";
+import { useAtomValue } from "jotai";
+import { useCategories } from "../../../../../main/src/hooks/categories/use-categories";
 const tableHeaders = [
-  'Sản Phẩm',
-  'Số lượng',
-  'Mã Sản Phẩm',
-  'Giá Nhập',
-  'Giá Bán',
-  'Trạng Thái',
-  'Ngày Tạo',
-  'Thao Tác',
+  "Sản Phẩm",
+  "Số lượng",
+  "Mã Sản Phẩm",
+  "Giá Nhập",
+  "Giá Bán",
+  "Trạng Thái",
+  "Ngày Tạo",
+  "Thao Tác",
 ];
 
 const statusColors: Record<string, string> = {
-  ACTIVE: ' text-green-500 bg-green-50 py-1.5 px-2.5 rounded-md',
-  INACTIVE: 'text-red-500 bg-red-50 py-1.5 px-2.5 rounded-md',
+  ACTIVE: " text-green-500 bg-green-50 py-1.5 px-2.5 rounded-md",
+  INACTIVE: "text-red-500 bg-red-50 py-1.5 px-2.5 rounded-md",
 };
 
 const formatProductStatus = (status: string) => {
   const translations: Record<string, string> = {
-    ACTIVE: 'Đang kinh doanh ',
-    INACTIVE: 'Ngừng kinh doanh',
-    SOLD: 'Đã bán hết',
+    ACTIVE: "Đang kinh doanh ",
+    INACTIVE: "Ngừng kinh doanh",
+    SOLD: "Đã bán hết",
   };
   return translations[status] || status;
 };
@@ -56,8 +66,8 @@ export function ManageView() {
   const [openEditModal, setOpenEditModal] = useState<boolean>(false);
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
   const [inventoryModal, setInventorModal] = useState<boolean>(false);
-  const [adjustValue, setAdjustValue] = useState({ delta: '0' });
-  const [type, setType] = useState<string>('SALE');
+  const [adjustValue, setAdjustValue] = useState({ delta: "0" });
+  const [type, setType] = useState<string>("SALE");
 
   const [openUploadOption, setOpenUploadOption] = useState<boolean>(false);
 
@@ -85,14 +95,14 @@ export function ManageView() {
   useEffect(() => {
     if (product) {
       updateProductForm.reset({
-        name: product.name || '',
-        sku: product.sku || '',
-        barcode: product.barcode || '',
+        name: product.name || "",
+        sku: product.sku || "",
+        barcode: product.barcode || "",
         price: product.price || 0,
         cost: product.cost || 0,
-        image_url: product.image_url || '',
-        description: product.description || '',
-        product_status: product.product_status || 'ACTIVE',
+        image_url: product.image_url || "",
+        description: product.description || "",
+        product_status: product.product_status || "ACTIVE",
         categoryIds: product.categories?.map((category) => category.id) || [],
       });
     }
@@ -105,25 +115,56 @@ export function ManageView() {
     if (!currentStore?.id) return;
     getCategories();
   }, [currentStore?.id]);
+  const handleExportExcel = () => {
+    {
+      if (!products || products.length === 0) {
+        alert("Không có dữ liệu để xuất");
+        return;
+      }
+
+      const formatted = products.map((p) => ({
+        "Sản phẩm": p.name,
+        "Số lượng": p.inventory?.quantity ?? "",
+        "Mã sản phẩm": p.sku,
+        "Giá nhập": p.cost,
+        "Giá bán": p.price,
+        "Trạng thái": formatProductStatus(p.product_status),
+        "Ngày tạo": formatDate(p.createdAt),
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(formatted);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Sản phẩm");
+
+      XLSX.writeFile(workbook, "products.xlsx");
+    }
+  };
   return (
     <>
       {/* DELETE MODAL */}
-      <Modal opened={deleteModal} size="sm" onClose={() => setDeleteModal(false)}>
+      <Modal
+        opened={deleteModal}
+        size="sm"
+        onClose={() => setDeleteModal(false)}
+      >
         <div className="space-y-3 flex flex-col items-center">
           <div className="flex flex-col gap-3 items-center justify-center">
             <div className="justify-center flex rounded-full bg-red-100 w-fit text-red-500 p-3.5">
               <BadgeAlert size={38} />
             </div>
-            <div className="text-lg font-bold text-center">Bạn Có Chắc Chắn Muốn Xóa?</div>
+            <div className="text-lg font-bold text-center">
+              Bạn Có Chắc Chắn Muốn Xóa?
+            </div>
             <div className="text-sm text-gray-500 text-center">
-              Hành động này không thể hoàn tác. Tất cả dữ liệu liên quan của trường này sẽ biến mất.
+              Hành động này không thể hoàn tác. Tất cả dữ liệu liên quan của
+              trường này sẽ biến mất.
             </div>
           </div>
           <div className="flex flex-col gap-2 w-full">
             <Button
-              style={{ width: '100%' }}
+              style={{ width: "100%" }}
               color="red"
-              size={'md'}
+              size={"md"}
               onClick={() => {
                 if (product && product.id) {
                   deleteProduct(product.id);
@@ -175,20 +216,22 @@ export function ManageView() {
             }
             setOpenEditModal(false);
           })}
-          className={`${openEditModal ? 'space-y-3.5' : '"space-y-5.5"'}`}
+          className={`${openEditModal ? "space-y-3.5" : '"space-y-5.5"'}`}
         >
           {/* IMAGE + INFO GRID */}
           <div
-            className={`${openEditModal ? 'flex flex-col gap-5.5' : 'grid grid-cols-1 md:grid-cols-3 gap-5.5'}`}
+            className={`${openEditModal ? "flex flex-col gap-5.5" : "grid grid-cols-1 md:grid-cols-3 gap-5.5"}`}
           >
             {/* IMAGE */}
             <div>
-              <div className={`${openEditModal ? 'flex items-center justify-center' : ''}`}>
+              <div
+                className={`${openEditModal ? "flex items-center justify-center" : ""}`}
+              >
                 <Image
                   width={1000}
                   height={1000}
-                  src={'/placeholder.jpg'}
-                  alt={product?.name || 'Image name'}
+                  src={"/placeholder.jpg"}
+                  alt={product?.name || "Image name"}
                   className="w-48 h-48 object-cover rounded-lg shadow"
                   unoptimized
                 />
@@ -197,7 +240,7 @@ export function ManageView() {
               {openEditModal && (
                 <Input
                   size="sm"
-                  {...updateProductForm.register('image_url')}
+                  {...updateProductForm.register("image_url")}
                   name="image_url"
                   label="Image URL"
                   className="mt-4 w-full"
@@ -211,7 +254,7 @@ export function ManageView() {
               {openEditModal ? (
                 <Input
                   size="sm"
-                  {...updateProductForm.register('name')}
+                  {...updateProductForm.register("name")}
                   name="name"
                   label="Tên sản phẩm"
                 />
@@ -226,7 +269,7 @@ export function ManageView() {
               {openEditModal ? (
                 <Input
                   size="sm"
-                  {...updateProductForm.register('sku')}
+                  {...updateProductForm.register("sku")}
                   error={updateProductForm.formState.errors.sku?.message}
                   name="sku"
                   label="Mã sản phẩm"
@@ -242,14 +285,16 @@ export function ManageView() {
               {openEditModal ? (
                 <Input
                   size="sm"
-                  {...updateProductForm.register('barcode')}
+                  {...updateProductForm.register("barcode")}
                   name="barcode"
                   label="Barcode"
                 />
               ) : (
                 <div>
                   <p className="text-sm text-gray-500">Barcode</p>
-                  <p className="font-medium text-gray-800">{product?.barcode || '—'}</p>
+                  <p className="font-medium text-gray-800">
+                    {product?.barcode || "—"}
+                  </p>
                 </div>
               )}
 
@@ -258,7 +303,9 @@ export function ManageView() {
                 <Input
                   size="sm"
                   type="number"
-                  {...updateProductForm.register('price', { valueAsNumber: true })}
+                  {...updateProductForm.register("price", {
+                    valueAsNumber: true,
+                  })}
                   name="price"
                   label="Giá bán"
                   min={0}
@@ -266,7 +313,9 @@ export function ManageView() {
               ) : (
                 <div>
                   <p className="text-sm text-gray-500">Giá bán</p>
-                  <p className="font-medium text-gray-800">{formatCurrency(product?.price)}</p>
+                  <p className="font-medium text-gray-800">
+                    {formatCurrency(product?.price)}
+                  </p>
                 </div>
               )}
 
@@ -275,7 +324,9 @@ export function ManageView() {
                 <Input
                   size="sm"
                   type="number"
-                  {...updateProductForm.register('cost', { valueAsNumber: true })}
+                  {...updateProductForm.register("cost", {
+                    valueAsNumber: true,
+                  })}
                   name="cost"
                   label="Giá vốn"
                   min={0}
@@ -283,7 +334,9 @@ export function ManageView() {
               ) : (
                 <div>
                   <p className="text-sm text-gray-500">Giá vốn</p>
-                  <p className="font-medium text-gray-800">{formatCurrency(product?.cost)}</p>
+                  <p className="font-medium text-gray-800">
+                    {formatCurrency(product?.cost)}
+                  </p>
                 </div>
               )}
 
@@ -300,8 +353,8 @@ export function ManageView() {
                       size="sm"
                       radius="md"
                       data={[
-                        { value: 'ACTIVE', label: 'Đang kinh doanh' },
-                        { value: 'INACTIVE', label: 'Ngừng kinh doanh' },
+                        { value: "ACTIVE", label: "Đang kinh doanh" },
+                        { value: "INACTIVE", label: "Ngừng kinh doanh" },
                       ]}
                     />
                   )}
@@ -311,9 +364,9 @@ export function ManageView() {
                   <p className="text-sm text-gray-500">Trạng thái</p>
                   <span
                     className={`px-2 py-1 rounded text-xs font-medium ${
-                      product?.product_status === 'ACTIVE'
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-red-100 text-red-700'
+                      product?.product_status === "ACTIVE"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-700"
                     }`}
                   >
                     {product?.product_status}
@@ -327,14 +380,14 @@ export function ManageView() {
           {openEditModal ? (
             <Input
               size="sm"
-              {...updateProductForm.register('description')}
+              {...updateProductForm.register("description")}
               name="description"
               label="Mô tả"
             />
           ) : (
             <div className="mt-6">
               <p className="text-sm text-gray-500">Mô tả</p>
-              <p className="text-gray-700">{product?.description || '—'}</p>
+              <p className="text-gray-700">{product?.description || "—"}</p>
             </div>
           )}
           {/* Categories */}
@@ -344,9 +397,11 @@ export function ManageView() {
               control={updateProductForm.control}
               render={({ field }) => (
                 <>
-                  <span className="text-sm font-medium text-gray-500">Nhóm danh mục</span>
+                  <span className="text-sm font-medium text-gray-500">
+                    Nhóm danh mục
+                  </span>
                   <MultiSelect
-                    radius={'md'}
+                    radius={"md"}
                     {...field}
                     data={(categories || []).map((c) => ({
                       value: c.id,
@@ -366,7 +421,7 @@ export function ManageView() {
                 <>
                   <p className="text-sm text-gray-500">Nhóm danh mục</p>
                   <span className="px-4 py-1 mt-2  rounded text-xs font-medium bg-gray-100 text-gray-700">
-                    {product?.categories.map((c) => c.name).join(', ')}
+                    {product?.categories.map((c) => c.name).join(", ")}
                   </span>
                 </>
               )}
@@ -388,9 +443,9 @@ export function ManageView() {
                 type="button"
                 onClick={() => setOpenEditModal(false)}
                 style={{
-                  color: 'red',
-                  border: 'none',
-                  background: 'transparent',
+                  color: "red",
+                  border: "none",
+                  background: "transparent",
                 }}
                 size="sm"
                 title="Hủy"
@@ -417,11 +472,15 @@ export function ManageView() {
           onSubmit={(e: FormEvent) => {
             e.preventDefault();
             if (product && product.id) {
-              applyStockMovement(product?.id, parseInt(adjustValue.delta), type);
+              applyStockMovement(
+                product?.id,
+                parseInt(adjustValue.delta),
+                type
+              );
             }
             setInventorModal(false);
-            setAdjustValue({ delta: '0' });
-            setType('ADJUSTMENT');
+            setAdjustValue({ delta: "0" });
+            setType("ADJUSTMENT");
           }}
           className="flex flex-col gap-4"
           action=""
@@ -430,20 +489,22 @@ export function ManageView() {
             position="bottom"
             label="Loại điều chỉnh"
             data={[
-              { label: 'Bán hàng', value: 'SALE' },
-              { label: 'Trả hàng bán', value: 'RETURN_SALE' },
+              { label: "Bán hàng", value: "SALE" },
+              { label: "Trả hàng bán", value: "RETURN_SALE" },
             ]}
             value={type}
-            onChange={(value) => setType(value || 'ADJUSTMENT')}
+            onChange={(value) => setType(value || "ADJUSTMENT")}
             defaultValue={type}
           />
           <Input
-            value={adjustValue?.delta?.toString() || ''}
-            onChange={(e) => setAdjustValue({ ...adjustValue, delta: e.target.value })}
+            value={adjustValue?.delta?.toString() || ""}
+            onChange={(e) =>
+              setAdjustValue({ ...adjustValue, delta: e.target.value })
+            }
             type="string"
             placeholder="Số lượng"
           />
-          <Button type="submit" title={'Áp dụng điều chỉnh'} />
+          <Button type="submit" title={"Áp dụng điều chỉnh"} />
         </form>
       </Modal>
 
@@ -453,9 +514,9 @@ export function ManageView() {
         <FilterBar
           dataComplete={[...new Set(products?.map((p) => p.name) || [])]}
           statusOptions={[
-            { value: 'ACTIVE', label: 'Đang kinh doanh ' },
-            { value: 'INACTIVE', label: 'Ngừng kinh doanh' },
-            { value: 'SOLD', label: 'Đã bán hết' },
+            { value: "ACTIVE", label: "Đang kinh doanh " },
+            { value: "INACTIVE", label: "Ngừng kinh doanh" },
+            { value: "SOLD", label: "Đã bán hết" },
           ]}
           onFilterChange={(newFilters) => {
             setFilters((prev) => ({
@@ -476,7 +537,9 @@ export function ManageView() {
                   className={`bg-white border text-nowrap border-gray-200 rounded-md flex items-center gap-2 py-2 px-4  cursor-pointer hover:opacity-80 transition-opacity duration-300 disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
                   <Upload size={16} />
-                  <span className="text-gray-900 font-medium text-sm">Tải lên dữ liệu</span>
+                  <span className="text-gray-900 font-medium text-sm">
+                    Tải lên dữ liệu
+                  </span>
                 </button>
 
                 {openUploadOption && (
@@ -516,11 +579,14 @@ export function ManageView() {
                 )}
               </div>
               <button
-                onClick={() => window.print()}
+                onClick={() => handleExportExcel()}
                 className="bg-white border text-nowrap border-gray-200 rounded-md flex items-center gap-2 py-2 px-4  cursor-pointer hover:opacity-80 transition-opacity duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Download size={16} />
-                <span className="text-gray-900 font-medium text-sm"> Xuất dữ liệu</span>
+                <span className="text-gray-900 font-medium text-sm">
+                  {" "}
+                  Xuất dữ liệu
+                </span>
               </button>
             </>
           }
@@ -552,13 +618,21 @@ export function ManageView() {
             isLoading={loading}
             renderRow={(product) => (
               <>
-                <td className="px-4 py-2 text-xs font-medium text-gray-900">{product.name}</td>
+                <td className="px-4 py-2 text-xs font-medium text-gray-900">
+                  {product.name}
+                </td>
                 <td className="px-4 py-2 text-xs font-medium text-gray-900">
                   {product?.inventory?.quantity}
                 </td>
-                <td className="px-4 py-2 text-xs text-gray-500">{product.sku}</td>
-                <td className="px-4 py-2 text-xs text-gray-500">{formatCurrency(product.cost)}</td>
-                <td className="px-4 py-2 text-xs text-gray-500">{formatCurrency(product.price)}</td>
+                <td className="px-4 py-2 text-xs text-gray-500">
+                  {product.sku}
+                </td>
+                <td className="px-4 py-2 text-xs text-gray-500">
+                  {formatCurrency(product.cost)}
+                </td>
+                <td className="px-4 py-2 text-xs text-gray-500">
+                  {formatCurrency(product.price)}
+                </td>
 
                 <td className="px-4 py-2">
                   <span
@@ -567,7 +641,9 @@ export function ManageView() {
                     {formatProductStatus(product.product_status)}
                   </span>
                 </td>
-                <td className="px-4 py-2 text-xs text-gray-500">{formatDate(product.createdAt)}</td>
+                <td className="px-4 py-2 text-xs text-gray-500">
+                  {formatDate(product.createdAt)}
+                </td>
                 <td>
                   <div className="flex items-center gap-5 pl-4">
                     <button
