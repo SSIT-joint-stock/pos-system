@@ -88,7 +88,7 @@ export default function Invoice({
         closeOnClickOutside={false}
         closeOnEscape={false}
       >
-        <div>
+        <div className="flex justify-between flex-col h-full">
           <div>
             <h2 className="text-lg font-medium text-center">
               {currentStore?.name || 'Store name'}
@@ -105,204 +105,209 @@ export default function Invoice({
               Thời gian mua hàng:{' '}
               {dayjs(order?.createdAt).tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY HH:mm')}
             </p>
-          </div>
-          <table style={{ width: '100%' }} className="mt-3.5">
-            <colgroup>
-              <col style={{ width: '50%' }} />
-              <col style={{ width: '50%' }} />
-            </colgroup>
-            <tbody>
-              <tr>
-                <td className="text-center">
-                  <p>Mã đơn hàng</p>
-                </td>
-                <td className="text-center">
-                  <strong>
-                    {order?.code || <span className="italic text-sm">Chưa cập nhật</span>}
-                  </strong>
-                </td>
-              </tr>
 
-              <tr>
-                <td className="text-center">
-                  <p>Phương thức thanh toán</p>
-                </td>
-                <td className="text-center">
-                  <p>
-                    {formatPaymentMethod(order?.payment_method as payment_method) || (
-                      <span className="italic">Chưa cập nhật</span>
-                    )}
-                  </p>
-                </td>
-              </tr>
-              <tr>
-                <td className="text-center">
-                  <p>Khách hàng</p>
-                </td>
-                <td className="text-center">
-                  <p>{order?.customer?.name || <span className="italic">Khách lẻ</span>}</p>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <table style={{ width: '100%' }} className="mt-3.5">
-            <colgroup>
-              <col style={{ width: '25%' }} />
-              <col style={{ width: '25%' }} />
-              <col style={{ width: '25%' }} />
-              <col style={{ width: '25%' }} />
-            </colgroup>
-            <tbody style={{ width: '100%' }}>
-              <tr className={'border-b border-b-gray-600'}>
-                <th className="text-left">
-                  <span>Sản phẩm</span>
-                </th>
-                <th className="text-left">
-                  <span>Đơn giá</span>
-                </th>
-                <th className="text-center">
-                  <span>Số lượng</span>
-                </th>
-                <th className="text-right">
-                  <span>Thành tiền</span>
-                </th>
-              </tr>
-              {order?.order_item.map((item, index) => (
-                <tr
-                  key={item.id}
-                  className={`${order.order_item.length - 1 === index ? '' : 'border-b border-b-gray-600'}`}
-                >
-                  <td className="text-left ">
-                    <span>{item.product?.name}</span>
-                  </td>
-                  <td className="text-left">
-                    <span>{formatCurrency(item.price)}</span>
+            <table style={{ width: '100%' }} className="mt-3.5">
+              <colgroup>
+                <col style={{ width: '50%' }} />
+                <col style={{ width: '50%' }} />
+              </colgroup>
+              <tbody>
+                <tr>
+                  <td className="text-center">
+                    <p>Mã đơn hàng</p>
                   </td>
                   <td className="text-center">
-                    <span>{item.quantity}</span>
-                  </td>
-                  <td className="text-right">
-                    <span>{formatCurrency(item.price * item.quantity)}</span>
+                    <strong>
+                      {order?.code || <span className="italic text-sm">Chưa cập nhật</span>}
+                    </strong>
                   </td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          <hr
-            className="border-t border-t-white border-b border-b-gray-600 my-3.5
+
+                <tr>
+                  <td className="text-center">
+                    <p>Phương thức thanh toán</p>
+                  </td>
+                  <td className="text-center">
+                    <p>
+                      {formatPaymentMethod(order?.payment_method as payment_method) || (
+                        <span className="italic">Chưa cập nhật</span>
+                      )}
+                    </p>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="text-center">
+                    <p>Khách hàng</p>
+                  </td>
+                  <td className="text-center">
+                    <p>{order?.customer?.name || <span className="italic">Khách lẻ</span>}</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            {/* <div className="max-h-[240px] overflow-y-scroll"> */}
+            <table style={{ width: '100%' }} className="mt-3.5 ">
+              <colgroup>
+                <col style={{ width: '25%' }} />
+                <col style={{ width: '25%' }} />
+                <col style={{ width: '25%' }} />
+                <col style={{ width: '25%' }} />
+              </colgroup>
+              <tbody style={{ width: '100%' }} className="h-[50px] overflow-y-scroll">
+                <tr className={'border-b border-b-gray-600'}>
+                  <th className="text-left">
+                    <span>Sản phẩm</span>
+                  </th>
+                  <th className="text-left">
+                    <span>Đơn giá</span>
+                  </th>
+                  <th className="text-center">
+                    <span>Số lượng</span>
+                  </th>
+                  <th className="text-right">
+                    <span>Thành tiền</span>
+                  </th>
+                </tr>
+                {order?.order_item.map((item, index) => (
+                  <tr
+                    key={item.id}
+                    className={`${order.order_item.length - 1 === index ? '' : 'border-b border-b-gray-600'}`}
+                  >
+                    <td className="text-left ">
+                      <span>{item.product?.name}</span>
+                    </td>
+                    <td className="text-left">
+                      <span>{formatCurrency(item.price)}</span>
+                    </td>
+                    <td className="text-center">
+                      <span>{item.quantity}</span>
+                    </td>
+                    <td className="text-right">
+                      <span>{formatCurrency(item.price * item.quantity)}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {/* </div> */}
+            <hr
+              className="border-t border-t-white border-b border-b-gray-600 my-3.5
         "
-          />
-          <table style={{ width: '100%' }} className="">
-            <colgroup>
-              <col style={{ width: '50%' }} />
-              <col style={{ width: '50%' }} />
-            </colgroup>
-            <tbody>
-              <tr>
-                <td className="text-left">
-                  <p>Tạm tính</p>
-                </td>
-                <td className="text-right">
-                  <p>{formatCurrency(order?.subtotal_amount)}</p>
-                </td>
-              </tr>
-              <tr>
-                <td className="text-left">
-                  <p>Giảm giá</p>
-                </td>
-                <td className="text-right">
-                  <p>{formatCurrency(order?.discount_amount)}</p>
-                </td>
-              </tr>
-              <tr>
-                <td className="text-left">
-                  <p>Tổng cộng</p>
-                </td>
-                <td className="text-right">
-                  <p>{formatCurrency(order?.total_amount)}</p>
-                </td>
-              </tr>
-              <tr>
-                <td className="text-left">
-                  <p>Khách phải trả</p>
-                </td>
-                <td className="text-right">
-                  <p>{formatCurrency(order?.total_amount)}</p>
-                </td>
-              </tr>
-              <tr>
-                <td className="text-left">
-                  <p>Khách trả</p>
-                </td>
-                <td className="text-right">
-                  <p>{formatCurrency(order?.customer_pay_amount)}</p>
-                </td>
-              </tr>
-              {order && order.change_amount > 0 && (
+            />
+            <table style={{ width: '100%' }} className="">
+              <colgroup>
+                <col style={{ width: '50%' }} />
+                <col style={{ width: '50%' }} />
+              </colgroup>
+              <tbody>
                 <tr>
                   <td className="text-left">
-                    <p>Tiền thừa trả khách</p>
+                    <p>Tạm tính</p>
                   </td>
                   <td className="text-right">
-                    <p>{formatCurrency(order.change_amount)}</p>
+                    <p>{formatCurrency(order?.subtotal_amount)}</p>
                   </td>
                 </tr>
-              )}
-              {order && order.change_amount < 0 && (
                 <tr>
                   <td className="text-left">
-                    <p>Khách còn thiếu</p>
+                    <p>Giảm giá</p>
                   </td>
                   <td className="text-right">
-                    <p>{formatCurrency(Math.abs(order.change_amount))}</p>
+                    <p>{formatCurrency(order?.discount_amount)}</p>
                   </td>
                 </tr>
+                <tr>
+                  <td className="text-left">
+                    <p>Tổng cộng</p>
+                  </td>
+                  <td className="text-right">
+                    <p>{formatCurrency(order?.total_amount)}</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="text-left">
+                    <p>Khách phải trả</p>
+                  </td>
+                  <td className="text-right">
+                    <p>{formatCurrency(order?.total_amount)}</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="text-left">
+                    <p>Khách trả</p>
+                  </td>
+                  <td className="text-right">
+                    <p>{formatCurrency(order?.customer_pay_amount)}</p>
+                  </td>
+                </tr>
+                {order && order.change_amount > 0 && (
+                  <tr>
+                    <td className="text-left">
+                      <p>Tiền thừa trả khách</p>
+                    </td>
+                    <td className="text-right">
+                      <p>{formatCurrency(order.change_amount)}</p>
+                    </td>
+                  </tr>
+                )}
+                {order && order.change_amount < 0 && (
+                  <tr>
+                    <td className="text-left">
+                      <p>Khách còn thiếu</p>
+                    </td>
+                    <td className="text-right">
+                      <p>{formatCurrency(Math.abs(order.change_amount))}</p>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+            <div className="text-center mt-4 flex flex-col gap-0.5">
+              <span className="text-lg font-semibold">Xin cảm ơn quý khách!</span>
+              <span className="text-sm">Hẹn gặp lại!</span>
+            </div>
+            <div className="flex items-center justify-center mt-3">
+              {currentStore?.bank_qr_image_url && (
+                <Image
+                  placeholder="blur"
+                  priority
+                  blurDataURL={currentStore?.bank_qr_image_url || '/qr_code_placholder.svg'}
+                  src={
+                    `${currentStore?.bank_qr_image_url}&amount=${order?.customer_pay_amount}&addInfo=${currentStore?.name}` ||
+                    ''
+                  }
+                  className="object-cover"
+                  alt="qr_code"
+                  width={240}
+                  height={240}
+                />
               )}
-            </tbody>
-          </table>
-          <div className="text-center mt-4 flex flex-col gap-0.5">
-            <span className="text-lg font-semibold">Xin cảm ơn quý khách!</span>
-            <span className="text-sm">Hẹn gặp lại!</span>
+            </div>
           </div>
-          <div className="flex items-center justify-center mt-3">
-            <Image
-              placeholder="blur"
-              priority
-              blurDataURL={currentStore?.bank_qr_image_url || ''}
-              src={
-                `${currentStore?.bank_qr_image_url}&amount=${order?.customer_pay_amount}&addInfo=${currentStore?.name}` ||
-                ''
-              }
-              className="object-cover"
-              alt="qr_code"
-              width={240}
-              height={240}
-            />
+          <div className="flex items-center justify-end pb-4 mt-4 gap-3">
+            <button
+              onClick={() => {
+                setOpenModalInvoice(false);
+                setSelectedProducts([]);
+              }}
+              className="py-2 px-6 rounded-md bg-green-50 text-green-500 hover:text-green-50 hover:bg-green-500 group cursor-pointer duration-300  transition-all text-sm"
+            >
+              Hủy bỏ
+            </button>
+            <div className="hidden">
+              <InvoicePrintContent
+                ref={printRef}
+                order={order as Order}
+                currentStore={currentStore as Store}
+              />
+            </div>
+            <button
+              onClick={() => handlePrint()}
+              className="p-2 px-6 rounded-md bg-pos-blue-50 text-pos-blue-500 hover:text-pos-blue-50 hover:bg-pos-blue-500 group cursor-pointer duration-300  transition-all text-sm"
+            >
+              In hoá đơn
+            </button>
           </div>
-        </div>
-        <div className="flex items-center justify-end pb-4 mt-4 gap-3">
-          <button
-            onClick={() => {
-              setOpenModalInvoice(false);
-              setSelectedProducts([]);
-            }}
-            className="py-2 px-6 rounded-md bg-green-50 text-green-500 hover:text-green-50 hover:bg-green-500 group cursor-pointer duration-300  transition-all text-sm"
-          >
-            Hủy bỏ
-          </button>
-          <div className="hidden">
-            <InvoicePrintContent
-              ref={printRef}
-              order={order as Order}
-              currentStore={currentStore as Store}
-            />
-          </div>
-          <button
-            onClick={() => handlePrint()}
-            className="p-2 px-6 rounded-md bg-pos-blue-50 text-pos-blue-500 hover:text-pos-blue-50 hover:bg-pos-blue-500 group cursor-pointer duration-300  transition-all text-sm"
-          >
-            In hoá đơn
-          </button>
         </div>
       </Drawer>
       <QrCode

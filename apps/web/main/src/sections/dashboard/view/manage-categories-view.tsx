@@ -1,24 +1,17 @@
-"use client";
-import { Button, Input, Modal, Table } from "@repo/design-system/components/ui";
-import FilterBar from "../components/filter-bar";
-import { Download, Eye, Edit, Trash, Plus, Tag, Calendar } from "lucide-react";
-import React, { useEffect, useState } from "react";
-import { Textarea } from "@mantine/core";
-import { formatDate } from "../../../../../main/src/utils";
-import { useCategories } from "../../../../../main/src/hooks/categories/use-categories";
-import { currentStoreAtom } from "@repo/design-system/stores/auth";
-import { useAtomValue } from "jotai";
-import FormCreateCategory from "../components/form-create-category";
-import * as XLSX from "xlsx";
+'use client';
+import { Button, Input, Modal, Table } from '@repo/design-system/components/ui';
+import FilterBar from '../components/filter-bar';
+import { Download, Eye, Edit, Trash, Plus, Tag, Calendar } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Textarea } from '@mantine/core';
+import { formatDate } from '../../../../../main/src/utils';
+import { useCategories } from '../../../../../main/src/hooks/categories/use-categories';
+import { currentStoreAtom } from '@repo/design-system/stores/auth';
+import { useAtomValue } from 'jotai';
+import FormCreateCategory from '../components/form-create-category';
+import * as XLSX from 'xlsx';
 
-const tableHeaders = [
-  "ID",
-  "Tên danh mục",
-  "Mô tả",
-  "Ngày tạo",
-  "Ngày cập nhật",
-  "Thao tác",
-];
+const tableHeaders = ['Tên danh mục', 'Mô tả', 'Ngày tạo', 'Ngày cập nhật', 'Thao tác'];
 
 export function ManageCategoriesView() {
   // Modals state
@@ -50,23 +43,23 @@ export function ManageCategoriesView() {
 
   const handleExportExcel = () => {
     if (!categories || categories.length === 0) {
-      alert("Không có dữ liệu để xuất");
+      alert('Không có dữ liệu để xuất');
       return;
     }
 
     const formatted = categories.map((cat: any) => ({
       ID: cat.id,
-      "Tên danh mục": cat.name,
-      Mô_tả: cat.description ?? "",
-      "Ngày tạo": formatDate(cat.createdAt),
-      "Ngày cập nhật": formatDate(cat.updatedAt),
+      'Tên danh mục': cat.name,
+      Mô_tả: cat.description ?? '',
+      'Ngày tạo': formatDate(cat.createdAt),
+      'Ngày cập nhật': formatDate(cat.updatedAt),
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(formatted);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Danh mục");
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Danh mục');
 
-    XLSX.writeFile(workbook, "categories.xlsx");
+    XLSX.writeFile(workbook, 'categories.xlsx');
   };
 
   // Load categories on mount and when dependencies change
@@ -79,15 +72,15 @@ export function ManageCategoriesView() {
   useEffect(() => {
     if (category && openEditModal) {
       updateCategoryForm.reset({
-        name: category.name || "",
-        description: category.description || "",
+        name: category.name || '',
+        description: category.description || '',
       });
     }
   }, [category, openEditModal, updateCategoryForm]);
 
   // Handlers
   const handleOpenCreateModal = () => {
-    createCategoryForm.reset({ name: "", description: "" });
+    createCategoryForm.reset({ name: '', description: '' });
     setOpenCreateModal(true);
   };
 
@@ -161,25 +154,20 @@ export function ManageCategoriesView() {
           </div>
         }
       >
-        <form
-          onSubmit={updateCategoryForm.handleSubmit(handleSubmitUpdate)}
-          className="space-y-4"
-        >
+        <form onSubmit={updateCategoryForm.handleSubmit(handleSubmitUpdate)} className="space-y-4">
           <Input
             size="sm"
             label="Tên danh mục"
             placeholder="Nhập tên danh mục..."
-            {...updateCategoryForm.register("name")}
+            {...updateCategoryForm.register('name')}
             error={updateCategoryForm.formState.errors.name?.message}
           />
 
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-1 block">
-              Mô tả
-            </label>
+            <label className="text-sm font-medium text-gray-700 mb-1 block">Mô tả</label>
             <Textarea
               placeholder="Nhập mô tả danh mục (tùy chọn)..."
-              {...updateCategoryForm.register("description")}
+              {...updateCategoryForm.register('description')}
               minRows={3}
               error={updateCategoryForm.formState.errors.description?.message}
             />
@@ -193,19 +181,14 @@ export function ManageCategoriesView() {
                 updateCategoryForm.reset();
               }}
               style={{
-                color: "red",
-                border: "none",
-                background: "transparent",
+                color: 'red',
+                border: 'none',
+                background: 'transparent',
               }}
               size="sm"
               title="Hủy"
             />
-            <Button
-              type="submit"
-              title="Cập nhật"
-              size="sm"
-              disabled={loading}
-            />
+            <Button type="submit" title="Cập nhật" size="sm" disabled={loading} />
           </div>
         </form>
       </Modal>
@@ -226,15 +209,10 @@ export function ManageCategoriesView() {
           <div className="space-y-4">
             <div className="bg-red-50 border border-red-200 rounded-lg p-4">
               <p className="text-gray-700">
-                Bạn có chắc chắn muốn xóa danh mục{" "}
-                <span className="font-semibold text-red-600">
-                  {category.name}
-                </span>
-                ?
+                Bạn có chắc chắn muốn xóa danh mục{' '}
+                <span className="font-semibold text-red-600">{category.name}</span>?
               </p>
-              <p className="text-sm text-red-500 mt-2">
-                Hành động này không thể hoàn tác.
-              </p>
+              <p className="text-sm text-red-500 mt-2">Hành động này không thể hoàn tác.</p>
             </div>
 
             <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
@@ -242,9 +220,9 @@ export function ManageCategoriesView() {
                 type="button"
                 onClick={() => setOpenDeleteModal(false)}
                 style={{
-                  color: "gray",
-                  border: "none",
-                  background: "transparent",
+                  color: 'gray',
+                  border: 'none',
+                  background: 'transparent',
                 }}
                 size="sm"
                 title="Hủy"
@@ -254,168 +232,7 @@ export function ManageCategoriesView() {
                 title="Xóa danh mục"
                 size="sm"
                 disabled={loading}
-                style={{ backgroundColor: "#dc2626" }}
-              />
-            </div>
-          </div>
-        )}
-      </Modal>
-
-      {/* MODAL XEM CHI TIẾT */}
-      <Modal
-        opened={openViewModal}
-        onClose={() => setOpenViewModal(false)}
-        size="xl"
-        title={
-          <div className="flex items-center gap-2 font-medium text-gray-600">
-            <Eye size={20} />
-            <p>Chi tiết danh mục</p>
-          </div>
-        }
-      >
-        {category && (
-          <div className="space-y-6">
-            {/* Thông tin cơ bản */}
-            <div className="bg-white border border-gray-200 rounded-lg p-6">
-              <div className="flex items-center gap-3 mb-4 pb-3 border-b border-gray-200">
-                <div className="bg-orange-100 p-2 rounded-lg">
-                  <Tag size={20} className="text-orange-600" />
-                </div>
-                <h3 className="text-lg font-bold text-gray-800">
-                  Thông tin danh mục
-                </h3>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm font-semibold text-gray-600">
-                      ID Danh mục
-                    </label>
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 mt-1">
-                      <span className="font-mono text-gray-900 text-sm break-all">
-                        {category.id}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-semibold text-gray-600">
-                      Tên danh mục
-                    </label>
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-1">
-                      <span className="text-gray-900 font-medium">
-                        {category.name}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm font-semibold text-gray-600">
-                      Store ID
-                    </label>
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 mt-1">
-                      <span className="font-mono text-gray-700 text-sm break-all">
-                        {category.store_id}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-semibold text-gray-600">
-                      Mô tả
-                    </label>
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-3 mt-1 min-h-[80px]">
-                      <span className="text-gray-900">
-                        {category.description || (
-                          <em className="text-gray-500">Không có mô tả</em>
-                        )}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Thông tin thời gian */}
-            <div className="bg-white border border-gray-200 rounded-lg p-6">
-              <div className="flex items-center gap-3 mb-4 pb-3 border-b border-gray-200">
-                <div className="bg-purple-100 p-2 rounded-lg">
-                  <Calendar size={20} className="text-purple-600" />
-                </div>
-                <h3 className="text-lg font-bold text-gray-800">
-                  Thông tin thời gian
-                </h3>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="text-sm font-semibold text-gray-600">
-                    Ngày tạo
-                  </label>
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-1 flex items-center gap-3">
-                    <Calendar size={16} className="text-blue-600" />
-                    <div>
-                      <p className="font-semibold text-gray-900">
-                        {new Date(category.createdAt).toLocaleDateString(
-                          "vi-VN"
-                        )}
-                      </p>
-                      <p className="text-sm text-blue-600">
-                        {new Date(category.createdAt).toLocaleTimeString(
-                          "vi-VN"
-                        )}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-sm font-semibold text-gray-600">
-                    Cập nhật lần cuối
-                  </label>
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 mt-1 flex items-center gap-3">
-                    <Calendar size={16} className="text-green-600" />
-                    <div>
-                      <p className="font-semibold text-gray-900">
-                        {new Date(category.updatedAt).toLocaleDateString(
-                          "vi-VN"
-                        )}
-                      </p>
-                      <p className="text-sm text-green-600">
-                        {new Date(category.updatedAt).toLocaleTimeString(
-                          "vi-VN"
-                        )}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Footer Actions */}
-            <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
-              <Button
-                type="button"
-                onClick={() => {
-                  setOpenViewModal(false);
-                  handleOpenEditModal(category);
-                }}
-                title="Sửa danh mục"
-                size="sm"
-              />
-              <Button
-                type="button"
-                onClick={() => setOpenViewModal(false)}
-                style={{
-                  color: "gray",
-                  border: "none",
-                  background: "transparent",
-                }}
-                size="sm"
-                title="Đóng"
+                style={{ backgroundColor: '#dc2626' }}
               />
             </div>
           </div>
@@ -449,9 +266,7 @@ export function ManageCategoriesView() {
                 className="bg-white border text-nowrap border-gray-200 rounded-md flex items-center gap-2 py-2 px-4 cursor-pointer hover:opacity-80 transition-opacity duration-300"
               >
                 <Download size={16} />
-                <span className="text-gray-900 font-medium text-sm">
-                  Xuất dữ liệu
-                </span>
+                <span className="text-gray-900 font-medium text-sm">Xuất dữ liệu</span>
               </button>
             </>
           }
@@ -481,9 +296,6 @@ export function ManageCategoriesView() {
           isLoading={loading}
           renderRow={(cat: any) => (
             <>
-              <td className="px-4 py-2 text-xs font-mono text-gray-600">
-                {cat.id.slice(0, 32)}...
-              </td>
               <td className="px-4 py-2 text-xs font-medium text-gray-900">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -494,17 +306,11 @@ export function ManageCategoriesView() {
               </td>
               <td className="px-4 py-2 text-xs text-gray-600">
                 <span className="max-w-[300px] truncate block">
-                  {cat.description || (
-                    <em className="text-gray-400">Không có mô tả</em>
-                  )}
+                  {cat.description || <em className="text-gray-400">Không có mô tả</em>}
                 </span>
               </td>
-              <td className="px-4 py-2 text-xs text-gray-500">
-                {formatDate(cat.createdAt)}
-              </td>
-              <td className="px-4 py-2 text-xs text-gray-500">
-                {formatDate(cat.updatedAt)}
-              </td>
+              <td className="px-4 py-2 text-xs text-gray-500">{formatDate(cat.createdAt)}</td>
+              <td className="px-4 py-2 text-xs text-gray-500">{formatDate(cat.updatedAt)}</td>
               <td>
                 <div className="flex items-center gap-5 pl-4">
                   <button

@@ -89,7 +89,6 @@ export function OrdersView() {
     setSelectedOrder(order);
     setOpenViewModal(true);
   };
-  console.log(selectedOrder);
 
   return (
     <>
@@ -269,8 +268,10 @@ export function OrdersView() {
           isLoading={loading}
           renderRow={(order) => (
             <>
-              <td className="px-4 py-2 font-medium text-xs text-gray-500 truncate">
-                {order.code || `#${order.id}`}
+              <td className="px-4 py-2 font-semibold text-xs text-pos-blue-500 truncate">
+                {order.code || (
+                  <span className="italic text-gray-500 font-medium">Chưa cập nhật</span>
+                )}
               </td>
               <td className="px-4 py-2 font-medium">{order.customer_name || 'Khách lẻ'}</td>
               <td className="px-4 py-2 text-sm text-gray-500 font-medium">

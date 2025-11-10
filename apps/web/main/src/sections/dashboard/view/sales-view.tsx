@@ -22,7 +22,6 @@ import {
   User,
   X,
 } from 'lucide-react';
-import { OrderStatusEnum } from '../../../../../main/src/schemas/order/order.schema';
 import { Customer, Product, ProductStatus } from '@repo/design-system/types';
 import { payment_method } from '@repo/design-system/types/inventory';
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
@@ -302,7 +301,6 @@ export function SalesView() {
     }));
   };
   useClickOutside(openMenuSettingsRef, () => setIsOpenMenuSettings(false));
-  console.log(invoiceData);
   return (
     <>
       <div className="h-screen flex flex-col gap-2 overflow-hidden p-4">
@@ -587,10 +585,7 @@ export function SalesView() {
 
                         <div className="mt-4 flex flex-col gap-1">
                           <Tooltip position="top" label={product.name} withArrow>
-                            <h2
-                              title={product.name}
-                              className="text-sm font-semibold text-gray-800 truncate"
-                            >
+                            <h2 className="text-sm font-semibold text-gray-800 truncate">
                               {product.name}
                             </h2>
                           </Tooltip>
@@ -671,42 +666,7 @@ export function SalesView() {
           />
         </Modal>
         {/* ✅ MODAL HÓA ĐƠN */}
-        {/* <Modal
-          title={'Hóa đơn thanh toán'}
-          opened={openModalInvoice}
-          size="xl"
-          onClose={() => setOpenModalInvoice(false)}
-        >
-          <div id="invoice-print" className="bg-white p-4 rounded-md">
-            <Invoice
-              store={{
-                name: currentStore?.name || 'Tên cửa hàng',
-                address: currentStore?.address || 'Địa chỉ chưa cập nhật',
-              }}
-              order={{
-                id: 'HD0001',
-                date: new Date().toLocaleString(),
-                customerName: selectedCustomer?.name || 'Khách lẻ',
-                items: invoiceData.map((p) => ({
-                  name: p.name,
-                  quantity: p.selectedQuantity,
-                  price: p.price,
-                })),
-                total: invoiceData.reduce((sum, p) => sum + p.selectedQuantity * p.price, 0),
-              }}
-            />
-          </div>
 
-          <div className="flex justify-end mt-4">
-            <Button
-              title="In hóa đơn"
-              onClick={() => {
-                const element = document.getElementById('invoice-print');
-                if (element) html2pdf().from(element).save('invoice.pdf');
-              }}
-            />
-          </div>
-        </Modal> */}
         <Invoice
           openModalInvoice={openModalInvoice}
           newOrderId={newOrderId}
