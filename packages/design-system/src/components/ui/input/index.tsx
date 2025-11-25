@@ -23,6 +23,7 @@ export type InputProps = React.PropsWithChildren & {
   style?: CSSProperties;
   disabled?: boolean;
   isInputPassword?: boolean;
+
   color?: string;
   withAsterisk?: boolean;
   styles?: Record<string, any>;
@@ -68,6 +69,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       rightSection,
       withAsterisk,
       styles,
+
       ...rest,
     };
 

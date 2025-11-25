@@ -172,7 +172,7 @@ const InvoicePrintContent = forwardRef<HTMLDivElement, InvoicePrintContentProps>
         <div className="flex justify-center mt-5">
           {currentStore?.bank_qr_image_url && (
             <Image
-              src={`${currentStore?.bank_qr_image_url}&amount=${order.customer_pay_amount}&addInfo=${currentStore?.name}`}
+              src={`${currentStore?.bank_qr_image_url}&amount=${order.customer_pay_amount}`}
               alt="qr_code"
               width={180}
               height={180}

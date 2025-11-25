@@ -40,6 +40,7 @@ export type SelectProps = {
   position?: PositionOptions;
   variant?: VariantSelect;
   onSearchChange?: (value: string) => void;
+  allowDeselect?: boolean;
 } & Omit<
   React.ComponentProps<typeof MantineSelect>,
   'size' | 'radius' | 'data' | 'error' | 'placeholder' | 'disabled' | 'defaultValue'
@@ -70,6 +71,7 @@ export const Select = React.forwardRef<HTMLInputElement, SelectProps>(
       position = 'top',
       variant = 'default',
       onSearchChange,
+      allowDeselect,
       ...rest
     },
     ref: ForwardedRef<HTMLInputElement>
@@ -104,6 +106,7 @@ export const Select = React.forwardRef<HTMLInputElement, SelectProps>(
           searchValue={rest.searchValue}
           variant={variant}
           value={value}
+          allowDeselect={allowDeselect}
           styles={{ input: { color } }}
           renderOption={({ option, checked }) => (
             <Group justify="space-between" className="w-full">

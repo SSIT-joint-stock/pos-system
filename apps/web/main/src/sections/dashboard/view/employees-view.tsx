@@ -30,11 +30,13 @@ export default function EmployeesView() {
         actions={
           <>
             <button
-              onClick={() => setOpenModalAdd(true)}
-              className="bg-pos-blue-400 border text-nowrap border-gray-200 rounded-md flex items-center gap-2 py-2 px-4  cursor-pointer hover:opacity-80 transition-opacity duration-300"
+              onClick={() => {
+                setOpenModalAdd(true);
+              }}
+              className="flex items-center text-nowrap justify-center gap-2 px-3 py-2 rounded-md bg-pos-blue-500 cursor-pointer hover:bg-pos-blue-600 transition-all duration-300"
             >
-              <Plus size={16} className="text-white" />
-              <span className="text-white font-medium text-xs"> Thêm nhân viên mới</span>
+              <Plus className="text-white" size={18} />
+              <span className="text-white font-semibold text-sm">Thêm nhân viên mới</span>
             </button>
           </>
         }

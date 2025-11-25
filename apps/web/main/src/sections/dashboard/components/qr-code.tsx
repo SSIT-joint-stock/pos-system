@@ -23,10 +23,7 @@ export default function QrCode({
             placeholder="blur"
             priority
             blurDataURL={currentStore?.bank_qr_image_url || '/qr_code_placholder.svg'}
-            src={
-              `${currentStore?.bank_qr_image_url}&amount=${customer_pay_amount}&addInfo=${currentStore?.name}` ||
-              ''
-            }
+            src={`${currentStore?.bank_qr_image_url}&amount=${customer_pay_amount}` || ''}
             className="object-cover"
             alt="qr_code"
             width={400}

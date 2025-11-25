@@ -5,13 +5,13 @@ import {
   BookUser,
   ChevronRight,
   LayoutDashboard,
-  NotepadText,
   Package,
   PackageSearch,
   ShoppingCart,
   Store,
   Users,
   Truck,
+  Receipt,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -45,33 +45,61 @@ export default function MenuSidebar({
           path: `/dashboard/store/${currentStore?.id}/manage-products`,
         },
         {
-          title: 'Hàng tồn kho',
-          path: `/dashboard/store/${currentStore?.id}/manage-inventory`,
+          title: 'Đơn vị tính',
+          path: `/dashboard/store/${currentStore?.id}/manage-products`,
         },
         {
-          title: 'Biến động kho',
-          path: `/dashboard/store/${currentStore?.id}/manage-stock`,
+          title: 'Nhóm sản phẩm',
+          path: `/dashboard/store/${currentStore?.id}/manage-products`,
         },
         {
           title: 'Danh mục',
           path: `/dashboard/store/${currentStore?.id}/manage-categories`,
         },
+        // {
+        //   title: 'Hàng tồn kho',
+        //   path: `/dashboard/store/${currentStore?.id}/manage-inventory`,
+        // },
+      ],
+    },
+
+    {
+      title: 'Phiếu kho',
+      icon: <Truck className="shrink-0" />,
+      children: [
+        {
+          title: 'Phiếu nhập hàng',
+          path: `/dashboard/store/${currentStore?.id}/purchase-orders`,
+        },
+        {
+          title: 'Phiếu xuất hàng',
+          path: `/dashboard/store/${currentStore?.id}/outbound-orders`,
+        },
       ],
     },
     {
-      title: 'Phiếu nhập hàng',
-      path: `/dashboard/store/${currentStore?.id}/purchase-orders`,
-      icon: <Truck className="shrink-0" />,
+      title: 'Giao dịch',
+      icon: <Receipt className="shrink-0" />,
+      children: [
+        {
+          title: 'Hóa đơn bán hàng',
+          path: `/dashboard/store/${currentStore?.id}/sales-invoices`,
+        },
+        {
+          title: 'Hóa đơn phiếu',
+          path: `/dashboard/store/${currentStore?.id}/received-invoices`,
+        },
+        {
+          title: 'Hóa đơn trả hàng',
+          path: `/dashboard/store/${currentStore?.id}/returned-invoices`,
+        },
+      ],
     },
+
     {
       title: 'Bán hàng',
       path: `/dashboard/store/${currentStore?.id}/sales`,
       icon: <ShoppingCart className="shrink-0" />,
-    },
-    {
-      title: 'Đơn hàng',
-      path: `/dashboard/store/${currentStore?.id}/orders`,
-      icon: <PackageSearch className="shrink-0" />,
     },
     {
       title: 'Cửa hàng',
@@ -89,6 +117,12 @@ export default function MenuSidebar({
     },
 
     {
+      title: 'Biến động kho',
+      path: `/dashboard/store/${currentStore?.id}/manage-stock`,
+      icon: <PackageSearch className="shrink-0" />,
+    },
+
+    {
       title: 'Nhân viên',
       path: `/dashboard/store/${currentStore?.id}/employees`,
       icon: <Users className="shrink-0" />,
@@ -101,6 +135,10 @@ export default function MenuSidebar({
         {
           title: 'Khách hàng',
           path: `/dashboard/store/${currentStore?.id}/manage-customers`,
+        },
+        {
+          title: 'Nhà cung cấp',
+          path: `/dashboard/store/${currentStore?.id}/manage-suppliers`,
         },
       ],
     },
@@ -131,7 +169,7 @@ export default function MenuSidebar({
     ${
       item.children.some((child) => child.path === pathName)
         ? 'bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white'
-        : 'text-gray-500 hover:bg-pos-blue-50 hover:text-pos-blue-400'
+        : 'text-gray-600 hover:bg-pos-blue-50 hover:text-pos-blue-400'
     }`}
                 >
                   <span className="font-medium">{item.icon}</span>
@@ -152,7 +190,7 @@ export default function MenuSidebar({
                   <Link
                     key={cIdx}
                     href={child.path}
-                    className={`text-sm font-medium rounded-md p-2  ${child.path === pathName ? 'bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white' : 'text-gray-500 hover:bg-pos-blue-50 hover:text-pos-blue-400'}`}
+                    className={`text-sm font-medium rounded-md p-2  ${child.path === pathName ? 'bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white' : 'text-gray-600 hover:bg-pos-blue-50 hover:text-pos-blue-400'}`}
                   >
                     {child.title}
                   </Link>
@@ -175,7 +213,7 @@ export default function MenuSidebar({
             <Link
               key={idx}
               href={item.path}
-              className={`flex items-center gap-5 p-2 rounded-lg  transition-all duration-300 w-full font-medium ${isExpand === false && 'flex items-center justify-center'}   ${item.path === pathName ? 'bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white' : 'text-gray-500 hover:bg-pos-blue-50 hover:text-pos-blue-400'}`}
+              className={`flex items-center gap-5 p-2 rounded-lg  transition-all duration-300 w-full font-medium ${isExpand === false && 'flex items-center justify-center'}   ${item.path === pathName ? 'bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white' : 'text-gray-600 hover:bg-pos-blue-50 hover:text-pos-blue-400'}`}
             >
               <span>{item.icon}</span>
               {isExpand && <p className="truncate">{item.title}</p>}

@@ -23,6 +23,7 @@ export type DatePickerProps = React.PropsWithChildren & {
   variant?: SizeVariant;
   clearable?: boolean;
   rightSection?: React.ReactNode;
+  style?: React.CSSProperties;
 };
 
 export function DatePickerInput({
@@ -39,6 +40,7 @@ export function DatePickerInput({
   variant = 'default',
   clearable,
   rightSection,
+  style,
 }: DatePickerProps) {
   return (
     <div className={`flex flex-col gap-1 ${className}`}>
@@ -60,6 +62,7 @@ export function DatePickerInput({
         description={description}
         className={className}
         clearable={clearable}
+        style={style}
         leftSection={leftSection}
         maxDate={dayjs().toDate()}
         valueFormat="DD/MM/YYYY"

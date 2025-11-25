@@ -111,6 +111,7 @@ export default function FiltersProducts({
                 setSortBy(sortByValue);
                 setSort(sortValue as 'asc' | 'desc');
               }}
+              allowDeselect={false}
               className="mt-1"
               position="bottom"
               size="sm"

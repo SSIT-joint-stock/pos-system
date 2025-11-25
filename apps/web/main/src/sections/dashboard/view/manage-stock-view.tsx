@@ -1,11 +1,6 @@
-"use client";
-import {
-  Button,
-  Modal,
-  Select,
-  Table,
-} from "@repo/design-system/components/ui";
-import FilterBar from "../components/filter-bar";
+'use client';
+import { Button, Modal, Select, Table } from '@repo/design-system/components/ui';
+import FilterBar from '../components/filter-bar';
 import {
   Download,
   Eye,
@@ -20,63 +15,53 @@ import {
   ArrowLeftCircle,
   ArrowRightCircle,
   Upload,
-} from "lucide-react";
-import * as XLSX from "xlsx";
-import React, { useEffect, useState } from "react";
-import { NumberInput, TextInput } from "@mantine/core";
-import api from "../../../../../main/src/libs/axios";
-import { useAtom } from "jotai";
-import { currentStoreAtom } from "@repo/design-system/stores/auth";
-import { toast } from "react-toastify";
-import { formatDate } from "../../../../../main/src/utils";
+} from 'lucide-react';
+import * as XLSX from 'xlsx';
+import React, { useEffect, useState } from 'react';
+import { NumberInput, TextInput } from '@mantine/core';
+import api from '../../../../../main/src/libs/axios';
+import { useAtom } from 'jotai';
+import { currentStoreAtom } from '@repo/design-system/stores/auth';
+import { toast } from 'react-toastify';
+import { formatDate } from '../../../../../main/src/utils';
 
-const tableHeaders = [
-  "ID",
-  "Sản phẩm",
-  "Loại",
-  "Số lượng",
-  "Ngày tạo",
-  "Thao tác",
-];
+const tableHeaders = ['Mã phiếu', 'Sản phẩm', 'Loại', 'Số lượng', 'Ngày tạo', 'Thao tác'];
 
 // Màu sắc cho các loại phiếu kho
-const typeColors: Record<
-  string,
-  { bg: string; text: string; icon: React.ReactNode }
-> = {
+const typeColors: Record<string, { bg: string; text: string; icon: React.ReactNode }> = {
   ADJUSTMENT: {
-    bg: "bg-yellow-100",
-    text: "text-yellow-700",
+    bg: 'bg-yellow-100',
+    text: 'text-yellow-700',
     icon: <Package size={14} />,
   },
   PURCHASE: {
-    bg: "bg-green-100",
-    text: "text-green-700",
+    bg: 'bg-green-100',
+    text: 'text-green-700',
     icon: <ShoppingCart size={14} />,
   },
   SALE: {
-    bg: "bg-red-100",
-    text: "text-red-700",
+    bg: 'bg-red-100',
+    text: 'text-red-700',
     icon: <DollarSignIcon size={14} />,
   },
   RETURN_PURCHASE: {
-    bg: "bg-blue-100",
-    text: "text-blue-700",
+    bg: 'bg-blue-100',
+    text: 'text-blue-700',
     icon: <ArrowLeftCircle size={14} />,
   },
   RETURN_SALE: {
-    bg: "bg-orange-100",
-    text: "text-orange-700",
+    bg: 'bg-orange-100',
+    text: 'text-orange-700',
     icon: <ArrowRightCircle size={14} />,
   },
   TRANSFER_IMPORT: {
-    bg: "bg-purple-100",
-    text: "text-purple-700",
+    bg: 'bg-purple-100',
+    text: 'text-purple-700',
     icon: <Download size={14} />,
   },
   TRANSFER_EXPORT: {
-    bg: "bg-indigo-100",
-    text: "text-indigo-700",
+    bg: 'bg-indigo-100',
+    text: 'text-indigo-700',
     icon: <Upload size={14} />,
   },
 };
@@ -87,12 +72,12 @@ export interface StockMovement {
   product_id: string;
   quantity: number;
   type:
-    | "ADJUSTMENT"
-    | "PURCHASE"
-    | "RETURN_PURCHASE"
-    | "RETURN_SALE"
-    | "TRANSFER_IMPORT"
-    | "TRANSFER_EXPORT";
+    | 'ADJUSTMENT'
+    | 'PURCHASE'
+    | 'RETURN_PURCHASE'
+    | 'RETURN_SALE'
+    | 'TRANSFER_IMPORT'
+    | 'TRANSFER_EXPORT';
   createdAt: string;
   updatedAt: string;
   product?: {
@@ -105,8 +90,8 @@ export interface StockMovement {
 interface StockMovementFilters {
   page: number;
   limit: number;
-  sortBy: "createdAt" | "quantity";
-  sort: "asc" | "desc";
+  sortBy: 'createdAt' | 'quantity';
+  sort: 'asc' | 'desc';
   startDate?: string;
   endDate?: string;
   type?: string;
@@ -117,8 +102,7 @@ interface StockMovementFilters {
 export function ManageStockView() {
   const [openViewModal, setOpenViewModal] = useState<boolean>(false);
   const [openFilterModal, setOpenFilterModal] = useState<boolean>(false);
-  const [selectedMovement, setSelectedMovement] =
-    useState<StockMovement | null>(null);
+  const [selectedMovement, setSelectedMovement] = useState<StockMovement | null>(null);
   const [movements, setMovements] = useState<StockMovement[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [currentStore] = useAtom(currentStoreAtom);
@@ -130,42 +114,38 @@ export function ManageStockView() {
   });
   const handleExportExcel = () => {
     if (!movements || movements.length === 0) {
-      toast.error("Không có dữ liệu để xuất");
+      toast.error('Không có dữ liệu để xuất');
       return;
     }
 
     const formatted = movements.map((m) => ({
       ID: m.id,
-      "Tên sản phẩm": m.product?.name || m.product_id,
+      'Tên sản phẩm': m.product?.name || m.product_id,
       Loại: formatMovementType(m.type),
-      "Số lượng": m.quantity,
-      "Ngày tạo": formatDate(m.createdAt),
+      'Số lượng': m.quantity,
+      'Ngày tạo': formatDate(m.createdAt),
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(formatted);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Phiếu kho");
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Phiếu kho');
 
-    XLSX.writeFile(workbook, "stock-movements.xlsx");
+    XLSX.writeFile(workbook, 'stock-movements.xlsx');
   };
 
   // Bộ lọc hiện tại
   const [filters, setFilters] = useState<StockMovementFilters>({
     page: 1,
     limit: 10,
-    sortBy: "createdAt",
-    sort: "desc",
+    sortBy: 'createdAt',
+    sort: 'desc',
   });
 
   // Bộ lọc tạm trong modal
-  const [tempFilters, setTempFilters] = useState<Partial<StockMovementFilters>>(
-    {}
-  );
+  const [tempFilters, setTempFilters] = useState<Partial<StockMovementFilters>>({});
 
   // Lấy danh sách phiếu kho
-  const handleGetStockMovements = async (
-    customFilters?: Partial<StockMovementFilters>
-  ) => {
+  const handleGetStockMovements = async (customFilters?: Partial<StockMovementFilters>) => {
     if (!currentStore?.id) return;
 
     setLoading(true);
@@ -174,27 +154,19 @@ export function ManageStockView() {
       const currentFilters = { ...filters, ...customFilters };
 
       // Phân trang và sắp xếp
-      queryParams.append("page", currentFilters.page.toString());
-      queryParams.append("limit", currentFilters.limit.toString());
-      queryParams.append("sortBy", currentFilters.sortBy);
-      queryParams.append("sort", currentFilters.sort);
+      queryParams.append('page', currentFilters.page.toString());
+      queryParams.append('limit', currentFilters.limit.toString());
+      queryParams.append('sortBy', currentFilters.sortBy);
+      queryParams.append('sort', currentFilters.sort);
 
       // Bộ lọc tùy chọn
-      if (currentFilters.startDate)
-        queryParams.append("startDate", currentFilters.startDate);
-      if (currentFilters.endDate)
-        queryParams.append("endDate", currentFilters.endDate);
-      if (currentFilters.type) queryParams.append("type", currentFilters.type);
+      if (currentFilters.startDate) queryParams.append('startDate', currentFilters.startDate);
+      if (currentFilters.endDate) queryParams.append('endDate', currentFilters.endDate);
+      if (currentFilters.type) queryParams.append('type', currentFilters.type);
       if (currentFilters.min_quantity !== undefined)
-        queryParams.append(
-          "min_quantity",
-          currentFilters.min_quantity.toString()
-        );
+        queryParams.append('min_quantity', currentFilters.min_quantity.toString());
       if (currentFilters.max_quantity !== undefined)
-        queryParams.append(
-          "max_quantity",
-          currentFilters.max_quantity.toString()
-        );
+        queryParams.append('max_quantity', currentFilters.max_quantity.toString());
 
       const res = await api.get(
         `/stores/${currentStore.id}/stock-movement?${queryParams.toString()}`
@@ -209,7 +181,7 @@ export function ManageStockView() {
     } catch (error) {
       setLoading(false);
       console.error(error);
-      toast.error("Lỗi khi tải dữ liệu phiếu kho");
+      toast.error('Lỗi khi tải dữ liệu phiếu kho');
     }
   };
 
@@ -218,21 +190,16 @@ export function ManageStockView() {
     if (!currentStore?.id) return;
 
     try {
-      const res = await api.get(
-        `/stores/${currentStore.id}/stock-movements/${id}`
-      );
+      const res = await api.get(`/stores/${currentStore.id}/stock-movements/${id}`);
       setSelectedMovement(res.data.data);
     } catch (error) {
       console.error(error);
-      toast.error("Lỗi khi tải chi tiết phiếu kho");
+      toast.error('Lỗi khi tải chi tiết phiếu kho');
     }
   };
 
   // Cập nhật bộ lọc tạm
-  const onChangeFilterValue = (
-    field: keyof StockMovementFilters,
-    value: any
-  ) => {
+  const onChangeFilterValue = (field: keyof StockMovementFilters, value: any) => {
     setTempFilters((prev) => ({
       ...prev,
       [field]: value,
@@ -253,8 +220,8 @@ export function ManageStockView() {
     const defaultFilters: StockMovementFilters = {
       page: 1,
       limit: 10,
-      sortBy: "createdAt",
-      sort: "desc",
+      sortBy: 'createdAt',
+      sort: 'desc',
     };
     setFilters(defaultFilters);
     setTempFilters({});
@@ -274,13 +241,13 @@ export function ManageStockView() {
   // Định dạng loại phiếu
   const formatMovementType = (type: string) => {
     const translations: Record<string, string> = {
-      ADJUSTMENT: "Điều chỉnh kho",
-      PURCHASE: "Nhập hàng từ nhà cung cấp",
-      SALE: "Bán hàng cho khách hàng",
-      RETURN_PURCHASE: "Trả hàng cho nhà cung cấp",
-      RETURN_SALE: "Nhận hàng trả từ khách hàng",
-      TRANSFER_IMPORT: "Nhập hàng từ kho khác",
-      TRANSFER_EXPORT: "Xuất hàng sang kho khác",
+      ADJUSTMENT: 'Điều chỉnh kho',
+      PURCHASE: 'Nhập hàng từ nhà cung cấp',
+      SALE: 'Bán hàng cho khách hàng',
+      RETURN_PURCHASE: 'Trả hàng cho nhà cung cấp',
+      RETURN_SALE: 'Nhận hàng trả từ khách hàng',
+      TRANSFER_IMPORT: 'Nhập hàng từ kho khác',
+      TRANSFER_EXPORT: 'Xuất hàng sang kho khác',
     };
     return translations[type] || type;
   };
@@ -320,15 +287,15 @@ export function ManageStockView() {
             position="bottom"
             placeholder="Tất cả loại"
             value={tempFilters.type}
-            onChange={(value) => onChangeFilterValue("type", value)}
+            onChange={(value) => onChangeFilterValue('type', value)}
             data={[
-              { value: "", label: "Tất cả loại" },
-              { value: "ADJUSTMENT", label: "Điều chỉnh kho" },
-              { value: "PURCHASE", label: "Nhập hàng từ nhà cung cấp" },
-              { value: "SALE", label: "Bán hàng cho khách hàng" },
-              { value: "RETURN_SALE", label: "Nhận hàng trả từ khách hàng" },
-              { value: "TRANSFER_IMPORT", label: "Nhập hàng từ kho khác" },
-              { value: "TRANSFER_EXPORT", label: "Xuất hàng sang kho khác" },
+              { value: '', label: 'Tất cả loại' },
+              { value: 'ADJUSTMENT', label: 'Điều chỉnh kho' },
+              { value: 'PURCHASE', label: 'Nhập hàng từ nhà cung cấp' },
+              { value: 'SALE', label: 'Bán hàng cho khách hàng' },
+              { value: 'RETURN_SALE', label: 'Nhận hàng trả từ khách hàng' },
+              { value: 'TRANSFER_IMPORT', label: 'Nhập hàng từ kho khác' },
+              { value: 'TRANSFER_EXPORT', label: 'Xuất hàng sang kho khác' },
             ]}
           />
 
@@ -338,13 +305,13 @@ export function ManageStockView() {
               type="date"
               label="Ngày bắt đầu"
               value={tempFilters.startDate}
-              onChange={(e) => onChangeFilterValue("startDate", e.target.value)}
+              onChange={(e) => onChangeFilterValue('startDate', e.target.value)}
             />
             <TextInput
               type="date"
               label="Ngày kết thúc"
               value={tempFilters.endDate}
-              onChange={(e) => onChangeFilterValue("endDate", e.target.value)}
+              onChange={(e) => onChangeFilterValue('endDate', e.target.value)}
             />
           </div>
 
@@ -355,14 +322,14 @@ export function ManageStockView() {
               placeholder="0"
               min={0}
               value={tempFilters.min_quantity}
-              onChange={(value) => onChangeFilterValue("min_quantity", value)}
+              onChange={(value) => onChangeFilterValue('min_quantity', value)}
             />
             <NumberInput
               label="Số lượng tối đa"
               placeholder="Không giới hạn"
               min={0}
               value={tempFilters.max_quantity}
-              onChange={(value) => onChangeFilterValue("max_quantity", value)}
+              onChange={(value) => onChangeFilterValue('max_quantity', value)}
             />
           </div>
 
@@ -385,12 +352,7 @@ export function ManageStockView() {
             >
               Hủy
             </button>
-            <Button
-              onClick={handleApplyFilters}
-              title="Áp dụng bộ lọc"
-              size="sm"
-              radius="md"
-            />
+            <Button onClick={handleApplyFilters} title="Áp dụng bộ lọc" size="sm" radius="md" />
           </div>
         </div>
       </Modal>
@@ -421,16 +383,12 @@ export function ManageStockView() {
                   <div className="bg-orange-100 p-2 rounded-lg">
                     <Package size={20} className="text-orange-600" />
                   </div>
-                  <h3 className="text-lg font-bold text-gray-800">
-                    Thông tin sản phẩm
-                  </h3>
+                  <h3 className="text-lg font-bold text-gray-800">Thông tin sản phẩm</h3>
                 </div>
 
                 <div className="space-y-4">
                   <div className="flex flex-col">
-                    <label className="text-sm font-semibold text-gray-600 mb-1">
-                      ID Sản phẩm
-                    </label>
+                    <label className="text-sm font-semibold text-gray-600 mb-1">ID Sản phẩm</label>
                     <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center">
                       <span className="font-mono  text-gray-900 break-all">
                         {selectedMovement.product_id}
@@ -458,18 +416,16 @@ export function ManageStockView() {
                     <div
                       className={`border-2 rounded-lg p-4 text-center ${
                         selectedMovement.quantity > 0
-                          ? "bg-green-50 border-green-200"
-                          : "bg-red-50 border-red-200"
+                          ? 'bg-green-50 border-green-200'
+                          : 'bg-red-50 border-red-200'
                       }`}
                     >
                       <span
                         className={`text-2xl font-bold ${
-                          selectedMovement.quantity > 0
-                            ? "text-green-600"
-                            : "text-red-600"
+                          selectedMovement.quantity > 0 ? 'text-green-600' : 'text-red-600'
                         }`}
                       >
-                        {selectedMovement.quantity > 0 ? "+" : ""}
+                        {selectedMovement.quantity > 0 ? '+' : ''}
                         {selectedMovement.quantity.toLocaleString()}
                       </span>
                       <p className="text-xs text-gray-500 mt-1">đơn vị</p>
@@ -484,9 +440,7 @@ export function ManageStockView() {
                   <div className="bg-purple-100 p-2 rounded-lg">
                     <Calendar size={20} className="text-purple-600" />
                   </div>
-                  <h3 className="text-lg font-bold text-gray-800">
-                    Thông tin thời gian
-                  </h3>
+                  <h3 className="text-lg font-bold text-gray-800">Thông tin thời gian</h3>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -498,22 +452,18 @@ export function ManageStockView() {
                       <Calendar size={16} className="text-blue-600" />
                       <div>
                         <p className="font-semibold text-gray-900">
-                          {new Date(
-                            selectedMovement.createdAt
-                          ).toLocaleDateString("vi-VN", {
-                            weekday: "long",
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
+                          {new Date(selectedMovement.createdAt).toLocaleDateString('vi-VN', {
+                            weekday: 'long',
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
                           })}
                         </p>
                         <p className="text-sm text-blue-600">
-                          {new Date(
-                            selectedMovement.createdAt
-                          ).toLocaleTimeString("vi-VN", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            second: "2-digit",
+                          {new Date(selectedMovement.createdAt).toLocaleTimeString('vi-VN', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit',
                           })}
                         </p>
                       </div>
@@ -528,22 +478,18 @@ export function ManageStockView() {
                       <RotateCcw size={16} className="text-green-600" />
                       <div>
                         <p className="font-semibold text-gray-900">
-                          {new Date(
-                            selectedMovement.updatedAt
-                          ).toLocaleDateString("vi-VN", {
-                            weekday: "long",
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
+                          {new Date(selectedMovement.updatedAt).toLocaleDateString('vi-VN', {
+                            weekday: 'long',
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
                           })}
                         </p>
                         <p className="text-sm text-green-600">
-                          {new Date(
-                            selectedMovement.updatedAt
-                          ).toLocaleTimeString("vi-VN", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            second: "2-digit",
+                          {new Date(selectedMovement.updatedAt).toLocaleTimeString('vi-VN', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit',
                           })}
                         </p>
                       </div>
@@ -558,9 +504,7 @@ export function ManageStockView() {
                   <div className="bg-gray-200 p-2 rounded-lg">
                     <Info size={20} className="text-gray-600" />
                   </div>
-                  <h3 className="text-lg font-bold text-gray-800">
-                    Thông tin bổ sung
-                  </h3>
+                  <h3 className="text-lg font-bold text-gray-800">Thông tin bổ sung</h3>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -590,9 +534,9 @@ export function ManageStockView() {
                       Giá trị thay đổi
                     </p>
                     <p
-                      className={`text-lg font-bold ${selectedMovement.quantity > 0 ? "text-green-600" : "text-red-600"}`}
+                      className={`text-lg font-bold ${selectedMovement.quantity > 0 ? 'text-green-600' : 'text-red-600'}`}
                     >
-                      {selectedMovement.quantity > 0 ? "+" : ""}
+                      {selectedMovement.quantity > 0 ? '+' : ''}
                       {Math.abs(selectedMovement.quantity).toLocaleString()}
                     </p>
                   </div>
@@ -643,18 +587,14 @@ export function ManageStockView() {
                 className="bg-white border text-nowrap border-gray-200 rounded-md flex items-center gap-2 py-2 px-4 cursor-pointer hover:opacity-80 transition-opacity duration-300"
               >
                 <Download size={16} />
-                <span className="text-gray-900 font-medium text-xs">
-                  Xuất dữ liệu
-                </span>
+                <span className="text-gray-900 font-medium text-xs">Xuất dữ liệu</span>
               </button>
               <button
                 onClick={() => setOpenFilterModal(true)}
                 className="bg-white border text-nowrap border-gray-200 rounded-md flex items-center gap-2 py-2 px-4 cursor-pointer hover:opacity-80 transition-opacity duration-300"
               >
                 <Filter size={16} />
-                <span className="text-gray-900 font-medium text-xs">
-                  Lọc sản phẩm
-                </span>
+                <span className="text-gray-900 font-medium text-xs">Lọc sản phẩm</span>
               </button>
             </>
           }
@@ -676,14 +616,12 @@ export function ManageStockView() {
                 )}
                 {filters.startDate && (
                   <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
-                    Từ ngày:{" "}
-                    {new Date(filters.startDate).toLocaleDateString("vi-VN")}
+                    Từ ngày: {new Date(filters.startDate).toLocaleDateString('vi-VN')}
                   </span>
                 )}
                 {filters.endDate && (
                   <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
-                    Đến ngày:{" "}
-                    {new Date(filters.endDate).toLocaleDateString("vi-VN")}
+                    Đến ngày: {new Date(filters.endDate).toLocaleDateString('vi-VN')}
                   </span>
                 )}
                 {filters.min_quantity && (
@@ -724,8 +662,7 @@ export function ManageStockView() {
                 {movement.id.slice(0, 8)}...
               </td>
               <td className="px-4 py-2 text-xs font-medium text-gray-900">
-                {movement.product?.name ||
-                  movement.product_id.slice(0, 8) + "..."}
+                {movement.product?.name || movement.product_id.slice(0, 8) + '...'}
               </td>
               <td className="px-0.5 py-2">
                 <span
@@ -737,15 +674,13 @@ export function ManageStockView() {
               </td>
               <td className="px-4 py-2 text-xs font-bold">
                 <span
-                  className={`${movement.quantity > 0 ? "text-green-600" : "text-red-600"} text-sm font-medium`}
+                  className={`${movement.quantity > 0 ? 'text-green-600' : 'text-red-600'} text-sm font-medium`}
                 >
-                  {movement.quantity > 0 ? "+" : ""}
+                  {movement.quantity > 0 ? '+' : ''}
                   {movement.quantity.toLocaleString()}
                 </span>
               </td>
-              <td className="px-4 py-2 text-xs text-gray-500">
-                {formatDate(movement.createdAt)}
-              </td>
+              <td className="px-4 py-2 text-xs text-gray-500">{formatDate(movement.createdAt)}</td>
               <td>
                 <div className="flex items-center gap-5 pl-4">
                   <button

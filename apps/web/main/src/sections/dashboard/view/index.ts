@@ -1,7 +1,7 @@
 export * from './dashboard-view';
 export * from './manage-view';
 export * from './sales-view';
-export * from './orders-view';
+export * from './sales-invoice-view';
 export * from './employees-view';
 export * from './manage-categories-view';
 export * from './info-store-view';
@@ -10,3 +10,6 @@ export * from './inventory-manage-view';
 export * from './manage-stock-view';
 export * from './purchase-orders';
 export * from './manage-customers-view';
+export * from './purchase-orders-v2';
+export * from './outbound-orders';
+export * from './manage-suppliers-view';

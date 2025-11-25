@@ -47,6 +47,7 @@ export default function Invoice({
   setSelectedProducts,
 }: InvoiceProps) {
   const currentStore = useAtomValue(currentStoreAtom);
+
   const { order, getOrderById } = useOrders();
   const [isOpenModalQrCode, setIsOpenModalQrCode] = useState<boolean>(false);
   const printRef = useRef<HTMLDivElement>(null);
@@ -67,8 +68,9 @@ export default function Invoice({
           <div className="flex items-center gap-4 text-lg font-medium text-gray-800">
             Chi tiết hóa đơn
             <button
+              disabled={!currentStore?.bank_qr_image_url}
               onClick={() => setIsOpenModalQrCode(true)}
-              className="cursor-pointer border border-gray-300 rounded-md p-1.5 hover:border-gray-800 transition-colors duration-300"
+              className="cursor-pointer border border-gray-300 rounded-md p-1.5 hover:border-gray-800 transition-colors duration-300 disabled:cursor-text disabled:border-gray-300 disabled:hover:border-gray-300"
             >
               <QrCodeIc size={20} />
             </button>
@@ -273,8 +275,7 @@ export default function Invoice({
                   priority
                   blurDataURL={currentStore?.bank_qr_image_url || '/qr_code_placholder.svg'}
                   src={
-                    `${currentStore?.bank_qr_image_url}&amount=${order?.customer_pay_amount}&addInfo=${currentStore?.name}` ||
-                    ''
+                    `${currentStore?.bank_qr_image_url}&amount=${order?.customer_pay_amount}` || ''
                   }
                   className="object-cover"
                   alt="qr_code"

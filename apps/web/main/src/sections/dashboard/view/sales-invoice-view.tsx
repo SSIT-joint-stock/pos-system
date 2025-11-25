@@ -3,8 +3,8 @@ import { Button, Modal, Table } from '@repo/design-system/components/ui';
 import FilterBar from '../components/filter-bar';
 import { BadgeAlert, Download, Edit, Eye, Trash } from 'lucide-react';
 import React, { useState } from 'react';
-import { formatCurrency, formatDate } from '../../../../../main/src/utils/index';
-import { useOrders } from '../../../../../main/src/hooks/orders/use-orders';
+import { formatCurrency, formatDate } from '../../../utils/index';
+import { useOrders } from '../../../hooks/orders/use-orders';
 import { Order } from '@repo/design-system/types';
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 const tableHeaders = [
@@ -46,7 +46,7 @@ const paymentMethodLabels: Record<string, string> = {
   CREDIT_CARD: 'Thẻ tín dụng',
 };
 
-export function OrdersView() {
+export function SalesInvoicesView() {
   const { showInfoToast } = useToast();
   const {
     orders,
