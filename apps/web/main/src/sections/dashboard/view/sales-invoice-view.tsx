@@ -1,7 +1,7 @@
 'use client';
 import { Button, Modal, Table } from '@repo/design-system/components/ui';
 import FilterBar from '../components/filter-bar';
-import { BadgeAlert, Download, Edit, Eye, Trash } from 'lucide-react';
+import { BadgeAlert, Download, Edit, Eye, Plus, Trash } from 'lucide-react';
 import React, { useState } from 'react';
 import { formatCurrency, formatDate } from '../../../utils/index';
 import { useOrders } from '../../../hooks/orders/use-orders';
@@ -232,6 +232,12 @@ export function SalesInvoicesView() {
       </Modal>
 
       <div className="flex flex-col h-full gap-5">
+        <div className="flex items-center justify-between p-4 bg-white rounded-lg">
+          <div className="flex items-center gap-8">
+            <h1 className="text-2xl font-semibold text-pos-blue-500">Quản lý phiếu trả hàng bán</h1>
+          </div>
+          <Button title="Tạo phiếu trả hàng bán" icon={<Plus size={16} />} size="sm" radius="sm" />
+        </div>
         {/* ACTION */}
         <FilterBar
           onFilterChange={(newFilters) => {
@@ -253,6 +259,7 @@ export function SalesInvoicesView() {
         <Table
           total={pagination?.total}
           page={pagination?.page}
+          hasMarginTop={false}
           limit={pagination?.limit}
           totalPages={pagination?.totalPages}
           pageSize={pagination?.limit ?? paginationParams.limit}

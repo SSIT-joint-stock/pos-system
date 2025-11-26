@@ -1,5 +1,4 @@
 'use client';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
 import SettingsSidebar from './settings-sidebar';
@@ -17,7 +16,7 @@ export default function SideBar({
       className={`h-screen relative  flex flex-col bg-white overflow-x-none shadow-md shadow-gray-100 transition-all duration-300 ${isExpand ? 'w-56' : 'w-20'} }`}
     >
       {/* Toggle button */}
-      <div className="w-fit absolute top-1/2 -translate-y-1/2  -right-4 flex justify-end">
+      {/* <div className="w-fit absolute top-1/2 -translate-y-1/2  -right-4 flex justify-end">
         <button
           className="p-2 rounded-xl bg-pos-blue-50  hover:bg-pos-blue-500 group cursor-pointer duration-300  transition-all"
           onClick={() => {
@@ -31,7 +30,7 @@ export default function SideBar({
             <ArrowRight size={18} className="  text-pos-blue-400 group-hover:text-white" />
           )}
         </button>
-      </div>
+      </div> */}
 
       {/* Menu items */}
       <div className=" h-full flex flex-col gap-2 p-4 ">
@@ -71,7 +70,11 @@ export default function SideBar({
           setOpenSubmenu={setOpenSubmenu}
         />
         {/* Settings */}
-        <SettingsSidebar isExpand={isExpand} />
+        <SettingsSidebar
+          setOpenSubmenu={setOpenSubmenu}
+          setIsExpand={setIsExpand}
+          isExpand={isExpand}
+        />
       </div>
     </div>
   );

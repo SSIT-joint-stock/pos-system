@@ -13,3 +13,7 @@ export * from './manage-customers-view';
 export * from './purchase-orders-v2';
 export * from './outbound-orders';
 export * from './manage-suppliers-view';
+export * from './received-invoices-view';
+export * from './returned-invoices-view';
+export * from './manage-product-units-view';
+export * from './manage-product-combos-view';

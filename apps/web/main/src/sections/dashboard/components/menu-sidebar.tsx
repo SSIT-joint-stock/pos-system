@@ -46,11 +46,11 @@ export default function MenuSidebar({
         },
         {
           title: 'Đơn vị tính',
-          path: `/dashboard/store/${currentStore?.id}/manage-products`,
+          path: `/dashboard/store/${currentStore?.id}/manage-product-units`,
         },
         {
           title: 'Nhóm sản phẩm',
-          path: `/dashboard/store/${currentStore?.id}/manage-products`,
+          path: `/dashboard/store/${currentStore?.id}/manage-product-combos`,
         },
         {
           title: 'Danh mục',
