@@ -1,12 +1,16 @@
 'use client';
 import React, { FormEvent, useEffect, useState } from 'react';
-import FilterBar from '../components/filter-bar';
 import { Button, Input, Modal, Table } from '@repo/design-system/components/ui';
-import { BadgeAlert, Edit, Eye, Plus, Trash, UserPlus } from 'lucide-react';
+import { Plus, UserPlus } from 'lucide-react';
 import useStore from '../../../../../main/src/hooks/store/use-store';
 import { useAtomValue } from 'jotai';
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { formatDate } from '../../../../../main/src/utils/index';
+import DashboardViewLayout from '../../../../../main/src/layouts/dashboard-view-layout';
+import { DisplayField } from '../components/display-field';
+import { DataActionBar } from '../components/data-action-bar';
+import { ActionButtons } from '../components/action-buttons';
+import { DeleteConfirmationModal } from '../components/delete-confirmation-modal';
 const tableHeaders = ['Mã NV', 'Họ và Tên', 'Email', 'Vai trò', 'Ngay tham gia', 'Hành động'];
 const roleColors: Record<string, string> = {
   MEMBER: 'bg-green-100 text-green-800 px-2 py-1',
@@ -25,21 +29,32 @@ export default function EmployeesView() {
     getMembersInStore();
   }, [currentStore?.id]);
   return (
-    <>
-      <FilterBar
-        actions={
-          <>
-            <button
-              onClick={() => {
-                setOpenModalAdd(true);
-              }}
-              className="flex items-center text-nowrap justify-center gap-2 px-3 py-2 rounded-md bg-pos-blue-500 cursor-pointer hover:bg-pos-blue-600 transition-all duration-300"
-            >
-              <Plus className="text-white" size={18} />
-              <span className="text-white font-semibold text-sm">Thêm nhân viên mới</span>
-            </button>
-          </>
-        }
+    <DashboardViewLayout>
+      <DisplayField label="Danh sách nhân viên ">
+        <div className="flex items-center gap-3">
+          <Button
+            onClick={() => {
+              setOpenModalAdd(true);
+            }}
+            title="Thêm nhân viên mới"
+            icon={<Plus size={16} />}
+            size="sm"
+            radius="sm"
+          />
+        </div>
+      </DisplayField>
+      <DataActionBar
+        placeholderSearch="Tìm kiếm tên nhân viên"
+        // onFilterChange={(newFilters) => {
+        //   setFilters((prev) => ({
+        //     ...prev,
+        //     ...newFilters,
+        //     product_status: newFilters.status,
+        //   }));
+        // }}
+        // onSearch={(value) => {
+        //   setFilters((prev) => ({ ...prev, q: value }));
+        // }}
       />
       {/* TABLE AND PAGINATION */}
       <Table
@@ -48,51 +63,36 @@ export default function EmployeesView() {
         data={members}
         renderRow={(member) => (
           <>
-            <td className="px-4 py-2 text-xs font-medium text-gray-900">{member.user.id}</td>
-            <td className="px-4 py-2 text-xs text-gray-500 font-medium">{member.user.username}</td>
-            <td className="px-4 py-2 text-xs text-gray-500">{member.user.email}</td>
+            <td className="px-4 py-3 text-sm font-medium text-gray-900">{member.user.id}</td>
+            <td className="px-4 py-3 text-sm text-gray-500 font-medium">{member.user.username}</td>
+            <td className="px-4 py-3 text-sm text-gray-500">{member.user.email}</td>
 
-            <td className="px-4 py-2">
+            <td className="px-4 py-3">
               <span className={`text-xs font-medium rounded-xl ${roleColors[member.role]}`}>
                 {member.role}
               </span>
             </td>
-            <td className="px-4 py-2 text-xs text-gray-500">{formatDate(member.createdAt)}</td>
-            <>
-              <div className="flex  items-center gap-5 pl-4">
-                <button
-                  onClick={() => {
-                    setSelectedMember(member);
-                    setOpenEditModal(false);
-                    setOpenViewModal(true);
-                  }}
-                  className="flex justify-center items-center cursor-pointer w-[36px] h-[36px] bg-gray-50 text-gray-500 rounded-md hover:opacity-100 hover:bg-gray-700 hover:text-white opacity-70 transition-opacity duration-200"
-                >
-                  <Eye size={16} />
-                </button>
-                <button
-                  className="flex justify-center items-center cursor-pointer w-[36px] h-[36px]  bg-pos-blue-50 text-pos-blue-500 rounded-md hover:opacity-100 hover:bg-pos-blue-500 hover:text-pos-blue-50 opacity-70 transition-opacity duration-200"
-                  onClick={() => {
-                    setOpenEditModal(true);
-                    setOpenViewModal(false);
-                    setSelectedMember(member);
-                  }}
-                >
-                  <Edit size={16} />
-                </button>
-                <button
-                  className="flex justify-center items-center cursor-pointer w-[36px] h-[36px]  bg-red-50 text-red-500 rounded-md hover:opacity-100 hover:bg-red-500 hover:text-white opacity-70 transition-opacity duration-200 ml-auto"
-                  onClick={() => {
-                    setDeleteModal(true);
-                    setSelectedMember(member);
-                    setOpenEditModal(false);
-                    setOpenViewModal(false);
-                  }}
-                >
-                  <Trash size={16} />
-                </button>
-              </div>
-            </>
+            <td className="px-4 py-3 text-sm text-gray-500">{formatDate(member.createdAt)}</td>
+            <td>
+              <ActionButtons
+                onView={() => {
+                  setSelectedMember(member);
+                  setOpenEditModal(false);
+                  setOpenViewModal(true);
+                }}
+                onEdit={() => {
+                  setOpenEditModal(true);
+                  setOpenViewModal(false);
+                  setSelectedMember(member);
+                }}
+                onDelete={() => {
+                  setDeleteModal(true);
+                  setSelectedMember(member);
+                  setOpenEditModal(false);
+                  setOpenViewModal(false);
+                }}
+              />
+            </td>
           </>
         )}
       />
@@ -128,36 +128,12 @@ export default function EmployeesView() {
       </Modal>
 
       {/* DELETE MODAL */}
-      <Modal opened={deleteModal} size="sm" onClose={() => setDeleteModal(false)}>
-        <div className="space-y-3 flex flex-col items-center">
-          <div className="flex flex-col gap-3 items-center justify-center">
-            <div className="justify-center flex rounded-full bg-red-100 w-fit text-red-500 p-3.5">
-              <BadgeAlert size={38} />
-            </div>
-            <div className="text-lg font-bold text-center">Bạn Có Chắc Chắn Muốn Xóa?</div>
-            <div className="text-sm text-gray-500 text-center">
-              Hành động này không thể hoàn tác. Tất cả dữ liệu liên quan của trường này sẽ biến mất.
-            </div>
-          </div>
-          <button
-            onClick={() => {
-              deleteMemberFromStore(selectedMember.user.id);
-              setDeleteModal(false);
-            }}
-            className="bg-red-600 rounded-lg text-white w-full py-2 cursor-pointer font-bold"
-          >
-            Xác Nhận Xóa{' '}
-          </button>
-          <button
-            onClick={() => {
-              setDeleteModal(false);
-            }}
-            className="cursor-pointer"
-          >
-            Hủy
-          </button>
-        </div>
-      </Modal>
-    </>
+      <DeleteConfirmationModal
+        opened={deleteModal}
+        onClose={() => setDeleteModal(false)}
+        onConfirm={() => deleteMemberFromStore(selectedMember)}
+        itemName={selectedMember?.user?.username}
+      />
+    </DashboardViewLayout>
   );
 }

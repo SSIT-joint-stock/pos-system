@@ -1,22 +1,17 @@
-'use client';
 import { AutoComplete, DatePickerInput, Select } from '@repo/design-system/components/ui';
 import { Calendar1, Search } from 'lucide-react';
-import * as React from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-type FilterOption = {
-  label: string;
-  value: string;
+export type DynamicFilter = {
+  key: string;
+  label?: string;
+  options: { label: string; value: string }[];
+  width?: string;
 };
-
 type FilterBarProps = {
   onSearch?: (value: string) => void;
-  statusOptions?: FilterOption[];
-  categoryOptions?: FilterOption[];
-  onFilterChange?: (filters: {
-    status?: string;
-    category?: string;
-    date?: [string, string];
-  }) => void;
+  filters?: DynamicFilter[];
+  onFilterChange?: (filters: Record<string, any>) => void;
   actions?: React.ReactNode;
   hasBg?: boolean;
   setWidth?: string;
@@ -27,126 +22,105 @@ type FilterBarProps = {
 
 export default function FilterBar({
   onSearch,
-  statusOptions = [],
-  categoryOptions = [],
+  filters = [],
   onFilterChange,
   actions,
   hasBg = true,
-  setWidth = '34%',
+  setWidth = '38%',
   hasDatePicker = true,
   placeholderInputSearch,
   dataComplete,
 }: FilterBarProps) {
-  const [status, setStatus] = React.useState<string | undefined>(undefined);
-  const [category, setCategory] = React.useState<string | undefined>(undefined);
-  const [date, setDate] = React.useState<string[]>([]);
-  const [searchValue, setSearchValue] = React.useState<string>('');
+  const [searchValue, setSearchValue] = useState<string>('');
+  const [date, setDate] = useState<string[]>([]);
+  const [filterValues, setFilterValues] = useState<Record<string, string | undefined>>({});
 
-  // Ref to track if component has mounted
-  const hasMounted = React.useRef(false);
+  const hasMounted = useRef(false);
 
-  React.useEffect(() => {
+  // theo dõi tất cả filter + date
+  useEffect(() => {
     if (!hasMounted.current) {
       hasMounted.current = true;
       return;
     }
 
-    // Check if both dates are actually selected and not null
-    if (!date || date.length < 2) {
-      onFilterChange?.({
-        status,
-        category,
-        date: undefined,
-      });
-      return;
-    }
-
     onFilterChange?.({
-      status,
-      category,
-      date: [date[0]?.toString() ?? '', date[1]?.toString() ?? ''] as [string, string],
+      ...filterValues,
+      date: date.length === 2 ? [date[0], date[1]] : undefined,
     });
-  }, [status, category, date]);
-  // Handle search when button is clicked
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterValues, date]);
+
+  const handleChange = (key: string, value: string | null) => {
+    setFilterValues((prev) => ({
+      ...prev,
+      [key]: value ?? undefined,
+    }));
+  };
+
   const handleSearchClick = () => {
-    const timeout = setTimeout(() => {
-      if (onSearch) {
-        onSearch(searchValue);
-      }
-    }, 1000);
-    return () => clearTimeout(timeout);
+    onSearch?.(searchValue);
   };
 
   return (
-    <div className={`flex items-center ${hasBg ? 'bg-white p-5 rounded-lg shadow' : ''}`}>
+    <div className={`flex items-center ${hasBg ? 'bg-white p-5 rounded-lg ' : ''}`}>
       <div className="flex items-center w-full gap-2">
         {/* SEARCH */}
         <form
-          onSubmit={(e: React.FormEvent) => {
+          onSubmit={(e) => {
             e.preventDefault();
             handleSearchClick();
           }}
           style={{ width: setWidth }}
-          className={` flex items-center overflow-hidden`}
+          className="flex items-center overflow-hidden"
         >
           <AutoComplete
             onChange={setSearchValue}
             size="sm"
-            radius="sm"
-            leftSection={<Search size={16} />}
-            // variant="unstyled"
-            placeholder={placeholderInputSearch ?? 'Tìm kiếm sản phẩm'}
-            data={dataComplete || ['T-Shirt', 'Cap', 'Shoes', 'Watch', 'Sunglass']}
+            radius="md"
+            placeholder={placeholderInputSearch ?? 'Tìm kiếm'}
+            data={dataComplete ?? []}
             className="flex-1"
             rightSection={
-              <button onClick={handleSearchClick} className=" " title="Tìm kiếm">
+              <button
+                type="button"
+                onClick={handleSearchClick}
+                className="p-2 rounded-md hover:bg-gray-100 hover:cursor-pointer"
+              >
                 <Search size={16} />
               </button>
             }
           />
         </form>
 
-        {/* FILTER */}
+        {/* DYNAMIC SELECT FILTERS */}
         <div className="flex items-center gap-2">
-          {statusOptions.length > 0 && (
+          {filters.map((f) => (
             <Select
-              data={statusOptions}
-              position="bottom"
-              placeholder="Trạng thái"
-              value={status}
-              onChange={(value) => setStatus(value ?? undefined)}
+              key={f.key}
+              data={f.options}
+              placeholder={f.label}
+              value={filterValues[f.key]}
+              onChange={(val) => handleChange(f.key, val)}
               size="sm"
-              radius="sm"
-              className="w-[200px] text-sm font-medium"
-            />
-          )}
-
-          {categoryOptions.length > 0 && (
-            <Select
-              data={categoryOptions}
-              placeholder="Danh mục"
+              radius="md"
               position="bottom"
-              value={category}
-              onChange={(value) => setCategory(value ?? undefined)}
-              size="xs"
-              radius="sm"
-              className="w-[150px] text-xs font-medium"
+              style={{ width: f.width ?? '200px' }}
             />
-          )}
+          ))}
 
+          {/* DATE FILTER */}
           {hasDatePicker && (
-            <div className="w-[26ch] rounded-md outline-none">
+            <div className="w-[26ch] rounded-md">
               <DatePickerInput
                 type="range"
-                // variant="unstyled"
-                radius="sm"
+                radius="md"
                 clearable
-                placeholder="VD: 15/08/2025-22/08/2025"
+                placeholder="VD: 15/08/2025 - 22/08/2025"
                 size="sm"
                 value={date}
                 onChange={(val) => setDate((val as string[]) || [])}
                 rightSection={<Calendar1 size={16} />}
-                // className="w-full text-nowrap border border-gray-500 py-[1px] px-2 text-sm text-gray-900 font-medium placeholder:font-normal placeholder:text-gray-900"
               />
             </div>
           )}

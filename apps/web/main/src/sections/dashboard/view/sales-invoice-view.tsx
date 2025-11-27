@@ -1,12 +1,15 @@
 'use client';
 import { Button, Modal, Table } from '@repo/design-system/components/ui';
-import FilterBar from '../components/filter-bar';
-import { BadgeAlert, Download, Edit, Eye, Plus, Trash } from 'lucide-react';
+import { BadgeAlert, Plus } from 'lucide-react';
 import React, { useState } from 'react';
 import { formatCurrency, formatDate } from '../../../utils/index';
 import { useOrders } from '../../../hooks/orders/use-orders';
 import { Order } from '@repo/design-system/types';
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
+import DashboardViewLayout from '../../../../../main/src/layouts/dashboard-view-layout';
+import { DisplayField } from '../components/display-field';
+import { DataActionBar } from '../components/data-action-bar';
+import { ActionButtons } from '../components/action-buttons';
 const tableHeaders = [
   'Mã Đơn Hàng',
   'Khách Hàng',
@@ -59,12 +62,11 @@ export function SalesInvoicesView() {
   } = useOrders();
   // Local state for modals
   const [selectedOrder, setSelectedOrder] = useState<Order>();
-  // const [openEditModal, setOpenEditModal] = useState(false);
-  const [deleteModal, setDeleteModal] = useState(false);
-  const [openViewModal, setOpenViewModal] = useState(false);
-  const [deleteLoading, setDeleteLoading] = useState(false);
 
-  // Handle fetch order details when modal opens
+  // const [openEditModal, setOpenEditModal] = useState(false);
+  const [deleteModal, setDeleteModal] = useState<boolean>(false);
+  const [openViewModal, setOpenViewModal] = useState<boolean>(false);
+  const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
 
   // Handle delete order
   const handleDeleteOrder = async () => {
@@ -92,6 +94,129 @@ export function SalesInvoicesView() {
 
   return (
     <>
+      <DashboardViewLayout>
+        <DisplayField label="Quản lý danh sách đơn hàng bán">
+          <Button title="Tạo phiếu trả hàng bán" icon={<Plus size={16} />} size="sm" radius="sm" />
+        </DisplayField>
+
+        {/* ACTION */}
+
+        <DataActionBar
+          // dataComplete={[...new Set(orders?.map((p) => p.code) || [] )]}
+          statusOptions={[
+            {
+              key: 'payment_method',
+              label: 'Hình thức thanh toán',
+              options: [
+                { value: 'CASH', label: 'Tiền mặt' },
+                { value: 'CREDIT_CARD', label: 'Chuyển khoản' },
+                { value: 'DEBIT_CARD', label: 'Thẻ tín dụng' },
+              ],
+            },
+            {
+              key: 'status',
+              label: 'Trạng Thái Đơn Hàng',
+              options: [
+                { value: 'OVERAGE', label: 'Trả thừa' },
+                { value: 'RETURNED', label: 'Đã trả hàng' },
+                { value: 'PENDING', label: 'Chờ thanh toán' },
+                { value: 'CANCELLED', label: 'Đã hủy' },
+                { value: 'COMPLETED', label: 'Hoàn thành' },
+                { value: 'PAID', label: 'Đã thanh toán' },
+                { value: 'REFUNDED', label: 'Đã hoàn tiền' },
+              ],
+            },
+          ]}
+          onFilterChange={(newFilters) => {
+            setFilters((prev) => ({
+              ...prev,
+              ...newFilters,
+              payment_method: newFilters.payment_method,
+              status: newFilters.status,
+            }));
+          }}
+          onSearch={(value) => {
+            setFilters((prev) => ({ ...prev, q: value }));
+          }}
+          loading={loading}
+          placeholderSearch="Nhập mã hóa đơn, tên khách hàng"
+        />
+        {/* TABLE AND PAGINATION */}
+        <Table
+          total={pagination?.total}
+          page={pagination?.page}
+          hasMarginTop={false}
+          limit={pagination?.limit}
+          totalPages={pagination?.totalPages}
+          pageSize={pagination?.limit ?? paginationParams.limit}
+          onPageChange={(page) => setPaginationParams((prev) => ({ ...prev, page }))}
+          onPageSizeChange={(size) =>
+            setPaginationParams((prev) => ({
+              ...prev,
+              limit: size,
+            }))
+          }
+          tableHeaders={tableHeaders}
+          data={orders}
+          isLoading={loading}
+          renderRow={(order) => (
+            <>
+              <td className="px-4 py-3 text-sm text-pos-blue-600 font-semibold truncate">
+                {order.code || (
+                  <span className="italic text-gray-500 font-medium">Chưa cập nhật</span>
+                )}
+              </td>
+              <td className="px-4 py-3 font-medium italic text-gray-600">
+                {order.customer_name || 'Khách lẻ'}
+              </td>
+              <td className="px-4 py-3 text-sm text-gray-500 font-medium">
+                {formatCurrency(order.total_amount)}
+              </td>
+              <td className="px-4 py-3 text-sm text-gray-500 font-medium">
+                {formatCurrency(order.customer_pay_amount)}
+              </td>
+              {order.change_amount > 0 && (
+                <td className="px-4 py-3 text-sm  font-medium text-pos-blue-500">
+                  Nợ KH: {formatCurrency(order.change_amount)}
+                </td>
+              )}
+              {order.change_amount < 0 && (
+                <td className="px-4 py-3 text-sm text-red-500 font-medium">
+                  KH nợ: {formatCurrency(Math.abs(order.change_amount))}
+                </td>
+              )}
+              {order.change_amount === 0 && (
+                <td className="px-4 py-3 text-sm text-green-500 font-medium">Trả đủ</td>
+              )}
+              <td className="px-4 py-3 text-sm font-semibold text-gray-500">
+                {paymentMethodLabels[order.payment_method]}
+              </td>
+              <td className="px-4 py-3">
+                <span className={`text-sm font-medium rounded-xl ${statusColors[order.status]}`}>
+                  {statusLabels[order.status] || order.status}
+                </span>
+              </td>
+              <td className="px-4 py-3 font-medium text-sm text-gray-500">
+                {formatDate(order.createdAt)}
+              </td>
+              <td>
+                <ActionButtons
+                  onView={() => {
+                    handleViewOrder(order);
+                  }}
+                  onEdit={() => {
+                    showInfoToast('Tính năng đang được cập nhật');
+                  }}
+                  onDelete={() => {
+                    setDeleteModal(true);
+                    setSelectedOrder(order);
+                  }}
+                />
+              </td>
+            </>
+          )}
+        />
+      </DashboardViewLayout>
       {/* VIEW */}
       <Modal
         title={
@@ -230,116 +355,6 @@ export function SalesInvoicesView() {
           </button>
         </div>
       </Modal>
-
-      <div className="flex flex-col h-full gap-5">
-        <div className="flex items-center justify-between p-4 bg-white rounded-lg">
-          <div className="flex items-center gap-8">
-            <h1 className="text-2xl font-semibold text-pos-blue-500">Quản lý phiếu trả hàng bán</h1>
-          </div>
-          <Button title="Tạo phiếu trả hàng bán" icon={<Plus size={16} />} size="sm" radius="sm" />
-        </div>
-        {/* ACTION */}
-        <FilterBar
-          onFilterChange={(newFilters) => {
-            setFilters(newFilters);
-          }}
-          actions={
-            <>
-              <button className="bg-pos-blue-400 border text-nowrap border-gray-200 rounded-md flex items-center gap-2 py-2 px-4 cursor-pointer hover:opacity-80 transition-opacity duration-300">
-                <Download size={16} className="text-white" />
-                <span className="text-white font-medium text-xs">
-                  {loading ? 'Đang xuất...' : 'Xuất dữ liệu'}
-                </span>
-              </button>
-            </>
-          }
-        />
-
-        {/* TABLE AND PAGINATION */}
-        <Table
-          total={pagination?.total}
-          page={pagination?.page}
-          hasMarginTop={false}
-          limit={pagination?.limit}
-          totalPages={pagination?.totalPages}
-          pageSize={pagination?.limit ?? paginationParams.limit}
-          onPageChange={(page) => setPaginationParams((prev) => ({ ...prev, page }))}
-          onPageSizeChange={(size) =>
-            setPaginationParams((prev) => ({
-              ...prev,
-              limit: size,
-            }))
-          }
-          tableHeaders={tableHeaders}
-          data={orders}
-          isLoading={loading}
-          renderRow={(order) => (
-            <>
-              <td className="px-4 py-2 font-semibold text-xs text-pos-blue-500 truncate">
-                {order.code || (
-                  <span className="italic text-gray-500 font-medium">Chưa cập nhật</span>
-                )}
-              </td>
-              <td className="px-4 py-2 font-medium">{order.customer_name || 'Khách lẻ'}</td>
-              <td className="px-4 py-2 text-sm text-gray-500 font-medium">
-                {formatCurrency(order.total_amount)}
-              </td>
-              <td className="px-4 py-2 text-sm text-gray-500 font-medium">
-                {formatCurrency(order.customer_pay_amount)}
-              </td>
-              {order.change_amount > 0 && (
-                <td className="px-4 py-2 text-sm  font-medium text-pos-blue-500">
-                  Nợ KH: {formatCurrency(order.change_amount)}
-                </td>
-              )}
-              {order.change_amount < 0 && (
-                <td className="px-4 py-2 text-sm text-red-500 font-medium">
-                  KH nợ: {formatCurrency(Math.abs(order.change_amount))}
-                </td>
-              )}
-              {order.change_amount === 0 && (
-                <td className="px-4 py-2 text-sm text-green-500 font-medium">Trả đủ</td>
-              )}
-              <td className="px-4 py-2 text-sm text-gray-500">
-                {paymentMethodLabels[order.payment_method]}
-              </td>
-              <td className="px-4 py-2">
-                <span className={`text-sm font-medium rounded-xl ${statusColors[order.status]}`}>
-                  {statusLabels[order.status] || order.status}
-                </span>
-              </td>
-              <td className="px-4 py-2 font-medium text-sm text-gray-500">
-                {formatDate(order.createdAt)}
-              </td>
-              <td>
-                <div className="flex items-center gap-5 pl-4">
-                  <button
-                    onClick={() => handleViewOrder(order)}
-                    className="flex justify-center items-center cursor-pointer w-[36px] h-[36px] bg-gray-50 text-gray-500 rounded-md hover:opacity-100 hover:bg-gray-700 hover:text-white opacity-70 transition-opacity duration-200"
-                  >
-                    <Eye size={16} />
-                  </button>
-                  <button
-                    onClick={() => showInfoToast('Tính năng đang được cập nhật')}
-                    className="flex justify-center items-center cursor-pointer w-[36px] h-[36px] bg-pos-blue-50 text-pos-blue-500 rounded-md hover:opacity-100 hover:bg-pos-blue-500 hover:text-pos-blue-50 opacity-70 transition-opacity duration-200"
-                  >
-                    <Edit size={16} />
-                  </button>
-                  <button
-                    className="flex justify-center items-center cursor-pointer w-[36px] h-[36px] bg-red-50 text-red-500 rounded-md hover:opacity-100 hover:bg-red-500 hover:text-white opacity-70 transition-opacity duration-200 ml-auto"
-                    onClick={() => {
-                      setDeleteModal(true);
-                      setSelectedOrder(order);
-                    }}
-                  >
-                    <Trash size={16} />
-                  </button>
-                </div>
-              </td>
-            </>
-          )}
-        />
-      </div>
     </>
   );
 }

@@ -1,11 +1,9 @@
 'use client';
+import DashboardViewLayout from '../../../../../main/src/layouts/dashboard-view-layout';
 import { Button, Input, Loading, Modal, Table } from '@repo/design-system/components/ui';
 import { formatDate } from '../../../../../main/src/utils/index';
 import React, { useEffect, useState } from 'react';
-import FilterBar from '../components/filter-bar';
 import {
-  Download,
-  Eye,
   Store,
   Users,
   Package,
@@ -19,11 +17,13 @@ import {
   MapPin,
 } from 'lucide-react';
 import useStore from '../../../../../main/src/hooks/store/use-store';
-import useAuth from '../../../../../main/src/hooks/auth/use-auth';
 import { Store as StoreType } from '@repo/design-system/types/store';
 import { useSetAtom } from 'jotai';
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
+import { DisplayField } from '../components/display-field';
+import { DataActionBar } from '../components/data-action-bar';
+import { ActionButtons } from '../components/action-buttons';
 const tableHeaders = [
   'Tên Cửa Hàng',
   'Chủ Cửa Hàng',
@@ -48,10 +48,97 @@ export function ManageStoresView() {
   };
   useEffect(() => {
     getStores();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <>
+      <DashboardViewLayout>
+        <DisplayField label="Danh sách cửa hàng">
+          <Button
+            onClick={() => setOpenCreateModal(true)}
+            icon={<Plus size={16} />}
+            title="Tạo cửa hàng"
+            size="sm"
+            radius="sm"
+          />
+        </DisplayField>
+        {/* ACTION BAR */}
+        <DataActionBar
+          placeholderSearch="Tìm kiếm mã lô hàng, tên khách hàng"
+
+          // onFilterChange={(newFilters) => {
+          //   setFilters((prev) => ({
+          //     ...prev,
+          //     ...newFilters,
+          //     product_status: newFilters.status,
+          //   }));
+          // }}
+          // onSearch={(value) => {
+          //   setFilters((prev) => ({ ...prev, q: value }));
+          // }}
+        />
+
+        {/* TABLE */}
+
+        <Table
+          totalPages={Math.ceil(stores.length / 10)}
+          tableHeaders={tableHeaders}
+          data={stores}
+          isLoading={loading}
+          loading={<Loading />}
+          renderRow={(store) => (
+            <>
+              <td className="px-4 py-3">
+                <div>
+                  <p className="text-sm font-medium text-gray-900">{store.name}</p>
+                  <p className="text-xs text-gray-500 mt-1">{store.description}</p>
+                </div>
+              </td>
+
+              <td className="px-4 py-3">
+                <div>
+                  <p className="text-sm font-medium text-gray-800">{store?.owner?.username}</p>
+                  <p className="text-xs text-pos-blue-500">{store.owner.email}</p>
+                </div>
+              </td>
+
+              <td className="px-4 py-3">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  {store._count.products} sản phẩm
+                </span>
+              </td>
+
+              <td className="px-4 py-3">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  {store._count.categories} danh mục
+                </span>
+              </td>
+
+              <td className="px-4 py-3 ">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                  {store._count.members} thành viên
+                </span>
+              </td>
+
+              <td className="px-4 py-3">
+                <div className="text-sm text-gray-500">
+                  <p>{formatDate(store.createdAt)}</p>
+                </div>
+              </td>
+
+              <td>
+                <ActionButtons
+                  onView={() => {
+                    setSelectedStore(store);
+                    setOpenViewModal(true);
+                  }}
+                />
+              </td>
+            </>
+          )}
+        />
+      </DashboardViewLayout>
       {/* VIEW MODAL - CHỈ XEM THÔNG TIN */}
       <Modal
         opened={openViewModal}
@@ -260,94 +347,6 @@ export function ManageStoresView() {
           />
         </div>
       </Modal>
-      <div className="flex flex-col h-full gap-5">
-        {/* ACTION BAR */}
-        <FilterBar
-          actions={
-            <>
-              <button
-                onClick={() => setOpenCreateModal(true)}
-                className="bg-pos-blue-400 border text-nowrap border-gray-200 rounded-md flex items-center gap-2 py-2 px-4 cursor-pointer hover:opacity-80 transition-opacity duration-300"
-              >
-                <Plus size={16} className="text-white" />
-                <span className="text-white font-medium text-xs">Tạo cửa hàng</span>
-              </button>
-
-              <button className="bg-gray-600 border text-nowrap border-gray-200 rounded-md flex items-center gap-2 py-2 px-4 cursor-pointer hover:opacity-80 transition-opacity duration-300">
-                <Download size={16} className="text-white" />
-                <span className="text-white font-medium text-xs">Xuất dữ liệu</span>
-              </button>
-            </>
-          }
-        />
-
-        {/* TABLE */}
-
-        <Table
-          totalPages={Math.ceil(stores.length / 10)}
-          tableHeaders={tableHeaders}
-          data={stores}
-          isLoading={loading}
-          loading={<Loading />}
-          renderRow={(store) => (
-            <>
-              <td className="px-4 py-3">
-                <div>
-                  <p className="text-sm font-medium text-gray-900">{store.name}</p>
-                  <p className="text-xs text-gray-500 mt-1">{store.description}</p>
-                </div>
-              </td>
-
-              <td className="px-4 py-3">
-                <div>
-                  <p className="text-sm font-medium text-gray-800">{store?.owner?.username}</p>
-                  <p className="text-xs text-pos-blue-500">{store.owner.email}</p>
-                </div>
-              </td>
-
-              <td className="px-4 py-3">
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                  {store._count.products} sản phẩm
-                </span>
-              </td>
-
-              <td className="px-4 py-3">
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                  {store._count.categories} danh mục
-                </span>
-              </td>
-
-              <td className="px-4 py-3 ">
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                  {store._count.members} thành viên
-                </span>
-              </td>
-
-              <td className="px-4 py-3">
-                <div className="text-sm text-gray-500">
-                  <p>{formatDate(store.createdAt)}</p>
-                </div>
-              </td>
-
-              <td className="px-4 py-3">
-                <div className="flex items-center gap-2">
-                  {/* CHỈ CÓ NÚT XEM CHI TIẾT */}
-                  <button
-                    onClick={() => {
-                      setSelectedStore(store);
-                      setOpenViewModal(true);
-                    }}
-                    className="flex justify-center items-center cursor-pointer w-8 h-8 bg-gray-50 text-gray-500 rounded-md hover:bg-gray-700 hover:text-white transition-all duration-200"
-                    title="Xem chi tiết"
-                  >
-                    <Eye size={14} />
-                  </button>
-                </div>
-              </td>
-            </>
-          )}
-        />
-      </div>
     </>
   );
 }

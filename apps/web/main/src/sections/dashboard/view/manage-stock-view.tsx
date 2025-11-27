@@ -1,6 +1,5 @@
 'use client';
 import { Button, Modal, Select, Table } from '@repo/design-system/components/ui';
-import FilterBar from '../components/filter-bar';
 import {
   Download,
   Eye,
@@ -24,6 +23,10 @@ import { useAtom } from 'jotai';
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { toast } from 'react-toastify';
 import { formatDate } from '../../../../../main/src/utils';
+import DashboardViewLayout from '../../../../../main/src/layouts/dashboard-view-layout';
+import { DisplayField } from '../components/display-field';
+import { DataActionBar } from '../components/data-action-bar';
+import { ActionButtons } from '../components/action-buttons';
 
 const tableHeaders = ['Mã phiếu', 'Sản phẩm', 'Loại', 'Số lượng', 'Ngày tạo', 'Thao tác'];
 
@@ -264,6 +267,129 @@ export function ManageStockView() {
 
   return (
     <>
+      <DashboardViewLayout>
+        <DisplayField label="Quản lý biến động kho">
+          <Button
+            title="Lọc dữ liệu"
+            onClick={() => {
+              setOpenFilterModal((prev) => !prev);
+            }}
+            icon={<Filter size={16} />}
+            size="sm"
+            radius="sm"
+          />
+        </DisplayField>
+
+        {/* THANH HÀNH ĐỘNG */}
+        <DataActionBar
+          placeholderSearch="Tìm kiếm mã lô hàng, tên khách hàng"
+          // onFilterChange={(newFilters) => {
+          //   setFilters((prev) => ({
+          //     ...prev,
+          //     ...newFilters,
+          //     product_status: newFilters.status,
+          //   }));
+          // }}
+          // onSearch={(value) => {
+          //   setFilters((prev) => ({ ...prev, q: value }));
+          // }}
+        />
+
+        {/* Bộ lọc đang áp dụng */}
+        {(filters.type ||
+          filters.startDate ||
+          filters.endDate ||
+          filters.min_quantity ||
+          filters.max_quantity) && (
+          <div className="mb-4 p-3 bg-blue-50 rounded-md">
+            <div className="flex items-center justify-between">
+              <div className="flex flex-wrap gap-2">
+                {filters.type && (
+                  <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
+                    Loại: {formatMovementType(filters.type)}
+                  </span>
+                )}
+                {filters.startDate && (
+                  <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
+                    Từ ngày: {new Date(filters.startDate).toLocaleDateString('vi-VN')}
+                  </span>
+                )}
+                {filters.endDate && (
+                  <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
+                    Đến ngày: {new Date(filters.endDate).toLocaleDateString('vi-VN')}
+                  </span>
+                )}
+                {filters.min_quantity && (
+                  <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
+                    SL tối thiểu: {filters.min_quantity}
+                  </span>
+                )}
+                {filters.max_quantity && (
+                  <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
+                    SL tối đa: {filters.max_quantity}
+                  </span>
+                )}
+              </div>
+              <button
+                onClick={handleResetFilters}
+                className="text-blue-600 hover:underline text-xs"
+              >
+                Xóa tất cả
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* BẢNG */}
+        <Table
+          totalPages={pagination.totalPages}
+          // currentPage={pagination.page}
+          total={pagination?.total}
+          page={pagination?.page}
+          limit={pagination?.limit}
+          onPageChange={handlePageChange}
+          tableHeaders={tableHeaders}
+          data={movements}
+          isLoading={loading}
+          renderRow={(movement: StockMovement) => (
+            <>
+              <td className="px-4 py-3 text-sm font-mono text-gray-600">
+                {movement.id.slice(0, 8)}...
+              </td>
+              <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                {movement.product?.name || movement.product_id.slice(0, 8) + '...'}
+              </td>
+              <td className="px-0.5 py-2">
+                <span
+                  className={`px-2 py-1 rounded-md text-xs font-medium flex items-center gap-1 w-fit ${typeColors[movement.type]?.bg} ${typeColors[movement.type]?.text}`}
+                >
+                  {typeColors[movement.type]?.icon}
+                  {formatMovementType(movement.type)}
+                </span>
+              </td>
+              <td className="px-4 py-3 text-sm font-bold">
+                <span
+                  className={`${movement.quantity > 0 ? 'text-green-600' : 'text-red-600'} text-sm font-medium`}
+                >
+                  {movement.quantity > 0 ? '+' : ''}
+                  {movement.quantity.toLocaleString()}
+                </span>
+              </td>
+              <td className="px-4 py-3 text-sm text-gray-500">{formatDate(movement.createdAt)}</td>
+              <td>
+                <ActionButtons
+                  onView={() => {
+                    setSelectedMovement(movement);
+                    handleGetMovementById(movement.id);
+                    setOpenViewModal(true);
+                  }}
+                />
+              </td>
+            </>
+          )}
+        />
+      </DashboardViewLayout>
+
       {/* MODAL LỌC */}
       <Modal
         opened={openFilterModal}
@@ -576,129 +702,6 @@ export function ManageStockView() {
           </div>
         )}
       </Modal>
-      <div className="flex flex-col h-full">
-        {/* THANH HÀNH ĐỘNG */}
-        <FilterBar
-          hasDatePicker={false}
-          actions={
-            <>
-              <button
-                onClick={handleExportExcel}
-                className="bg-white border text-nowrap border-gray-200 rounded-md flex items-center gap-2 py-2 px-4 cursor-pointer hover:opacity-80 transition-opacity duration-300"
-              >
-                <Download size={16} />
-                <span className="text-gray-900 font-medium text-xs">Xuất dữ liệu</span>
-              </button>
-              <button
-                onClick={() => setOpenFilterModal(true)}
-                className="bg-white border text-nowrap border-gray-200 rounded-md flex items-center gap-2 py-2 px-4 cursor-pointer hover:opacity-80 transition-opacity duration-300"
-              >
-                <Filter size={16} />
-                <span className="text-gray-900 font-medium text-xs">Lọc sản phẩm</span>
-              </button>
-            </>
-          }
-        />
-
-        {/* Bộ lọc đang áp dụng */}
-        {(filters.type ||
-          filters.startDate ||
-          filters.endDate ||
-          filters.min_quantity ||
-          filters.max_quantity) && (
-          <div className="mb-4 p-3 bg-blue-50 rounded-md">
-            <div className="flex items-center justify-between">
-              <div className="flex flex-wrap gap-2">
-                {filters.type && (
-                  <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
-                    Loại: {formatMovementType(filters.type)}
-                  </span>
-                )}
-                {filters.startDate && (
-                  <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
-                    Từ ngày: {new Date(filters.startDate).toLocaleDateString('vi-VN')}
-                  </span>
-                )}
-                {filters.endDate && (
-                  <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
-                    Đến ngày: {new Date(filters.endDate).toLocaleDateString('vi-VN')}
-                  </span>
-                )}
-                {filters.min_quantity && (
-                  <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
-                    SL tối thiểu: {filters.min_quantity}
-                  </span>
-                )}
-                {filters.max_quantity && (
-                  <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
-                    SL tối đa: {filters.max_quantity}
-                  </span>
-                )}
-              </div>
-              <button
-                onClick={handleResetFilters}
-                className="text-blue-600 hover:underline text-xs"
-              >
-                Xóa tất cả
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* BẢNG */}
-        <Table
-          totalPages={pagination.totalPages}
-          // currentPage={pagination.page}
-          total={pagination?.total}
-          page={pagination?.page}
-          limit={pagination?.limit}
-          onPageChange={handlePageChange}
-          tableHeaders={tableHeaders}
-          data={movements}
-          isLoading={loading}
-          renderRow={(movement: StockMovement, idx: number) => (
-            <>
-              <td className="px-4 py-2 text-xs font-mono text-gray-600">
-                {movement.id.slice(0, 8)}...
-              </td>
-              <td className="px-4 py-2 text-xs font-medium text-gray-900">
-                {movement.product?.name || movement.product_id.slice(0, 8) + '...'}
-              </td>
-              <td className="px-0.5 py-2">
-                <span
-                  className={`px-2 py-1 rounded-md text-xs font-medium flex items-center gap-1 w-fit ${typeColors[movement.type]?.bg} ${typeColors[movement.type]?.text}`}
-                >
-                  {typeColors[movement.type]?.icon}
-                  {formatMovementType(movement.type)}
-                </span>
-              </td>
-              <td className="px-4 py-2 text-xs font-bold">
-                <span
-                  className={`${movement.quantity > 0 ? 'text-green-600' : 'text-red-600'} text-sm font-medium`}
-                >
-                  {movement.quantity > 0 ? '+' : ''}
-                  {movement.quantity.toLocaleString()}
-                </span>
-              </td>
-              <td className="px-4 py-2 text-xs text-gray-500">{formatDate(movement.createdAt)}</td>
-              <td>
-                <div className="flex items-center gap-5 pl-4">
-                  <button
-                    onClick={() => {
-                      setSelectedMovement(movement);
-                      handleGetMovementById(movement.id);
-                      setOpenViewModal(true);
-                    }}
-                    className="flex justify-center items-center cursor-pointer w-[36px] h-[36px] bg-gray-50 text-gray-500 rounded-md hover:opacity-100 hover:bg-gray-700 hover:text-white opacity-70 transition-opacity duration-200"
-                  >
-                    <Eye size={16} />
-                  </button>
-                </div>
-              </td>
-            </>
-          )}
-        />
-      </div>
     </>
   );
 }

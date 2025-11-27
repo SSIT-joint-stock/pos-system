@@ -1,8 +1,11 @@
 'use client';
+import React from 'react';
+import DashboardViewLayout from '../../../../../main/src/layouts/dashboard-view-layout';
 import { Button, Table } from '@repo/design-system/components/ui';
-import { Copy, Download, MessageCircle, Plus, Upload } from 'lucide-react';
-import React, { useState } from 'react';
-import FilterBar from '../components/filter-bar';
+import { Plus } from 'lucide-react';
+import { DisplayField } from '../components/display-field';
+import { DataActionBar } from '../components/data-action-bar';
+import { ActionButtons } from '../components/action-buttons';
 
 export const tableHeaders = [
   'Mã phiếu trả',
@@ -108,22 +111,27 @@ export const tableData = [
 ];
 
 export function ReturnedInvoicesView() {
-  const [openUploadOption, setOpenUploadOption] = useState<boolean>(false);
   return (
-    <div className="h-full flex flex-col gap-5">
+    <DashboardViewLayout>
       {/* Header */}
-      <div className="flex items-center justify-between p-4 bg-white rounded-lg">
-        <div className="flex items-center gap-8">
-          <h1 className="text-2xl font-semibold text-pos-blue-500">Quản lý phiếu trả hàng bán</h1>
-        </div>
-        <Button title="Tạo phiếu trả hàng bán" icon={<Plus size={16} />} size="sm" radius="sm" />
-      </div>
-      <FilterBar
-        placeholderInputSearch="Tìm kiếm mã trả hàng, tên khách hàng"
+
+      <DisplayField label="Quản lý danh sách đơn trả hàng">
+        <Button title="Tạo phiếu trả hàng" icon={<Plus size={16} />} size="sm" radius="sm" />
+      </DisplayField>
+      <DataActionBar
+        placeholderSearch="Tìm kiếm mã trả hàng, tên khách hàng"
         statusOptions={[
-          { value: 'ACTIVE', label: 'Tất cả ' },
-          { value: 'INACTIVE', label: 'Nhập kho' },
-          { value: 'SOLD', label: 'Xuất kho' },
+          {
+            width: '280px',
+            key: 'status',
+            label: 'Trạng thái phiếu trả',
+            options: [
+              {
+                label: 'test',
+                value: 'test value',
+              },
+            ],
+          },
         ]}
         // onFilterChange={(newFilters) => {
         //   setFilters((prev) => ({
@@ -135,49 +143,6 @@ export function ReturnedInvoicesView() {
         // onSearch={(value) => {
         //   setFilters((prev) => ({ ...prev, q: value }));
         // }}
-        actions={
-          <>
-            <div className="relative">
-              <button
-                className={`bg-white border text-nowrap border-gray-200 rounded-md flex items-center gap-2 py-2 px-4  cursor-pointer hover:opacity-80 transition-opacity duration-300 disabled:opacity-50 disabled:cursor-not-allowed`}
-              >
-                <Upload size={16} />
-                <span className="text-gray-900 font-medium text-sm">Tải lên dữ liệu</span>
-              </button>
-
-              {openUploadOption && (
-                <div className="absolute top-full left-0 mt-1 z-50 flex flex-col  rounded-md shadow-md shadow-gray-100">
-                  <button
-                    className={`bg-white  text-nowrap  py-2 px-4 text-left hover:bg-gray-50 rounded-t-md  cursor-pointer  disabled:opacity-50 disabled:cursor-not-allowed`}
-                  >
-                    <span className="text-gray-900 font-medium text-sm">
-                      Tải lên dữ liệu (Excel)
-                    </span>
-                    <input
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          console.log(file);
-                        }
-                      }}
-                      hidden
-                      type="file"
-                    />
-                  </button>
-                  <button
-                    className={`bg-white  text-nowrap  hover:bg-gray-50   py-2 px-4 text-left rounded-b-md cursor-pointer  disabled:opacity-50 disabled:cursor-not-allowed`}
-                  >
-                    <span className="text-gray-900 font-medium text-sm">Tải file mẫu (Excel)</span>
-                  </button>
-                </div>
-              )}
-            </div>
-            <button className="bg-white border text-nowrap border-gray-200 rounded-md flex items-center gap-2 py-2 px-4  cursor-pointer hover:opacity-80 transition-opacity duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
-              <Download size={16} />
-              <span className="text-gray-900 font-medium text-sm"> Xuất dữ liệu</span>
-            </button>
-          </>
-        }
       />
       <Table
         hasMarginTop={false}
@@ -191,19 +156,12 @@ export function ReturnedInvoicesView() {
             <td className="px-4 py-3 text-sm text-gray-600">{row.total}</td>
             <td className="px-4 py-3 text-sm text-gray-600">{row.quantity}</td>
             <td className="px-4 py-3 text-sm text-gray-600">{row.status}</td>
-            <td className="px-4 py-3">
-              <div className="flex items-center gap-2 justify-end">
-                <button className="p-1.5 text-gray-600 hover:bg-gray-200 rounded transition-colors">
-                  <Copy size={18} />
-                </button>
-                <button className="p-1.5 text-gray-600 hover:bg-gray-200 rounded transition-colors">
-                  <MessageCircle size={18} />
-                </button>
-              </div>
+            <td>
+              <ActionButtons onView={() => {}} onEdit={() => {}} onDelete={() => {}} />
             </td>
           </>
         )}
       />
-    </div>
+    </DashboardViewLayout>
   );
 }
