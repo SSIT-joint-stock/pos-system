@@ -37,11 +37,8 @@ export interface Store {
   phone_number: string | null;
   address: string | null;
   business_hour: string | null;
-  bank_code: string | null;
-  bank_name: string | null;
-  bank_account_number: string | null;
-  bank_account_name: string | null;
-  bank_qr_image_url: string | null;
+  city: string | null;
+  state: string | null;
   createdAt: string; // ISO datetime
   updatedAt: string; // ISO datetime
   owner: StoreOwner;

@@ -3,6 +3,7 @@
 Thư mục `constants` tập trung các hằng số dùng xuyên suốt ứng dụng web (route names, storage keys, feature flags, status maps, UI literals…). Mục tiêu: thống nhất tên gọi, dễ tìm/đổi, và tránh "magic string" rải rác.
 
 ### Quy ước
+
 - Dùng named exports, gom theo chủ đề: `routes.ts`, `storage-keys.ts`, `feature-flags.ts`, `status.ts`, `app.ts`…
 - Scalar hằng số viết UPPER_SNAKE_CASE. Nhóm nhiều giá trị dùng `as const` để có literal type.
 - Tránh `enum`; dùng object literal `as const` hoặc union type để an toàn và nhẹ hơn.
@@ -10,6 +11,7 @@ Thư mục `constants` tập trung các hằng số dùng xuyên suốt ứng d�
 - Tạo `index.ts` làm barrel export cho các file con.
 
 ### Cấu trúc gợi ý
+
 ```
 constants/
   app.ts            # Tên app, phiên bản, domain UI (không nhạy cảm)
@@ -81,8 +83,7 @@ export * from './status';
 ```
 
 ### Lưu ý
+
 - Không đặt secrets vào `constants/`. Secrets/nhạy cảm phải đọc qua API server hoặc biến `@repo/config-env` phía server.
 - Với basePath (ví dụ `/pos`), đồng bộ với `next.config.js` và hằng số route để tránh lệch.
 - Nếu một hằng số dùng chung nhiều app, cân nhắc đưa sang package `@repo/shared` hoặc `@repo/types` tùy mục đích.
-
-

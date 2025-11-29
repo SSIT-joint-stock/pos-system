@@ -26,13 +26,13 @@ export default function SettingsSidebar({
         disabled={isExpand}
       >
         <div
-          className={`flex items-center font-medium group  hover:cursor-pointer ${isExpand ? 'gap-5' : 'gap-0'} ${isExpand ? 'w-full' : 'w-[40px] '} hover:bg-pos-blue-50 hover:text-pos-blue-400 p-2 rounded-lg transition-all duration-300`}
+          className={`flex items-center text-gray-600 font-medium group  hover:cursor-pointer ${isExpand ? 'gap-5' : 'gap-0'} ${isExpand ? 'w-full' : 'w-[40px] '} hover:bg-pos-blue-50 hover:text-pos-blue-400 p-2 rounded-lg transition-all duration-300`}
         >
           <Settings className="shrink-0" />
           <div
             className={`${isExpand ? 'max-w-full opacity-100 ' : 'max-w-0 opacity-0'} overflow-hidden transition-all duration-300`}
           >
-            <p className=" shrink-0 truncate">Cài đặt</p>
+            <p className=" shrink-0 truncate ">Cài đặt</p>
           </div>
         </div>
       </Tooltip>
@@ -72,7 +72,7 @@ export default function SettingsSidebar({
             setIsExpand(!isExpand);
             setOpenSubmenu(null);
           }}
-          className={`flex text-sm  hover:cursor-pointer items-center font-medium group  ${isExpand ? 'gap-5' : 'gap-0'} ${isExpand ? 'w-full justify-between ' : ' w-[40px] justify-center '} hover:bg-pos-blue-50 hover:text-pos-blue-400 p-2 rounded-md transition-all duration-300`}
+          className={`flex text-sm text-gray-600  hover:cursor-pointer items-center font-medium group  ${isExpand ? 'gap-5' : 'gap-0'} ${isExpand ? 'w-full justify-between ' : ' w-[40px] justify-center '} hover:bg-pos-blue-50 hover:text-pos-blue-400 p-2 rounded-md transition-all duration-300`}
         >
           <div
             className={`${isExpand ? 'max-w-full opacity-100 ' : 'max-w-0 opacity-0'} overflow-hidden transition-all duration-300`}

@@ -3,6 +3,7 @@ import { RouterLink } from '@repo/design-system/routes/components';
 import React, { useCallback } from 'react';
 import { FormActiveAccount, FormRegister } from '../forms';
 import useAuth from '@main/hooks/auth/use-auth';
+import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 
 export default function StepRegister({
   setIsActive,
@@ -12,6 +13,7 @@ export default function StepRegister({
   isActive: number;
 }) {
   const { register, verifyAccount } = useAuth();
+  const { showSuccessToast } = useToast();
   const handleRegister = useCallback(
     async (data: any) => {
       const success = await register(data);
@@ -38,7 +40,14 @@ export default function StepRegister({
       case 2:
         return (
           <RouterLink className="w-full flex" href="/auth/login">
-            <Button className="flex-1" size="sm" variant="filled">
+            <Button
+              onClick={() => {
+                showSuccessToast('Bây giờ bạn có thể đăng nhập vào tài khoản');
+              }}
+              className="flex-1"
+              size="sm"
+              variant="filled"
+            >
               Tiếp tục
             </Button>
           </RouterLink>
