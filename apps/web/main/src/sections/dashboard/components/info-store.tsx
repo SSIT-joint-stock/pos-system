@@ -95,13 +95,13 @@ export default function InfoStore() {
             radius="sm"
           />
           <Input
-            placeholder="Số điện thoại"
+            placeholder="Nhập hotline cửa hàng"
             variant={isEdit === true ? 'filled' : 'default'}
             disabled={isEdit === true}
             rightSection={<Phone size={18} />}
             {...register('phone_number')}
             className="flex-1"
-            label="Hotline"
+            label="Hotline cửa hàng"
             size="md"
             radius="sm"
           />
