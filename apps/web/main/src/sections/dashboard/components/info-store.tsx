@@ -14,7 +14,7 @@ export function InfoStore() {
   const [provinces, setProvinces] = useState<Province[]>();
   const [communes, setCommunes] = useState<Communes[]>();
   const [provinceCode, setProvinceCode] = useState<string>('');
-  const [isEdit, setIsEdit] = useState<boolean>(true);
+  // const [isEdit, setIsEdit] = useState<boolean>(true);
   const currentStore = useAtomValue(currentStoreAtom);
   const {
     store,
@@ -75,7 +75,7 @@ export function InfoStore() {
       <form
         onSubmit={handleSubmit(async () => {
           await updateStore(getValues());
-          setIsEdit(true);
+          // setIsEdit(true);
         })}
         className="w-full space-y-4"
         action=""
@@ -83,8 +83,8 @@ export function InfoStore() {
         <div className="flex items-center w-full gap-4">
           <Input
             {...register('name')}
-            disabled={isEdit === true}
-            variant={isEdit === true ? 'filled' : 'default'}
+            // disabled={isEdit === true}
+            // variant={isEdit === true ? 'filled' : 'default'}
             name="name"
             placeholder="Tên cửa hàng"
             rightSection={<Store size={18} />}
@@ -96,8 +96,8 @@ export function InfoStore() {
           />
           <Input
             placeholder="Nhập hotline cửa hàng"
-            variant={isEdit === true ? 'filled' : 'default'}
-            disabled={isEdit === true}
+            // variant={isEdit === true ? 'filled' : 'default'}
+            // disabled={isEdit === true}
             rightSection={<Phone size={18} />}
             {...register('phone_number')}
             className="flex-1"
@@ -113,8 +113,8 @@ export function InfoStore() {
             render={({ field }) => (
               <Select
                 {...field}
-                disabled={isEdit === true}
-                variant={isEdit === true ? 'filled' : 'default'}
+                // disabled={isEdit === true}
+                // variant={isEdit === true ? 'filled' : 'default'}
                 data={
                   provinces?.map((item) => ({
                     label: item.name,
@@ -144,8 +144,8 @@ export function InfoStore() {
             render={({ field }) => (
               <Select
                 {...field}
-                disabled={isEdit === true}
-                variant={isEdit === true ? 'filled' : 'default'}
+                // disabled={isEdit === true}
+                // variant={isEdit === true ? 'filled' : 'default'}
                 data={
                   communes?.map((item) => ({
                     label: item.name,
@@ -168,8 +168,8 @@ export function InfoStore() {
         <div className="flex items-center w-full gap-4">
           <Input
             {...register('address')}
-            variant={isEdit === true ? 'filled' : 'default'}
-            disabled={isEdit === true}
+            // variant={isEdit === true ? 'filled' : 'default'}
+            // disabled={isEdit === true}
             className="flex-1"
             size="md"
             radius="sm"
@@ -178,8 +178,8 @@ export function InfoStore() {
           />
           <Input
             {...register('business_hour')}
-            variant={isEdit === true ? 'filled' : 'default'}
-            disabled={isEdit === true}
+            // variant={isEdit === true ? 'filled' : 'default'}
+            // disabled={isEdit === true}
             className="flex-1"
             size="md"
             radius="sm"
@@ -190,24 +190,24 @@ export function InfoStore() {
         </div>
         <Textarea
           {...register('description')}
-          disabled={isEdit === true}
-          variant={isEdit === true ? 'filled' : 'default'}
+          // disabled={isEdit === true}
+          // variant={isEdit === true ? 'filled' : 'default'}
           rightSection={<Info size={18} />}
           radius={'sm'}
           size="md"
           label={<span className="text-sm text-gray-500">Mô tả cửa hàng</span>}
         />
         <div className="flex items-center justify-end gap-3">
-          <Button
+          {/* <Button
             disabled={isEdit === false}
             onClick={() => setIsEdit(false)}
             type="button"
             title="Sửa"
             size="sm"
             variant="light"
-          />
+          /> */}
           <Button
-            disabled={loading || isEdit === true}
+            disabled={loading}
             type="submit"
             title={loading ? <Loading /> : 'Cập nhật'}
             size="sm"

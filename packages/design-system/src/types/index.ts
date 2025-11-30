@@ -5,3 +5,4 @@ export * from './category';
 export * from './province';
 export * from './communes';
 export * from './bank';
+export * from './reward-point';

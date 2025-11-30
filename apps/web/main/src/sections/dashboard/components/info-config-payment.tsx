@@ -76,7 +76,6 @@ export function InfoConfigPayment({ tab }: { tab: string }) {
         bank_account_number: currentBank?.bank_account_number,
       });
     }
-    // Fetch communes ngay nếu có city
   }, [currentBank, reset]);
 
   return (
