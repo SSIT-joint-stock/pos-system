@@ -19,13 +19,28 @@ import { Download, Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import SlidingTabs from '@repo/design-system/components/shared/chart-screen/sliding-line-chart';
 export function DashboardView() {
-  const { cache, handleChangeTimeType } = useStatistics();
+  const {
+    cache,
+    currentStore,
+    handleChangeTimeType,
+    getLowStockProducts,
+    getTopProducts,
+    fetchStatistic,
+  } = useStatistics();
   const [revenue, setRevenue] = useState<ChartPoint | null>(null);
   const [revenueByCategory, setRevenueByCategory] = useState<PieChartProps | null>(null);
   const [revenueSummary, setRevenueSummary] = useState<SummaryRevenue | null>(null);
   const revenueItems = cache.find((item) => item.key === 'revenue');
   const summaryRevenueItems = cache.find((item) => item.key === 'summary-revenue');
   const revenueByCategoryItems = cache.find((item) => item.key === 'revenue-by-category');
+  useEffect(() => {
+    if (currentStore?.id) {
+      getLowStockProducts();
+      getTopProducts();
+      fetchStatistic();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStore?.id]);
   useEffect(() => {
     setRevenue(revenueItems?.data || []);
     setRevenueByCategory(revenueByCategoryItems?.data || null);

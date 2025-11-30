@@ -10,7 +10,7 @@ import { useAtomValue } from 'jotai';
 import { Clock, Info, MapPin, MapPinPlusIcon, Phone, Store } from 'lucide-react';
 import { Controller } from 'react-hook-form';
 
-export default function InfoStore() {
+export function InfoStore() {
   const [provinces, setProvinces] = useState<Province[]>();
   const [communes, setCommunes] = useState<Communes[]>();
   const [provinceCode, setProvinceCode] = useState<string>('');

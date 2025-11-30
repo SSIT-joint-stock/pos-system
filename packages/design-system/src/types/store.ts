@@ -43,6 +43,7 @@ export interface Store {
   updatedAt: string; // ISO datetime
   owner: StoreOwner;
   members: StoreMember[] | null;
+  qrPayment: string | null;
   _count: StoreCount;
 }
 

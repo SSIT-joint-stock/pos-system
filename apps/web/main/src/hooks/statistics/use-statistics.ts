@@ -146,14 +146,6 @@ export default function useStatistics() {
   const handleChangeTypeNotification = async (value: TypeNotification) => {
     setTypeNotification(value);
   };
-  useEffect(() => {
-    if (currentStore?.id) {
-      getLowStockProducts();
-      getTopProducts();
-      fetchStatistic();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentStore?.id]);
 
   return {
     loading,
@@ -168,6 +160,9 @@ export default function useStatistics() {
     setCache,
     handleChangeTimeType,
     setTypeNotification,
+    getTopProducts,
+    getLowStockProducts,
+    currentStore,
     handleChangeTypeNotification,
   };
 }
