@@ -4,7 +4,7 @@ export * from './sales-view';
 export * from './sales-invoice-view';
 export * from './employees-view';
 export * from './manage-categories-view';
-export * from './info-store-view';
+// export * from './info-store-view';
 export * from './manage-stores-view';
 export * from './inventory-manage-view';
 export * from './manage-stock-view';

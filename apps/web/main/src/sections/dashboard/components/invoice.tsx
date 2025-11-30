@@ -68,7 +68,7 @@ export default function Invoice({
           <div className="flex items-center gap-4 text-lg font-medium text-gray-800">
             Chi tiết hóa đơn
             <button
-              disabled={!currentStore?.bank_qr_image_url}
+              disabled={!currentStore?.qrPayment}
               onClick={() => setIsOpenModalQrCode(true)}
               className="cursor-pointer border border-gray-300 rounded-md p-1.5 hover:border-gray-800 transition-colors duration-300 disabled:cursor-text disabled:border-gray-300 disabled:hover:border-gray-300"
             >
@@ -269,14 +269,12 @@ export default function Invoice({
               <span className="text-sm">Hẹn gặp lại!</span>
             </div>
             <div className="flex items-center justify-center mt-3">
-              {currentStore?.bank_qr_image_url && (
+              {currentStore?.qrPayment && (
                 <Image
                   placeholder="blur"
                   priority
-                  blurDataURL={currentStore?.bank_qr_image_url || '/qr_code_placholder.svg'}
-                  src={
-                    `${currentStore?.bank_qr_image_url}&amount=${order?.customer_pay_amount}` || ''
-                  }
+                  blurDataURL={currentStore?.qrPayment || '/qr_code_placholder.svg'}
+                  src={`${currentStore?.qrPayment}&amount=${order?.customer_pay_amount}` || ''}
                   className="object-cover"
                   alt="qr_code"
                   width={240}
