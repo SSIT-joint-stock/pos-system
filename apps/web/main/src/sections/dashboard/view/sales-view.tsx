@@ -53,7 +53,6 @@ export const paymentMethods = [
 
 export function SalesView() {
   // HOOK(
-
   const { showSuccessToast, showInfoToast } = useToast();
   const {
     getProducts,
