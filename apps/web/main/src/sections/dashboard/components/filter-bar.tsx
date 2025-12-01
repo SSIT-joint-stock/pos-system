@@ -77,7 +77,7 @@ export default function FilterBar({
           <AutoComplete
             onChange={setSearchValue}
             size="sm"
-            radius="md"
+            radius="sm"
             placeholder={placeholderInputSearch ?? 'Tìm kiếm'}
             data={dataComplete ?? []}
             className="flex-1"
@@ -103,7 +103,7 @@ export default function FilterBar({
               value={filterValues[f.key]}
               onChange={(val) => handleChange(f.key, val)}
               size="sm"
-              radius="md"
+              radius="sm"
               position="bottom"
               style={{ width: f.width ?? '200px' }}
             />
@@ -114,7 +114,7 @@ export default function FilterBar({
             <div className="w-[26ch] rounded-md">
               <DatePickerInput
                 type="range"
-                radius="md"
+                radius="sm"
                 clearable
                 placeholder="VD: 15/08/2025 - 22/08/2025"
                 size="sm"

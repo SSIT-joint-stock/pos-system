@@ -6,6 +6,14 @@ export interface ApiSuccessResponse<T> {
   };
   data: T;
   message: string;
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
 }
 export interface ApiErrorResponse {
   success: false;

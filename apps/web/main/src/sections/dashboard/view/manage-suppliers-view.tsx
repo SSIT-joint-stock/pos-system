@@ -1,57 +1,62 @@
 'use client';
+import DashboardViewLayout from '../../../../../main/src/layouts/dashboard-view-layout';
 import { Plus } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Modal, Table } from '@repo/design-system/components/ui';
-import { formatDate } from '@repo/utils';
-import FormCreateCustomer from '../components/form-create-customer';
-import { currentStoreAtom } from '@repo/design-system/stores/auth';
-import { useAtomValue } from 'jotai';
-import { useCustomer } from '../../../../../main/src/hooks/customers/use-customer';
 import { Customer } from '@repo/design-system/types';
 
-import DashboardViewLayout from '../../../../../main/src/layouts/dashboard-view-layout';
 import { DisplayField } from '../components/display-field';
 import { DataActionBar } from '../components/data-action-bar';
 import { ActionButtons } from '../components/action-buttons';
+import { useSupplier } from '../../../../../main/src/hooks/suplier/use-supplier';
+import { SUPPLIER_STATUS, SUPPLIER_STATUS_MAP } from '../../../../../main/src/constants/status';
 import { DeleteConfirmationModal } from '../components/delete-confirmation-modal';
+import { FormCreateSupplier } from '../components';
+import { truncateText } from '../../../../../main/src/utils';
+import { Tooltip } from '@mantine/core';
 
 const tableHeaders = [
-  'Tên Khách Hàng',
+  'Mã nhà cung cấp',
+  'Tên nhà cung cấp',
   'Số Điện Thoại',
   'Email',
   'Địa Chỉ',
-  'Thành Phố',
-  'Mã Bưu Điện',
-  'Ngày Tạo',
+  'Mã số thuế',
+  'Trạng thái',
   'Thao Tác',
 ];
+export const supplierStatusOptions = Object.entries(SUPPLIER_STATUS).map(([key, item]) => ({
+  label: item.label,
+  value: item.value,
+  color: item.color,
+  key, // optional
+}));
 
 export function ManageSuppliersView() {
-  const [openAddModal, setOpenAddModal] = useState(false);
+  const [openAddModal, setOpenAddModal] = useState<boolean>(false);
   const [deleteModal, setDeleteModal] = useState(false);
   const [editModal, setEditModal] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer>();
 
-  const currentStore = useAtomValue(currentStoreAtom);
   const {
-    getCustomers,
-    deleteCustomer,
-    createCustomer,
-    updateCustomer,
-    setPaginationParams,
-    setFilters,
-    customers,
-    createCustomerForm,
-    updateCustomerForm,
-    pagination,
+    suppliers,
     paginationParams,
     filters,
+    pagination,
+    currentStore,
     loading,
-  } = useCustomer();
+    setPaginationParams,
+    setFilters,
+    setPagination,
+    buildParams,
+    setSortBy,
+    setSort,
+    getSuppliers,
+  } = useSupplier();
 
   useEffect(() => {
     if (!currentStore?.id) return;
-    getCustomers();
+    getSuppliers();
   }, [currentStore?.id, paginationParams, filters]);
 
   return (
@@ -69,12 +74,21 @@ export function ManageSuppliersView() {
           />
         </DisplayField>
         <DataActionBar
-          placeholderSearch="Tìm kiếm tên nhà cung cấp"
+          dataComplete={[...new Set(suppliers?.map((p) => p.name) || [])]}
+          placeholderSearch="Tìm kiếm tên, email, mã của nhà cung cấp"
+          statusOptions={[
+            {
+              width: '280px',
+              key: 'status',
+              label: 'Trạng thái nhà cung cấp',
+              options: supplierStatusOptions,
+            },
+          ]}
           onFilterChange={(newFilters) => {
             setFilters((prev) => ({
               ...prev,
               ...newFilters,
-              product_status: newFilters.status,
+              status: newFilters.status,
             }));
           }}
           onSearch={(value) => {
@@ -103,46 +117,60 @@ export function ManageSuppliersView() {
             }))
           }
           tableHeaders={tableHeaders}
-          data={customers}
+          data={suppliers}
           isLoading={loading}
-          renderRow={(customer) => {
+          renderRow={(supplier) => {
             return (
               <>
-                <td className="px-4 py-3 text-sm text-gray-700">{customer.name}</td>
-                <td className="px-4 py-3 text-xs text-gray-700">
-                  {customer.phone || (
+                <td className="px-4 py-3 text-sm font-semibold text-pos-blue-600">
+                  {supplier.code}
+                </td>
+
+                <td className="px-4 py-3 text-sm text-gray-700">{supplier.name}</td>
+                <td className="px-4 py-3 text-sm text-gray-700">
+                  {supplier.phone || (
                     <span className="text-sm text-gray-500 italic">Không có dữ liệu</span>
                   )}
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-700">
-                  {customer.email || (
+                  {supplier.email || (
                     <span className=" text-gray-500 italic">Không có dữ liệu</span>
                   )}
                 </td>
+                <Tooltip
+                  label={supplier.address}
+                  position="top"
+                  withArrow
+                  color="rgba(125, 124, 124, 1)"
+                >
+                  <td className="px-4 py-3 text-sm text-gray-700">
+                    {(supplier && supplier?.address && truncateText(supplier?.address, 54)) || (
+                      <span className=" text-gray-500 italic">Không có dữ liệu</span>
+                    )}
+                  </td>
+                </Tooltip>
                 <td className="px-4 py-3 text-sm text-gray-700">
-                  {customer.address || (
-                    <span className=" text-gray-500 italic">Không có dữ liệu</span>
+                  {supplier.tax_code || (
+                    <span className=" text-gray-500 italic ">Không có dữ liệu</span>
                   )}
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-700">
-                  {customer.city || <span className=" text-gray-500 italic">Không có dữ liệu</span>}
-                </td>
-                <td className="px-4 py-3 text-sm text-gray-700">
-                  {customer.zip || <span className=" text-gray-500 italic">Không có dữ liệu</span>}
-                </td>
-
-                <td className="px-4 py-3 text-sm text-gray-700">
-                  {formatDate(customer.createdAt)}
+                  <span
+                    className={`${SUPPLIER_STATUS_MAP[supplier.status].color} ${SUPPLIER_STATUS_MAP[supplier.status].bgColor} py-2 px-3 rounded-md`}
+                  >
+                    {SUPPLIER_STATUS_MAP[supplier.status].label}
+                  </span>
                 </td>
 
                 <td>
                   <ActionButtons
+                    onView={() => {}}
                     onEdit={() => {
                       setEditModal(true);
-                      setSelectedCustomer(customer);
+                      setSelectedCustomer(supplier);
                     }}
                     onDelete={() => {
-                      setSelectedCustomer(customer);
+                      setSelectedCustomer(supplier);
                       setDeleteModal(true);
                     }}
                   />
@@ -154,24 +182,21 @@ export function ManageSuppliersView() {
       </DashboardViewLayout>
       {/* modal add customer */}
       <Modal
-        title="Thêm khách hàng mới "
+        title="Thêm nhà cung cấp"
         size="xl"
         opened={openAddModal}
         onClose={() => {
           setOpenAddModal(false);
         }}
       >
-        <FormCreateCustomer
-          setOpenAddModal={setOpenAddModal}
-          createCustomer={createCustomer}
-          createCustomerForm={createCustomerForm}
-          onSuccess={() => {
-            getCustomers();
-          }}
+        <FormCreateSupplier
+          isOpenModal={openAddModal}
+          setIsOpenModal={setOpenAddModal}
+          onFetchNewData={getSuppliers}
         />
       </Modal>
       {/* modal eidt customer */}
-      <Modal
+      {/* <Modal
         title="Sửa thông tin khách hàng"
         size="xl"
         opened={editModal}
@@ -189,9 +214,9 @@ export function ManageSuppliersView() {
             getCustomers();
           }}
         />
-      </Modal>
+      </Modal> */}
 
-      <DeleteConfirmationModal
+      {/* <DeleteConfirmationModal
         itemName={selectedCustomer?.name}
         opened={deleteModal}
         onClose={() => setDeleteModal(false)}
@@ -199,7 +224,7 @@ export function ManageSuppliersView() {
           deleteCustomer(selectedCustomer?.id || '');
           setDeleteModal(false);
         }}
-      />
+      /> */}
     </>
   );
 }

@@ -6,3 +6,5 @@ export * from './province';
 export * from './communes';
 export * from './bank';
 export * from './reward-point';
+export * from './supplier';
+export * from './api-response';

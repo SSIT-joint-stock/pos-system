@@ -69,7 +69,6 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       rightSection,
       withAsterisk,
       styles,
-
       ...rest,
     };
 
