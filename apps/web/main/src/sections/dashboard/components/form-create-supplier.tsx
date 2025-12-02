@@ -1,50 +1,103 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Button, Input, Select } from '@repo/design-system/components/ui';
 import { RefreshCcw } from 'lucide-react';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { supplierStatusOptions } from '../view';
 import { Textarea } from '@mantine/core';
 import { useSupplier } from '../../../../../main/src/hooks/suplier/use-supplier';
-import { Controller } from 'react-hook-form';
+import { Control, Controller } from 'react-hook-form';
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
+import { Supplier } from '@repo/design-system/types';
+import { CreateSupplierInput, UpdateSupplierInput } from '@main/schemas/supplier/supplier.schema';
 
 export function FormCreateSupplier({
   setIsOpenModal,
   onFetchNewData,
+  setIsEditForm,
+  setOpenViewModal,
+  isEditForm,
+  selectedSupplier,
 }: {
-  isOpenModal: boolean;
-  setIsOpenModal: (isOpenModal: boolean) => void;
+  isOpenModal?: boolean;
+  isEditForm?: boolean;
+  selectedSupplier?: Supplier;
+  setOpenViewModal?: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsEditForm?: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsOpenModal?: (isOpenModal: boolean) => void;
   onFetchNewData?: () => void;
 }) {
   const {
     supplierForm: {
-      register,
-      handleSubmit,
+      register: createRegister,
+      control: createControl,
+      formState: { errors: createErrors },
+      handleSubmit: createHandleSubmit,
       getValues,
       setValue,
-      formState: { errors },
-      control,
     },
     loading,
+    supplierInfo,
+    updateSupplierForm: {
+      register: updateRegister,
+      reset,
+      control: updateControl,
+      formState: { errors: updateErrors },
+      handleSubmit: updateHandleSubmit,
+    },
+    getSupplier,
+    updateSupplier,
     getSupplierByTaxCode,
     createSupplier,
   } = useSupplier();
   const { showErrorToast, showSuccessToast } = useToast();
+  const handleCreate = async (data: CreateSupplierInput) => {
+    const success = await createSupplier(data);
+    if (success) {
+      setIsOpenModal?.(false);
+      onFetchNewData?.();
+    }
+  };
+  const handleUpdate = async (data: UpdateSupplierInput) => {
+    const success = await updateSupplier(data, selectedSupplier?.id || '');
+    if (success) {
+      console.log(success);
+      setOpenViewModal?.(false);
+      onFetchNewData?.();
+      setIsEditForm?.(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isEditForm && selectedSupplier) {
+      getSupplier(selectedSupplier.id);
+    }
+  }, [isEditForm, selectedSupplier]);
+  useEffect(() => {
+    if (isEditForm && supplierInfo) {
+      reset({
+        name: supplierInfo.name || '',
+        phone: supplierInfo.phone || '',
+        email: supplierInfo.email || '',
+        address: supplierInfo.address || '',
+        // bank_account: supplierInfo.bank_account || '',
+        tax_code: supplierInfo.tax_code || '',
+        code: supplierInfo.code || '',
+        notes: supplierInfo.notes || '',
+        status: supplierInfo.status || '',
+      });
+    }
+  }, [isEditForm, reset, supplierInfo]);
+
   return (
     <form
-      onSubmit={handleSubmit(async (data) => {
-        const success = await createSupplier(data);
-        if (success) {
-          setIsOpenModal(false);
-          onFetchNewData?.();
-        }
-      })}
+      onSubmit={isEditForm ? updateHandleSubmit(handleUpdate) : createHandleSubmit(handleCreate)}
       className="space-y-6 mt-4"
     >
       <div className="space-y-1">
         <p className="text-sm text-gray-500">Mã số thuế</p>
         <div className="flex items-center gap-4">
           <Input
-            {...register('tax_code')}
+            {...(isEditForm ? updateRegister('tax_code') : createRegister('tax_code'))}
             size="sm"
             radius="sm"
             className="flex-1"
@@ -81,8 +134,8 @@ export function FormCreateSupplier({
         <Input
           withAsterisk
           label="Tên nhà cung cấp"
-          {...register('name')}
-          error={errors.name?.message}
+          {...(isEditForm ? updateRegister('name') : createRegister('name'))}
+          error={createErrors.name?.message}
           size="sm"
           radius="sm"
           className="flex-1"
@@ -90,7 +143,7 @@ export function FormCreateSupplier({
         />
         <Input
           label="Mã nhà cung cấp"
-          {...register('code')}
+          {...(isEditForm ? updateRegister('code') : createRegister('code'))}
           size="sm"
           radius="sm"
           className="flex-1"
@@ -100,9 +153,14 @@ export function FormCreateSupplier({
       <div className="flex items-center gap-4 ">
         <Input
           label="Số điện thoại"
-          {...register('phone', {
-            setValueAs: (v: string) => (v === '' ? undefined : v),
-          })}
+          {...(isEditForm
+            ? updateRegister('phone', {
+                setValueAs: (v: string) => (v === '' ? undefined : v),
+              })
+            : createRegister('phone', {
+                setValueAs: (v: string) => (v === '' ? undefined : v),
+              }))}
+          error={createErrors.phone?.message}
           size="sm"
           radius="sm"
           className="flex-1"
@@ -111,11 +169,14 @@ export function FormCreateSupplier({
         <Input
           label="Email"
           type="email"
-          error={errors.email?.message}
-          {...(register('email'),
-          {
-            setValueAs: (v: string) => (v === '' ? undefined : v),
-          })}
+          error={isEditForm ? updateErrors.email?.message : createErrors.email?.message}
+          {...(isEditForm
+            ? updateRegister('email', {
+                setValueAs: (v: string) => (v === '' ? undefined : v),
+              })
+            : createRegister('email', {
+                setValueAs: (v: string) => (v === '' ? undefined : v),
+              }))}
           size="sm"
           radius="sm"
           className="flex-1"
@@ -125,22 +186,27 @@ export function FormCreateSupplier({
       <div className="flex items-center gap-4 ">
         <Controller
           name="status"
-          control={control}
-          render={(filed) => (
+          control={
+            (isEditForm ? updateControl : createControl) as Control<
+              CreateSupplierInput | UpdateSupplierInput
+            >
+          }
+          render={({ field }) => (
             <Select
-              {...filed}
+              {...field}
               data={supplierStatusOptions}
               label="Trạng thái nhà cung cấp"
               size="sm"
               radius="sm"
               className="flex-1"
-              placeholder="Trạng thái nhà cung cấp"
+              placeholder="Chọn trạng thái"
             />
           )}
         />
+
         <Input
           label="Địa chỉ"
-          {...register('address')}
+          {...(isEditForm ? updateRegister('address') : createRegister('address'))}
           size="sm"
           radius="sm"
           className="flex-1"
@@ -151,7 +217,7 @@ export function FormCreateSupplier({
         <p className="text-sm text-gray-500">Ghi chú</p>
 
         <Textarea
-          {...register('notes')}
+          {...(isEditForm ? updateRegister('notes') : createRegister('notes'))}
           size="sm"
           radius="sm"
           className="flex-1"
@@ -163,7 +229,9 @@ export function FormCreateSupplier({
         <Button
           type="submit"
           disabled={loading}
-          title={loading ? 'Đang tạo' : 'Tạo nhà cung cấp'}
+          title={
+            loading ? 'Đang tạo' : <>{isEditForm ? 'Cập nhât thông tin' : 'Tạo nhà cung cấp'}</>
+          }
           radius="sm"
           size="sm"
         />

@@ -1,7 +1,6 @@
 // eslint-disable-next-line filenames/match-regex
 import { SupplierStatus } from '@repo/design-system/types';
 import { z } from 'zod';
-
 export const SupplierSchema = z.object({
   id: z.string().uuid(),
   code: z.string().optional(),
@@ -16,7 +15,14 @@ export const SupplierSchema = z.object({
     })
     .optional()
     .or(z.literal('')),
-  phone: z.string().optional().or(z.literal('')),
+  phone: z
+    .string()
+    .optional()
+    .refine(
+      (val) => !val || /^(0|\+84)(3|5|7|8|9)[0-9]{8}$/.test(val),
+      'Số điện thoại không hợp lệ (định dạng Việt Nam)'
+    ),
+
   address: z.string().optional(),
   tax_code: z.string().optional(),
   bank_account: z.string().optional(),
@@ -36,9 +42,9 @@ export const CreateSupplierSchema = SupplierSchema.omit({
   createdAt: true,
   updatedAt: true,
 });
-export const updateSupplierSchema = CreateSupplierSchema.partial();
+export const UpdateSupplierSchema = CreateSupplierSchema.partial();
 
 // Inferred types
 export type Store = z.infer<typeof SupplierSchema>;
 export type CreateSupplierInput = z.infer<typeof CreateSupplierSchema>;
-export type UpdateSupplierInput = z.infer<typeof updateSupplierSchema>;
+export type UpdateSupplierInput = z.infer<typeof UpdateSupplierSchema>;

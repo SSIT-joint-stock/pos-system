@@ -1,9 +1,9 @@
 'use client';
 import DashboardViewLayout from '../../../../../main/src/layouts/dashboard-view-layout';
-import { Plus } from 'lucide-react';
+import { DollarSign, Plus, ShoppingBag } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Button, Modal, Table } from '@repo/design-system/components/ui';
-import { Customer } from '@repo/design-system/types';
+import { Supplier } from '@repo/design-system/types';
 
 import { DisplayField } from '../components/display-field';
 import { DataActionBar } from '../components/data-action-bar';
@@ -13,7 +13,8 @@ import { SUPPLIER_STATUS, SUPPLIER_STATUS_MAP } from '../../../../../main/src/co
 import { DeleteConfirmationModal } from '../components/delete-confirmation-modal';
 import { FormCreateSupplier } from '../components';
 import { truncateText } from '../../../../../main/src/utils';
-import { Tooltip } from '@mantine/core';
+import { Tabs, Tooltip } from '@mantine/core';
+import { ItemBoxChart } from '@repo/design-system/components/shared/item';
 
 const tableHeaders = [
   'Mã nhà cung cấp',
@@ -34,9 +35,10 @@ export const supplierStatusOptions = Object.entries(SUPPLIER_STATUS).map(([key, 
 
 export function ManageSuppliersView() {
   const [openAddModal, setOpenAddModal] = useState<boolean>(false);
-  const [deleteModal, setDeleteModal] = useState(false);
-  const [editModal, setEditModal] = useState(false);
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer>();
+  const [deleteModal, setDeleteModal] = useState<boolean>(false);
+  const [openViewModal, setOpenViewModal] = useState<boolean>(false);
+  const [selectedSupplier, setSelectedSupplier] = useState<Supplier>();
+  const [isEditForm, setIsEditForm] = useState<boolean>(false);
 
   const {
     suppliers,
@@ -45,12 +47,9 @@ export function ManageSuppliersView() {
     pagination,
     currentStore,
     loading,
+    deleteSupplier,
     setPaginationParams,
     setFilters,
-    setPagination,
-    buildParams,
-    setSortBy,
-    setSort,
     getSuppliers,
   } = useSupplier();
 
@@ -66,6 +65,7 @@ export function ManageSuppliersView() {
           <Button
             onClick={() => {
               setOpenAddModal(true);
+              setIsEditForm(false);
             }}
             icon={<Plus size={16} />}
             title="Thêm nhà cung cấp"
@@ -126,7 +126,11 @@ export function ManageSuppliersView() {
                   {supplier.code}
                 </td>
 
-                <td className="px-4 py-3 text-sm text-gray-700">{supplier.name}</td>
+                <td className="px-4 py-3 text-sm text-gray-700">
+                  <Tooltip label={supplier.name} position="top" withArrow>
+                    {supplier && supplier?.name && truncateText(supplier?.name, 54)}
+                  </Tooltip>
+                </td>
                 <td className="px-4 py-3 text-sm text-gray-700">
                   {supplier.phone || (
                     <span className="text-sm text-gray-500 italic">Không có dữ liệu</span>
@@ -138,7 +142,7 @@ export function ManageSuppliersView() {
                   )}
                 </td>
                 <Tooltip
-                  label={supplier.address}
+                  label={supplier.address || 'Không có dữ liệu'}
                   position="top"
                   withArrow
                   color="rgba(125, 124, 124, 1)"
@@ -156,7 +160,7 @@ export function ManageSuppliersView() {
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-700">
                   <span
-                    className={`${SUPPLIER_STATUS_MAP[supplier.status].color} ${SUPPLIER_STATUS_MAP[supplier.status].bgColor} py-2 px-3 rounded-md`}
+                    className={`${SUPPLIER_STATUS_MAP[supplier.status].color} ${SUPPLIER_STATUS_MAP[supplier.status].bgColor} py-2 px-3 rounded-md text-nowrap`}
                   >
                     {SUPPLIER_STATUS_MAP[supplier.status].label}
                   </span>
@@ -164,13 +168,16 @@ export function ManageSuppliersView() {
 
                 <td>
                   <ActionButtons
-                    onView={() => {}}
+                    onView={() => {
+                      setOpenViewModal(true);
+                      setSelectedSupplier(supplier);
+                      setIsEditForm(true);
+                    }}
                     onEdit={() => {
-                      setEditModal(true);
-                      setSelectedCustomer(supplier);
+                      setSelectedSupplier(supplier);
                     }}
                     onDelete={() => {
-                      setSelectedCustomer(supplier);
+                      setSelectedSupplier(supplier);
                       setDeleteModal(true);
                     }}
                   />
@@ -180,7 +187,7 @@ export function ManageSuppliersView() {
           }}
         />
       </DashboardViewLayout>
-      {/* modal add customer */}
+      {/* modal add supplier */}
       <Modal
         title="Thêm nhà cung cấp"
         size="xl"
@@ -195,36 +202,73 @@ export function ManageSuppliersView() {
           onFetchNewData={getSuppliers}
         />
       </Modal>
-      {/* modal eidt customer */}
-      {/* <Modal
-        title="Sửa thông tin khách hàng"
-        size="xl"
-        opened={editModal}
-        onClose={() => {
-          setEditModal(false);
-        }}
-      >
-        <FormCreateCustomer
-          isEditForm
-          selectedCustomer={selectedCustomer}
-          updateCustomer={updateCustomer}
-          updateCustomerForm={updateCustomerForm}
-          setOpenEditModal={setEditModal}
-          onSuccess={() => {
-            getCustomers();
-          }}
-        />
-      </Modal> */}
 
-      {/* <DeleteConfirmationModal
-        itemName={selectedCustomer?.name}
+      {/* modal view supplier */}
+      <Modal
+        title={
+          <p className="text-lg font-medium text-gray-900 ">
+            Chi tiết nhà cung cấp - {selectedSupplier?.name}
+          </p>
+        }
+        size="xl"
+        opened={openViewModal}
+        onClose={() => setOpenViewModal(false)}
+      >
+        <Tabs variant="pills" radius="sm" defaultValue="info" className="mt-2.5 ">
+          <Tabs.List>
+            <Tabs.Tab value="info">Thông tin nhà cung cấp</Tabs.Tab>
+            <Tabs.Tab value="order">Đơn xuất/nhật kho hàng</Tabs.Tab>
+          </Tabs.List>
+
+          <Tabs.Panel value="info">
+            <div className="space-y-3 mt-6">
+              <div className="bg-gray-50 p-4 rounded-md">
+                <h2 className="text-pos-blue-500 text-xl font-semibold">Thông tin nhà cung cấp</h2>
+                <div className="flex items-center gap-3 mt-3">
+                  <ItemBoxChart
+                    className="flex-1"
+                    title={'Tổng đơn hàng xuất/nhập'}
+                    value={0}
+                    bgIcon="bg-pos-blue-50"
+                    colorIcon="text-pos-blue-500"
+                    icon={<ShoppingBag size={18} />}
+                  />
+                  <ItemBoxChart
+                    className="flex-1"
+                    title={'Tổng tiền'}
+                    bgIcon="bg-green-50"
+                    colorIcon="text-green-500"
+                    icon={<DollarSign size={18} />}
+                    value={0}
+                  />
+                </div>
+              </div>
+              <div className="bg-gray-50 p-4 rounded-md">
+                <h2 className="text-pos-blue-500 text-xl font-semibold">Sửa thông tin</h2>
+                <FormCreateSupplier
+                  setIsEditForm={setIsEditForm}
+                  setOpenViewModal={setOpenViewModal}
+                  onFetchNewData={getSuppliers}
+                  isEditForm={isEditForm}
+                  selectedSupplier={selectedSupplier}
+                />
+              </div>
+            </div>
+          </Tabs.Panel>
+
+          <Tabs.Panel value="order">Messages tab content</Tabs.Panel>
+        </Tabs>
+      </Modal>
+
+      <DeleteConfirmationModal
+        itemName={selectedSupplier?.name}
         opened={deleteModal}
         onClose={() => setDeleteModal(false)}
         onConfirm={() => {
-          deleteCustomer(selectedCustomer?.id || '');
+          deleteSupplier(selectedSupplier?.id || '');
           setDeleteModal(false);
         }}
-      /> */}
+      />
     </>
   );
 }

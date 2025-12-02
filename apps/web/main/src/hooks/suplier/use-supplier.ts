@@ -11,6 +11,8 @@ import { useForm } from 'react-hook-form';
 import {
   CreateSupplierInput,
   CreateSupplierSchema,
+  UpdateSupplierInput,
+  UpdateSupplierSchema,
 } from '../../../../main/src/schemas/supplier/supplier.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 interface SupplierFilters extends Record<string, FilterValue> {
@@ -19,6 +21,7 @@ interface SupplierFilters extends Record<string, FilterValue> {
 
 export function useSupplier() {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [supplierInfo, setSupplierInfo] = useState<Supplier | null>(null);
   const [supplierInfoByTaxCode, setSupplierInfoByTaxCode] = useState<Supplier | null>(null);
   const { loading, requestWrapper } = useRequestHelper();
   const { showSuccessToast } = useToast();
@@ -36,6 +39,9 @@ export function useSupplier() {
   const currentStore = useAtomValue(currentStoreAtom);
   const supplierForm = useForm<CreateSupplierInput>({
     resolver: zodResolver(CreateSupplierSchema),
+  });
+  const updateSupplierForm = useForm<UpdateSupplierInput>({
+    resolver: zodResolver(UpdateSupplierSchema),
   });
   const getSuppliers = async () => {
     if (!currentStore?.id) return;
@@ -59,7 +65,41 @@ export function useSupplier() {
     }
     return false;
   };
-
+  const deleteSupplier = async (supplierId: string) => {
+    if (!currentStore?.id) return;
+    const res = await requestWrapper(() =>
+      api.delete<ApiResponse>(`/supplier/${currentStore?.id}/delete/${supplierId}`)
+    );
+    if (res?.data.success) {
+      showSuccessToast(res.data.message as string);
+      getSuppliers();
+    }
+  };
+  const updateSupplier = async (data: UpdateSupplierInput, supplierId: string) => {
+    if (!currentStore?.id) return;
+    const res = await requestWrapper(() =>
+      api.patch<ApiResponse>(`/supplier/${currentStore?.id}/update/${supplierId}`, data)
+    );
+    if (res?.data.success) {
+      updateSupplierForm.reset();
+      showSuccessToast(res.data.message as string);
+      getSuppliers();
+      return true;
+    }
+    return false;
+  };
+  const getSupplier = async (supplierId: string) => {
+    if (!currentStore?.id) return;
+    const res = await requestWrapper(() =>
+      api.get<ApiResponse>(`/supplier/${currentStore?.id}/detail/${supplierId}`)
+    );
+    if (res?.data.success) {
+      const supplier = res.data.data as Supplier;
+      setSupplierInfo(supplier);
+      return supplier;
+    }
+    return false;
+  };
   // COMMON
   const getSupplierByTaxCode = async (taxCode: string) => {
     if (!currentStore?.id) return;
@@ -82,6 +122,11 @@ export function useSupplier() {
     currentStore,
     supplierForm,
     supplierInfoByTaxCode,
+    updateSupplierForm,
+    supplierInfo,
+    getSupplier,
+    updateSupplier,
+    deleteSupplier,
     getSupplierByTaxCode,
     createSupplier,
     setPaginationParams,
