@@ -1,3 +1,4 @@
+'use client';
 import useStore from '../../../../../main/src/hooks/store/use-store';
 import api from '../../../../../main/src/libs/axios';
 import { useEffect, useState } from 'react';

@@ -1,28 +1,26 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client';
-import { Button, Input, Select, Table } from '@repo/design-system/components/ui';
-import { Pencil, ShoppingCart } from 'lucide-react';
+import { Button, Table } from '@repo/design-system/components/ui';
+import { Plus } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { formatCurrency, formatDate } from '../../../../../main/src/utils/index';
 import * as XLSX from 'xlsx';
 import { useProduct } from '../../../../../main/src/hooks/product/use-product';
-import { Controller } from 'react-hook-form';
-import Image from 'next/image';
-import { MultiSelect } from '@mantine/core';
 
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { useAtomValue } from 'jotai';
-import { useCategories } from '../../../../../main/src/hooks/categories/use-categories';
 import { DeleteConfirmationModal } from '../components/delete-confirmation-modal';
-import { ModalFormWrapper } from '../components/modal-form-wrapper';
 import { DataActionBar } from '../components/data-action-bar';
 import { ActionButtons } from '../components/action-buttons';
 import { DisplayField } from '../components/display-field';
 import DashboardViewLayout from '../../../../../main/src/layouts/dashboard-view-layout';
+import { useRouter } from 'next/navigation';
 const tableHeaders = [
   'Mã Sản Phẩm',
   'Sản Phẩm',
-  'Số lượng',
+  'Tồn kho (gốc)',
+  'Có thể bán',
+  'Đang về kho',
   'Giá Nhập',
   'Giá Bán',
   'Trạng Thái',
@@ -31,8 +29,8 @@ const tableHeaders = [
 ];
 
 const statusColors: Record<string, string> = {
-  ACTIVE: ' text-green-500 bg-green-50 py-1.5 px-2.5 rounded-md',
-  INACTIVE: 'text-red-500 bg-red-50 py-1.5 px-2.5 rounded-md',
+  ACTIVE: ' text-green-500 bg-green-50 py-1.5 px-2.5 rounded-sm',
+  INACTIVE: 'text-red-500 bg-red-50 py-1.5 px-2.5 rounded-sm',
 };
 
 const formatProductStatus = (status: string) => {
@@ -45,10 +43,9 @@ const formatProductStatus = (status: string) => {
 };
 
 export function ManageView() {
-  const [openViewModal, setOpenViewModal] = useState<boolean>(false);
-  const [openEditModal, setOpenEditModal] = useState<boolean>(false);
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
 
+  const router = useRouter();
   const {
     products,
     loading,
@@ -66,7 +63,6 @@ export function ManageView() {
     exampleProductExcel,
     getProducts,
   } = useProduct();
-  const { categories, getCategories } = useCategories();
   const currentStore = useAtomValue(currentStoreAtom);
   useEffect(() => {
     if (product) {
@@ -87,10 +83,6 @@ export function ManageView() {
     if (!currentStore?.id) return;
     getProducts();
   }, [currentStore?.id, paginationParams, filters]);
-  useEffect(() => {
-    if (!currentStore?.id) return;
-    getCategories();
-  }, [currentStore?.id]);
 
   const handleExportExcel = () => {
     {
@@ -119,7 +111,15 @@ export function ManageView() {
   return (
     <>
       <DashboardViewLayout>
-        <DisplayField label="Danh sách sản phẩm" />
+        <DisplayField label="Danh sách sản phẩm">
+          <Button
+            onClick={() => router.push(`manage-products/create`)}
+            size="sm"
+            radius="sm"
+            title={'Thêm sản phẩm'}
+            icon={<Plus size={'16'} />}
+          />
+        </DisplayField>
 
         <DataActionBar
           dataComplete={[...new Set(products?.map((p) => p.name) || [])]}
@@ -180,7 +180,13 @@ export function ManageView() {
             <>
               <td className="px-4 py-3 text-sm  font-semibold text-pos-blue-600">{product.sku}</td>
 
-              <td className="px-4 py-3 text-base font-medium text-gray-500">{product.name}</td>
+              <td className="px-4 py-3 text-sm font-medium text-gray-900">{product.name}</td>
+              <td className="px-4 py-3 text-sm font-medium text-gray-500">
+                {product?.inventory?.quantity}
+              </td>
+              <td className="px-4 py-3 text-sm font-medium text-gray-500">
+                {product?.inventory?.quantity}
+              </td>
               <td className="px-4 py-3 text-sm font-medium text-gray-500">
                 {product?.inventory?.quantity}
               </td>
@@ -192,9 +198,7 @@ export function ManageView() {
               </td>
 
               <td className="px-4 py-3">
-                <span
-                  className={`text-sm font-medium rounded-xl ${statusColors[product.product_status]}`}
-                >
+                <span className={`text-sm font-medium ${statusColors[product.product_status]}`}>
                   {formatProductStatus(product.product_status)}
                 </span>
               </td>
@@ -246,11 +250,7 @@ export function ManageView() {
                   </div> */}
                 <ActionButtons
                   onView={() => {
-                    setOpenViewModal(true);
-                    getProductById(product.id);
-                  }}
-                  onEdit={() => {
-                    setOpenEditModal(true);
+                    router.push(`manage-products/detail/${product.id}`);
                     getProductById(product.id);
                   }}
                   onDelete={() => {
@@ -277,262 +277,6 @@ export function ManageView() {
         loading={loading}
         itemName={product?.name}
       />
-
-      {/* MODAL VIEW and EDIT PRODUCT */}
-      <ModalFormWrapper
-        opened={openEditModal || openViewModal}
-        onClose={() => {
-          setOpenEditModal(false);
-          setOpenViewModal(false);
-        }}
-        title={openEditModal ? 'Chỉnh sửa sản phẩm' : 'Xem thông tin sản phẩm'}
-        icon={openEditModal ? <Pencil size={20} /> : <ShoppingCart size={20} />}
-        onSubmit={updateProductForm.handleSubmit(async (data) => {
-          if (product && product.id) {
-            await updateProduct(product?.id, data);
-          }
-          setOpenEditModal(false);
-        })}
-        loading={loading}
-      >
-        <form
-          onSubmit={updateProductForm.handleSubmit(async (data) => {
-            if (product && product.id) {
-              await updateProduct(product?.id, data);
-            }
-            setOpenEditModal(false);
-          })}
-          className={`${openEditModal ? 'space-y-3.5' : '"space-y-5.5"'}`}
-        >
-          {/* IMAGE + INFO GRID */}
-          <div
-            className={`${openEditModal ? 'flex flex-col gap-5.5' : 'grid grid-cols-1 md:grid-cols-3 gap-5.5'}`}
-          >
-            {/* IMAGE */}
-            <div>
-              <div className={`${openEditModal ? 'flex items-center justify-center' : ''}`}>
-                <Image
-                  width={1000}
-                  height={1000}
-                  src={'/placeholder.jpg'}
-                  alt={product?.name || 'Image name'}
-                  className="w-48 h-48 object-cover rounded-lg shadow"
-                  unoptimized
-                />
-              </div>
-
-              {openEditModal && (
-                <Input
-                  size="sm"
-                  {...updateProductForm.register('image_url')}
-                  name="image_url"
-                  label="Image URL"
-                  className="mt-4 w-full"
-                />
-              )}
-            </div>
-
-            {/* PRODUCT INFO */}
-            <div className="md:col-span-2 grid grid-cols-2 gap-4  ">
-              {/* Name */}
-              {openEditModal ? (
-                <Input
-                  size="sm"
-                  {...updateProductForm.register('name')}
-                  name="name"
-                  label="Tên sản phẩm"
-                />
-              ) : (
-                <div>
-                  <p className="text-sm text-gray-500">Tên sản phẩm</p>
-                  <p className="font-medium text-gray-800">{product?.name}</p>
-                </div>
-              )}
-
-              {/* SKU */}
-              {openEditModal ? (
-                <Input
-                  size="sm"
-                  {...updateProductForm.register('sku')}
-                  error={updateProductForm.formState.errors.sku?.message}
-                  name="sku"
-                  label="Mã sản phẩm"
-                />
-              ) : (
-                <div>
-                  <p className="text-sm text-gray-500">Mã sản phẩm</p>
-                  <p className="font-medium text-gray-800">{product?.sku}</p>
-                </div>
-              )}
-
-              {/* Cost */}
-              {openEditModal ? (
-                <Input
-                  size="sm"
-                  type="number"
-                  {...updateProductForm.register('cost', {
-                    valueAsNumber: true,
-                  })}
-                  name="cost"
-                  label="Giá vốn"
-                  min={0}
-                />
-              ) : (
-                <div>
-                  <p className="text-sm text-gray-500">Giá vốn</p>
-                  <p className="font-medium text-gray-800">{formatCurrency(product?.cost)}</p>
-                </div>
-              )}
-
-              {/* Price */}
-              {openEditModal ? (
-                <Input
-                  size="sm"
-                  type="number"
-                  {...updateProductForm.register('price', {
-                    valueAsNumber: true,
-                  })}
-                  name="price"
-                  label="Giá bán"
-                  min={0}
-                />
-              ) : (
-                <div>
-                  <p className="text-sm text-gray-500">Giá bán</p>
-                  <p className="font-medium text-gray-800">{formatCurrency(product?.price)}</p>
-                </div>
-              )}
-
-              {/* Barcode */}
-              {openEditModal ? (
-                <Input
-                  size="sm"
-                  {...updateProductForm.register('barcode')}
-                  name="barcode"
-                  label="Barcode"
-                />
-              ) : (
-                <div>
-                  <p className="text-sm text-gray-500">Barcode</p>
-                  <p className="font-medium text-gray-800">
-                    {product?.barcode || (
-                      <span className="text-gray-400 italic">Chưa cập nhật</span>
-                    )}
-                  </p>
-                </div>
-              )}
-
-              {/* Status */}
-              {openEditModal ? (
-                <Controller
-                  name="product_status"
-                  control={updateProductForm.control}
-                  render={({ field }) => (
-                    <Select
-                      {...field}
-                      label="Trạng thái"
-                      placeholder="Chọn trạng thái"
-                      size="sm"
-                      radius="md"
-                      data={[
-                        { value: 'ACTIVE', label: 'Đang kinh doanh' },
-                        { value: 'INACTIVE', label: 'Ngừng kinh doanh' },
-                      ]}
-                    />
-                  )}
-                />
-              ) : (
-                <div>
-                  <p className="text-sm text-gray-500">Trạng thái</p>
-                  <span
-                    className={`px-2 py-1 rounded text-xs font-medium ${
-                      product?.product_status === 'ACTIVE'
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-red-100 text-red-700'
-                    }`}
-                  >
-                    {product?.product_status}
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Description */}
-          {openEditModal ? (
-            <Input
-              size="sm"
-              {...updateProductForm.register('description')}
-              name="description"
-              label="Mô tả"
-            />
-          ) : (
-            <div className="mt-6">
-              <p className="text-sm text-gray-500">Mô tả</p>
-              <p className="text-gray-700">
-                {product?.description || (
-                  <span className="text-gray-400 italic">Chưa có mô tả</span>
-                )}
-              </p>
-            </div>
-          )}
-          {/* Categories */}
-          {openEditModal ? (
-            <Controller
-              name="categoryIds"
-              control={updateProductForm.control}
-              render={({ field }) => (
-                <>
-                  <span className="text-sm font-medium text-gray-500">Nhóm danh mục</span>
-                  <MultiSelect
-                    radius={'md'}
-                    {...field}
-                    data={(categories || []).map((c) => ({
-                      value: c.id,
-                      label: c.name,
-                    }))}
-                    placeholder="Chọn nhóm danh mục"
-                    value={field.value || []}
-                    onChange={field.onChange}
-                    searchable
-                  />
-                </>
-              )}
-            />
-          ) : (
-            <>
-              {product?.categories && product?.categories.length > 0 && (
-                <>
-                  <p className="text-sm text-gray-500">Nhóm danh mục</p>
-                  <span className="px-4 py-1 mt-2  rounded text-xs font-medium bg-gray-100 text-gray-700">
-                    {product?.categories.map((c) => c.name).join(', ')}
-                  </span>
-                </>
-              )}
-            </>
-          )}
-
-          {/* Created + Updated */}
-          {product && product.createdAt && product.updatedAt && (
-            <div className="border-t border-gray-200 pt-4 mt-4 flex items-center justify-between text-sm text-gray-500">
-              <p>Ngày tạo: {formatDate(product?.createdAt)}</p>
-              <p>Lần cuối cập nhật: {formatDate(product?.updatedAt)}</p>
-            </div>
-          )}
-          {openEditModal && (
-            <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
-              <Button
-                type="button"
-                onClick={() => setOpenEditModal(false)}
-                style={{ color: 'red', border: 'none', background: 'transparent' }}
-                size="sm"
-                title="Hủy"
-              />
-              <Button type="submit" title="Cập nhật" size="sm" disabled={loading} />
-            </div>
-          )}
-        </form>
-      </ModalFormWrapper>
     </>
   );
 }

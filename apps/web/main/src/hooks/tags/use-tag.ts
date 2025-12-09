@@ -2,7 +2,6 @@
 
 import api from '../../../../main/src/libs/axios';
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
-import { Category } from '@repo/design-system/types';
 import { useCallback, useState } from 'react';
 import { useRequestHelper } from '../use-request-helper';
 import { useAtomValue } from 'jotai';
@@ -11,12 +10,13 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FilterValue, useQueryParams } from '../query/use-query-params';
 import { ApiResponse } from '@repo/types/response';
+import { Tag } from '@repo/design-system/types';
 import {
-  CreateCategoryInput,
-  CreateCategorySchema,
-  UpdateCategoryInput,
-  UpdateCategorySchema,
-} from '../../schemas/category/category.schema';
+  CreateTagInput,
+  CreateTagSchema,
+  UpdateTagInput,
+  UpdateTagSchema,
+} from '../../schemas/tag/tag.schema';
 
 interface CategoryFilters extends Record<string, FilterValue> {
   q?: string;
@@ -24,7 +24,7 @@ interface CategoryFilters extends Record<string, FilterValue> {
   endDate?: string;
 }
 
-export function useCategories() {
+export function useTags() {
   const { loading, requestWrapper } = useRequestHelper();
   const { showSuccessToast } = useToast();
   const {
@@ -45,102 +45,100 @@ export function useCategories() {
 
   // STATE
   const currentStore = useAtomValue(currentStoreAtom);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [category, setCategory] = useState<Category>();
+  const [tags, setTags] = useState<Tag[]>([]);
+  const [tag, setTag] = useState<Tag>();
 
   // FORM
-  const createCategoryForm = useForm<CreateCategoryInput>({
-    resolver: zodResolver(CreateCategorySchema),
+  const createTagForm = useForm<CreateTagInput>({
+    resolver: zodResolver(CreateTagSchema),
   });
 
-  const updateCategoryForm = useForm<UpdateCategoryInput>({
-    resolver: zodResolver(UpdateCategorySchema),
+  const updateTagForm = useForm<UpdateTagInput>({
+    resolver: zodResolver(UpdateTagSchema),
   });
 
   // ACTION FUNCTIONS
-  const getCategories = useCallback(async () => {
+  const getTags = useCallback(async () => {
     if (!currentStore?.id) return;
 
     const res = await requestWrapper(() =>
-      api.get(`/stores/${currentStore.id}/categories?${buildParams().toString()}`)
+      api.get(`/tag/${currentStore.id}/?${buildParams().toString()}`)
     );
 
     if (res?.data.success) {
-      setCategories(res.data.data);
+      setTags(res.data.data);
       setPagination(res.data.pagination);
       showSuccessToast(res.data.message);
     }
-  }, [buildParams, requestWrapper, setPagination, showSuccessToast, currentStore?.id]);
+  }, [currentStore, buildParams, requestWrapper, showSuccessToast, setPagination, setTags]);
 
-  const createCategory = async (data: CreateCategoryInput) => {
+  const createTag = async (data: CreateTagInput) => {
     if (!currentStore?.id) return;
 
-    const res = await requestWrapper(() =>
-      api.post<ApiResponse>(`/stores/${currentStore.id}/categories`, data)
-    );
+    const res = await requestWrapper(() => api.post<ApiResponse>(`/tag/${currentStore.id}/`, data));
 
     if (res?.data.success) {
-      getCategories();
-      showSuccessToast(res.data.message as string);
+      getTags();
+      showSuccessToast((res.data.message as string) || 'Tạo tên thẻ thành công!');
       return true;
     }
     return false;
   };
 
-  const deleteCategory = async (categoryId: string) => {
+  const deleteTag = async (tagId: string) => {
     if (!currentStore?.id) return;
 
     const res = await requestWrapper(() =>
-      api.delete<ApiResponse>(`/stores/${currentStore.id}/categories/${categoryId}`)
+      api.delete<ApiResponse>(`/tag/${tagId}/${currentStore.id}/`)
     );
 
     if (res?.data.success) {
       showSuccessToast(res.data.message as string);
-      getCategories();
+      getTags();
     }
   };
 
-  const updateCategory = async (categoryId: string, data: UpdateCategoryInput) => {
+  const updateTag = async (tagId: string, data: UpdateTagInput) => {
     if (!currentStore?.id) return;
 
     const res = await requestWrapper(() =>
-      api.patch<ApiResponse>(`/stores/${currentStore.id}/categories/${categoryId}`, data)
+      api.patch<ApiResponse>(`/tag/${tagId}/${currentStore.id}`, data)
     );
 
     if (res?.data.success) {
       showSuccessToast(res.data.message as string);
-      getCategories();
+      getTags();
     }
   };
 
-  const getCategoryById = async (categoryId: string) => {
+  const getTagById = async (tagId: string) => {
     if (!currentStore?.id) return;
 
-    const res = await api.get(`/stores/${currentStore.id}/categories/${categoryId}`);
+    const res = await api.get(`/tag/${tagId}/${currentStore.id}`);
 
     if (res?.data.success) {
-      setCategory(res.data.data);
+      setTag(res.data.data);
     }
   };
 
   return {
-    getCategories,
-    getCategoryById,
-    createCategory,
-    deleteCategory,
-    updateCategory,
+    getTags,
+    createTag,
+    deleteTag,
+    updateTag,
+    getTagById,
+    setPagination,
     setFilters,
     setPaginationParams,
     setSortBy,
     setSort,
-    setCategories,
+    tags,
     pagination,
     paginationParams,
     filters,
-    categories,
+    tag,
     loading,
-    createCategoryForm,
-    updateCategoryForm,
-    category,
+    createTagForm,
+    updateTagForm,
   };
 }

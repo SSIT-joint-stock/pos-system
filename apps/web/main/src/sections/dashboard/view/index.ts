@@ -18,3 +18,4 @@ export * from './returned-invoices-view';
 export * from './manage-product-units-view';
 export * from './manage-product-combos-view';
 export * from './info-store-view-v2';
+export * from './product-view';

@@ -27,6 +27,7 @@ export default function MenuSidebar({
   setOpenSubmenu: (openSubmenu: number | null) => void;
 }) {
   const pathName = usePathname();
+  console.log(pathName);
 
   const [currentStore] = useAtom(currentStoreAtom);
 
@@ -34,20 +35,20 @@ export default function MenuSidebar({
     {
       title: 'Tổng quan',
       path: `/dashboard/store/${currentStore?.id}/overview`,
-      icon: <LayoutDashboard className="shrink-0" />,
+      icon: <LayoutDashboard size={20} className="shrink-0" />,
     },
     {
       title: 'Quản lý kho',
-      icon: <Package className="shrink-0" />,
+      icon: <Package size={20} className="shrink-0" />,
       children: [
         {
           title: 'Sản phẩm',
           path: `/dashboard/store/${currentStore?.id}/manage-products`,
         },
-        {
-          title: 'Đơn vị tính',
-          path: `/dashboard/store/${currentStore?.id}/manage-product-units`,
-        },
+        // {
+        //   title: 'Đơn vị tính',
+        //   path: `/dashboard/store/${currentStore?.id}/manage-product-units`,
+        // },
         {
           title: 'Nhóm sản phẩm',
           path: `/dashboard/store/${currentStore?.id}/manage-product-combos`,
@@ -65,7 +66,7 @@ export default function MenuSidebar({
 
     {
       title: 'Phiếu kho',
-      icon: <Truck className="shrink-0" />,
+      icon: <Truck size={20} className="shrink-0" />,
       children: [
         {
           title: 'Phiếu nhập hàng',
@@ -79,7 +80,7 @@ export default function MenuSidebar({
     },
     {
       title: 'Giao dịch',
-      icon: <Receipt className="shrink-0" />,
+      icon: <Receipt size={20} className="shrink-0" />,
       children: [
         {
           title: 'Hóa đơn bán hàng',
@@ -99,11 +100,11 @@ export default function MenuSidebar({
     {
       title: 'Bán hàng',
       path: `/dashboard/store/${currentStore?.id}/sales`,
-      icon: <ShoppingCart className="shrink-0" />,
+      icon: <ShoppingCart size={20} className="shrink-0" />,
     },
     {
       title: 'Cửa hàng',
-      icon: <Store className="shrink-0" />,
+      icon: <Store size={20} className="shrink-0" />,
       children: [
         {
           title: 'Thông tin cửa hàng',
@@ -119,18 +120,18 @@ export default function MenuSidebar({
     {
       title: 'Biến động kho',
       path: `/dashboard/store/${currentStore?.id}/manage-stock`,
-      icon: <PackageSearch className="shrink-0" />,
+      icon: <PackageSearch size={20} className="shrink-0" />,
     },
 
     {
       title: 'Nhân viên',
       path: `/dashboard/store/${currentStore?.id}/employees`,
-      icon: <Users className="shrink-0" />,
+      icon: <Users size={20} className="shrink-0" />,
     },
 
     {
       title: 'Danh bạ',
-      icon: <BookUser className="shrink-0" />,
+      icon: <BookUser size={20} className="shrink-0" />,
       children: [
         {
           title: 'Khách hàng',
@@ -164,16 +165,16 @@ export default function MenuSidebar({
                     setIsExpand(true);
                     setOpenSubmenu(openSubmenu === idx ? null : idx);
                   }}
-                  className={`flex cursor-pointer items-center gap-5 p-2 rounded-lg transition-all duration-300 w-full font-medium
+                  className={`flex cursor-pointer items-center gap-5 p-2 rounded-sm transition-all duration-300 w-full font-medium
     ${isExpand === false ? 'flex items-center justify-center' : ''}
     ${
-      item.children.some((child) => child.path === pathName)
+      item.children.some((child) => pathName?.startsWith(child.path))
         ? 'bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white'
-        : 'text-gray-600 hover:bg-pos-blue-50 hover:text-pos-blue-400'
+        : 'text-gray-700 hover:bg-pos-blue-50 hover:text-pos-blue-400'
     }`}
                 >
                   <span className="font-medium">{item.icon}</span>
-                  {isExpand && <p className="truncate font-medium">{item.title}</p>}
+                  {isExpand && <p className="truncate font-medium text-base">{item.title}</p>}
                   {isExpand && (
                     <ChevronRight
                       size={16}
@@ -190,7 +191,7 @@ export default function MenuSidebar({
                   <Link
                     key={cIdx}
                     href={child.path}
-                    className={`text-sm font-medium rounded-md p-2  ${child.path === pathName ? 'bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white' : 'text-gray-600 hover:bg-pos-blue-50 hover:text-pos-blue-400'}`}
+                    className={`text-sm font-medium rounded-md p-2  ${child.path === pathName || pathName?.startsWith(child.path) ? 'bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white' : 'text-gray-700 hover:bg-pos-blue-50 hover:text-pos-blue-400'}`}
                   >
                     {child.title}
                   </Link>
@@ -213,10 +214,10 @@ export default function MenuSidebar({
             <Link
               key={idx}
               href={item.path}
-              className={`flex items-center gap-5 p-2 rounded-lg  transition-all duration-300 w-full font-medium ${isExpand === false && 'flex items-center justify-center'}   ${item.path === pathName ? 'bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white' : 'text-gray-600 hover:bg-pos-blue-50 hover:text-pos-blue-400'}`}
+              className={`flex items-center gap-5 p-2 rounded-sm  transition-all duration-300 w-full font-medium ${isExpand === false && 'flex items-center justify-center'}   ${item.path === pathName ? 'bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white' : 'text-gray-700 hover:bg-pos-blue-50 hover:text-pos-blue-400'}`}
             >
               <span>{item.icon}</span>
-              {isExpand && <p className="truncate">{item.title}</p>}
+              {isExpand && <p className="truncate text-base">{item.title}</p>}
             </Link>
           </Tooltip>
         );

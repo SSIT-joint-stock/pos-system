@@ -3,7 +3,7 @@
 import api from '../../../../main/src/libs/axios';
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 import { Product } from '@repo/design-system/types';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useRequestHelper } from '../use-request-helper';
 import { useAtomValue } from 'jotai';
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
@@ -18,6 +18,7 @@ import {
 } from '../../../../main/src/schemas/product/product.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FilterValue, useQueryParams } from '../query/use-query-params';
+import { ApiResponse } from '@repo/types/response';
 export interface ProductFilters extends Record<string, FilterValue> {
   q?: string;
   product_status?: string;
@@ -72,12 +73,15 @@ export function useProduct() {
   };
   const createProduct = async (data: CreateProductInput) => {
     if (!currentStore?.id) return;
-    const res = await requestWrapper(() => api.post(`/stores/${currentStore?.id}/products`, data));
+    const res = await requestWrapper(() =>
+      api.post<ApiResponse>(`/stores/${currentStore?.id}/products`, data)
+    );
     if (res?.data.success) {
       getProducts();
-      showSuccessToast(res.data.message);
-      return res.data.data;
+      showSuccessToast(res.data.message as string);
+      return true;
     }
+    return false;
   };
   const deleteProduct = async (productId: string) => {
     if (!currentStore?.id) return;
@@ -99,14 +103,17 @@ export function useProduct() {
       getProducts();
     }
   };
-  const getProductById = async (productId: string) => {
-    if (!currentStore?.id) return;
-    const res = await api.get(`/stores/${currentStore?.id}/products/${productId}`);
+  const getProductById = useCallback(
+    async (productId: string) => {
+      if (!currentStore?.id) return;
+      const res = await api.get(`/stores/${currentStore?.id}/products/${productId}`);
 
-    if (res?.data.success) {
-      setProduct(res.data.data);
-    }
-  };
+      if (res?.data.success) {
+        setProduct(res.data.data);
+      }
+    },
+    [currentStore?.id]
+  );
   const applyStockMovement = async (productId: string, delta: number, type: string) => {
     if (!currentStore?.id) return;
     const storeId = currentStore?.id ?? '';

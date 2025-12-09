@@ -1,3 +1,4 @@
+'use client';
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 import api from '../../../../../main/src/libs/axios';
 import React, { useEffect, useState } from 'react';

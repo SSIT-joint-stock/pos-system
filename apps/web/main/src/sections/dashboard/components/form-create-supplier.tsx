@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+'use client';
 import { Button, Input, Select } from '@repo/design-system/components/ui';
 import { RefreshCcw } from 'lucide-react';
 import React, { useEffect } from 'react';

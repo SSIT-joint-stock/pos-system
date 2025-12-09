@@ -2,24 +2,24 @@ import { Textarea } from '@mantine/core';
 import { Button, Input } from '@repo/design-system/components/ui';
 import React from 'react';
 
-export default function FormCreateCategory({
-  createCategoryForm,
+export default function FormCreateTag({
+  createTagForm,
   handleSubmitCreate,
   setOpenCreateModal,
   loading,
 }: {
-  createCategoryForm?: any;
+  createTagForm?: any;
   handleSubmitCreate?: any;
   setOpenCreateModal?: any;
   loading?: boolean;
 }) {
   return (
     <form
-      onSubmit={createCategoryForm.handleSubmit(async (data: any) => {
+      onSubmit={createTagForm.handleSubmit(async (data: any) => {
         const success = await handleSubmitCreate(data);
         if (success) {
           setOpenCreateModal(false);
-          createCategoryForm.reset();
+          createTagForm.reset();
         }
       })}
       className="space-y-4"
@@ -27,11 +27,10 @@ export default function FormCreateCategory({
       <Input
         size="sm"
         radius="sm"
-        label="Tên danh mục"
-        placeholder="Nhập tên danh mục..."
-        {...createCategoryForm.register('name')}
-        error={createCategoryForm.formState.errors.name?.message}
-        required
+        label="Tên tag"
+        placeholder="Nhập tag..."
+        {...createTagForm.register('name')}
+        error={createTagForm.formState.errors.name?.message}
       />
 
       <div>
@@ -39,10 +38,10 @@ export default function FormCreateCategory({
         <Textarea
           size="sm"
           radius="sm"
-          placeholder="Nhập mô tả danh mục (tùy chọn)..."
-          {...createCategoryForm.register('description')}
+          placeholder="Nhập mô tả tag (tùy chọn)..."
+          {...createTagForm.register('description')}
           minRows={3}
-          error={createCategoryForm.formState.errors.description?.message}
+          error={createTagForm.formState.errors.description?.message}
         />
       </div>
 
@@ -51,7 +50,7 @@ export default function FormCreateCategory({
           type="button"
           onClick={() => {
             setOpenCreateModal(false);
-            createCategoryForm.reset();
+            createTagForm.reset();
           }}
           style={{
             color: 'red',
@@ -61,7 +60,7 @@ export default function FormCreateCategory({
           size="sm"
           title="Hủy"
         />
-        <Button type="submit" title="Tạo danh mục" size="sm" disabled={loading} />
+        <Button type="submit" title="Tạo tag" size="sm" disabled={loading} />
       </div>
     </form>
   );

@@ -1,5 +1,4 @@
 // eslint-disable-next-line filenames/match-regex
-import { skip } from 'node:test';
 import { z } from 'zod';
 
 export const ProductSchema = z.object({
@@ -7,8 +6,12 @@ export const ProductSchema = z.object({
   name: z.string().nonempty({
     message: 'Vui lòng nhập tên sản phẩm',
   }),
+  baseUnit: z.string().nonempty({
+    message: 'Vui lòng nhập đơn vị cơ bản',
+  }),
   sku: z.string().optional(),
   barcode: z.string().optional(),
+  quantity: z.number().optional().default(0),
   price: z
     .number()
     .min(0, {
@@ -34,6 +37,8 @@ export const ProductSchema = z.object({
   description: z.string().optional(),
   product_status: z.enum(['ACTIVE', 'INACTIVE']).default('ACTIVE'),
   categoryIds: z.array(z.string().uuid()).optional(),
+  tagIds: z.array(z.string().uuid()).optional(),
+  is_set_default_variant: z.boolean().default(false),
   meta: z.record(z.any()).default({}).optional(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime().optional(),
