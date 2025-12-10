@@ -3,11 +3,10 @@
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 import Invoice from '../components/invoice';
 import FormCreateCustomer from '../components/form-create-customer';
-import Logo from '../../../../../main/src/components/common/Logo';
+import Logo from '../../../components/common/Logo';
 import Image from 'next/image';
 import React, { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
-import { useOrders } from '../../../../../main/src/hooks/orders/use-orders';
-import { useProduct } from '../../../../../main/src/hooks/product/use-product';
+import { useOrders } from '../../../hooks/orders/use-orders';
 import { formatCurrency, truncateText } from '../../../utils/';
 import { Button, Input, Modal, Select, Table } from '@repo/design-system/components/ui';
 import {
@@ -20,21 +19,23 @@ import {
   SlidersHorizontal,
   Trash2,
   User,
+  UserPlus,
   X,
 } from 'lucide-react';
-import { Customer, Product, ProductStatus } from '@repo/design-system/types';
-import { payment_method } from '@repo/design-system/types/inventory';
+import { Customer, ProductStatus, Variant } from '@repo/design-system/types';
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { useAtomValue } from 'jotai';
 import { Burger, Tooltip } from '@mantine/core';
 import { useRouter } from 'next/navigation';
 import { useClickOutside } from '@repo/design-system/hooks/client';
-import { useCustomer } from '../../../../../main/src/hooks/customers/use-customer';
+import { useCustomer } from '../../../hooks/customers/use-customer';
 import FiltersProducts from '../components/filter-products';
 import BillOrder from '../components/bill-order';
+import { useVariant } from '../../../hooks/variant/use-variant';
+import { payment_method } from '../../../constants/method';
 
-export type SelectedProduct = Product & { selectedQuantity: number };
-type Invoice = SelectedProduct[];
+export type selectedVariant = Variant & { selectedQuantity: number };
+type InvoiceSelected = selectedVariant[];
 
 export const paymentMethods = [
   {
@@ -46,8 +47,16 @@ export const paymentMethods = [
     value: payment_method.CREDIT_CARD,
   },
   {
-    label: 'Chuyển khoản',
+    label: 'Thẻ ghi nợ',
     value: payment_method.DEBIT_CARD,
+  },
+  {
+    label: 'Chuyển khoản',
+    value: payment_method.BANK_TRANSFER,
+  },
+  {
+    label: 'Ví điện tử',
+    value: payment_method.DIGITAL_WALLET,
   },
 ];
 
@@ -55,17 +64,17 @@ export function SalesView() {
   // HOOK(
   const { showSuccessToast, showInfoToast } = useToast();
   const {
-    getProducts,
+    getVariantsInStore,
     setFilters,
     setPaginationParams,
     setSort,
     setSortBy,
     paginationParams,
     filters,
-    products,
+    variants,
     sort,
     sortBy,
-  } = useProduct();
+  } = useVariant();
   const { createOrder, loading } = useOrders();
   const {
     customers,
@@ -81,13 +90,13 @@ export function SalesView() {
 
   // STATE
   const [openModalInvoice, setOpenModalInvoice] = useState(false);
-  const [invoiceData, setInvoiceData] = useState<SelectedProduct[]>([]);
+  const [invoiceData, setInvoiceData] = useState<selectedVariant[]>([]);
   const [openModalChangePrice, setOpenModalChangePrice] = useState(false);
   const [openModalOrder, setOpenModalOrder] = useState(false);
   const [openModalCreateCustomer, setOpenModalCreateCustomer] = useState(false);
-  const [selectedProducts, setSelectedProducts] = useState<SelectedProduct[]>([]);
+  const [selectedVariants, setSelectedVariants] = useState<selectedVariant[]>([]);
   const [currentInvoice, setCurrentInvoice] = useState<number>(0);
-  const [invoices, setInvoices] = useState<Invoice[]>([[]]);
+  const [invoices, setInvoices] = useState<InvoiceSelected[]>([[]]);
   const [newPrice, setNewPrice] = useState(0);
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const [changPaymentMethods, setChangePaymentMethods] = useState<payment_method | null>(
@@ -102,34 +111,32 @@ export function SalesView() {
   const [isFocusedInputPriceCustomerPay, setIsFocusedInputPriceCustomerPay] =
     useState<boolean>(false);
   const [isOpenFilterProducts, setIsOpenFilterProducts] = useState<boolean>(false);
-  const [selectedCategoriesIds, setSelectedCategoriesIds] = useState<string[]>([]);
   const [newOrderId, setNewOrderId] = useState<string>('');
-  const updateCurrentInvoice = (newProducts: SelectedProduct[]) => {
-    setSelectedProducts(newProducts);
+  const updateCurrentInvoice = (newProducts: selectedVariant[]) => {
+    setSelectedVariants(newProducts);
     setInvoices((prev) => prev.map((inv, idx) => (idx === currentInvoice ? newProducts : inv)));
   };
-  const handleSelectProduct = (product: Product) => {
-    const exists = selectedProducts.find((p) => p.id === product.id);
+  const handleSelectProduct = (product: Variant) => {
+    const exists = selectedVariants.find((p) => p.id === product.id);
     if (exists) {
       updateCurrentInvoice(
-        selectedProducts.map((p) =>
+        selectedVariants.map((p) =>
           p.id === product.id ? { ...p, selectedQuantity: (p.selectedQuantity || 1) + 1 } : p
         )
       );
     } else {
-      updateCurrentInvoice([...selectedProducts, { ...product, selectedQuantity: 1 }]);
+      updateCurrentInvoice([...selectedVariants, { ...product, selectedQuantity: 1 }]);
     }
   };
 
   const handleIncreaseQuantity = (id: string) => {
-    setSelectedProducts((prev) =>
+    setSelectedVariants((prev) =>
       prev.map((p) => {
         if (p.id === id) {
           const newQuantity = (p.selectedQuantity || 1) + 1;
           return {
             ...p,
-            selectedQuantity:
-              newQuantity > p.inventory.quantity ? p.inventory.quantity : newQuantity,
+            selectedQuantity: newQuantity > p.onHand ? p.onHand : newQuantity,
           };
         }
         return p;
@@ -138,18 +145,18 @@ export function SalesView() {
   };
 
   const handleDecreaseQuantity = (id: string) => {
-    setSelectedProducts((prev) =>
+    setSelectedVariants((prev) =>
       prev.map((p) => (p.id === id ? { ...p, selectedQuantity: (p.selectedQuantity || 1) - 1 } : p))
     );
   };
 
   const handleChangQuantity = (id: string, value: number) => {
-    setSelectedProducts((prev) =>
+    setSelectedVariants((prev) =>
       prev.map((p) => {
         if (p.id === id) {
           let safeValue = value;
-          if (value > p.inventory.quantity) {
-            safeValue = p.inventory.quantity;
+          if (value > p.onHand) {
+            safeValue = p.onHand;
           }
           return { ...p, selectedQuantity: safeValue };
         }
@@ -159,24 +166,24 @@ export function SalesView() {
   };
 
   const handleRemoveSelectedProduct = (id: string) => {
-    setSelectedProducts((prev) => prev.filter((p) => p.id !== id));
+    setSelectedVariants((prev) => prev.filter((p) => p.id !== id));
   };
 
   const handleAddInvoices = () => {
     // Lưu hóa đơn hiện tại
     setInvoices((prev) => {
       const newInvoices = [...prev];
-      newInvoices[currentInvoice] = selectedProducts;
+      newInvoices[currentInvoice] = selectedVariants;
       return [...newInvoices, []]; // Thêm hóa đơn mới rỗng
     });
 
     // Chuyển sang hóa đơn mới
     setCurrentInvoice(invoices.length);
-    setSelectedProducts([]);
+    setSelectedVariants([]);
   };
   const handleSwitchInvoice = (idx: number) => {
     setCurrentInvoice(idx);
-    setSelectedProducts(invoices[idx] || []);
+    setSelectedVariants(invoices[idx] || []);
   };
   const handleRemoveInvoice = (idx: number, e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
@@ -193,7 +200,7 @@ export function SalesView() {
       }
 
       setCurrentInvoice(newCurrent);
-      setSelectedProducts(newInvoices[newCurrent] || []);
+      setSelectedVariants(newInvoices[newCurrent] || []);
       return newInvoices;
     });
   };
@@ -209,11 +216,11 @@ export function SalesView() {
   const handleApplyChangePrice = () => {
     if (!editingProductId) return;
 
-    const updated = selectedProducts.map((p) =>
+    const updated = selectedVariants.map((p) =>
       p.id === editingProductId ? { ...p, price: newPrice } : p
     );
 
-    setSelectedProducts(updated);
+    setSelectedVariants(updated);
     updateCurrentInvoice(updated);
 
     showSuccessToast('Thay đổi đơn giá thành công!');
@@ -221,7 +228,8 @@ export function SalesView() {
   };
   const handleCreateOrder = async () => {
     const orderItems = invoices[currentInvoice].map((p) => ({
-      product_id: p.id,
+      product_id: p.product_id,
+      variant_id: p.id,
       quantity: p.selectedQuantity,
       price: p.price,
     }));
@@ -241,13 +249,13 @@ export function SalesView() {
       setInvoiceData(invoices[currentInvoice]);
       setOpenModalOrder(false);
       setOpenModalInvoice(true);
-      getProducts();
-      setSelectedProducts([]);
+      getVariantsInStore();
+      setSelectedVariants([]);
     }
   };
   const totalPrice = useMemo(() => {
-    return selectedProducts.reduce((sum, p) => sum + p.selectedQuantity * p.price, 0);
-  }, [selectedProducts]);
+    return selectedVariants.reduce((sum, p) => sum + p.selectedQuantity * p.price, 0);
+  }, [selectedVariants]);
   useEffect(() => {
     setFilters((prev) => ({
       ...prev,
@@ -270,7 +278,7 @@ export function SalesView() {
   useEffect(() => {
     if (!currentStore?.id) return;
     if (isOpenFilterProducts === false) {
-      getProducts();
+      getVariantsInStore();
     }
   }, [currentStore?.id, paginationParams, filters, sort, sortBy]);
   useEffect(() => {
@@ -400,19 +408,22 @@ export function SalesView() {
                   placeholder="Tìm kiếm khách hàng"
                   position="bottom"
                   size="sm"
-                  style={{ minWidth: 360 }}
+                  radius="sm"
+                  style={{ minWidth: 400 }}
                 />
                 <div className="flex items-center gap-6">
-                  <div className="flex items-center gap-2 py-2 px-4 text-white bg-pos-blue-500 rounded-md  font-medium opacity-70">
+                  <div className="flex items-center gap-2 py-2 px-4 bg-pos-blue-50 text-pos-blue-500 rounded-md  font-medium ">
                     <User size={16} />
                     <span>{selectedCustomer?.name ?? 'Khách lẻ'}</span>
                   </div>
-                  <button
+                  <Button
+                    size="sm"
+                    radius="sm"
+                    title="Thêm khách hàng"
+                    variant="outline"
+                    icon={<UserPlus size={16} />}
                     onClick={() => setOpenModalCreateCustomer(true)}
-                    className="bg-pos-blue-50 text-pos-blue-500 hover:bg-pos-blue-500 hover:text-white transition-all duration-300 py-2 px-4 rounded-md text-sm font-medium cursor-pointer border border-pos-blue-500"
-                  >
-                    Thêm khách hàng
-                  </button>
+                  />
                 </div>
               </div>
 
@@ -430,59 +441,57 @@ export function SalesView() {
                     'Hành động',
                   ]}
                   hasMarginTop={false}
-                  data={selectedProducts}
-                  renderRow={(product) => (
+                  data={selectedVariants}
+                  renderRow={(variant) => (
                     <>
                       <td className="px-4 py-2 text-gray-900 flex flex-col gap-1">
-                        <span title={product.name} className="text-base font-semibold truncate">
-                          {truncateText(product.name, 28)}
+                        <span title={variant.name} className="text-base font-semibold truncate">
+                          {truncateText(variant.name, 28)}
                         </span>
-                        <span className="text-xs font-medium">
-                          Tồn kho: {product.inventory.quantity}
-                        </span>
+                        <span className="text-xs font-medium">Tồn kho: {variant.onHand}</span>
                       </td>
 
                       <td className="px-4 py-2 text-gray-600">
                         <div className="flex items-center gap-1.5">
                           <button
                             className="cursor-pointer disabled:cursor-not-allowed"
-                            disabled={product.selectedQuantity === 1}
-                            onClick={() => handleDecreaseQuantity(product.id)}
+                            disabled={variant.selectedQuantity === 1}
+                            onClick={() => handleDecreaseQuantity(variant.id)}
                           >
                             <Minus size={14} />
                           </button>
 
                           <input
                             type="text"
-                            value={String(product?.selectedQuantity)}
-                            onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                              handleChangQuantity(product.id, Number(e.target.value))
-                            }
+                            value={String(variant?.selectedQuantity)}
+                            onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                              handleChangQuantity(variant.id, Number(e.target.value));
+                            }}
                             className="w-[34px] text-center outline-none text-xs font-medium text-gray-600"
                           />
                           <button
                             className="cursor-pointer disabled:cursor-not-allowed"
-                            onClick={() => handleIncreaseQuantity(product.id)}
-                            disabled={product.selectedQuantity === product.inventory.quantity}
+                            onClick={() => handleIncreaseQuantity(variant.id)}
+                            disabled={variant.selectedQuantity === variant.onHand}
                           >
                             <Plus size={14} />
                           </button>
                         </div>
                       </td>
                       <td
-                        onClick={() => handleOpenChangePrice(product.id, product.price)}
+                        onClick={() => handleOpenChangePrice(variant.id, variant.price)}
                         className="px-4 py-2 text-base text-gray-500 underline hover:cursor-pointer hover:text-pos-blue-500"
                       >
-                        {formatCurrency(product.price || 0)}
+                        {formatCurrency(variant.price || 0)}
                       </td>
 
                       <td className="px-4 py-2 text-sm text-gray-500">0%</td>
                       <td className="px-4 py-2 text-base font-semibold text-gray-900 truncate">
-                        {formatCurrency(product.price * (product.selectedQuantity || 1))}
+                        {formatCurrency(variant.price * (variant.selectedQuantity || 1))}
                       </td>
                       <td className="">
                         <button
-                          onClick={() => handleRemoveSelectedProduct(product.id)}
+                          onClick={() => handleRemoveSelectedProduct(variant.id)}
                           className="cursor-pointer w-[36px] h-[36px] flex items-center justify-center bg-red-50 text-red-500 rounded-md hover:opacity-100 hover:bg-red-500 hover:text-white opacity-70 transition-opacity duration-200"
                         >
                           <Trash2 size={16} />
@@ -502,7 +511,7 @@ export function SalesView() {
                 </div>
                 <div className="bg-white flex items-center justify-between p-2 rounded-md">
                   <span className="text-base font-medium text-gray-800">
-                    Tổng tiền hàng ({selectedProducts.length})
+                    Tổng tiền hàng ({selectedVariants.length})
                   </span>
                   <span className="text-lg text-pos-blue-500 font-semibold">
                     {formatCurrency(totalPrice)}
@@ -511,7 +520,7 @@ export function SalesView() {
 
                 <div className="flex-1">
                   <Button
-                    disabled={!selectedProducts.length}
+                    disabled={!selectedVariants.length}
                     title="Thanh toán"
                     style={{ width: '100%' }}
                     onClick={() => setOpenModalOrder(true)}
@@ -522,28 +531,26 @@ export function SalesView() {
 
             {/* RIGHT */}
             <div className="w-full bg-white px-3 rounded-md flex flex-col h-full overflow-hidden">
-              <div className="flex flex-shrink-0 items-center sticky top-0 bg-white z-10 pt-4 pb-2">
+              <div className="flex flex-shrink-0  sticky top-0 bg-white z-10 pt-4 pb-2 items-center gap-4">
                 <Input
+                  size="sm"
+                  radius="sm"
                   leftSection={<Search size={20} />}
                   onChange={(e: ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
                   type="text"
-                  placeholder="Tìm kiếm sản phẩm..."
+                  placeholder="Tìm kiếm tên, mã vạch hoặc SKU của sản phẩm..."
                   className="flex-1"
                 />
-                <div className="flex items-center gap-2">
-                  <button className="ml-3 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors duration-200">
-                    Tìm kiếm
-                  </button>
-                  <button
-                    onClick={() => setIsOpenFilterProducts(true)}
-                    className="text-gray-500 hover:text-pos-blue-500 transition-colors duration-200 cursor-pointer"
-                  >
-                    <SlidersHorizontal size={20} />
-                  </button>
-                </div>
+
+                <button
+                  onClick={() => setIsOpenFilterProducts(true)}
+                  className="text-gray-500 hover:text-pos-blue-500 transition-colors duration-200 cursor-pointer"
+                >
+                  <SlidersHorizontal size={22} />
+                </button>
               </div>
 
-              {products.length === 0 ? (
+              {variants.length === 0 ? (
                 <div className="flex items-center justify-center flex-1">
                   <span className="text-xl font-semibold text-pos-blue-500">
                     Không tìm thấy sản phẩm
@@ -551,52 +558,61 @@ export function SalesView() {
                 </div>
               ) : (
                 <div className="flex-1 min-h-0 overflow-y-auto pb-4">
-                  <div className="grid grid-cols-4 gap-2">
-                    {products?.map((product) => (
+                  <div className="grid grid-cols-3 gap-2">
+                    {variants?.map((variant) => (
                       <div
-                        key={product?.id}
+                        key={variant?.id}
                         onClick={() => {
-                          const existing = selectedProducts.find((p) => p.id === product.id);
+                          const existing = selectedVariants.find((p) => p.id === variant.id);
                           if (!existing) {
-                            if (product.inventory.quantity > 0) handleSelectProduct(product);
+                            if (variant.onHand > 0) handleSelectProduct(variant);
                           } else {
-                            if (existing.selectedQuantity < product.inventory.quantity)
-                              handleSelectProduct(product);
+                            if (existing.selectedQuantity < variant.onHand)
+                              handleSelectProduct(variant);
                           }
                         }}
-                        className="bg-white p-3 rounded-xl border border-gray-100 hover:border-pos-blue-400 cursor-pointer duration-300 transition-all hover:shadow-md hover:shadow-pos-blue-100"
+                        className="bg-white p-3 rounded-xl border border-gray-100 hover:border-pos-blue-400 cursor-pointer duration-300 transition-all hover:shadow-md group hover:shadow-pos-blue-100"
                       >
-                        <div className="relative w-full h-32">
+                        <div className="relative w-full h-fit">
                           <Image
                             src={'/placeholder.jpg'}
                             alt="sản phẩm"
                             width={500}
                             height={500}
-                            className="rounded-xl object-cover"
+                            className="rounded-xl object-cover h-32 w-full"
                             unoptimized
                           />
-                          <div className="absolute bottom-2 left-2 py-1 px-2 bg-pos-blue-400 text-white rounded-md">
-                            <div className="text-xs font-medium">
-                              {formatCurrency(product.price)}
+                          <div className="absolute bottom-2 left-2 py-1 px-2 bg-pos-blue-50 text-pos-blue-500 rounded-md">
+                            <div className="text-base  font-medium">
+                              {formatCurrency(variant.price)}
                             </div>
                           </div>
                         </div>
 
-                        <div className="mt-4 flex flex-col gap-1">
-                          <Tooltip position="top" label={product.name} withArrow>
-                            <h2 className="text-sm font-semibold text-gray-800 truncate">
-                              {product.name}
+                        <div className="mt-4 flex flex-col gap-2">
+                          <Tooltip position="top" label={variant.name} withArrow>
+                            <h2 className="text-sm font-semibold text-gray-800 truncate group-hover:text-pos-blue-500">
+                              {variant.name}
                             </h2>
                           </Tooltip>
-                          <span className="text-sm font-medium text-gray-500">
-                            Số lượng: {product.inventory.quantity}
-                          </span>
+                          <div className="flex items-center justify-between ">
+                            {variant.onHand > 0 ? (
+                              <span className="text-sm font-medium text-gray-500">
+                                Số lượng: {variant.onHand}
+                              </span>
+                            ) : (
+                              <span className="text-sm text-red-500">Hết hàng</span>
+                            )}
+                            <span className="text-sm font-semibold text-gray-600">
+                              {variant.sku}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     ))}
                   </div>
 
-                  {products.length >= paginationParams.limit && (
+                  {variants.length >= paginationParams.limit && (
                     <div className="flex items-center justify-center mt-4">
                       <Button onClick={handleLoadMore} title="Tải thêm" style={{ width: '54%' }} />
                     </div>
@@ -606,6 +622,7 @@ export function SalesView() {
             </div>
           </div>
         </div>
+
         {/* CHANGE PRICE BEFORE SALE PRODUCTS */}
         <Modal
           opened={openModalChangePrice}
@@ -638,7 +655,7 @@ export function SalesView() {
           setPriceCustomerPay={setPriceCustomerPay}
           setIsCustomerPayFull={setIsCustomerPayFull}
           handleCreateOrder={handleCreateOrder}
-          setSelectedProducts={setSelectedProducts}
+          setSelectedVariants={setSelectedVariants}
           setIsFocusedInputPriceCustomerPay={setIsFocusedInputPriceCustomerPay}
           setOpenModalInvoice={setOpenModalInvoice}
           openModalOrder={openModalOrder}
@@ -671,14 +688,12 @@ export function SalesView() {
           newOrderId={newOrderId}
           priceCustomerPay={priceCustomerPay}
           setOpenModalInvoice={setOpenModalInvoice}
-          setSelectedProducts={setSelectedProducts}
+          setSelectedVariants={setSelectedVariants}
         />
       </div>
       <FiltersProducts
         isOpenFilterProducts={isOpenFilterProducts}
         setIsOpenFilterProducts={setIsOpenFilterProducts}
-        selectedCategoriesIds={selectedCategoriesIds}
-        setSelectedCategoriesIds={setSelectedCategoriesIds}
         setFilters={setFilters}
         sort={sort}
         setSort={setSort}

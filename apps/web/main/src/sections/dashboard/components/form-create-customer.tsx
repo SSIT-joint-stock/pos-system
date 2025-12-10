@@ -1,12 +1,12 @@
-"use client";
+'use client';
 import {
   CreateCustomerInput,
   UpdateCustomerInput,
-} from "../../../schemas/customer/customer.schema";
-import { Button, Input } from "@repo/design-system/components/ui";
-import { Customer } from "@repo/design-system/types";
-import React, { useEffect } from "react";
-import { UseFormReturn } from "react-hook-form";
+} from '../../../schemas/customer/customer.schema';
+import { Button, Input } from '@repo/design-system/components/ui';
+import { Customer } from '@repo/design-system/types';
+import React, { useEffect } from 'react';
+import { UseFormReturn } from 'react-hook-form';
 
 interface FormCreateCustomerProps {
   createCustomer?: (data: CreateCustomerInput) => Promise<any>;
@@ -39,12 +39,7 @@ export default function FormCreateCustomer({
     }
   };
   const handleSubmitUpdate = async (data: UpdateCustomerInput) => {
-    if (
-      isEditForm &&
-      updateCustomer &&
-      selectedCustomer?.id &&
-      setOpenEditModal
-    ) {
+    if (isEditForm && updateCustomer && selectedCustomer?.id && setOpenEditModal) {
       await updateCustomer(selectedCustomer?.id, data);
       onSuccess?.();
       setOpenEditModal(false);
@@ -54,14 +49,14 @@ export default function FormCreateCustomer({
   useEffect(() => {
     if (isEditForm && selectedCustomer && updateCustomerForm) {
       updateCustomerForm.reset({
-        name: selectedCustomer.name || "",
-        phone: selectedCustomer.phone || "",
-        email: selectedCustomer.email || "",
-        address: selectedCustomer.address || "",
-        city: selectedCustomer.city || "",
-        state: selectedCustomer.state || "",
-        zip: selectedCustomer.zip || "",
-        country: selectedCustomer.country || "",
+        name: selectedCustomer.name || '',
+        phone: selectedCustomer.phone || '',
+        email: selectedCustomer.email || '',
+        address: selectedCustomer.address || '',
+        city: selectedCustomer.city || '',
+        state: selectedCustomer.state || '',
+        zip: selectedCustomer.zip || '',
+        country: selectedCustomer.country || '',
       });
     }
   }, [isEditForm, selectedCustomer, updateCustomerForm]);
@@ -74,13 +69,13 @@ export default function FormCreateCustomer({
       }
       className="flex flex-col gap-4"
     >
-      <div className="flex items-center gap-3">
+      <div className="flex gap-3">
         <Input
           withAsterisk={isEditForm ? false : true}
           label="Tên khách hàng"
           {...(isEditForm
-            ? updateCustomerForm?.register("name")
-            : createCustomerForm?.register("name"))}
+            ? updateCustomerForm?.register('name')
+            : createCustomerForm?.register('name'))}
           error={createCustomerForm?.formState.errors.name?.message}
           name="name"
           placeholder="Nhập tên khách hàng"
@@ -89,22 +84,22 @@ export default function FormCreateCustomer({
         <Input
           label="Số điện thoại"
           {...(isEditForm
-            ? updateCustomerForm?.register("phone")
-            : createCustomerForm?.register("phone"))}
+            ? updateCustomerForm?.register('phone')
+            : createCustomerForm?.register('phone'))}
           name="phone"
           type="tel"
           placeholder="Nhập số điên thoại"
           className="flex-1"
           onChange={(e) => {
             // Chỉ cho phép số
-            const onlyNums = e.target.value.replace(/\D/g, "");
+            const onlyNums = e.target.value.replace(/\D/g, '');
             e.target.value = onlyNums;
 
             // Đẩy vào react-hook-form
             if (isEditForm) {
-              updateCustomerForm?.setValue("phone", onlyNums);
+              updateCustomerForm?.setValue('phone', onlyNums);
             } else {
-              createCustomerForm?.setValue("phone", onlyNums);
+              createCustomerForm?.setValue('phone', onlyNums);
             }
           }}
         />
@@ -113,8 +108,8 @@ export default function FormCreateCustomer({
         <Input
           label="Email"
           {...(isEditForm
-            ? updateCustomerForm?.register("email")
-            : createCustomerForm?.register("email"))}
+            ? updateCustomerForm?.register('email')
+            : createCustomerForm?.register('email'))}
           name="email"
           placeholder="Nhập email khách hàng"
           className="flex-1"
@@ -122,8 +117,8 @@ export default function FormCreateCustomer({
         <Input
           label="Địa chỉ"
           {...(isEditForm
-            ? updateCustomerForm?.register("address")
-            : createCustomerForm?.register("address"))}
+            ? updateCustomerForm?.register('address')
+            : createCustomerForm?.register('address'))}
           name="address"
           placeholder="Nhập địa chỉ khách hàng"
           className="flex-1"
@@ -133,8 +128,8 @@ export default function FormCreateCustomer({
         <Input
           label="Thành phố"
           {...(isEditForm
-            ? updateCustomerForm?.register("city")
-            : createCustomerForm?.register("city"))}
+            ? updateCustomerForm?.register('city')
+            : createCustomerForm?.register('city'))}
           name="city"
           placeholder="Nhập thành phố"
           className="flex-1"
@@ -142,19 +137,19 @@ export default function FormCreateCustomer({
         <Input
           label="Mã zip"
           {...(isEditForm
-            ? updateCustomerForm?.register("zip")
-            : createCustomerForm?.register("zip"))}
+            ? updateCustomerForm?.register('zip')
+            : createCustomerForm?.register('zip'))}
           name="zip"
           placeholder="Nhập mã zip"
           className="flex-1"
           onChange={(e) => {
-            const onlyNums = e.target.value.replace(/\D/g, "");
+            const onlyNums = e.target.value.replace(/\D/g, '');
             e.target.value = onlyNums;
 
             if (isEditForm) {
-              updateCustomerForm?.setValue("zip", onlyNums);
+              updateCustomerForm?.setValue('zip', onlyNums);
             } else {
-              createCustomerForm?.setValue("zip", onlyNums);
+              createCustomerForm?.setValue('zip', onlyNums);
             }
           }}
         />
@@ -168,7 +163,7 @@ export default function FormCreateCustomer({
               : createCustomerForm?.formState.isSubmitting
           }
           type="submit"
-          title={isEditForm ? "Sửa khách hàng" : "Tạo khách hàng"}
+          title={isEditForm ? 'Sửa khách hàng' : 'Tạo khách hàng'}
           style={{ flex: 1 }}
         />
       </div>

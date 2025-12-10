@@ -4,6 +4,7 @@ import { Select } from '../select';
 import { Pagination } from '../pagination';
 import { TableSkeleton } from '../loading-skeleton-table';
 import { numericalOrder } from '../../../../../../apps/web/main/src/utils';
+import { useRouter } from 'next/navigation';
 export type TableProps<T> = {
   limit?: number;
   total?: number;
@@ -21,6 +22,7 @@ export type TableProps<T> = {
   hasMarginTop?: boolean;
   hasPagination?: boolean;
   className?: string;
+  link?: string;
 };
 
 export function Table<T>({
@@ -40,6 +42,7 @@ export function Table<T>({
   className,
 }: TableProps<T>) {
   const finalHeader = ['STT', ...tableHeaders];
+  const router = useRouter();
   return (
     <div
       className={`bg-white   p-5  ${hasMarginTop ? 'mt-0' : ''} flex-col flex overflow-y-auto  rounded-lg ${className}`}

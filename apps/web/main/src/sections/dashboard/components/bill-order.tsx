@@ -1,9 +1,9 @@
 import { formatCurrency } from '../../../../../main/src/utils';
 import { Drawer, Switch } from '@mantine/core';
 import { Button, Checkbox, Input, Select } from '@repo/design-system/components/ui';
-import { payment_method } from '@repo/design-system/types/inventory';
 import React, { ChangeEvent } from 'react';
-import { SelectedProduct } from '../view';
+import { selectedVariant } from '../view';
+import { payment_method } from '../../../constants/method';
 
 export default function BillOrder({
   setChangePaymentMethods,
@@ -23,7 +23,7 @@ export default function BillOrder({
   setOpenModalOrder: React.Dispatch<React.SetStateAction<boolean>>;
   setPriceCustomerPay: React.Dispatch<React.SetStateAction<string>>;
   setIsCustomerPayFull: React.Dispatch<React.SetStateAction<boolean>>;
-  setSelectedProducts: React.Dispatch<React.SetStateAction<SelectedProduct[]>>;
+  setSelectedVariants: React.Dispatch<React.SetStateAction<selectedVariant[]>>;
   setIsFocusedInputPriceCustomerPay: React.Dispatch<React.SetStateAction<boolean>>;
   setOpenModalInvoice: React.Dispatch<React.SetStateAction<boolean>>;
   handleCreateOrder: () => void;

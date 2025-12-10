@@ -1,48 +1,34 @@
 'use client';
 import { ProductFilters } from '../../../../../main/src/hooks/product/use-product';
-import { useCategories } from '../../../../../main/src/hooks/categories/use-categories';
-import { createTheme, Drawer, MantineProvider } from '@mantine/core';
-import { Checkbox, Select } from '@repo/design-system/components/ui';
-import React, { useEffect } from 'react';
+import { Drawer } from '@mantine/core';
+import { Select } from '@repo/design-system/components/ui';
+import React from 'react';
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
-const theme = createTheme({
-  cursorType: 'pointer',
-});
+
 export default function FiltersProducts({
   isOpenFilterProducts,
-  selectedCategoriesIds,
   sort,
   sortBy,
   setSort,
   setSortBy,
   setIsOpenFilterProducts,
-  setSelectedCategoriesIds,
   setFilters,
 }: {
   isOpenFilterProducts: boolean;
-  selectedCategoriesIds: string[];
   sort: string;
   sortBy: string;
   setSort: (value: 'asc' | 'desc') => void;
   setSortBy: (value: string) => void;
   setIsOpenFilterProducts: (value: boolean) => void;
-  setSelectedCategoriesIds: React.Dispatch<React.SetStateAction<string[]>>;
   setFilters: React.Dispatch<React.SetStateAction<ProductFilters>>;
 }) {
-  const { categories, getCategories } = useCategories();
   const { showSuccessToast } = useToast();
 
   const handleFilterApply = () => {
     setFilters((prev) => ({
       ...prev,
-      categories: selectedCategoriesIds.join(','),
     }));
   };
-  useEffect(() => {
-    if (isOpenFilterProducts) {
-      getCategories();
-    }
-  }, [isOpenFilterProducts]);
 
   return (
     <Drawer
@@ -63,45 +49,6 @@ export default function FiltersProducts({
       <div className="flex flex-col flex-1 min-h-0">
         {/* Nội dung có thể cuộn nếu dài */}
         <div className="flex-1 overflow-y-auto">
-          <div className="mt-4 max-h-96 overflow-y-auto">
-            <h2 className="text-xl font-semibold text-gray-600">Nhóm sản phẩm</h2>
-            <div className="flex flex-col gap-2.5 mt-2.5">
-              <MantineProvider theme={theme}>
-                <Checkbox
-                  size="sm"
-                  radius="sm"
-                  label={'Tất cả'}
-                  onChange={() => setSelectedCategoriesIds([])}
-                  checked={selectedCategoriesIds.length === 0}
-                />
-              </MantineProvider>
-
-              {categories.map((category) => {
-                const isChecked = selectedCategoriesIds.includes(category.id);
-                return (
-                  <MantineProvider key={category.id} theme={theme}>
-                    <Checkbox
-                      key={category.id}
-                      size="sm"
-                      radius="sm"
-                      label={category.name}
-                      checked={isChecked}
-                      onChange={() => {
-                        if (isChecked) {
-                          setSelectedCategoriesIds((prev) =>
-                            prev.filter((id) => id !== category.id)
-                          );
-                        } else {
-                          setSelectedCategoriesIds((prev) => [...prev, category.id]);
-                        }
-                      }}
-                    />
-                  </MantineProvider>
-                );
-              })}
-            </div>
-          </div>
-
           <div className="mt-6">
             <h2 className="text-xl font-semibold text-gray-600">Sắp xếp</h2>
             <Select
@@ -141,7 +88,6 @@ export default function FiltersProducts({
         <div className=" flex items-center justify-between text-sm font-semibold shrink-0 ">
           <button
             onClick={() => {
-              setSelectedCategoriesIds([]);
               setSort('desc');
               setSortBy('createdAt');
             }}

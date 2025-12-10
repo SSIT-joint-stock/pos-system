@@ -2,7 +2,7 @@
 import { useState, useCallback } from 'react';
 
 export type AttributeItem = {
-  id: number;
+  id: string;
   name: string;
   value: string;
 };
@@ -12,16 +12,16 @@ export default function useAttributes(initial: AttributeItem[] = []) {
 
   // Thêm mới một attribute
   const addAttribute = useCallback(() => {
-    setAttributes((prev) => [...prev, { id: Date.now(), name: '', value: '' }]);
+    setAttributes((prev) => [...prev, { id: crypto.randomUUID(), name: '', value: '' }]);
   }, []);
 
   // Xoá attribute theo id
-  const removeAttribute = useCallback((id: number) => {
+  const removeAttribute = useCallback((id: string) => {
     setAttributes((prev) => prev.filter((attr) => attr.id !== id));
   }, []);
 
   // Cập nhật một trường name/value
-  const updateAttribute = useCallback((id: number, field: 'name' | 'value', newValue: string) => {
+  const updateAttribute = useCallback((id: string, field: 'name' | 'value', newValue: string) => {
     setAttributes((prev) =>
       prev.map((attr) => (attr.id === id ? { ...attr, [field]: newValue } : attr))
     );
@@ -49,7 +49,7 @@ export default function useAttributes(initial: AttributeItem[] = []) {
 
     setAttributes(
       Object.entries(meta).map(([key, value]) => ({
-        id: Date.now(),
+        id: crypto.randomUUID(),
         name: key,
         value,
       }))

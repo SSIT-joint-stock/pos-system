@@ -11,23 +11,8 @@ export const ProductSchema = z.object({
   }),
   sku: z.string().optional(),
   barcode: z.string().optional(),
-  quantity: z.number().optional().default(0),
-  price: z
-    .number()
-    .min(0, {
-      message: 'Giá trị phải lớn hơn hoặc bằng 0',
-    })
-    .nonnegative({
-      message: 'Giá trị phải lớn hơn hoặc bằng 0',
-    }),
-  cost: z
-    .number()
-    .min(0, {
-      message: 'Giá trị phải lớn hơn hoặc bằng 0',
-    })
-    .nonnegative({
-      message: 'Giá trị phải lớn hơn hoặc bằng 0',
-    }),
+  price: z.number().default(0).optional(),
+  cost: z.number().default(0).optional(),
   image_url: z
     .string()
     .url({ message: 'URL không hợp lệ' })
@@ -50,8 +35,21 @@ export const CreateProductSchema = ProductSchema.omit({
   updatedAt: true,
 }).extend({
   sku: z.string().optional(),
+  quantity: z.number().optional().default(0), // quantity for variant default when create new product
+  price: z.number().default(0).optional(),
+  cost: z.number().default(0).optional(),
 });
-
+export const UpdateProductSchema = ProductSchema.partial()
+  .omit({
+    id: true,
+    createdAt: true,
+    updatedAt: true,
+  })
+  .extend({
+    sku: z.string().nonempty({
+      message: 'Vui lòng nhập mã sản phẩm',
+    }),
+  });
 export const CreateInvoiceProductSchema = CreateProductSchema.extend({
   initial_quantity: z
     .number({
@@ -61,16 +59,6 @@ export const CreateInvoiceProductSchema = CreateProductSchema.extend({
     .int()
     .min(0, { message: 'Số lượng ban đầu phải >= 0' })
     .default(1),
-});
-
-export const UpdateProductSchema = ProductSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-}).extend({
-  sku: z.string().nonempty({
-    message: 'Vui lòng nhập mã sản phẩm',
-  }),
 });
 
 // Inferred types

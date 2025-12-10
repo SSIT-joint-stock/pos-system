@@ -6,10 +6,11 @@ import { formatCurrency, formatDate } from '../../../utils/index';
 import { useOrders } from '../../../hooks/orders/use-orders';
 import { Order } from '@repo/design-system/types';
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
-import DashboardViewLayout from '../../../../../main/src/layouts/dashboard-view-layout';
+import DashboardViewLayout from '../../../layouts/dashboard-view-layout';
 import { DisplayField } from '../components/display-field';
 import { DataActionBar } from '../components/data-action-bar';
 import { ActionButtons } from '../components/action-buttons';
+import { formatPaymentMethod, payment_method } from '../../../constants/method';
 const tableHeaders = [
   'Mã Đơn Hàng',
   'Khách Hàng',
@@ -41,12 +42,6 @@ const statusLabels: Record<string, string> = {
   COMPLETED: 'Hoàn thành',
   PAID: 'Đã thanh toán',
   REFUNDED: 'Đã hoàn tiền',
-};
-
-const paymentMethodLabels: Record<string, string> = {
-  CASH: 'Tiền mặt',
-  DEBIT_CARD: 'Chuyển khoản',
-  CREDIT_CARD: 'Thẻ tín dụng',
 };
 
 export function SalesInvoicesView() {
@@ -109,8 +104,10 @@ export function SalesInvoicesView() {
               label: 'Hình thức thanh toán',
               options: [
                 { value: 'CASH', label: 'Tiền mặt' },
-                { value: 'CREDIT_CARD', label: 'Chuyển khoản' },
+                { value: 'CREDIT_CARD', label: 'Thẻ ghi nợ' },
                 { value: 'DEBIT_CARD', label: 'Thẻ tín dụng' },
+                { value: 'BANK_TRANSFER', label: 'Chuyển khoản' },
+                { value: 'DIGITAL_WALLET', label: 'Ví điện tử' },
               ],
             },
             {
@@ -189,7 +186,7 @@ export function SalesInvoicesView() {
                 <td className="px-4 py-3 text-sm text-green-500 font-medium">Trả đủ</td>
               )}
               <td className="px-4 py-3 text-sm font-semibold text-gray-500">
-                {paymentMethodLabels[order.payment_method]}
+                {formatPaymentMethod(order.payment_method as payment_method)}
               </td>
               <td className="px-4 py-3">
                 <span className={`text-sm font-medium rounded-xl ${statusColors[order.status]}`}>
@@ -222,7 +219,7 @@ export function SalesInvoicesView() {
         title={
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium text-gray-500">
-              Chi tiết đơn hàng - ${selectedOrder?.id}
+              Chi tiết đơn hàng - {selectedOrder?.code}
             </span>
             <span
               className={`text-sm font-medium rounded-xl ${statusColors[selectedOrder?.status ?? '']}`}
@@ -241,7 +238,7 @@ export function SalesInvoicesView() {
               {/* Mã đơn hàng */}
               <div className="flex-1 p-2">
                 <div className="text-gray-500">Mã đơn hàng</div>
-                <div className="text-gray-900 font-medium truncate">{selectedOrder?.id}</div>
+                <div className="text-gray-900 font-medium truncate">{selectedOrder?.code}</div>
               </div>
 
               {/* Thông tin KH */}
@@ -256,7 +253,7 @@ export function SalesInvoicesView() {
               <div className="flex-1 p-2">
                 <div className="text-gray-500">Hình thức TT</div>
                 <div className="text-gray-900 font-medium">
-                  {paymentMethodLabels[selectedOrder?.payment_method ?? 'CASH']}
+                  {formatPaymentMethod(selectedOrder?.payment_method as payment_method)}
                 </div>
               </div>
 

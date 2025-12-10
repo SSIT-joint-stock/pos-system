@@ -1,6 +1,6 @@
 import { NumberInput, Table } from '@mantine/core';
 import { useVariant } from '../../../hooks/variant/use-variant';
-import { Button, Input, Modal } from '@repo/design-system/components/ui';
+import { Button, Input, Modal, Select } from '@repo/design-system/components/ui';
 import { Product } from '@repo/design-system/types';
 import { PencilLine, Plus, Trash } from 'lucide-react';
 import React, { useEffect } from 'react';
@@ -8,6 +8,8 @@ import { Controller } from 'react-hook-form';
 import { useAtomValue } from 'jotai';
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { formatDate, truncateText } from '../../../utils';
+import { STOCK_MOVEMENT_STATUS } from '../../../constants/status';
+import { useClickOutside } from '@repo/design-system/hooks/client';
 
 export function FormVariant({
   opened,
@@ -27,10 +29,15 @@ export function FormVariant({
   setIsEdit?: (isEdit: boolean) => void;
 }) {
   const currentStore = useAtomValue(currentStoreAtom);
+  const ref = React.useRef<HTMLTableCellElement>(null);
+  const [openedPopover, setOpenedPopover] = React.useState(false);
   const {
     createVariant,
     getVariant,
     updateVariant,
+    setDelta,
+    setStatus,
+    applyStock,
     conversionsFiledArray: { append, remove, fields },
     formVariant: {
       formState: { errors },
@@ -42,6 +49,8 @@ export function FormVariant({
 
     variant,
     loading,
+    delta,
+    status,
   } = useVariant();
   useEffect(() => {
     if (!variantId || !product?.id || !isEdit) return;
@@ -70,6 +79,7 @@ export function FormVariant({
       });
     }
   }, [reset, variant, isEdit]);
+  useClickOutside(ref, () => setOpenedPopover(false));
   return (
     <Modal
       title={
@@ -128,6 +138,7 @@ export function FormVariant({
                 })}
                 className="flex-1"
                 radius="sm"
+                error={errors.price?.message}
                 defaultValue={0}
                 label="Giá bán biến thể "
                 placeholder="Nhập giá bán biến thể"
@@ -172,14 +183,76 @@ export function FormVariant({
                 <Table.Tbody>
                   <Table.Tr>
                     <Table.Td>{truncateText(currentStore?.name || '', 36)}</Table.Td>
-                    <Table.Td>
+                    <Table.Td className="relative" ref={ref}>
                       <button
+                        onClick={() => setOpenedPopover((o) => !o)}
                         type="button"
-                        className="flex items-center gap-2 hover:bg-pos-blue-50 hover:text-pos-blue-500 py-1.5 px-2 rounded-md transition-all duration-200 cursor-pointer"
+                        className="flex items-center gap-2 hover:bg-pos-blue-50 hover:text-pos-blue-500 py-1.5 px-2 rounded-md transition-all duration-200 cursor-pointer "
                       >
                         {variant?.onHand || 0}
                         <PencilLine size={14} />
                       </button>
+
+                      <div
+                        className={`space-y-3 absolute top-full left-0 bg-white p-2 rounded-md w-[360px] shadow z-10 transform ease-in-out duration-200 ${openedPopover ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
+                      >
+                        <div className="flex gap-2">
+                          <Input
+                            defaultValue={0}
+                            onChange={(e) => {
+                              setDelta(Number(e.target.value));
+                            }}
+                            size="sm"
+                            radius="sm"
+                            label="Điều chỉnh"
+                            className="flex-1"
+                          />
+                          <Input
+                            defaultValue={variant?.onHand}
+                            size="sm"
+                            radius="sm"
+                            label="Tồn kho mới"
+                            className="flex-1"
+                          />
+                        </div>
+                        <div onClick={(e) => e.stopPropagation()}>
+                          <Select
+                            data={STOCK_MOVEMENT_STATUS}
+                            size="sm"
+                            radius="sm"
+                            onChange={(value) => {
+                              console.log(value);
+                              setStatus(value as string);
+                            }}
+                            defaultValue={STOCK_MOVEMENT_STATUS[0].value}
+                            label="Lý do"
+                            className="flex-1"
+                          />
+                        </div>
+                        <div className="flex justify-end">
+                          <Button
+                            onClick={async () => {
+                              const success = await applyStock(
+                                variant?.id || '',
+                                product?.id || '',
+                                delta,
+                                status
+                              );
+                              if (success) {
+                                setOpenedPopover(false);
+                                getProductById(product?.id || '');
+                                getVariant(variant?.id || '', product?.id || '');
+                                setDelta(0);
+                              }
+                            }}
+                            loading={loading}
+                            title="Lưu"
+                            type="button"
+                            radius="sm"
+                            size="sm"
+                          />
+                        </div>
+                      </div>
                     </Table.Td>
                     <Table.Td>{variant?.reserved || 0}</Table.Td>
                     <Table.Td>{variant?.damaged || 0}</Table.Td>

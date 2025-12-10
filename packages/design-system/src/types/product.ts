@@ -18,9 +18,7 @@ export interface Product {
   product_status: 'ACTIVE' | 'INACTIVE';
   createdAt: string; // dạng ISO string từ backend
   updatedAt: string;
-  inventory: {
-    quantity: number;
-  };
+
   meta: Record<string, any>;
   categoryIds?: string[];
   tagsIds?: string[];

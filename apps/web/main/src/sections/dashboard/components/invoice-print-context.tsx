@@ -2,23 +2,14 @@ import React, { forwardRef } from 'react';
 import Image from 'next/image';
 import dayjs from 'dayjs';
 import { formatCurrency } from '../../../../../main/src/utils';
-import { payment_method } from '@repo/design-system/types/inventory';
 import { Order } from '@repo/design-system/types';
 import { Store } from '@repo/design-system/types/store';
+import { formatPaymentMethod, payment_method } from '../../../constants/method';
 
 interface InvoicePrintContentProps {
   order: Order;
   currentStore: Store;
 }
-
-const formatPaymentMethod = (method: payment_method) => {
-  const translations: Record<payment_method, string> = {
-    [payment_method.CASH]: 'Tiền mặt',
-    [payment_method.DEBIT_CARD]: 'Chuyển khoản',
-    [payment_method.CREDIT_CARD]: 'Thẻ tín dụng',
-  };
-  return method ? translations[method] || 'Không xác định' : 'Chưa cập nhật';
-};
 
 // forwardRef để react-to-print truy cập DOM node
 const InvoicePrintContent = forwardRef<HTMLDivElement, InvoicePrintContentProps>(
@@ -80,7 +71,7 @@ const InvoicePrintContent = forwardRef<HTMLDivElement, InvoicePrintContentProps>
             </tr>
           </thead>
           <tbody>
-            {order.order_item.map((item, index) => (
+            {order.order_item.map((item) => (
               <tr
                 key={item.id}
                 // className={`${order.order_item.length - 1 === index ? '' : 'border-b border-b-gray-600'}`}

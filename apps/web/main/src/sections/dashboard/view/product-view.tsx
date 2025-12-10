@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 import React, { useEffect, useState } from 'react';
 
@@ -11,7 +12,6 @@ import { useAtomValue } from 'jotai';
 import { useTags } from '../../../hooks/tags/use-tag';
 import { FormProduct } from '../components';
 import { usePathname, useRouter } from 'next/navigation';
-import { useProduct } from '../../../hooks/product/use-product';
 
 export function ProductView({ productId }: { productId?: string }) {
   const currentStore = useAtomValue(currentStoreAtom);
@@ -25,7 +25,6 @@ export function ProductView({ productId }: { productId?: string }) {
     createCategory,
   } = useCategories();
   const { createTag, getTags, tags, loading: loadingTags, createTagForm } = useTags();
-  const { getProductById, product } = useProduct();
   const [openModalCategory, setOpenModalCategory] = useState(false);
   const [openModalTag, setOpenModalTag] = useState(false);
 
@@ -37,7 +36,7 @@ export function ProductView({ productId }: { productId?: string }) {
 
   return (
     <>
-      <div className="bg-gray-50 w-full h-fit mx-auto ">
+      <div className="bg-gray-50 w-full h-full mx-auto ">
         <div className="mx-auto  max-w-6xl h-full">
           <div className="flex items-center gap-4">
             <button

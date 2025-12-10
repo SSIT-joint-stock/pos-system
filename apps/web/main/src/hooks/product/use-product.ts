@@ -101,7 +101,9 @@ export function useProduct() {
     if (res?.data.success) {
       showSuccessToast(res.data.message);
       getProducts();
+      return true;
     }
+    return false;
   };
   const getProductById = useCallback(
     async (productId: string) => {

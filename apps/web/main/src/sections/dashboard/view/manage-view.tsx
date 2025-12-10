@@ -18,9 +18,8 @@ import { useRouter } from 'next/navigation';
 const tableHeaders = [
   'Mã Sản Phẩm',
   'Sản Phẩm',
-  'Tồn kho (gốc)',
-  'Có thể bán',
-  'Đang về kho',
+  'Số lượng biến thể',
+  'Tổng danh mục',
   'Giá Nhập',
   'Giá Bán',
   'Trạng Thái',
@@ -50,7 +49,6 @@ export function ManageView() {
     products,
     loading,
     product,
-    updateProductForm,
     pagination,
     paginationParams,
     filters,
@@ -58,27 +56,12 @@ export function ManageView() {
     setPaginationParams,
     setFilters,
     deleteProduct,
-    updateProduct,
     getProductById,
     exampleProductExcel,
     getProducts,
   } = useProduct();
   const currentStore = useAtomValue(currentStoreAtom);
-  useEffect(() => {
-    if (product) {
-      updateProductForm.reset({
-        name: product.name || '',
-        sku: product.sku || '',
-        barcode: product.barcode || '',
-        price: product.price || 0,
-        cost: product.cost || 0,
-        image_url: product.image_url || '',
-        description: product.description || '',
-        product_status: product.product_status || 'ACTIVE',
-        categoryIds: product.categories?.map((category) => category.id) || [],
-      });
-    }
-  }, [product, updateProductForm]);
+
   useEffect(() => {
     if (!currentStore?.id) return;
     getProducts();
@@ -93,7 +76,6 @@ export function ManageView() {
 
       const formatted = products.map((p) => ({
         'Sản phẩm': p.name,
-        'Số lượng': p.inventory?.quantity ?? '',
         'Mã sản phẩm': p.sku,
         'Giá nhập': p.cost,
         'Giá bán': p.price,
@@ -108,6 +90,7 @@ export function ManageView() {
       XLSX.writeFile(workbook, 'products.xlsx');
     }
   };
+  console.log(products);
   return (
     <>
       <DashboardViewLayout>
@@ -178,17 +161,19 @@ export function ManageView() {
           isLoading={loading}
           renderRow={(product) => (
             <>
-              <td className="px-4 py-3 text-sm  font-semibold text-pos-blue-600">{product.sku}</td>
+              <td
+                className="px-4 py-3 text-sm  font-semibold text-pos-blue-600 hover:underline cursor-pointer"
+                onClick={() => router.push(`manage-products/detail/${product.id}`)}
+              >
+                {product.sku}
+              </td>
 
-              <td className="px-4 py-3 text-sm font-medium text-gray-900">{product.name}</td>
+              <td className="px-4 py-3 text-sm font-semibold text-gray-900">{product.name}</td>
               <td className="px-4 py-3 text-sm font-medium text-gray-500">
-                {product?.inventory?.quantity}
+                {product.variant.length}
               </td>
               <td className="px-4 py-3 text-sm font-medium text-gray-500">
-                {product?.inventory?.quantity}
-              </td>
-              <td className="px-4 py-3 text-sm font-medium text-gray-500">
-                {product?.inventory?.quantity}
+                {product.categories.length}
               </td>
               <td className="px-4 py-3 text-sm font-semibold text-gray-500">
                 {formatCurrency(product.cost)}
@@ -251,7 +236,6 @@ export function ManageView() {
                 <ActionButtons
                   onView={() => {
                     router.push(`manage-products/detail/${product.id}`);
-                    getProductById(product.id);
                   }}
                   onDelete={() => {
                     setDeleteModal(true);

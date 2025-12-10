@@ -2,14 +2,12 @@
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { Drawer } from '@mantine/core';
 import { useAtomValue } from 'jotai';
-import { payment_method } from '@repo/design-system/types/inventory';
-import { useOrders } from '../../../../../main/src/hooks/orders/use-orders';
+import { useOrders } from '../../../hooks/orders/use-orders';
 import { useRef } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import InvoicePrintContent from './invoice-print-context';
 
-import { SelectedProduct } from '../view';
-import { formatCurrency } from '../../../../../main/src/utils';
+import { formatCurrency } from '../../../utils';
 
 import React, { useEffect, useState } from 'react';
 import { QrCode as QrCodeIc } from 'lucide-react';
@@ -20,6 +18,9 @@ import timezone from 'dayjs/plugin/timezone';
 import QrCode from './qr-code';
 import { Order } from '@repo/design-system/types';
 import { Store } from '@repo/design-system/types/store';
+import { formatPaymentMethod, payment_method } from '../../../constants/method';
+import { selectedVariant } from '../view';
+import { Button } from '@repo/design-system/components/ui';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -28,23 +29,14 @@ interface InvoiceProps {
   newOrderId: string;
   priceCustomerPay: string;
   setOpenModalInvoice: React.Dispatch<React.SetStateAction<boolean>>;
-  setSelectedProducts: React.Dispatch<React.SetStateAction<SelectedProduct[]>>;
+  setSelectedVariants: React.Dispatch<React.SetStateAction<selectedVariant[]>>;
 }
-const formatPaymentMethod = (method: payment_method) => {
-  const translations: Record<payment_method, string> = {
-    [payment_method.CASH]: 'Tiền mặt',
-    [payment_method.DEBIT_CARD]: 'Chuyển khoản',
-    [payment_method.CREDIT_CARD]: 'Thẻ tìn dụng',
-  };
-
-  return method ? translations[method] || 'Không xác định' : 'Chưa cập nhật';
-};
 
 export default function Invoice({
   openModalInvoice,
   newOrderId,
   setOpenModalInvoice,
-  setSelectedProducts,
+  setSelectedVariants,
 }: InvoiceProps) {
   const currentStore = useAtomValue(currentStoreAtom);
 
@@ -284,15 +276,15 @@ export default function Invoice({
             </div>
           </div>
           <div className="flex items-center justify-end pb-4 mt-4 gap-3">
-            <button
+            <Button
               onClick={() => {
                 setOpenModalInvoice(false);
-                setSelectedProducts([]);
+                setSelectedVariants([]);
               }}
-              className="py-2 px-6 rounded-md bg-green-50 text-green-500 hover:text-green-50 hover:bg-green-500 group cursor-pointer duration-300  transition-all text-sm"
-            >
-              Hủy bỏ
-            </button>
+              title="Hủy bỏ"
+              variant="outline"
+            />
+
             <div className="hidden">
               <InvoicePrintContent
                 ref={printRef}
@@ -300,12 +292,7 @@ export default function Invoice({
                 currentStore={currentStore as Store}
               />
             </div>
-            <button
-              onClick={() => handlePrint()}
-              className="p-2 px-6 rounded-md bg-pos-blue-50 text-pos-blue-500 hover:text-pos-blue-50 hover:bg-pos-blue-500 group cursor-pointer duration-300  transition-all text-sm"
-            >
-              In hoá đơn
-            </button>
+            <Button onClick={() => handlePrint()} title="In hóa đơn" />
           </div>
         </div>
       </Drawer>
