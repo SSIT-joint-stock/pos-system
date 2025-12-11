@@ -1,5 +1,5 @@
 'use client';
-import { Loading, Modal } from '@repo/design-system/components/ui';
+import { Modal } from '@repo/design-system/components/ui';
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { useAtomValue } from 'jotai';
 import Image from 'next/image';

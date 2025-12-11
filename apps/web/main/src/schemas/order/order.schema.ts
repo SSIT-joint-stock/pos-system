@@ -85,18 +85,21 @@ export const CreateOrderSchema = z.object({
       payment_method.DEBIT_CARD,
     ])
     .default(payment_method.CASH),
-  customer_pay_amount: z.number().min(0),
-  // status: OrderStatusEnum.default('PENDING'),
-  subtotal_amount: z.number().min(0),
+  customer_pay_amount: z.number().min(0).optional(),
+  subtotal_amount: z.number().min(0).optional(),
   discount_amount: z.number().min(0).optional(),
   tax_amount: z.number().min(0).optional(),
-  total_amount: z.number().min(0),
+  total_amount: z.number().min(0).optional(),
   order_items: z
     .array(
       z.object({
         product_id: z.string().uuid(),
+        tax_rate: z.number().optional(),
+        discount_rate: z.number().optional(),
+        variant_id: z.string().uuid(),
         quantity: z.number().min(1, { message: 'Số lượng phải lớn hơn 0' }),
         price: z.number().min(0),
+        meta: z.record(z.any()).default({}).optional(),
       })
     )
     .min(1, { message: 'Đơn hàng phải có ít nhất 1 sản phẩm' }),

@@ -61,28 +61,35 @@ export function useProduct() {
     resolver: zodResolver(CreateInvoiceProductSchema),
   });
   // ACTION FUNCTION
-  const getProducts = async () => {
+  const getProducts = useCallback(async () => {
     const res = await requestWrapper(() =>
       api.get(`/stores/${currentStore?.id}/products/filter-product?${buildParams().toString()}`)
     );
     if (res?.data.success) {
       setProducts(res.data.data);
       setPagination(res.data.pagination);
-      showSuccessToast(res.data.message);
     }
-  };
-  const createProduct = async (data: CreateProductInput) => {
-    if (!currentStore?.id) return;
-    const res = await requestWrapper(() =>
-      api.post<ApiResponse>(`/stores/${currentStore?.id}/products`, data)
-    );
-    if (res?.data.success) {
-      getProducts();
-      showSuccessToast(res.data.message as string);
-      return true;
-    }
-    return false;
-  };
+  }, [buildParams, requestWrapper, setPagination, currentStore?.id]);
+  const createProduct = useCallback(
+    async (data: CreateProductInput) => {
+      if (!currentStore?.id) return;
+      const res = await requestWrapper(() =>
+        api.post<ApiResponse>(`/stores/${currentStore?.id}/products`, data)
+      );
+      if (res?.data.success) {
+        getProducts();
+        showSuccessToast(res.data.message as string);
+        return {
+          success: true,
+          data: res.data.data,
+        };
+      }
+      return {
+        success: false,
+      };
+    },
+    [currentStore?.id, requestWrapper, getProducts, showSuccessToast]
+  );
   const deleteProduct = async (productId: string) => {
     if (!currentStore?.id) return;
     const res = await requestWrapper(() =>

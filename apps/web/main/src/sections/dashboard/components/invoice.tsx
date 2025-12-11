@@ -21,6 +21,7 @@ import { Store } from '@repo/design-system/types/store';
 import { formatPaymentMethod, payment_method } from '../../../constants/method';
 import { selectedVariant } from '../view';
 import { Button } from '@repo/design-system/components/ui';
+import useStore from '../../../hooks/store/use-store';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -41,18 +42,20 @@ export default function Invoice({
   const currentStore = useAtomValue(currentStoreAtom);
 
   const { order, getOrderById } = useOrders();
+  const { getStoreDetail, store } = useStore();
   const [isOpenModalQrCode, setIsOpenModalQrCode] = useState<boolean>(false);
   const printRef = useRef<HTMLDivElement>(null);
   const handlePrint = useReactToPrint({
     contentRef: printRef,
-    documentTitle: `invoice_${order?.code || 'order'}`,
+    documentTitle: `hoa_don_${order?.code || 'order'}`,
   });
   useEffect(() => {
     if (openModalInvoice && newOrderId) {
+      getStoreDetail();
       getOrderById(newOrderId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [openModalInvoice, newOrderId]);
+  }, [openModalInvoice, newOrderId, currentStore?.id]);
   return (
     <>
       <Drawer
@@ -76,7 +79,7 @@ export default function Invoice({
             // padding: '16px',
           },
         }}
-        size="lg"
+        size="xl"
         position="right"
         onClose={() => setOpenModalInvoice(false)}
         closeOnClickOutside={false}
@@ -142,18 +145,22 @@ export default function Invoice({
             {/* <div className="max-h-[240px] overflow-y-scroll"> */}
             <table style={{ width: '100%' }} className="mt-3.5 ">
               <colgroup>
-                <col style={{ width: '25%' }} />
-                <col style={{ width: '25%' }} />
-                <col style={{ width: '25%' }} />
-                <col style={{ width: '25%' }} />
+                <col style={{ width: '20%' }} />
+                <col style={{ width: '20%' }} />
+                <col style={{ width: '20%' }} />
+                <col style={{ width: '20%' }} />
+                <col style={{ width: '20%' }} />
               </colgroup>
               <tbody style={{ width: '100%' }} className="h-[50px] overflow-y-scroll">
-                <tr className={'border-b border-b-gray-600'}>
+                <tr className={'border-b border-b-gray-600 text-sm'}>
                   <th className="text-left">
                     <span>Sản phẩm</span>
                   </th>
                   <th className="text-left">
                     <span>Đơn giá</span>
+                  </th>
+                  <th className="text-left">
+                    <span>Tổng thuế (VAT)</span>
                   </th>
                   <th className="text-center">
                     <span>Số lượng</span>
@@ -167,17 +174,26 @@ export default function Invoice({
                     key={item.id}
                     className={`${order.order_item.length - 1 === index ? '' : 'border-b border-b-gray-600'}`}
                   >
-                    <td className="text-left ">
-                      <span>{item.product?.name}</span>
+                    <td className="text-left text-xs">
+                      <span>{item.variant?.name}</span>
                     </td>
-                    <td className="text-left">
+                    <td className="text-left text-xs">
                       <span>{formatCurrency(item.price)}</span>
                     </td>
-                    <td className="text-center">
+                    <td className="text-left text-xs">
+                      <span>
+                        {formatCurrency(item.price * item.quantity * (item?.tax_rate / 100))}
+                      </span>
+                    </td>
+                    <td className="text-center text-xs">
                       <span>{item.quantity}</span>
                     </td>
-                    <td className="text-right">
-                      <span>{formatCurrency(item.price * item.quantity)}</span>
+                    <td className="text-right text-xs font-semibold">
+                      <span>
+                        {formatCurrency(
+                          item.price * item.quantity + (item.tax_rate / 100) * item.price
+                        )}
+                      </span>
                     </td>
                   </tr>
                 ))}
@@ -193,13 +209,21 @@ export default function Invoice({
                 <col style={{ width: '50%' }} />
                 <col style={{ width: '50%' }} />
               </colgroup>
-              <tbody>
+              <tbody className="font-semibold">
                 <tr>
                   <td className="text-left">
                     <p>Tạm tính</p>
                   </td>
                   <td className="text-right">
                     <p>{formatCurrency(order?.subtotal_amount)}</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="text-left">
+                    <p>Tổng thuế (VAT)</p>
+                  </td>
+                  <td className="text-right">
+                    <p>{formatCurrency(order?.tax_amount)}</p>
                   </td>
                 </tr>
                 <tr>
@@ -261,12 +285,17 @@ export default function Invoice({
               <span className="text-sm">Hẹn gặp lại!</span>
             </div>
             <div className="flex items-center justify-center mt-3">
-              {currentStore?.qrPayment && (
+              {store && store.store_payment[0] && store.store_payment[0].bank_qr_image_url && (
                 <Image
                   placeholder="blur"
                   priority
-                  blurDataURL={currentStore?.qrPayment || '/qr_code_placholder.svg'}
-                  src={`${currentStore?.qrPayment}&amount=${order?.customer_pay_amount}` || ''}
+                  blurDataURL={
+                    store.store_payment[0].bank_qr_image_url || '/qr_code_placholder.svg'
+                  }
+                  src={
+                    `${store.store_payment[0].bank_qr_image_url}&amount=${order?.customer_pay_amount}` ||
+                    ''
+                  }
                   className="object-cover"
                   alt="qr_code"
                   width={240}
@@ -286,11 +315,7 @@ export default function Invoice({
             />
 
             <div className="hidden">
-              <InvoicePrintContent
-                ref={printRef}
-                order={order as Order}
-                currentStore={currentStore as Store}
-              />
+              <InvoicePrintContent ref={printRef} order={order as Order} store={store as Store} />
             </div>
             <Button onClick={() => handlePrint()} title="In hóa đơn" />
           </div>

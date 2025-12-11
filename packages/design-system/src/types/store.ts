@@ -28,7 +28,9 @@ export interface StoreCount {
   customer: number;
   members: number;
 }
-
+export interface StorePayment {
+  bank_qr_image_url: string;
+}
 export interface Store {
   id: string;
   owner_id: string;
@@ -45,6 +47,7 @@ export interface Store {
   members: StoreMember[] | null;
   qrPayment: string | null;
   _count: StoreCount;
+  store_payment: StorePayment[];
 }
 
 // Response từ API

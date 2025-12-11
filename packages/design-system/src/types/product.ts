@@ -11,8 +11,6 @@ export interface Product {
   sku: string;
   baseUnit: string;
   barcode?: string;
-  price: number;
-  cost: number;
   image_url?: string;
   description?: string;
   product_status: 'ACTIVE' | 'INACTIVE';
@@ -44,6 +42,7 @@ export interface Variant {
   product_id: string;
   name: string;
   price: number;
+  cost: number;
   barcode: string;
   sku: string;
   createdAt: string;
@@ -53,6 +52,7 @@ export interface Variant {
   damaged: number;
   variant_stocks: [];
   conversions: Conversions[];
+  product: Product;
 }
 export interface VariantStocks {
   onHand: number;

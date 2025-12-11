@@ -61,6 +61,7 @@ export function FormVariant({
       reset({
         name: variant?.name || '',
         price: variant?.price || 0,
+        cost: variant?.cost || 0,
         barcode: variant?.barcode || '',
         sku: variant?.sku || '',
         conversions: variant?.conversions.map((c) => ({
@@ -72,6 +73,7 @@ export function FormVariant({
       reset({
         name: '',
         price: 0,
+        cost: 0,
         barcode: '',
         sku: '',
         conversions: [],
@@ -120,17 +122,17 @@ export function FormVariant({
             Thông tin biến thể
           </h2>
           <div className="space-y-5 mt-4">
+            <Input
+              size="sm"
+              {...register('name')}
+              error={errors.name?.message}
+              withAsterisk
+              className="w-full"
+              radius="sm"
+              label="Tên biến thể"
+              placeholder="Nhập tên biến thể"
+            />
             <div className="flex gap-2">
-              <Input
-                size="sm"
-                {...register('name')}
-                error={errors.name?.message}
-                withAsterisk
-                className="flex-1"
-                radius="sm"
-                label="Tên biến thể"
-                placeholder="Nhập tên biến thể"
-              />
               <Input
                 size="sm"
                 {...register('price', {
@@ -142,6 +144,18 @@ export function FormVariant({
                 defaultValue={0}
                 label="Giá bán biến thể "
                 placeholder="Nhập giá bán biến thể"
+              />
+              <Input
+                size="sm"
+                {...register('cost', {
+                  valueAsNumber: true,
+                })}
+                className="flex-1"
+                radius="sm"
+                error={errors.cost?.message}
+                defaultValue={0}
+                label="Giá nhập biến thể "
+                placeholder="Nhập giá nhập biến thể"
               />
             </div>
             <div className="flex gap-2">

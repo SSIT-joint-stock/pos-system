@@ -5,7 +5,7 @@ import { ApiResponse, Supplier } from '@repo/design-system/types';
 import { useAtomValue } from 'jotai';
 import { useRequestHelper } from '../use-request-helper';
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { FilterValue, useQueryParams } from '../query/use-query-params';
 import { useForm } from 'react-hook-form';
 import {
@@ -22,6 +22,7 @@ interface SupplierFilters extends Record<string, FilterValue> {
 export function useSupplier() {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [supplierInfo, setSupplierInfo] = useState<Supplier | null>(null);
+
   const [supplierInfoByTaxCode, setSupplierInfoByTaxCode] = useState<Supplier | null>(null);
   const { loading, requestWrapper } = useRequestHelper();
   const { showSuccessToast } = useToast();
@@ -43,7 +44,7 @@ export function useSupplier() {
   const updateSupplierForm = useForm<UpdateSupplierInput>({
     resolver: zodResolver(UpdateSupplierSchema),
   });
-  const getSuppliers = async () => {
+  const getSuppliers = useCallback(async () => {
     if (!currentStore?.id) return;
     const res = await requestWrapper(() =>
       api.get<ApiResponse>(`/supplier/${currentStore?.id}?${buildParams().toString()}`)
@@ -52,7 +53,7 @@ export function useSupplier() {
       setSuppliers(res?.data?.data as Supplier[]);
       setPagination(res?.data.pagination);
     }
-  };
+  }, [currentStore?.id, buildParams, requestWrapper, setPagination]);
   const createSupplier = async (data: CreateSupplierInput) => {
     if (!currentStore?.id) return;
     const res = await requestWrapper(() =>

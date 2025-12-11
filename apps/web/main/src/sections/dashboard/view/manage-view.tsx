@@ -3,7 +3,7 @@
 import { Button, Table } from '@repo/design-system/components/ui';
 import { Plus } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-import { formatCurrency, formatDate } from '../../../../../main/src/utils/index';
+import { formatDate } from '../../../../../main/src/utils/index';
 import * as XLSX from 'xlsx';
 import { useProduct } from '../../../../../main/src/hooks/product/use-product';
 
@@ -20,8 +20,6 @@ const tableHeaders = [
   'Sản Phẩm',
   'Số lượng biến thể',
   'Tổng danh mục',
-  'Giá Nhập',
-  'Giá Bán',
   'Trạng Thái',
   'Ngày Tạo',
   'Thao Tác',
@@ -77,8 +75,6 @@ export function ManageView() {
       const formatted = products.map((p) => ({
         'Sản phẩm': p.name,
         'Mã sản phẩm': p.sku,
-        'Giá nhập': p.cost,
-        'Giá bán': p.price,
         'Trạng thái': formatProductStatus(p.product_status),
         'Ngày tạo': formatDate(p.createdAt),
       }));
@@ -90,7 +86,6 @@ export function ManageView() {
       XLSX.writeFile(workbook, 'products.xlsx');
     }
   };
-  console.log(products);
   return (
     <>
       <DashboardViewLayout>
@@ -110,7 +105,7 @@ export function ManageView() {
             {
               width: '280px',
               key: 'product_status',
-              label: 'Trạng thái đơn hàng',
+              label: 'Trạng thái sản phẩm',
               options: [
                 { value: 'ACTIVE', label: 'Đang kinh doanh ' },
                 { value: 'INACTIVE', label: 'Ngừng kinh doanh' },
@@ -174,12 +169,6 @@ export function ManageView() {
               </td>
               <td className="px-4 py-3 text-sm font-medium text-gray-500">
                 {product.categories.length}
-              </td>
-              <td className="px-4 py-3 text-sm font-semibold text-gray-500">
-                {formatCurrency(product.cost)}
-              </td>
-              <td className="px-4 py-3 text-sm font-semibold text-gray-500">
-                {formatCurrency(product.price)}
               </td>
 
               <td className="px-4 py-3">

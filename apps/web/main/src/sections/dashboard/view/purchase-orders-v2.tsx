@@ -1,142 +1,77 @@
 'use client';
-import { useState } from 'react';
-import { Plus, Trash2, Upload, Menu, ScanBarcode, SaveAll, Ellipsis } from 'lucide-react';
-import { Button, DatePickerInput, Input, Select } from '@repo/design-system/components/ui';
-import { Drawer, Tooltip } from '@mantine/core';
-import FormCreateProduct from '../components/form-create-product';
-import { Product } from '@repo/design-system/types';
+import Header from '../components/purchase-order/header';
+import { useEffect, useRef, useState } from 'react';
+import { Plus, Upload, Menu, User, X, Percent } from 'lucide-react';
+import {
+  Button,
+  DatePickerInput,
+  Input,
+  Loading,
+  Modal,
+  Select,
+  Table,
+} from '@repo/design-system/components/ui';
+import { Variant } from '@repo/design-system/types';
+import { FormCreateSupplier } from '../components';
+import { useSupplier } from '../../../hooks/suplier/use-supplier';
+import { NumberInput, Popover } from '@mantine/core';
+import { formatCurrency } from '../../../utils';
 
+const tableHeaders = [
+  'Mã SP',
+  'Tên sản phẩm',
+  'Đơn vị',
+  'Số lượng',
+  'Giá nhập',
+  'Chiết khấu %',
+  'VAT %',
+  'Thành tiền',
+  'Hành động',
+];
 export function PurchaseOrdersV2() {
-  const [products, setProducts] = useState<Partial<Product>[]>([]);
-  const [selectedProduct, setSelectedProduct] = useState<Product>({} as Product);
-  const [isEditSelectProduct, setIsEditSelectProduct] = useState<boolean>(false);
-  const [isCreateSelectProduct, setIsCreateSelectProduct] = useState<boolean>(false);
-  const [openAddProduct, setOpenAddProduct] = useState<boolean>(false);
-  const [openCreateCategoryModal, setOpenCreateCategoryModal] = useState<boolean>(false);
+  // HOOK
 
-  // Xử lý thay đổi field sản phẩm
-  const handleChangeProductField = (
-    index: number,
-    field: keyof Product | 'quantity',
-    value: any
-  ) => {
-    setProducts((prev) => {
-      const updated = [...prev];
-      const product = updated[index];
-
-      if (field === 'quantity') {
-        // quantity nằm trong inventory
-        updated[index] = {
-          ...product,
-          inventory: {
-            ...product.inventory,
-            quantity: Number(value),
-          },
-        };
-      } else {
-        // các field còn lại (price, cost, name, ...)
-        updated[index] = {
-          ...product,
-          [field]: ['price', 'cost'].includes(field) ? Number(value) : value,
-        };
-      }
-
-      return updated;
-    });
-  };
-
-  // Tính tổng tiền
-  const totalAmount = products.reduce(
-    (acc, p) => acc + (p.cost ?? 0) * (p.inventory?.quantity ?? 0),
-    0
-  );
+  const [selectedVariants, setSelectedVariants] = useState<Variant[]>([] as Variant[]);
+  const [openModalCreateSupplier, setOpenModalCreateSupplier] = useState<boolean>(false);
+  const [editingVariantId, setEditingVariantId] = useState<string | null>(null);
+  const inputRef = useRef<HTMLDivElement>(null);
+  // CUSTOM HOOK
+  const {
+    getSuppliers,
+    suppliers,
+    currentStore,
+    loading: loadingSuppliers,
+    setFilters,
+  } = useSupplier();
 
   // Xóa sản phẩm
   const handleRemoveProduct = (id: string) => {
-    setProducts(products.filter((p) => p.sku !== id));
-    setSelectedProduct({} as Product);
+    setSelectedVariants(selectedVariants.filter((p) => p.id !== id));
   };
 
-  // Thêm sản phẩm mới
-  const handleAddProduct = () => {
-    setOpenAddProduct(true);
-    setIsEditSelectProduct(false);
-    setIsCreateSelectProduct(true);
-    setSelectedProduct({} as Product);
-  };
-
-  // Format tiền tệ
-  const formatCurrency = (value: number) => {
-    return value.toLocaleString('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
+  // HOOK EFFECT
+  useEffect(() => {
+    if (!currentStore?.id) return;
+    setFilters((prev) => {
+      return {
+        ...prev,
+        limit: 20,
+      };
     });
-  };
-
-  const tableHeaders = [
-    'Mã SP',
-    'Tên sản phẩm',
-    'Số lượng',
-    'Giá nhập',
-    'Giá bán',
-    'Chiết khấu %',
-    'CK bằng tiền',
-    'VAT %',
-    'Thành tiền',
-    'Hành động',
-  ];
+    getSuppliers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStore?.id, setFilters]);
 
   return (
     <>
-      <div className="flex h-full overflow-hidden gap-6 ">
+      <div className="grid lg:grid-cols-[1fr_0.4fr] grid-cols-1  h-full overflow-hidden gap-3 ">
         {/* Main Content - Left Side */}
         <div className="flex-1 flex flex-col  overflow-hidden">
-          {/* Header */}
-          <div className="w-full bg-white mb-6 p-4 rounded-lg flex items-center justify-between">
-            <div className="flex items-center gap-8  w-1/2">
-              <h1 className="text-xl font-semibold text-gray-600 text-nowrap">Phiếu nhập hàng</h1>
-
-              <Input
-                radius="sm"
-                size="sm"
-                style={{ width: '100%' }}
-                placeholder="Tìm kiếm hàng theo mã hoặc theo tên "
-                rightSection={
-                  <button
-                    type="button"
-                    onClick={handleAddProduct}
-                    className="p-2 rounded hover:bg-gray-200 transition duration-200 hover:cursor-pointer"
-                    style={{ pointerEvents: 'auto' }}
-                  >
-                    <Plus size={16} />
-                  </button>
-                }
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <Tooltip label="Quét mã vạch" position="bottom" withArrow>
-                <button className="w-10 h-10 flex items-center justify-center text-gray-800 rounded-md border border-gray-300 hover:bg-gray-50  transition duration-200 cursor-pointer">
-                  <ScanBarcode size={20} />
-                </button>
-              </Tooltip>
-              <Tooltip label="Tải file" position="bottom" withArrow>
-                <button className="w-10 h-10 flex items-center justify-center text-gray-800 rounded-md border border-gray-300 hover:bg-gray-50  transition duration-200 cursor-pointer">
-                  <SaveAll size={20} />
-                </button>
-              </Tooltip>
-
-              <Tooltip label="Hướng dẫn" position="bottom" withArrow>
-                <button className="w-10 h-10 flex items-center justify-center text-gray-800 rounded-md border border-gray-300 hover:bg-gray-50  transition duration-200 cursor-pointer">
-                  <Ellipsis size={20} />
-                </button>
-              </Tooltip>
-            </div>
-          </div>
-
+          <Header setSelectedVariants={setSelectedVariants} />
           {/* Content Area */}
-          <div className="flex-1 bg-white rounded-lg shadow flex items-center justify-center overflow-auto h-full">
-            {products.length === 0 ? (
-              <div className="flex flex-col items-center justify-center gap-4">
+          <div className="flex-1 overflow-auto md:h-full h-screen  bg-white">
+            {selectedVariants.length === 0 ? (
+              <div className="flex flex-col items-center justify-center gap-4 h-full rounded-lg">
                 <div className="text-center">
                   <h2 className="text-xl font-semibold text-gray-700 mb-2">
                     Thêm sản phẩm từ file excel
@@ -148,100 +83,130 @@ export function PurchaseOrdersV2() {
                 <Button radius="sm" title="Tải file mẫu" icon={<Upload size={16} />} />
               </div>
             ) : (
-              <table className="w-full h-full table-auto border-collapse overflow-y-scroll">
-                <thead className="bg-gray-100 border-b sticky top-0">
-                  <tr>
-                    {tableHeaders.map((header) => (
-                      <th key={header} className="px-4 py-3 text-left text-sm font-semibold">
-                        {header}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {products.map((product, index) => (
-                    <tr
-                      key={product.sku}
-                      onClick={() => setSelectedProduct(product as Product)}
-                      className={`border-b cursor-pointer transition ${
-                        selectedProduct?.sku === product.sku ? 'bg-blue-50' : 'hover:bg-gray-50'
-                      }`}
+              <Table
+                hasPagination={false}
+                data={selectedVariants}
+                className="md:h-full h-screen"
+                tableHeaders={tableHeaders}
+                renderRow={(data) => (
+                  <>
+                    <td className="px-4 py-2 text-sm text-gray-700">{data?.sku || 'N/A'}</td>
+                    <td className="px-4 py-2 text-sm text-gray-700">{data?.name || 'N/A'}</td>
+                    <Popover
+                      width={140}
+                      withArrow
+                      shadow="md "
+                      offset={-20}
+                      position="bottom-start"
+                      arrowPosition="side"
                     >
-                      <td className="px-4 py-2 text-sm text-gray-700">{product.sku || 'N/A'}</td>
-                      <td className="px-4 py-2 text-sm text-gray-700">{product.name}</td>
-                      <td className="px-4 py-2 text-sm text-gray-700">
-                        <Input
-                          type="number"
-                          min={1}
-                          size="sm"
-                          value={String(product.inventory?.quantity) ?? 0}
-                          onChange={(e) =>
-                            handleChangeProductField(index, 'quantity', e.target.value)
-                          }
-                          className="w-24 text-right"
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                      </td>
-                      <td className="px-4 py-2 text-sm text-gray-700">
-                        <Input
-                          type="number"
-                          size="sm"
-                          value={String(product.cost) ?? 0}
-                          onChange={(e) => handleChangeProductField(index, 'cost', e.target.value)}
-                          className="w-24 text-right"
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                      </td>
-                      <td className="px-4 py-2 text-sm text-gray-700">
-                        <Input
-                          type="number"
-                          size="sm"
-                          value={String(product.price) ?? 0}
-                          onChange={(e) => handleChangeProductField(index, 'price', e.target.value)}
-                          className="w-24 text-right"
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                      </td>
-                      <td className="px-4 py-2 text-sm text-gray-700">{0}%</td>
-                      <td className="px-4 py-2 text-sm text-gray-700">{0}%</td>
-                      <td className="px-4 py-2 text-sm text-gray-700">{0}%</td>
-                      <td className="px-4 py-2 text-sm text-gray-700">
-                        {formatCurrency((product.cost ?? 0) * (product.inventory?.quantity ?? 0))}
-                      </td>
-                      <td className="px-4 py-2 text-center">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleRemoveProduct(product.sku || '');
-                          }}
-                          className="text-red-500 hover:text-red-700"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      <Popover.Target>
+                        <td className="px-4 py-2 text-sm text-pos-blue-500 font-semibold hover:underline cursor-pointer">
+                          <span>{data?.product?.baseUnit || 'N/A'}</span>
+                          <Popover.Dropdown className="p-0" p={8}>
+                            <>
+                              {data && data?.conversions && data?.conversions?.length === 0 ? (
+                                <div className="w-full text-center text-gray-500 text-sm">
+                                  Không có dữ liệu
+                                </div>
+                              ) : (
+                                <>
+                                  {data &&
+                                    data?.conversions?.length > 0 &&
+                                    data?.conversions?.map((unit) => (
+                                      <div
+                                        key={unit.id}
+                                        className=" text-gray-600 text-xs font-semibold pl-1 w-full py-2 hover:bg-gray-50 transition-colors duration-200 cursor-pointer line-clamp-1"
+                                      >
+                                        {unit.name} (x{unit.factor})
+                                      </div>
+                                    ))}
+                                </>
+                              )}
+                            </>
+                          </Popover.Dropdown>
+                        </td>
+                      </Popover.Target>
+                    </Popover>
+                    <td className="px-4 py-2 text-sm text-gray-700">
+                      <Input
+                        type="number"
+                        min={1}
+                        size="sm"
+                        autoFocus
+                        name="quantity"
+                        defaultValue={1}
+                        radius="sm"
+                        className="w-24 text-right"
+                      />
+                    </td>
+
+                    <td className="px-4 py-2 text-sm text-gray-700">
+                      <div ref={inputRef}>
+                        {editingVariantId === data.id ? (
+                          <NumberInput
+                            type="text"
+                            onBlur={() => setEditingVariantId(null)}
+                            autoFocus
+                            size="sm"
+                            defaultValue={data?.cost || 0}
+                            radius="sm"
+                            onChange={(value) => console.log(value)}
+                            className="w-24 text-right"
+                          />
+                        ) : (
+                          <Input
+                            type="text"
+                            size="sm"
+                            radius="sm"
+                            className="w-24 text-right"
+                            onFocus={() => setEditingVariantId(data.id)}
+                            defaultValue={formatCurrency(data?.cost) || '0'}
+                          />
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-700">
+                      <Input
+                        type="number"
+                        size="sm"
+                        defaultValue={0}
+                        radius="sm"
+                        className="w-24 text-right"
+                        rightSection={<Percent size={14} />}
+                      />
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-700">
+                      <Input
+                        type="number"
+                        size="sm"
+                        radius="sm"
+                        defaultValue={0}
+                        className="w-24 text-right"
+                        rightSection={<Percent size={14} />}
+                      />
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-700"></td>
+                    <td className="px-4 py-2 text-center">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemoveProduct(data.id || '');
+                        }}
+                        className="text-gray-500 hover:text-red-500 cursor-pointer"
+                      >
+                        <X size={18} />
+                      </button>
+                    </td>
+                  </>
+                )}
+              />
             )}
           </div>
-
-          {/* Add Button */}
-          {products.length > 0 && (
-            <div className="mt-4 flex justify-center">
-              <button
-                onClick={handleAddProduct}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded flex items-center gap-2"
-              >
-                <Plus size={18} />
-                Thêm sản phẩm
-              </button>
-            </div>
-          )}
         </div>
 
         {/* Sidebar - Right Side */}
-        <div className="w-1/4 bg-white rounded-lg  ">
+        <div className="w-full bg-white rounded-lg  ">
           <div className="p-6 flex flex-col justify-between h-full">
             {/* Header */}
             <div className="flex flex-col gap-6">
@@ -260,13 +225,14 @@ export function PurchaseOrdersV2() {
                     <DatePickerInput
                       className="flex-1"
                       label="Ngày nhập"
+                      defaultValue={new Date()}
                       size="sm"
                       radius="sm"
                       clearable
                       placeholder="Nhập ngày nhập"
                     />
                     <Input
-                      className="flex-1"
+                      className="flex-1 "
                       size="sm"
                       radius="sm"
                       placeholder="Nhập số hóa đơn"
@@ -275,7 +241,13 @@ export function PurchaseOrdersV2() {
                   </div>
                   {/* Nhà cung cấp */}
                   <Select
-                    data={['Test']}
+                    data={suppliers.map((supplier) => ({
+                      label: supplier?.name,
+                      value: supplier?.id,
+                    }))}
+                    leftSection={
+                      loadingSuppliers ? <Loading color="#3b82f6" /> : <User size={16} />
+                    }
                     label={'Nhà cung cấp'}
                     placeholder="Tìm kiếm nhà cung cấp"
                     clearable
@@ -285,6 +257,7 @@ export function PurchaseOrdersV2() {
                     rightSection={
                       <button
                         type="button"
+                        onClick={() => setOpenModalCreateSupplier(true)}
                         className="p-2 rounded hover:bg-gray-200 transition duration-200 hover:cursor-pointer"
                         style={{ pointerEvents: 'auto' }}
                       >
@@ -307,24 +280,18 @@ export function PurchaseOrdersV2() {
                 <div className="flex flex-col gap-4 mt-8">
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600 font-medium text-base">Tổng tiền hàng:</span>
-                    <span className="text-gray-800 font-semibold">
-                      {formatCurrency(totalAmount)}
-                    </span>
+                    <span className="text-gray-800 font-semibold"></span>
                   </div>
 
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600 font-medium text-base">Tổng tiền hoàn:</span>
-                    <span className="text-gray-800 font-semibold">
-                      {formatCurrency(totalAmount)}
-                    </span>
+                    <span className="text-gray-800 font-semibold"></span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-pos-blue-500 text-lg font-medium">
                       Cần trả nhà cung cấp:
                     </span>
-                    <span className="text-pos-blue-500 text-lg font-semibold">
-                      {formatCurrency(totalAmount)}
-                    </span>
+                    <span className="text-pos-blue-500 text-lg font-semibold"></span>
                   </div>
                 </div>
               </div>
@@ -335,41 +302,14 @@ export function PurchaseOrdersV2() {
           </div>
         </div>
       </div>
-
-      {/* Add Product Drawer */}
-      <Drawer
-        title={isEditSelectProduct ? 'Cập nhật sản phẩm' : 'Thêm sản phẩm mới'}
-        position="right"
+      <Modal
+        title="Thêm nhà cung cấp"
         size="xl"
-        opened={openAddProduct}
-        onClose={() => {
-          setOpenAddProduct(false);
-        }}
+        opened={openModalCreateSupplier}
+        onClose={() => setOpenModalCreateSupplier(false)}
       >
-        <div className="bg-gray-100 rounded-md p-4 ">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xl text-pos-blue-500 font-bold ">
-              {isEditSelectProduct ? 'Cập nhật sản phẩm' : 'Tạo sản phẩm'}
-            </h3>
-            <button
-              onClick={() => setSelectedProduct({} as Product)}
-              className=" border border-pos-blue-500 rounded-md  px-8 py-1 text-pos-blue-500 cursor-pointer hover:bg-gray-100"
-            >
-              Làm mới
-            </button>
-          </div>
-          <FormCreateProduct
-            selectProduct={selectedProduct}
-            openAddProduct={openAddProduct}
-            isEditSelectProduct={isEditSelectProduct}
-            isCreateSelectProduct={isCreateSelectProduct}
-            setSelectProducts={setProducts as React.Dispatch<React.SetStateAction<any>>}
-            setSelectProduct={setSelectedProduct}
-            setOpenAddProduct={setOpenAddProduct}
-            setOpenCreateCategoryModal={setOpenCreateCategoryModal}
-          />
-        </div>
-      </Drawer>
+        <FormCreateSupplier setIsOpenModal={setOpenModalCreateSupplier} />
+      </Modal>
     </>
   );
 }

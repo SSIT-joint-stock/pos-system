@@ -85,6 +85,7 @@ export function useOrders() {
   };
 
   const createOrder = async (data: CreateOrderInput) => {
+    console.log(data);
     if (!currentStore?.id) return;
 
     const res = await requestWrapper(() => api.post(`/stores/${currentStore?.id}/orders`, data));

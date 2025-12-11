@@ -82,8 +82,6 @@ export function FormProduct({
         description: product.description,
         sku: product.sku,
         barcode: product.barcode,
-        price: product.price,
-        cost: product.cost,
         baseUnit: product.baseUnit,
         product_status: product.product_status,
         image_url: product.image_url ?? undefined,
@@ -232,46 +230,40 @@ export function FormProduct({
                 </div>
               </div>
               {/* Product price */}
-              <div className="bg-white  p-5 rounded-md">
-                <h2 className="text-base font-stretch-200% font-semibold text-gray-900">
-                  Thông tin giá
-                </h2>
-                <div className="space-y-5 mt-4">
-                  <div className="flex gap-2">
-                    <Input
-                      {...(productId
-                        ? updateRegister('price', {
-                            setValueAs: (v) => (v === '' || v === null ? undefined : Number(v)),
-                          })
-                        : register('price', {
-                            setValueAs: (v) => (v === '' || v === null ? undefined : Number(v)),
-                          }))}
-                      size="sm"
-                      error={productId ? updateErrors.price?.message : errors.price?.message}
-                      radius="sm"
-                      className="flex-1"
-                      label="Giá bán"
-                      placeholder="Nhập giá bán sản phẩm"
-                      rightSection={<span className="text-gray-500 text-sm">VND</span>}
-                    />
-                    <Input
-                      {...(productId
-                        ? updateRegister('cost', {
-                            setValueAs: (v) => (v === '' || v === null ? undefined : Number(v)),
-                          })
-                        : register('cost', {
-                            setValueAs: (v) => (v === '' || v === null ? undefined : Number(v)),
-                          }))}
-                      size="sm"
-                      radius="sm"
-                      className="flex-1"
-                      label="Giá nhập"
-                      placeholder="Nhập giá nhập sản phẩm"
-                      rightSection={<span className="text-gray-500 text-sm">VND</span>}
-                    />
+              {!productId && !product && (
+                <div className="bg-white  p-5 rounded-md">
+                  <h2 className="text-base font-stretch-200% font-semibold text-gray-900">
+                    Thông tin giá
+                  </h2>
+                  <div className="space-y-5 mt-4">
+                    <div className="flex gap-2">
+                      <Input
+                        {...register('price', {
+                          setValueAs: (v) => (v === '' || v === null ? undefined : Number(v)),
+                        })}
+                        size="sm"
+                        error={productId ? updateErrors.price?.message : errors.price?.message}
+                        radius="sm"
+                        className="flex-1"
+                        label="Giá bán"
+                        placeholder="Nhập giá bán sản phẩm"
+                        rightSection={<span className="text-gray-500 text-sm">VND</span>}
+                      />
+                      <Input
+                        {...register('cost', {
+                          setValueAs: (v) => (v === '' || v === null ? undefined : Number(v)),
+                        })}
+                        size="sm"
+                        radius="sm"
+                        className="flex-1"
+                        label="Giá nhập"
+                        placeholder="Nhập giá nhập sản phẩm"
+                        rightSection={<span className="text-gray-500 text-sm">VND</span>}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
               {/* Product inventory quantity */}
               {productId && product && product.variant.length ? (
                 <div className="bg-white  p-5 rounded-md">

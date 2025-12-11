@@ -8,11 +8,12 @@ import Image from 'next/image';
 import React, { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useOrders } from '../../../hooks/orders/use-orders';
 import { formatCurrency, truncateText } from '../../../utils/';
-import { Button, Input, Modal, Select, Table } from '@repo/design-system/components/ui';
+import { Button, Input, Loading, Modal, Select, Table } from '@repo/design-system/components/ui';
 import {
   Keyboard,
   LogOut,
   Minus,
+  Percent,
   Plus,
   Search,
   Settings,
@@ -22,10 +23,11 @@ import {
   UserPlus,
   X,
 } from 'lucide-react';
-import { Customer, ProductStatus, Variant } from '@repo/design-system/types';
+import { useDebounceCallback } from 'usehooks-ts';
+import { Customer, Variant } from '@repo/design-system/types';
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { useAtomValue } from 'jotai';
-import { Burger, Tooltip } from '@mantine/core';
+import { Burger, NumberInput, Tooltip } from '@mantine/core';
 import { useRouter } from 'next/navigation';
 import { useClickOutside } from '@repo/design-system/hooks/client';
 import { useCustomer } from '../../../hooks/customers/use-customer';
@@ -34,7 +36,7 @@ import BillOrder from '../components/bill-order';
 import { useVariant } from '../../../hooks/variant/use-variant';
 import { payment_method } from '../../../constants/method';
 
-export type selectedVariant = Variant & { selectedQuantity: number };
+export type selectedVariant = Variant & { selectedQuantity: number; tax_rate?: number };
 type InvoiceSelected = selectedVariant[];
 
 export const paymentMethods = [
@@ -74,6 +76,7 @@ export function SalesView() {
     variants,
     sort,
     sortBy,
+    loading: loadingVariants,
   } = useVariant();
   const { createOrder, loading } = useOrders();
   const {
@@ -90,7 +93,7 @@ export function SalesView() {
 
   // STATE
   const [openModalInvoice, setOpenModalInvoice] = useState(false);
-  const [invoiceData, setInvoiceData] = useState<selectedVariant[]>([]);
+  const [, setInvoiceData] = useState<selectedVariant[]>([]);
   const [openModalChangePrice, setOpenModalChangePrice] = useState(false);
   const [openModalOrder, setOpenModalOrder] = useState(false);
   const [openModalCreateCustomer, setOpenModalCreateCustomer] = useState(false);
@@ -103,6 +106,7 @@ export function SalesView() {
     payment_method.CASH
   );
   const [search, setSearch] = useState<string>('');
+  const debounced = useDebounceCallback(setSearch, 500);
   const [isOpenMenuSettings, setIsOpenMenuSettings] = useState<boolean>(false);
   const [customerSearch, setCustomerSearch] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
@@ -174,7 +178,7 @@ export function SalesView() {
     setInvoices((prev) => {
       const newInvoices = [...prev];
       newInvoices[currentInvoice] = selectedVariants;
-      return [...newInvoices, []]; // Thêm hóa đơn mới rỗng
+      return [...newInvoices, []];
     });
 
     // Chuyển sang hóa đơn mới
@@ -194,7 +198,7 @@ export function SalesView() {
       // Tính toán lại index hóa đơn đang chọn
       let newCurrent = currentInvoice;
       if (idx < currentInvoice) {
-        newCurrent = currentInvoice - 1; // vì list bị dịch sang trái
+        newCurrent = currentInvoice - 1;
       } else if (idx === currentInvoice) {
         newCurrent = Math.max(0, currentInvoice - 1);
       }
@@ -210,6 +214,14 @@ export function SalesView() {
     setEditingProductId(productId);
     setNewPrice(currentPrice);
     setOpenModalChangePrice(true);
+  };
+  const handleUpdateVariantTaxRate = (variantId: string, rate: number) => {
+    const updated = selectedVariants.map((p) =>
+      p.id === variantId ? { ...p, tax_rate: rate } : p
+    );
+
+    setSelectedVariants(updated);
+    setInvoices((prev) => prev.map((inv, idx) => (idx === currentInvoice ? updated : inv)));
   };
 
   // Áp dụng thay đổi
@@ -232,12 +244,9 @@ export function SalesView() {
       variant_id: p.id,
       quantity: p.selectedQuantity,
       price: p.price,
+      tax_rate: p.tax_rate,
     }));
     const newOrder = await createOrder({
-      subtotal_amount: totalPrice,
-      discount_amount: 0,
-      tax_amount: 0,
-      total_amount: totalPrice,
       customer_pay_amount: Number(priceCustomerPay),
       payment_method: changPaymentMethods || payment_method.CASH,
       order_items: orderItems,
@@ -253,28 +262,41 @@ export function SalesView() {
       setSelectedVariants([]);
     }
   };
-  const totalPrice = useMemo(() => {
-    return selectedVariants.reduce((sum, p) => sum + p.selectedQuantity * p.price, 0);
+  const summary = useMemo(() => {
+    return selectedVariants.reduce(
+      (acc, p) => {
+        const subTotal = p.price * (p.selectedQuantity || 1);
+        const taxAmount = ((p.tax_rate || 0) / 100) * subTotal;
+
+        acc.subTotal += subTotal;
+        acc.taxAmount += taxAmount;
+        acc.total += subTotal + taxAmount;
+
+        return acc;
+      },
+      {
+        subTotal: 0,
+        taxAmount: 0,
+        total: 0,
+      }
+    );
   }, [selectedVariants]);
+
   useEffect(() => {
     setFilters((prev) => ({
       ...prev,
-      product_status: ProductStatus.ACTIVE,
     }));
     setPaginationParams((prev) => ({
       ...prev,
-      limit: 22,
+      limit: 20,
     }));
 
-    const timeout = setTimeout(() => {
-      setFilters((prev) => ({
-        ...prev,
-        product_status: ProductStatus.ACTIVE,
-        q: search,
-      }));
-    }, 500);
-    return () => clearTimeout(timeout);
+    setFilters((prev) => ({
+      ...prev,
+      q: search,
+    }));
   }, [search]);
+
   useEffect(() => {
     if (!currentStore?.id) return;
     if (isOpenFilterProducts === false) {
@@ -297,9 +319,9 @@ export function SalesView() {
   }, [customerSearch]);
   useEffect(() => {
     if (isCustomerPayFull && !isFocusedInputPriceCustomerPay) {
-      setPriceCustomerPay(String(totalPrice));
+      setPriceCustomerPay(String(summary.total));
     }
-  }, [isCustomerPayFull, totalPrice]);
+  }, [isCustomerPayFull]);
 
   const handleLoadMore = () => {
     setPaginationParams((prev) => ({
@@ -436,7 +458,8 @@ export function SalesView() {
                     'Tên sản phẩm',
                     'Số lượng',
                     'Đơn giá',
-                    'Tiền thuế',
+                    'VAT',
+                    'Giảm giá',
                     'Thành tiền',
                     'Hành động',
                   ]}
@@ -445,9 +468,15 @@ export function SalesView() {
                   renderRow={(variant) => (
                     <>
                       <td className="px-4 py-2 text-gray-900 flex flex-col gap-1">
-                        <span title={variant.name} className="text-base font-semibold truncate">
-                          {truncateText(variant.name, 28)}
-                        </span>
+                        <Tooltip
+                          position="bottom"
+                          color="rgba(125, 124, 124, 1)"
+                          label={variant.name}
+                        >
+                          <span title={variant.name} className="text-base font-semibold truncate">
+                            {truncateText(variant.name, 28)}
+                          </span>
+                        </Tooltip>
                         <span className="text-xs font-medium">Tồn kho: {variant.onHand}</span>
                       </td>
 
@@ -485,6 +514,28 @@ export function SalesView() {
                         {formatCurrency(variant.price || 0)}
                       </td>
 
+                      <td className="px-4 py-2 text-sm text-gray-500 flex items-center gap-2">
+                        <NumberInput
+                          size="sm"
+                          radius="sm"
+                          value={variant.tax_rate ?? 0}
+                          onChange={(value) => {
+                            handleUpdateVariantTaxRate(variant.id, value as number);
+                          }}
+                          min={0}
+                          className="w-28"
+                          rightSection={<Percent size={14} />}
+                        />
+                        <span className="text-sm text-gray-500">
+                          (
+                          {formatCurrency(
+                            ((variant?.tax_rate ?? 0) / 100) *
+                              variant.price *
+                              variant.selectedQuantity
+                          )}
+                          )
+                        </span>
+                      </td>
                       <td className="px-4 py-2 text-sm text-gray-500">0%</td>
                       <td className="px-4 py-2 text-base font-semibold text-gray-900 truncate">
                         {formatCurrency(variant.price * (variant.selectedQuantity || 1))}
@@ -514,7 +565,7 @@ export function SalesView() {
                     Tổng tiền hàng ({selectedVariants.length})
                   </span>
                   <span className="text-lg text-pos-blue-500 font-semibold">
-                    {formatCurrency(totalPrice)}
+                    {formatCurrency(summary.total)}
                   </span>
                 </div>
 
@@ -523,7 +574,10 @@ export function SalesView() {
                     disabled={!selectedVariants.length}
                     title="Thanh toán"
                     style={{ width: '100%' }}
-                    onClick={() => setOpenModalOrder(true)}
+                    onClick={() => {
+                      setOpenModalOrder(true);
+                      setPriceCustomerPay(summary.total.toString());
+                    }}
                   />
                 </div>
               </div>
@@ -536,9 +590,9 @@ export function SalesView() {
                   size="sm"
                   radius="sm"
                   leftSection={<Search size={20} />}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => debounced(e.target.value)}
                   type="text"
-                  placeholder="Tìm kiếm tên, mã vạch hoặc SKU của sản phẩm..."
+                  placeholder="Tìm kiếm tên, mã vạch hoặc mã (SKU) của sản phẩm..."
                   className="flex-1"
                 />
 
@@ -550,74 +604,85 @@ export function SalesView() {
                 </button>
               </div>
 
-              {variants.length === 0 ? (
+              {variants.length === 0 && !loadingVariants && (
                 <div className="flex items-center justify-center flex-1">
                   <span className="text-xl font-semibold text-pos-blue-500">
                     Không tìm thấy sản phẩm
                   </span>
                 </div>
+              )}
+              {loadingVariants && variants.length === 0 ? (
+                <div className="flex  items-center justify-center flex-1">
+                  <Loading size="md" color="#3b82f6" />
+                </div>
               ) : (
-                <div className="flex-1 min-h-0 overflow-y-auto pb-4">
-                  <div className="grid grid-cols-3 gap-2">
-                    {variants?.map((variant) => (
-                      <div
-                        key={variant?.id}
-                        onClick={() => {
-                          const existing = selectedVariants.find((p) => p.id === variant.id);
-                          if (!existing) {
-                            if (variant.onHand > 0) handleSelectProduct(variant);
-                          } else {
-                            if (existing.selectedQuantity < variant.onHand)
-                              handleSelectProduct(variant);
-                          }
-                        }}
-                        className="bg-white p-3 rounded-xl border border-gray-100 hover:border-pos-blue-400 cursor-pointer duration-300 transition-all hover:shadow-md group hover:shadow-pos-blue-100"
-                      >
-                        <div className="relative w-full h-fit">
-                          <Image
-                            src={'/placeholder.jpg'}
-                            alt="sản phẩm"
-                            width={500}
-                            height={500}
-                            className="rounded-xl object-cover h-32 w-full"
-                            unoptimized
-                          />
-                          <div className="absolute bottom-2 left-2 py-1 px-2 bg-pos-blue-50 text-pos-blue-500 rounded-md">
-                            <div className="text-base  font-medium">
-                              {formatCurrency(variant.price)}
+                <>
+                  <div className="flex-1 min-h-0 overflow-y-auto pb-4">
+                    <div className="grid grid-cols-3 gap-4">
+                      {variants?.map((variant) => (
+                        <div
+                          key={variant?.id}
+                          onClick={() => {
+                            const existing = selectedVariants.find((p) => p.id === variant.id);
+                            if (!existing) {
+                              if (variant.onHand > 0) handleSelectProduct(variant);
+                            } else {
+                              if (existing.selectedQuantity < variant.onHand)
+                                handleSelectProduct(variant);
+                            }
+                          }}
+                          className="bg-white p-3 rounded-xl border border-gray-100 hover:border-pos-blue-400 cursor-pointer duration-300 transition-all hover:shadow-md group hover:shadow-pos-blue-100"
+                        >
+                          <div className="relative w-full h-fit">
+                            <Image
+                              src={'/placeholder.jpg'}
+                              alt="sản phẩm"
+                              width={500}
+                              height={500}
+                              className="rounded-xl object-cover h-32 w-full"
+                              unoptimized
+                            />
+                            <div className="absolute bottom-2 left-2 py-1 px-2 bg-pos-blue-50 text-pos-blue-500 rounded-md">
+                              <div className="text-base  font-medium">
+                                {formatCurrency(variant.price)}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="mt-4 flex flex-col gap-2">
+                            <Tooltip position="top" label={variant.name} withArrow>
+                              <h2 className="text-sm font-semibold text-gray-800 truncate group-hover:text-pos-blue-500 line-clamp-1">
+                                {variant.name}
+                              </h2>
+                            </Tooltip>
+                            <div className="flex items-center justify-between ">
+                              {variant.onHand > 0 ? (
+                                <span className="text-sm font-medium text-gray-500">
+                                  Số lượng: {variant.onHand}
+                                </span>
+                              ) : (
+                                <span className="text-sm text-red-500">Hết hàng</span>
+                              )}
+                              <span className="text-sm font-semibold text-gray-600">
+                                {variant.sku}
+                              </span>
                             </div>
                           </div>
                         </div>
-
-                        <div className="mt-4 flex flex-col gap-2">
-                          <Tooltip position="top" label={variant.name} withArrow>
-                            <h2 className="text-sm font-semibold text-gray-800 truncate group-hover:text-pos-blue-500">
-                              {variant.name}
-                            </h2>
-                          </Tooltip>
-                          <div className="flex items-center justify-between ">
-                            {variant.onHand > 0 ? (
-                              <span className="text-sm font-medium text-gray-500">
-                                Số lượng: {variant.onHand}
-                              </span>
-                            ) : (
-                              <span className="text-sm text-red-500">Hết hàng</span>
-                            )}
-                            <span className="text-sm font-semibold text-gray-600">
-                              {variant.sku}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {variants.length >= paginationParams.limit && (
-                    <div className="flex items-center justify-center mt-4">
-                      <Button onClick={handleLoadMore} title="Tải thêm" style={{ width: '54%' }} />
+                      ))}
                     </div>
-                  )}
-                </div>
+
+                    {variants.length >= paginationParams.limit && (
+                      <div className="flex items-center justify-center mt-4">
+                        <Button
+                          onClick={handleLoadMore}
+                          title="Tải thêm"
+                          style={{ width: '54%' }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </>
               )}
             </div>
           </div>
@@ -662,7 +727,7 @@ export function SalesView() {
           paymentMethods={paymentMethods}
           priceCustomerPay={priceCustomerPay}
           isCustomerPayFull={isCustomerPayFull}
-          totalPrice={totalPrice}
+          summary={summary}
           loading={loading}
         />
         {/* MODAL FOR ADD CUSTOMER */}

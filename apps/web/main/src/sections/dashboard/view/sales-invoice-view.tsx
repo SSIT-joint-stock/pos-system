@@ -22,7 +22,14 @@ const tableHeaders = [
   'Ngày Tạo',
   'Thao Tác',
 ];
-const tableHeadersSelected = ['Mã sản phẩm', 'Tên sản phẩm', 'Số lượng', 'Đơn giá', 'Thành tiền'];
+const tableHeadersSelected = [
+  'Mã sản phẩm',
+  'Tên sản phẩm',
+  'Số lượng',
+  'Đơn giá',
+  'Tiền thuế',
+  'Thành tiền',
+];
 
 const statusColors: Record<string, string> = {
   OVERAGE: 'text-blue-500 bg-blue-50 py-1.5 px-2.5 rounded-xs',
@@ -214,6 +221,7 @@ export function SalesInvoicesView() {
           )}
         />
       </DashboardViewLayout>
+
       {/* VIEW */}
       <Modal
         title={
@@ -267,45 +275,76 @@ export function SalesInvoicesView() {
             </div>
           </div>
           <Table
-            hasMarginTop={false}
             hasPagination={false}
+            hasPadding={false}
             tableHeaders={tableHeadersSelected}
             data={selectedOrder?.order_item || []}
-            renderRow={(product) => (
+            renderRow={(item) => (
               <>
                 <td className="px-4 py-2 font-medium text-sm text-gray-500">
-                  {product.product?.sku || 'N/A'}
+                  {item.variant?.sku || 'N/A'}
                 </td>
                 <td className="px-4 py-2 font-medium text-sm text-gray-500">
-                  {product.product?.name || 'Tên sản phẩm'}
+                  {item.variant?.name || 'Tên sản phẩm'}
                 </td>
-                <td className="px-4 py-2 font-medium text-sm text-gray-500">{product.quantity}</td>
+                <td className="px-4 py-2 font-medium text-sm text-gray-500">{item?.quantity}</td>
                 <td className="px-4 py-2 font-medium text-sm text-gray-500">
-                  {formatCurrency(product.product?.price || 0)}
+                  {formatCurrency(item?.price || 0)}
                 </td>
                 <td className="px-4 py-2 font-medium text-sm text-gray-500">
-                  {formatCurrency(product.price * product.quantity)}
+                  {formatCurrency((item?.tax_rate / 100) * item.price || 0)}
+                </td>
+                <td className="px-4 py-2 font-medium text-sm text-gray-500">
+                  {formatCurrency(
+                    item?.quantity * item.price + (item?.tax_rate / 100) * item.price
+                  )}
                 </td>
               </>
             )}
           />
 
-          <div className="bg-gray-100 p-4 rounded-md flex flex-col gap-3.5">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-600">Tạm tính</span>
+          <div className="bg-gray-50/90 p-4 rounded-md flex flex-col">
+            <div className="flex items-center justify-between border-y border-y-gray-200 py-3">
+              <span className="text-sm font-semibold text-gray-900">Tạm tính</span>
               <span className="text-base font-semibold text-gray-900">
+                {formatCurrency(selectedOrder?.subtotal_amount || 0)}
+              </span>
+            </div>
+            <div className="flex items-center justify-between border-b border-b-gray-200 py-3">
+              <span className="text-sm font-semibold text-gray-900">Tổng VAT</span>
+              <span className="text-base font-semibold text-gray-900">
+                {formatCurrency(selectedOrder?.tax_amount || 0)}
+              </span>
+            </div>
+            <div className="flex items-center justify-between border-b border-b-gray-200 py-3">
+              <span className="text-sm font-semibold text-gray-900">Tổng tiền (sau VAT)</span>
+              <span className="text-base font-semibold text-gray-900">
+                {formatCurrency(
+                  (selectedOrder?.tax_amount || 0) + (selectedOrder?.subtotal_amount || 0)
+                )}
+              </span>
+            </div>
+            <div className="flex items-center justify-between border-b border-b-gray-200 py-3">
+              <span className="text-sm font-semibold text-gray-900">Giảm giá</span>
+              <span className="text-base font-semibold text-gray-900">
+                {formatCurrency(selectedOrder?.discount_amount || 0)}
+              </span>
+            </div>
+            <div className="flex items-center justify-between border-b border-b-gray-200 py-3">
+              <span className="text-sm font-semibold text-gray-900">Số tiền phải trả</span>
+              <span className="text-base font-semibold text-pos-blue-500">
                 {formatCurrency(selectedOrder?.total_amount || 0)}
               </span>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-600">Khách trả</span>
-              <span className="text-base font-semibold text-pos-blue-500">
+            <div className="flex items-center justify-between border-b border-b-gray-200 py-3">
+              <span className="text-sm font-semibold text-gray-900">Khách trả</span>
+              <span className="text-base font-semibold text-gray-900">
                 {formatCurrency(selectedOrder?.customer_pay_amount || 0)}
               </span>
             </div>
             {selectedOrder && (
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-600">
+              <div className="flex items-center justify-between py-3 border-b border-b-gray-200">
+                <span className="text-sm font-semibold text-gray-900">
                   {selectedOrder?.change_amount < 0 ? 'Tiền nợ' : 'Tiền thừa'}
                 </span>
                 <span className="text-base font-semibold text-gray-900">
@@ -316,10 +355,18 @@ export function SalesInvoicesView() {
           </div>
           <div className="flex items-center justify-end gap-4">
             <Button
+              size="sm"
+              radius="sm"
+              title="Hủy"
+              onClick={() => setOpenViewModal(false)}
+              variant="outline"
+            />
+            <Button
+              size="sm"
+              radius="sm"
               onClick={() => showInfoToast('Tính năng đang được cập nhật')}
               title="In hóa đơn"
             />
-            <Button title="Hủy" onClick={() => setOpenViewModal(false)} color="#ccc" />
           </div>
         </div>
       </Modal>

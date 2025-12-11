@@ -15,8 +15,8 @@ export default function BillOrder({
   openModalOrder,
   paymentMethods,
   priceCustomerPay,
-  isCustomerPayFull,
-  totalPrice,
+  isCustomerPayFull = true,
+  summary,
   loading,
 }: {
   setChangePaymentMethods: React.Dispatch<React.SetStateAction<payment_method | null>>;
@@ -31,9 +31,14 @@ export default function BillOrder({
   paymentMethods: { label: string; value: string }[];
   priceCustomerPay: string;
   isCustomerPayFull: boolean;
-  totalPrice: number;
+  summary: {
+    total: number;
+    subTotal: number;
+    taxAmount: number;
+  };
   loading: boolean;
 }) {
+  console.log(isCustomerPayFull);
   return (
     <>
       <Drawer
@@ -66,14 +71,18 @@ export default function BillOrder({
                   value={priceCustomerPay.replace(/\B(?=(\d{3})+(?!\d))/g, '.')}
                   placeholder="Số tiền khách trả"
                   type="text"
+                  // defaultValue={String(summary?.total)}
                   style={{ flex: 1 }}
                   onFocus={() => setIsFocusedInputPriceCustomerPay(true)}
                   onChange={(e: ChangeEvent<HTMLInputElement>) => {
                     const value = e.target.value.replace(/\D/g, '');
                     setPriceCustomerPay(value);
-                    if (totalPrice > Number(value)) {
+                    if (summary.total > Number(value)) {
                       setIsCustomerPayFull(false);
-                    } else if (totalPrice <= Number(value) || totalPrice - Number(value) === 0) {
+                    } else if (
+                      summary?.total <= Number(value) ||
+                      summary?.total - Number(value) === 0
+                    ) {
                       setIsCustomerPayFull(true);
                     }
                   }}
@@ -82,7 +91,7 @@ export default function BillOrder({
                   size="sm"
                   onClick={() => {
                     setIsCustomerPayFull(true);
-                    setPriceCustomerPay(String(totalPrice));
+                    setPriceCustomerPay(String(summary?.total));
                   }}
                   title="Trả đủ"
                 />
@@ -96,7 +105,7 @@ export default function BillOrder({
                   if (isCustomerPayFull) {
                     setPriceCustomerPay('0');
                   } else {
-                    setPriceCustomerPay(String(totalPrice));
+                    setPriceCustomerPay(String(summary?.total));
                   }
                 }}
                 size="sm"
@@ -104,34 +113,31 @@ export default function BillOrder({
                 label="Khách ghi nợ"
               />
               <span
-                className={`text-sm  ${isCustomerPayFull && Number(priceCustomerPay) >= totalPrice ? 'text-green-500 font-medium' : 'text-red-500 font-semibold'}`}
+                className={`text-sm  ${isCustomerPayFull && Number(priceCustomerPay) >= summary?.total ? 'text-green-500 font-medium' : 'text-red-500 font-semibold'}`}
               >
-                {isCustomerPayFull && totalPrice - Number(priceCustomerPay || 0) <= 0
+                {isCustomerPayFull && summary?.total - Number(priceCustomerPay || 0) <= 0
                   ? 'Tiền thừa trả lại khách: ' +
-                    formatCurrency(Number(priceCustomerPay || 0) - totalPrice)
-                  : `Khách chưa trả đủ: ${formatCurrency(totalPrice - Number(priceCustomerPay || 0))}`}
+                    formatCurrency(Number(priceCustomerPay || 0) - summary?.total)
+                  : `Khách chưa trả đủ: ${formatCurrency(summary?.total - Number(priceCustomerPay || 0))}`}
               </span>
             </div>
             <hr className="border-b border-b-white border-t-gray-400 " />
             <div className="grid grid-cols-2 justify-between">
-              <span> Tổng tiền trước thuế </span>{' '}
-              <span className="text-right">{formatCurrency(totalPrice)}</span>
+              <span className="text-base text-gray-800 font-semibold"> Tổng tiền trước thuế </span>{' '}
+              <span className="text-right">{formatCurrency(summary?.subTotal)}</span>
             </div>
             <div className="grid grid-cols-2 justify-between">
-              <span> Thuế đơn hàng </span>
-              <span className="text-right">0 %</span>
+              <span className="text-base text-gray-800 font-semibold"> Thuế đơn hàng </span>
+              <span className="text-right">{formatCurrency(summary?.taxAmount)}</span>
             </div>
-            <div className="grid grid-cols-2 justify-between">
-              <span> Tổng tiền thuế </span>
-              <span className="text-right">{formatCurrency(0)}</span>
-            </div>
+
             <div className="grid grid-cols-2 justify-between">
               <span className="text-pos-blue-500 font-semibold text-lg">
                 {' '}
                 Tổng tiền thanh toán{' '}
               </span>
               <span className="text-right text-pos-blue-500 font-semibold text-lg">
-                {formatCurrency(totalPrice)}
+                {formatCurrency(summary?.total)}
               </span>
             </div>
             <div className="flex items-center justify-between">

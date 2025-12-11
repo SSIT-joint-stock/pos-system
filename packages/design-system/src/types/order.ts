@@ -1,3 +1,5 @@
+import { Product, Variant } from './product';
+
 // enums
 export type OrderStatus = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'CANCELLED' | 'RETURNED';
 export type PaymentMethod = 'CASH' | 'CREDIT_CARD' | 'DEBIT_CARD';
@@ -7,19 +9,16 @@ export interface OrderItem {
   id: string;
   order_id: string;
   product_id: string;
+  variant_id: string;
   quantity: number;
+  tax_rate: number;
+  discount_rate: number;
   price: number;
   meta: Record<string, any>;
   createdAt: string; // ISO string
   updatedAt: string;
-  product?: {
-    id: string;
-    name: string;
-    sku: string;
-    price: number;
-    cost: number;
-    image_url?: string | null;
-  };
+  product?: Product;
+  variant?: Variant;
 }
 
 export interface Customer {

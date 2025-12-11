@@ -9,6 +9,7 @@ export const CreateVariantSchema = z.object({
   sku: z.string().trim().optional(),
   barcode: z.string().trim().optional(),
   price: z.number().min(0).default(0).optional(),
+  cost: z.number().min(0).default(0).optional(),
   stock: z.number().default(0).optional(),
   conversions: z
     .array(

@@ -23,6 +23,7 @@ export type TableProps<T> = {
   hasPagination?: boolean;
   className?: string;
   link?: string;
+  hasPadding?: boolean;
 };
 
 export function Table<T>({
@@ -39,13 +40,14 @@ export function Table<T>({
   hasMarginTop = true,
   limit = 10,
   hasPagination = true,
+  hasPadding = true,
   className,
 }: TableProps<T>) {
   const finalHeader = ['STT', ...tableHeaders];
   const router = useRouter();
   return (
     <div
-      className={`bg-white   p-5  ${hasMarginTop ? 'mt-0' : ''} flex-col flex overflow-y-auto  rounded-lg ${className}`}
+      className={`bg-white  ${hasPadding ? 'p-4' : ''}  ${hasMarginTop ? 'mt-0' : ''} flex-col flex overflow-y-auto  rounded-lg ${className}`}
     >
       {/* TABLE */}
       <div
