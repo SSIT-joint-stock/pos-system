@@ -2,8 +2,8 @@
 import {
   ConfigInfoPayment,
   ConfigInfoPaymentInput,
-} from '../../../../../main/src/schemas/info-payment/info-payment.schema';
-import api from '../../../../../main/src/libs/axios';
+} from '../../../schemas/info-payment/info-payment.schema';
+import api from '../../../libs/axios';
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Input, Select } from '@repo/design-system/components/ui';

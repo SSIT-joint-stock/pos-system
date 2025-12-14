@@ -47,7 +47,7 @@ export function InfoStoreViewV2() {
       </div>
       <div className="h-full w-full bg-white p-8 rounded-md">
         {tab === 'store' && <InfoStore />}
-        {tab === 'reward' && <InfoRewardPoint tab={tab} />}
+        {tab === 'reward' && <InfoRewardPoint />}
         {tab === 'payment' && <InfoConfigPayment tab={tab} />}
       </div>
     </div>

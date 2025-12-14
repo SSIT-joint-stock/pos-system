@@ -23,41 +23,6 @@ export function OutboundOrders() {
   const [openAddProduct, setOpenAddProduct] = useState<boolean>(false);
 
   // Xử lý thay đổi field sản phẩm
-  const handleChangeProductField = (
-    index: number,
-    field: keyof Product | 'quantity',
-    value: any
-  ) => {
-    setProducts((prev) => {
-      const updated = [...prev];
-      const product = updated[index];
-
-      if (field === 'quantity') {
-        // quantity nằm trong inventory
-        updated[index] = {
-          ...product,
-          inventory: {
-            ...product.inventory,
-            quantity: Number(value),
-          },
-        };
-      } else {
-        // các field còn lại (price, cost, name, ...)
-        updated[index] = {
-          ...product,
-          [field]: ['price', 'cost'].includes(field) ? Number(value) : value,
-        };
-      }
-
-      return updated;
-    });
-  };
-
-  // Tính tổng tiền
-  const totalAmount = products.reduce(
-    (acc, p) => acc + (p.cost ?? 0) * (p.inventory?.quantity ?? 0),
-    0
-  );
 
   // Xóa sản phẩm
   const handleRemoveProduct = (id: string) => {
@@ -172,10 +137,6 @@ export function OutboundOrders() {
                           type="number"
                           min={1}
                           size="sm"
-                          value={String(product.inventory?.quantity) ?? 0}
-                          onChange={(e) =>
-                            handleChangeProductField(index, 'quantity', e.target.value)
-                          }
                           className="w-24 text-right"
                           onClick={(e) => e.stopPropagation()}
                         />
@@ -184,8 +145,6 @@ export function OutboundOrders() {
                         <Input
                           type="number"
                           size="sm"
-                          value={String(product.cost) ?? 0}
-                          onChange={(e) => handleChangeProductField(index, 'cost', e.target.value)}
                           className="w-24 text-right"
                           onClick={(e) => e.stopPropagation()}
                         />
@@ -194,8 +153,6 @@ export function OutboundOrders() {
                         <Input
                           type="number"
                           size="sm"
-                          value={String(product.price) ?? 0}
-                          onChange={(e) => handleChangeProductField(index, 'price', e.target.value)}
                           className="w-24 text-right"
                           onClick={(e) => e.stopPropagation()}
                         />
@@ -203,9 +160,7 @@ export function OutboundOrders() {
                       <td className="px-4 py-2 text-sm text-gray-700">{0}%</td>
                       <td className="px-4 py-2 text-sm text-gray-700">{0}%</td>
                       <td className="px-4 py-2 text-sm text-gray-700">{0}%</td>
-                      <td className="px-4 py-2 text-sm text-gray-700">
-                        {formatCurrency((product.cost ?? 0) * (product.inventory?.quantity ?? 0))}
-                      </td>
+                      <td className="px-4 py-2 text-sm text-gray-700"></td>
                       <td className="px-4 py-2 text-center">
                         <button
                           onClick={(e) => {
@@ -301,9 +256,7 @@ export function OutboundOrders() {
                 <div className="flex flex-col gap-3 mt-8">
                   <div className="flex items-center justify-between">
                     <span className="text-pos-blue-500 font-medium text-base">Tổng tiền hàng:</span>
-                    <span className="text-pos-blue-500 font-semibold">
-                      {formatCurrency(totalAmount)}
-                    </span>
+                    <span className="text-pos-blue-500 font-semibold"></span>
                   </div>
                 </div>
               </div>

@@ -5,6 +5,7 @@ export interface ApiSuccessResponse<T> {
     version: string;
   };
   data: T;
+  summary: T;
   message: string;
   pagination: {
     page: number;

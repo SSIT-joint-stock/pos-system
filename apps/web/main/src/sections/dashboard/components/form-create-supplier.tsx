@@ -5,11 +5,14 @@ import { RefreshCcw } from 'lucide-react';
 import React, { useEffect } from 'react';
 import { supplierStatusOptions } from '../view';
 import { Textarea } from '@mantine/core';
-import { useSupplier } from '../../../../../main/src/hooks/suplier/use-supplier';
+import { useSupplier } from '../../../hooks/suplier/use-supplier';
 import { Control, Controller } from 'react-hook-form';
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 import { Supplier } from '@repo/design-system/types';
-import { CreateSupplierInput, UpdateSupplierInput } from '@main/schemas/supplier/supplier.schema';
+import {
+  CreateSupplierInput,
+  UpdateSupplierInput,
+} from '../../../schemas/supplier/supplier.schema';
 
 export function FormCreateSupplier({
   setIsOpenModal,

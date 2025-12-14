@@ -4,3 +4,4 @@ export * from './info-reward-point';
 export * from './form-create-supplier';
 export * from './form-product';
 export * from './form-variant';
+export * from './purchase-order/sidebar';

@@ -1,21 +1,16 @@
 'use client';
 import Header from '../components/purchase-order/header';
-import { useEffect, useRef, useState } from 'react';
-import { Plus, Upload, Menu, User, X, Percent } from 'lucide-react';
-import {
-  Button,
-  DatePickerInput,
-  Input,
-  Loading,
-  Modal,
-  Select,
-  Table,
-} from '@repo/design-system/components/ui';
+import { useRef, useState } from 'react';
+import { Upload, X, Percent } from 'lucide-react';
+import { Button, Input, Table } from '@repo/design-system/components/ui';
+import { NumberInput, Popover, Tooltip } from '@mantine/core';
+import { formatCurrency, truncateText } from '../../../utils';
+import { usePurchase } from '../../../hooks/purchase/use-purchase';
+import { Controller, useFieldArray } from 'react-hook-form';
 import { Variant } from '@repo/design-system/types';
-import { FormCreateSupplier } from '../components';
-import { useSupplier } from '../../../hooks/suplier/use-supplier';
-import { NumberInput, Popover } from '@mantine/core';
-import { formatCurrency } from '../../../utils';
+
+import { CreatePurchaseOrderItem } from '@main/schemas/purchase/purchase.schema';
+import SidebarPurchase from '../components/purchase-order/sidebar';
 
 const tableHeaders = [
   'Mã SP',
@@ -28,50 +23,76 @@ const tableHeaders = [
   'Thành tiền',
   'Hành động',
 ];
+
 export function PurchaseOrdersV2() {
   // HOOK
 
   const [selectedVariants, setSelectedVariants] = useState<Variant[]>([] as Variant[]);
-  const [openModalCreateSupplier, setOpenModalCreateSupplier] = useState<boolean>(false);
   const [editingVariantId, setEditingVariantId] = useState<string | null>(null);
+
   const inputRef = useRef<HTMLDivElement>(null);
   // CUSTOM HOOK
+
   const {
-    getSuppliers,
-    suppliers,
-    currentStore,
-    loading: loadingSuppliers,
-    setFilters,
-  } = useSupplier();
+    formPurchase: {
+      control,
+      watch,
+      register,
+      getValues,
+      reset,
+      handleSubmit,
+      formState: { errors },
+    },
+    loading,
+    createPurchaseOrder,
+  } = usePurchase();
+  const { fields, append, remove, update } = useFieldArray({
+    control,
+    name: 'items',
+  });
 
+  const watchedItems = watch('items');
   // Xóa sản phẩm
-  const handleRemoveProduct = (id: string) => {
+  const handleRemoveProduct = (id: string, index: number) => {
     setSelectedVariants(selectedVariants.filter((p) => p.id !== id));
+    remove(index);
   };
-
-  // HOOK EFFECT
-  useEffect(() => {
-    if (!currentStore?.id) return;
-    setFilters((prev) => {
-      return {
-        ...prev,
-        limit: 20,
-      };
+  const handleChangeUnit = (index: number, unit: string) => {
+    update(index, {
+      ...fields[index],
+      unit,
     });
-    getSuppliers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentStore?.id, setFilters]);
+  };
+  const caculateTotalPerItem = (item: CreatePurchaseOrderItem, variant: Variant) => {
+    const quantity = Number(item.quantity) || 0;
+    const unitCost = Number(item.unit_cost) || 0;
+    const taxRate = Number(item.tax_rate) || 0;
+    const discountRate = Number(item.discount_rate) || 0;
+
+    let factor = 1;
+    if (item.unit && variant.conversions.length > 0) {
+      const conversions = variant.conversions.find((c) => c.name === item.unit);
+      if (conversions) factor = conversions.factor;
+    }
+    const qty = quantity * factor;
+    // Giá sau chiết khấu
+    const subtotal = unitCost * qty;
+    const discount_amount = subtotal * (discountRate / 100);
+    const tax_amount = (subtotal - discount_amount) * (taxRate / 100);
+    const total_price = subtotal - discount_amount + tax_amount;
+    return { subtotal, total_price, discount_amount, tax_amount, qty, quantity };
+  };
 
   return (
     <>
       <div className="grid lg:grid-cols-[1fr_0.4fr] grid-cols-1  h-full overflow-hidden gap-3 ">
         {/* Main Content - Left Side */}
         <div className="flex-1 flex flex-col  overflow-hidden">
-          <Header setSelectedVariants={setSelectedVariants} />
+          <Header setSelectedVariants={setSelectedVariants} append={append} fields={fields} />
           {/* Content Area */}
-          <div className="flex-1 overflow-auto md:h-full h-screen  bg-white">
-            {selectedVariants.length === 0 ? (
-              <div className="flex flex-col items-center justify-center gap-4 h-full rounded-lg">
+          <div className="flex-1 overflow-auto md:h-full h-screen  bg-white ">
+            {fields.length === 0 ? (
+              <div className="flex flex-col items-center  justify-center gap-4 h-full rounded-lg">
                 <div className="text-center">
                   <h2 className="text-xl font-semibold text-gray-700 mb-2">
                     Thêm sản phẩm từ file excel
@@ -85,231 +106,202 @@ export function PurchaseOrdersV2() {
             ) : (
               <Table
                 hasPagination={false}
-                data={selectedVariants}
-                className="md:h-full h-screen"
+                data={fields}
+                className="md:h-full h-screen overflow-scroll"
                 tableHeaders={tableHeaders}
-                renderRow={(data) => (
-                  <>
-                    <td className="px-4 py-2 text-sm text-gray-700">{data?.sku || 'N/A'}</td>
-                    <td className="px-4 py-2 text-sm text-gray-700">{data?.name || 'N/A'}</td>
-                    <Popover
-                      width={140}
-                      withArrow
-                      shadow="md "
-                      offset={-20}
-                      position="bottom-start"
-                      arrowPosition="side"
-                    >
-                      <Popover.Target>
-                        <td className="px-4 py-2 text-sm text-pos-blue-500 font-semibold hover:underline cursor-pointer">
-                          <span>{data?.product?.baseUnit || 'N/A'}</span>
-                          <Popover.Dropdown className="p-0" p={8}>
-                            <>
-                              {data && data?.conversions && data?.conversions?.length === 0 ? (
-                                <div className="w-full text-center text-gray-500 text-sm">
-                                  Không có dữ liệu
-                                </div>
-                              ) : (
-                                <>
-                                  {data &&
-                                    data?.conversions?.length > 0 &&
-                                    data?.conversions?.map((unit) => (
-                                      <div
-                                        key={unit.id}
-                                        className=" text-gray-600 text-xs font-semibold pl-1 w-full py-2 hover:bg-gray-50 transition-colors duration-200 cursor-pointer line-clamp-1"
-                                      >
-                                        {unit.name} (x{unit.factor})
-                                      </div>
-                                    ))}
-                                </>
-                              )}
-                            </>
-                          </Popover.Dropdown>
+                renderRow={(data, index) => {
+                  const variant = selectedVariants.find((p) => p.id === data.variant_id);
+                  const item = watchedItems[index];
+                  if (!variant) return null;
+                  return (
+                    <>
+                      <td className="px-4 py-2 text-sm text-gray-700">{variant?.sku || 'N/A'}</td>
+                      <Tooltip label={variant?.name || 'N/A'} position="bottom" withArrow>
+                        <td className="px-4 py-2 text-sm text-gray-700 text-nowrap">
+                          {truncateText(variant?.name || 'N/A', 18)}
                         </td>
-                      </Popover.Target>
-                    </Popover>
-                    <td className="px-4 py-2 text-sm text-gray-700">
-                      <Input
-                        type="number"
-                        min={1}
-                        size="sm"
-                        autoFocus
-                        name="quantity"
-                        defaultValue={1}
-                        radius="sm"
-                        className="w-24 text-right"
-                      />
-                    </td>
-
-                    <td className="px-4 py-2 text-sm text-gray-700">
-                      <div ref={inputRef}>
-                        {editingVariantId === data.id ? (
-                          <NumberInput
-                            type="text"
-                            onBlur={() => setEditingVariantId(null)}
-                            autoFocus
-                            size="sm"
-                            defaultValue={data?.cost || 0}
-                            radius="sm"
-                            onChange={(value) => console.log(value)}
-                            className="w-24 text-right"
-                          />
-                        ) : (
-                          <Input
-                            type="text"
-                            size="sm"
-                            radius="sm"
-                            className="w-24 text-right"
-                            onFocus={() => setEditingVariantId(data.id)}
-                            defaultValue={formatCurrency(data?.cost) || '0'}
-                          />
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-4 py-2 text-sm text-gray-700">
-                      <Input
-                        type="number"
-                        size="sm"
-                        defaultValue={0}
-                        radius="sm"
-                        className="w-24 text-right"
-                        rightSection={<Percent size={14} />}
-                      />
-                    </td>
-                    <td className="px-4 py-2 text-sm text-gray-700">
-                      <Input
-                        type="number"
-                        size="sm"
-                        radius="sm"
-                        defaultValue={0}
-                        className="w-24 text-right"
-                        rightSection={<Percent size={14} />}
-                      />
-                    </td>
-                    <td className="px-4 py-2 text-sm text-gray-700"></td>
-                    <td className="px-4 py-2 text-center">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleRemoveProduct(data.id || '');
-                        }}
-                        className="text-gray-500 hover:text-red-500 cursor-pointer"
+                      </Tooltip>
+                      <Popover
+                        width={140}
+                        withArrow
+                        shadow="md "
+                        offset={-20}
+                        position="bottom-start"
+                        arrowPosition="side"
                       >
-                        <X size={18} />
-                      </button>
-                    </td>
-                  </>
-                )}
+                        <Popover.Target>
+                          <td className="px-4 py-2 text-sm text-pos-blue-500 font-semibold hover:underline cursor-pointer text-nowrap">
+                            <span>{fields[index].unit || variant.product.baseUnit}</span>
+                            <Popover.Dropdown className="p-0" p={8}>
+                              <>
+                                {data &&
+                                variant?.conversions &&
+                                variant?.conversions?.length === 0 ? (
+                                  <div className="w-full  text-gray-500 text-sm">
+                                    {variant.product.baseUnit} (cơ bản)
+                                  </div>
+                                ) : (
+                                  <>
+                                    {variant &&
+                                      variant?.conversions?.length > 0 &&
+                                      variant?.conversions?.map((unit) => (
+                                        <div
+                                          onClick={() => handleChangeUnit(index, unit.name)}
+                                          key={unit.id}
+                                          className="space-y-2"
+                                        >
+                                          <div className=" text-gray-600 text-xs font-semibold pl-1 w-full py-2 hover:bg-gray-50 transition-colors duration-200 cursor-pointer line-clamp-1">
+                                            {unit.name} (x{unit.factor})
+                                          </div>
+                                        </div>
+                                      ))}
+                                    <div
+                                      onClick={() =>
+                                        handleChangeUnit(index, variant.product.baseUnit)
+                                      }
+                                      className=" text-gray-600 text-xs font-semibold pl-1 w-full py-2 hover:bg-gray-50 transition-colors duration-200 cursor-pointer line-clamp-1"
+                                    >
+                                      {variant?.product?.baseUnit} (cơ bản)
+                                    </div>
+                                  </>
+                                )}
+                              </>
+                            </Popover.Dropdown>
+                          </td>
+                        </Popover.Target>
+                      </Popover>
+                      <td className="px-4 py-2 text-sm text-gray-700 ">
+                        <div className="flex items-center gap-1">
+                          <Input
+                            type="number"
+                            min={1}
+                            {...register(`items.${index}.quantity`, {
+                              valueAsNumber: true,
+                            })}
+                            size="sm"
+                            autoFocus
+                            radius="sm"
+                            className="w-20 text-right"
+                          />
+                          <span className="text-xs text-gray-500 text-nowrap">
+                            {' '}
+                            = {caculateTotalPerItem(item, variant).qty} {variant.product.baseUnit}
+                          </span>
+                        </div>
+                      </td>
+
+                      <td className="px-4 py-2 text-sm text-gray-700">
+                        <div ref={inputRef} className="flex items-center gap-1">
+                          {editingVariantId === data.variant_id ? (
+                            <Controller
+                              name={`items.${index}.unit_cost`}
+                              control={control}
+                              render={({ field }) => (
+                                <NumberInput
+                                  {...field}
+                                  type="text"
+                                  onBlur={() => setEditingVariantId(null)}
+                                  autoFocus
+                                  size="sm"
+                                  defaultValue={variant?.cost || 0}
+                                  radius="sm"
+                                  className="w-28 text-right"
+                                />
+                              )}
+                            />
+                          ) : (
+                            <Input
+                              type="text"
+                              size="sm"
+                              radius="sm"
+                              className="w-28 text-right"
+                              onFocus={() => setEditingVariantId(data.variant_id)}
+                              defaultValue={
+                                formatCurrency(
+                                  variant?.cost || getValues(`items.${index}.unit_cost`)
+                                ) || '0'
+                              }
+                            />
+                          )}
+                          <span className="text-xs text-gray-500 text-nowrap line-clamp-1 ">
+                            / {variant.product.baseUnit}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-2 text-sm text-gray-700  ">
+                        <div className="flex items-center gap-1">
+                          <Input
+                            {...register(`items.${index}.discount_rate`, { valueAsNumber: true })}
+                            type="number"
+                            size="sm"
+                            defaultValue={0}
+                            radius="sm"
+                            className="w-20 text-right"
+                            rightSection={<Percent size={14} />}
+                          />
+                          <span className="text-xs text-gray-500 text-nowrap">
+                            {data
+                              ? formatCurrency(caculateTotalPerItem(item, variant).discount_amount)
+                              : 0}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-2 text-sm text-gray-700 ">
+                        <div className="flex items-center gap-1">
+                          <Input
+                            {...register(`items.${index}.tax_rate`, { valueAsNumber: true })}
+                            type="number"
+                            size="sm"
+                            radius="sm"
+                            defaultValue={0}
+                            className="w-20 text-right"
+                            rightSection={<Percent size={14} />}
+                          />
+                          <span className="text-xs text-gray-500 text-nowrap">
+                            {data
+                              ? formatCurrency(caculateTotalPerItem(item, variant).tax_amount)
+                              : 0}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-2 text-sm text-gray-700">
+                        {data
+                          ? formatCurrency(Number(caculateTotalPerItem(item, variant).total_price))
+                          : 0}
+                      </td>
+                      <td className="px-4 py-2 text-center">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveProduct(data.id || '', index);
+                          }}
+                          className="text-gray-500 hover:text-red-500 cursor-pointer"
+                        >
+                          <X size={18} />
+                        </button>
+                      </td>
+                    </>
+                  );
+                }}
               />
             )}
           </div>
         </div>
 
         {/* Sidebar - Right Side */}
-        <div className="w-full bg-white rounded-lg  ">
-          <div className="p-6 flex flex-col justify-between h-full">
-            {/* Header */}
-            <div className="flex flex-col gap-6">
-              <div className="flex items-center justify-between  pb-4 border-b border-b-gray-300">
-                <h3 className="text-lg font-semibold text-gray-700">Chi tiết giao dịch</h3>
-                <button className="p-1 hover:bg-gray-200 rounded">
-                  <Menu size={18} />
-                </button>
-              </div>
-
-              {/* Form Fields */}
-              <div>
-                <div className="space-y-4">
-                  {/* Date */}
-                  <div className="flex items-center gap-2">
-                    <DatePickerInput
-                      className="flex-1"
-                      label="Ngày nhập"
-                      defaultValue={new Date()}
-                      size="sm"
-                      radius="sm"
-                      clearable
-                      placeholder="Nhập ngày nhập"
-                    />
-                    <Input
-                      className="flex-1 "
-                      size="sm"
-                      radius="sm"
-                      placeholder="Nhập số hóa đơn"
-                      label="Số hóa đơn"
-                    />
-                  </div>
-                  {/* Nhà cung cấp */}
-                  <Select
-                    data={suppliers.map((supplier) => ({
-                      label: supplier?.name,
-                      value: supplier?.id,
-                    }))}
-                    leftSection={
-                      loadingSuppliers ? <Loading color="#3b82f6" /> : <User size={16} />
-                    }
-                    label={'Nhà cung cấp'}
-                    placeholder="Tìm kiếm nhà cung cấp"
-                    clearable
-                    size="sm"
-                    radius="sm"
-                    position="bottom"
-                    rightSection={
-                      <button
-                        type="button"
-                        onClick={() => setOpenModalCreateSupplier(true)}
-                        className="p-2 rounded hover:bg-gray-200 transition duration-200 hover:cursor-pointer"
-                        style={{ pointerEvents: 'auto' }}
-                      >
-                        <Plus size={16} />
-                      </button>
-                    }
-                  />
-                  <Input
-                    size="sm"
-                    radius="sm"
-                    placeholder="Mã phiếu tự động"
-                    disabled
-                    label="Mã phiếu nhập"
-                  />
-                  <div className="flex items-center gap-4 my-5">
-                    <Input className="flex-1" placeholder="Số tiền trả" size="sm" radius="sm" />
-                    <Button size="sm" radius="sm" title="Trả đủ" />
-                  </div>
-                </div>
-                <div className="flex flex-col gap-4 mt-8">
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600 font-medium text-base">Tổng tiền hàng:</span>
-                    <span className="text-gray-800 font-semibold"></span>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600 font-medium text-base">Tổng tiền hoàn:</span>
-                    <span className="text-gray-800 font-semibold"></span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-pos-blue-500 text-lg font-medium">
-                      Cần trả nhà cung cấp:
-                    </span>
-                    <span className="text-pos-blue-500 text-lg font-semibold"></span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <Button title="Xác nhận thanh toán" />
-          </div>
-        </div>
+        <SidebarPurchase
+          register={register}
+          control={control}
+          errors={errors}
+          reset={reset}
+          createPurchaseOrder={createPurchaseOrder}
+          handleSubmit={handleSubmit}
+          loading={loading}
+          watchedItems={watchedItems}
+          caculateTotalPerItem={caculateTotalPerItem}
+          selectedVariants={selectedVariants}
+        />
       </div>
-      <Modal
-        title="Thêm nhà cung cấp"
-        size="xl"
-        opened={openModalCreateSupplier}
-        onClose={() => setOpenModalCreateSupplier(false)}
-      >
-        <FormCreateSupplier setIsOpenModal={setOpenModalCreateSupplier} />
-      </Modal>
     </>
   );
 }

@@ -1,12 +1,12 @@
 'use client';
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
-import api from '../../../../../main/src/libs/axios';
+import api from '../../../libs/axios';
 import React, { useEffect, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   ConfigRewardPoint,
   ConfigRewardPointInput,
-} from '../../../../../main/src/schemas/reward-point/reward-point.schema';
+} from '../../../schemas/reward-point/reward-point.schema';
 import { Textarea } from '@mantine/core';
 import { useForm } from 'react-hook-form';
 import { Button, Checkbox, Input } from '@repo/design-system/components/ui';
@@ -16,7 +16,7 @@ import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { useAtomValue } from 'jotai';
 import { RewardPointInfo } from '@repo/design-system/types';
 
-export function InfoRewardPoint({ tab }: { tab: string }) {
+export function InfoRewardPoint() {
   const [loading, setLoading] = useState<boolean>(false);
   const [rewardPointInfo, setRewardPointInfo] = useState<RewardPointInfo>({} as RewardPointInfo);
   const currentStore = useAtomValue(currentStoreAtom);

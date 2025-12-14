@@ -87,8 +87,12 @@ export default function MenuSidebar({
           path: `/dashboard/store/${currentStore?.id}/sales-invoices`,
         },
         {
-          title: 'Hóa đơn phiếu',
-          path: `/dashboard/store/${currentStore?.id}/received-invoices`,
+          title: 'Hóa đơn nhập hàng',
+          path: `/dashboard/store/${currentStore?.id}/import-invoices`,
+        },
+        {
+          title: 'Hóa đơn xuất hàng',
+          path: `/dashboard/store/${currentStore?.id}/export-invoices`,
         },
         {
           title: 'Hóa đơn trả hàng',

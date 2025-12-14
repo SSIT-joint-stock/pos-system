@@ -1,8 +1,11 @@
+import { payment_method } from './method';
+
 export const ORDER_STATUS = {
   pending: { label: 'Pending', color: 'yellow' },
   paid: { label: 'Paid', color: 'green' },
   cancelled: { label: 'Cancelled', color: 'red' },
 } as const;
+
 export const SUPPLIER_STATUS = {
   active: {
     label: 'Đang hoạt động',
@@ -18,6 +21,7 @@ export const SUPPLIER_STATUS = {
   },
   delete: { label: 'Đã xóa', color: 'tex-red-500', bgColor: 'bg-red-50', value: 'DELETE' },
 };
+
 export const SUPPLIER_STATUS_MAP = Object.values(SUPPLIER_STATUS).reduce(
   (acc, item) => {
     acc[item.value] = item;
@@ -25,6 +29,7 @@ export const SUPPLIER_STATUS_MAP = Object.values(SUPPLIER_STATUS).reduce(
   },
   {} as Record<string, { label: string; color: string; bgColor: string; value: string }>
 );
+
 export const STOCK_MOVEMENT_STATUS = [
   { value: 'ADJUSTMENT', label: 'Điều chỉnh kho ' },
   { value: 'PURCHASE', label: 'Nhập hàng từ nhà cung cấp' },
@@ -35,6 +40,87 @@ export const STOCK_MOVEMENT_STATUS = [
   { value: 'TRANSFER_EXPORT', label: 'Xuất hàng sang kho khác' },
 ];
 
+export const PURCHASE_STATUS = {
+  pending: {
+    label: 'Đang chờ duyệt',
+    color: 'text-yellow-500',
+    bgColor: 'bg-yellow-50',
+    value: 'PENDING',
+  },
+  received: {
+    label: 'Đã nhập hàng',
+    color: 'text-green-500',
+    bgColor: 'bg-green-50',
+    value: 'RECEIVED',
+  },
+};
+
+export const PURCHASE_STATUS_MAP = Object.values(PURCHASE_STATUS).reduce(
+  (acc, item) => {
+    acc[item.value] = item;
+    return acc;
+  },
+  {} as Record<string, { label: string; color: string; bgColor: string; value: string }>
+);
+
+export const PAYMENT_STATUS = {
+  unpaid: {
+    label: 'Chưa thanh toán',
+    color: 'text-yellow-500', // chữ vàng đậm
+    bgColor: 'bg-yellow-50', // nền vàng nhạt
+    value: 'UNPAID',
+  },
+  partial: {
+    label: 'Thanh toán một phần',
+    color: 'text-orange-500', // chữ cam nhạt
+    bgColor: 'bg-orange-50', // nền cam nhạt
+    value: 'PARTIAL',
+  },
+  paid: {
+    label: 'Đã thanh toán đầy đủ',
+    color: 'text-green-500', // chữ xanh lá đậm
+    bgColor: 'bg-green-50', // nền xanh lá nhạt
+    value: 'PAID',
+  },
+  overdue: {
+    label: 'Quá hạn thanh toán',
+    color: 'text-red-500', // chữ đỏ đậm
+    bgColor: 'bg-red-50', // nền đỏ nhạt
+    value: 'OVERDUE',
+  },
+};
+
+export const PAYMENT_STATUS_MAP = Object.values(PAYMENT_STATUS).reduce(
+  (acc, item) => {
+    acc[item.value] = item;
+    return acc;
+  },
+  {} as Record<string, { label: string; color: string; bgColor: string; value: string }>
+);
+export const paymentMethods = [
+  {
+    label: 'Tiền mặt',
+    value: payment_method.CASH,
+  },
+  {
+    label: 'Thẻ tín dụng',
+    value: payment_method.CREDIT_CARD,
+  },
+  {
+    label: 'Thẻ ghi nợ',
+    value: payment_method.DEBIT_CARD,
+  },
+  {
+    label: 'Chuyển khoản',
+    value: payment_method.BANK_TRANSFER,
+  },
+  {
+    label: 'Ví điện tử',
+    value: payment_method.DIGITAL_WALLET,
+  },
+];
+
 export type OrderStatus = keyof typeof ORDER_STATUS;
 export type SupplierStatus = keyof typeof SUPPLIER_STATUS;
 export type StockMovementStatus = (typeof STOCK_MOVEMENT_STATUS)[number]['value'];
+export type PurchaseStatus = keyof typeof PURCHASE_STATUS;

@@ -1,6 +1,6 @@
 'use client';
-import useStore from '../../../../../main/src/hooks/store/use-store';
-import api from '../../../../../main/src/libs/axios';
+import useStore from '../../../hooks/store/use-store';
+import api from '../../../libs/axios';
 import { useEffect, useState } from 'react';
 import { Textarea } from '@mantine/core';
 import { Button, Input, Loading, Select } from '@repo/design-system/components/ui';

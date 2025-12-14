@@ -35,32 +35,10 @@ import FiltersProducts from '../components/filter-products';
 import BillOrder from '../components/bill-order';
 import { useVariant } from '../../../hooks/variant/use-variant';
 import { payment_method } from '../../../constants/method';
+import { paymentMethods } from '../../../constants/status';
 
 export type selectedVariant = Variant & { selectedQuantity: number; tax_rate?: number };
 type InvoiceSelected = selectedVariant[];
-
-export const paymentMethods = [
-  {
-    label: 'Tiền mặt',
-    value: payment_method.CASH,
-  },
-  {
-    label: 'Thẻ tín dụng',
-    value: payment_method.CREDIT_CARD,
-  },
-  {
-    label: 'Thẻ ghi nợ',
-    value: payment_method.DEBIT_CARD,
-  },
-  {
-    label: 'Chuyển khoản',
-    value: payment_method.BANK_TRANSFER,
-  },
-  {
-    label: 'Ví điện tử',
-    value: payment_method.DIGITAL_WALLET,
-  },
-];
 
 export function SalesView() {
   // HOOK(

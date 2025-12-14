@@ -56,6 +56,7 @@ export function ManageSuppliersView() {
   useEffect(() => {
     if (!currentStore?.id) return;
     getSuppliers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentStore?.id, paginationParams, filters]);
 
   return (
