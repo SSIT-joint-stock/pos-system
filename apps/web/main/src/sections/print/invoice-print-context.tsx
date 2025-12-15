@@ -1,10 +1,10 @@
 import React, { forwardRef } from 'react';
 import Image from 'next/image';
 import dayjs from 'dayjs';
-import { formatCurrency } from '../../../../../main/src/utils';
+import { formatCurrency } from '../../utils';
 import { Order } from '@repo/design-system/types';
 import { Store } from '@repo/design-system/types/store';
-import { formatPaymentMethod, payment_method } from '../../../constants/method';
+import { formatPaymentMethod, payment_method } from '../../constants/method';
 
 interface InvoicePrintContentProps {
   order: Order;
@@ -73,7 +73,7 @@ const InvoicePrintContent = forwardRef<HTMLDivElement, InvoicePrintContentProps>
             </tbody>
           </table>
           {/* <div className="max-h-[240px] overflow-y-scroll"> */}
-          <table style={{ width: '100%' }} className="mt-3.5 ">
+          <table style={{ width: '100%' }} className="mt-8 ">
             <colgroup>
               <col style={{ width: '20%' }} />
               <col style={{ width: '20%' }} />
@@ -82,7 +82,7 @@ const InvoicePrintContent = forwardRef<HTMLDivElement, InvoicePrintContentProps>
               <col style={{ width: '20%' }} />
             </colgroup>
             <tbody style={{ width: '100%' }} className="h-[50px] overflow-y-scroll">
-              <tr className={'border-b border-b-gray-600 text-sm'}>
+              <tr className={'border border-gray-900 text-sm p-2'}>
                 <th className="text-left">
                   <span>Sản phẩm</span>
                 </th>
@@ -99,37 +99,36 @@ const InvoicePrintContent = forwardRef<HTMLDivElement, InvoicePrintContentProps>
                   <span>Thành tiền</span>
                 </th>
               </tr>
-              {order?.order_item.map((item, index) => (
-                <tr
-                  key={item.id}
-                  className={`${order.order_item.length - 1 === index ? '' : 'border-b border-b-gray-600'}`}
-                >
-                  <td className="text-left text-xs">
+              {order?.order_item.map((item) => (
+                <tr key={item.id} className={'border border-gray-900  p-2'}>
+                  <td className="text-left text-xs border border-gray-800 p-2">
                     <span>{item.variant?.name}</span>
                   </td>
-                  <td className="text-left text-xs">
+                  <td className="text-left text-xs  border border-gray-800 p-2">
                     <span>{formatCurrency(item.price)}</span>
                   </td>
-                  <td className="text-left text-xs">
+                  <td className="text-left text-xs  border border-gray-800 p-2">
                     <span>
                       {formatCurrency(item.price * item.quantity * (item?.tax_rate / 100))}
                     </span>
                   </td>
-                  <td className="text-center text-xs">
+                  <td className="text-center text-xs  border border-gray-800 p-2">
                     <span>{item.quantity}</span>
                   </td>
-                  <span>
-                    {formatCurrency(
-                      item.price * item.quantity + (item.tax_rate / 100) * item.price
-                    )}
-                  </span>
+                  <td className="text-right text-xs  border border-gray-800 p-2">
+                    <span>
+                      {formatCurrency(
+                        item.price * item.quantity + (item.tax_rate / 100) * item.price
+                      )}
+                    </span>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
           {/* </div> */}
           <hr
-            className="border-t border-t-white border-b border-b-gray-600 my-3.5
+            className="border-t border-t-white border-b border-b-gray-800 my-4
              "
           />
           <table style={{ width: '100%' }} className="">

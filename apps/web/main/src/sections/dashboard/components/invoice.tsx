@@ -5,7 +5,7 @@ import { useAtomValue } from 'jotai';
 import { useOrders } from '../../../hooks/orders/use-orders';
 import { useRef } from 'react';
 import { useReactToPrint } from 'react-to-print';
-import InvoicePrintContent from './invoice-print-context';
+import InvoicePrintContent from '../../print/invoice-print-context';
 
 import { formatCurrency } from '../../../utils';
 
@@ -44,10 +44,24 @@ export default function Invoice({
   const { order, getOrderById } = useOrders();
   const { getStoreDetail, store } = useStore();
   const [isOpenModalQrCode, setIsOpenModalQrCode] = useState<boolean>(false);
+  const [printing, setPrinting] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
   const handlePrint = useReactToPrint({
     contentRef: printRef,
     documentTitle: `hoa_don_${order?.code || 'order'}`,
+    onBeforePrint: async () => {
+      setPrinting(true);
+
+      await new Promise((resolve) => setTimeout(resolve, 200));
+    },
+
+    onAfterPrint: () => {
+      setPrinting(false);
+    },
+
+    onPrintError: () => {
+      setPrinting(false);
+    },
   });
   useEffect(() => {
     if (openModalInvoice && newOrderId) {
@@ -317,7 +331,7 @@ export default function Invoice({
             <div className="hidden">
               <InvoicePrintContent ref={printRef} order={order as Order} store={store as Store} />
             </div>
-            <Button onClick={() => handlePrint()} title="In hóa đơn" />
+            <Button loading={printing} onClick={() => handlePrint()} title="In hóa đơn" />
           </div>
         </div>
       </Drawer>

@@ -16,7 +16,7 @@ import { FormCreateSupplier } from '../form-create-supplier';
 import {
   CreatePurchaseOrder,
   CreatePurchaseOrderItem,
-} from '@main/schemas/purchase/purchase.schema';
+} from '../../../../schemas/purchase/purchase.schema';
 import { Variant } from '@repo/design-system/types';
 import { formatCurrency } from '../../../../utils';
 import { useRouter } from 'next/navigation';

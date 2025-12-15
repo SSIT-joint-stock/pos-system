@@ -20,7 +20,15 @@ import { ActionButtons } from '../components/action-buttons';
 import { useStockMovement } from '../../../../../main/src/hooks/stock-movement/use-stock-movement';
 import { StockMovement } from '@repo/design-system/types/stock-movement';
 
-const tableHeaders = ['Sản phẩm', 'Giá trị', 'Trạng thái', 'Số lượng', 'Ngày tạo', 'Thao tác'];
+const tableHeaders = [
+  'Mã sản phẩm',
+  'Sản phẩm',
+  'Giá trị',
+  'Trạng thái',
+  // 'Số lượng',
+  'Ngày tạo',
+  'Thao tác',
+];
 
 // Màu sắc cho các loại phiếu kho
 const typeColors: Record<string, { bg: string; text: string; icon: React.ReactNode }> = {
@@ -76,6 +84,7 @@ const formatMovementType = (type: string) => {
 export function ManageStockView() {
   const [openViewModal, setOpenViewModal] = useState<boolean>(false);
   const [selectedMovement, setSelectedMovement] = useState<StockMovement>({} as StockMovement);
+
   const {
     pagination,
     movements,
@@ -92,6 +101,7 @@ export function ManageStockView() {
   useEffect(() => {
     if (!currentStore?.id) return;
     handleGetStockMovement();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentStore?.id, paginationParams, filters]);
   return (
     <>
@@ -153,11 +163,14 @@ export function ManageStockView() {
           isLoading={loading}
           renderRow={(movement) => (
             <>
+              <td className="px-4 py-3 text-sm font-semibold text-blue-600 hover:underline cursor-pointer text-nowrap">
+                {movement?.variants?.sku}
+              </td>
               <td className="px-4 py-3 text-sm font-semibold text-gray-600">
-                {movement.product?.name}
+                {movement.variants?.name}
               </td>
               <td className="px-4 py-3 text-sm font-medium text-gray-900">
-                {formatCurrency(movement.product?.price || 0)}
+                {formatCurrency(movement.variants?.price || 0)}
               </td>
               <td className="px-0.5 py-2">
                 <span
@@ -167,15 +180,18 @@ export function ManageStockView() {
                   {formatMovementType(movement.type)}
                 </span>
               </td>
-              <td className="px-4 py-3 text-sm font-bold">
+              {/* <td className="px-4 py-3 text-sm font-bold">
                 <span
-                  className={`${movement.quantity > 0 ? 'text-green-600' : 'text-red-600'} text-sm font-medium`}
+                  className={`${STOCK_MOVEMENT_CONFIG[movement.type].usesAbsoluteValue ? 'text-green-600' : 'text-red-600'} text-sm font-medium`}
                 >
-                  {movement.quantity > 0 ? '+' : ''}
-                  {movement.quantity.toLocaleString()}
+                  {STOCK_MOVEMENT_CONFIG[movement.type].isIncoming
+                    ? movement.quantity
+                    : -movement.quantity}
                 </span>
+              </td> */}
+              <td className="px-4 py-3 text-sm text-gray-500">
+                {formatDate(movement.createdAt, { showTime: true })}
               </td>
-              <td className="px-4 py-3 text-sm text-gray-500">{formatDate(movement.createdAt)}</td>
               <td>
                 <ActionButtons
                   onView={() => {
@@ -197,7 +213,7 @@ export function ManageStockView() {
         <div className="flex flex-col gap-4 mt-4">
           <div className="flex items-center ">
             <p className="text-base font-semibold flex-1">Sản phẩm</p>
-            <Input readOnly className="flex-1" size="sm" value={selectedMovement?.product?.name} />
+            <Input readOnly className="flex-1" size="sm" value={selectedMovement?.variants?.name} />
           </div>
           <div className="flex items-center ">
             <p className="text-base font-semibold flex-1">Số tiền</p>
@@ -205,7 +221,7 @@ export function ManageStockView() {
               readOnly
               className="flex-1"
               size="sm"
-              value={formatCurrency(selectedMovement?.product?.price || 0)}
+              value={formatCurrency(selectedMovement?.variants?.price || 0)}
             />
           </div>
           <div className="flex items-center ">
@@ -224,7 +240,7 @@ export function ManageStockView() {
               readOnly
               className="flex-1"
               size="sm"
-              value={formatDate(selectedMovement?.createdAt)}
+              value={formatDate(selectedMovement?.createdAt, { showTime: true })}
               rightSection={<Calendar size={16} />}
             />
           </div>

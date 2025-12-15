@@ -10,6 +10,7 @@ import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { formatDate, truncateText } from '../../../utils';
 import { STOCK_MOVEMENT_STATUS } from '../../../constants/status';
 import { useClickOutside } from '@repo/design-system/hooks/client';
+import { calculateNewOnHand } from '../../../utils/caculate/caculate-stock';
 
 export function FormVariant({
   opened,
@@ -55,6 +56,7 @@ export function FormVariant({
   useEffect(() => {
     if (!variantId || !product?.id || !isEdit) return;
     getVariant(variantId, product.id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEdit, variantId, product?.id]);
   useEffect(() => {
     if (isEdit && variant) {
@@ -82,6 +84,7 @@ export function FormVariant({
     }
   }, [reset, variant, isEdit]);
   useClickOutside(ref, () => setOpenedPopover(false));
+  console.log(delta);
   return (
     <Modal
       title={
@@ -211,20 +214,21 @@ export function FormVariant({
                         className={`space-y-3 absolute top-full left-0 bg-white p-2 rounded-md w-[360px] shadow z-10 transform ease-in-out duration-200 ${openedPopover ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
                       >
                         <div className="flex gap-2">
-                          <Input
-                            defaultValue={0}
-                            onChange={(e) => {
-                              setDelta(Number(e.target.value));
+                          <NumberInput
+                            value={delta}
+                            onChange={(value) => {
+                              setDelta(Number(value));
                             }}
                             size="sm"
                             radius="sm"
                             label="Điều chỉnh"
                             className="flex-1"
                           />
-                          <Input
-                            defaultValue={variant?.onHand}
+                          <NumberInput
+                            value={calculateNewOnHand(variant?.onHand || 0, delta, status)}
                             size="sm"
                             radius="sm"
+                            readOnly
                             label="Tồn kho mới"
                             className="flex-1"
                           />
@@ -235,7 +239,6 @@ export function FormVariant({
                             size="sm"
                             radius="sm"
                             onChange={(value) => {
-                              console.log(value);
                               setStatus(value as string);
                             }}
                             defaultValue={STOCK_MOVEMENT_STATUS[0].value}

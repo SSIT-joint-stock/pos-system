@@ -1,7 +1,7 @@
 'use client';
 import { MoveLeft, PencilLine, Printer } from 'lucide-react';
 import { usePurchase } from '../../../hooks/purchase/use-purchase';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   PAYMENT_STATUS,
@@ -14,6 +14,12 @@ import { Button, Table } from '@repo/design-system/components/ui';
 import { Tooltip } from '@mantine/core';
 import FormAccpetImportPayment from '../components/purchase-order/form-accpet-import-payment';
 import { PurchaseOrder } from '@repo/design-system/types/purchase';
+import { useReactToPrint } from 'react-to-print';
+import InvoicePurchaseOrderPrintContent from '../../print/purchase-order-print-context';
+import { currentStoreAtom } from '@repo/design-system/stores/auth';
+import { useAtomValue } from 'jotai';
+import { Store } from '@repo/design-system/types/store';
+import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 const tableHeaders = [
   'Tên sản phẩm',
   'Số lượng',
@@ -25,11 +31,13 @@ const tableHeaders = [
   'VAT (VND | %)',
   'Thành tiền',
 ];
-export function PurchaseOrdersView({ purchaseId }: { purchaseId: string }) {
+export function PurchaseOrdersDetailView({ purchaseId }: { purchaseId: string }) {
   const router = useRouter();
-
+  const { showInfoToast } = useToast();
+  const printRef = useRef<HTMLDivElement>(null);
+  const currentStore = useAtomValue(currentStoreAtom);
   // HOOK
-
+  const [printing, setPrinting] = useState(false);
   const [isOpenModalAcceptPayment, setIsOpenModalAcceptPayment] = useState<boolean>(false);
   // CUSTOM HOOKS
   const { getPurchaseOrder, acceptImportPurchase, loading, purchaseOrder } = usePurchase();
@@ -37,6 +45,24 @@ export function PurchaseOrdersView({ purchaseId }: { purchaseId: string }) {
   const paymentStatus = purchaseOrder?.payment_status
     ? PAYMENT_STATUS_MAP[purchaseOrder.payment_status]
     : null;
+  const handlePrint = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: `hoa_don_nhap_${purchaseOrder?.order_number || ''}`,
+
+    onBeforePrint: async () => {
+      setPrinting(true);
+
+      await new Promise((resolve) => setTimeout(resolve, 200));
+    },
+
+    onAfterPrint: () => {
+      setPrinting(false);
+    },
+
+    onPrintError: () => {
+      setPrinting(false);
+    },
+  });
   // EFFECT
   useEffect(() => {
     getPurchaseOrder(purchaseId);
@@ -75,15 +101,27 @@ export function PurchaseOrdersView({ purchaseId }: { purchaseId: string }) {
                 title="Sửa đơn"
                 icon={<PencilLine size={18} />}
                 variant="outline"
-                onClick={() => {}}
+                onClick={() => {
+                  showInfoToast('Chức năng đang được cập nhật. Xin lỗi vì sự bất tiện này!');
+                }}
                 size="sm"
                 radius="sm"
               />
+              <div className="hidden">
+                <InvoicePurchaseOrderPrintContent
+                  ref={printRef}
+                  purchaseOrder={purchaseOrder as PurchaseOrder}
+                  store={currentStore as Store}
+                />
+              </div>
               <Button
+                loading={printing}
                 title="In đơn"
                 icon={<Printer size={18} />}
                 variant="outline"
-                onClick={() => {}}
+                onClick={() => {
+                  handlePrint();
+                }}
                 size="sm"
                 radius="sm"
               />
@@ -94,7 +132,7 @@ export function PurchaseOrdersView({ purchaseId }: { purchaseId: string }) {
             <h2 className="text-lg font-semibold flex items-center justify-between">
               Danh sách đơn nhập
               <span
-                className={`${status?.bgColor} ${status?.color} py-2 px-4 rounded-md text-sm font-medium`}
+                className={`${status?.bgColor} ${status?.color} py-2 px-4 rounded-md text-sm font-semibold`}
               >
                 {status?.label}
               </span>{' '}

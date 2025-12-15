@@ -16,4 +16,10 @@ export interface StockMovement {
     sku: string;
     price: number;
   };
+  variants: {
+    name: string;
+    id: string;
+    price: string;
+    sku: string;
+  };
 }

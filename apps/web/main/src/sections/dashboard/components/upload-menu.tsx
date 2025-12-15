@@ -1,5 +1,6 @@
 'use client';
 import { useClickOutside } from '@repo/design-system/hooks/client';
+import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 import { Download, Upload } from 'lucide-react';
 import { useRef } from 'react';
 
@@ -26,6 +27,7 @@ export function UploadMenu({
 }: UploadMenuProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   useClickOutside(menuRef, () => onClose());
+  const { showInfoToast } = useToast();
 
   return (
     <>
@@ -43,7 +45,9 @@ export function UploadMenu({
           <div className="absolute top-full left-0 mt-1 z-50 flex flex-col  rounded-md shadow-md shadow-gray-100">
             <button
               disabled={loading}
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => {
+                showInfoToast('Chức năng đang được phát triển');
+              }}
               className={`bg-white  text-nowrap  py-2 px-4 text-left hover:bg-gray-50 rounded-t-md  cursor-pointer  disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               <span className="text-gray-800 font-medium text-sm">Tải lên dữ liệu (Excel)</span>
@@ -62,7 +66,10 @@ export function UploadMenu({
             </button>
             <button
               disabled={loading}
-              onClick={onDownloadTemplate}
+              onClick={() => {
+                onDownloadTemplate?.();
+                showInfoToast('Chức năng đang được phát triển');
+              }}
               className={`bg-white  text-nowrap  hover:bg-gray-50   py-2 px-4 text-left rounded-b-md cursor-pointer  disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               <span className="text-gray-800 font-medium text-sm">Tải file mẫu (Excel)</span>
@@ -72,7 +79,10 @@ export function UploadMenu({
       </div>
 
       <button
-        onClick={onExport}
+        onClick={() => {
+          onExport?.();
+          showInfoToast('Chức năng đang được phát triển');
+        }}
         className="bg-white border text-nowrap border-gray-200 rounded-md flex items-center gap-2 py-2 px-4  cursor-pointer hover:opacity-80 transition-opacity duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <Download size={16} />

@@ -40,6 +40,20 @@ export const STOCK_MOVEMENT_STATUS = [
   { value: 'TRANSFER_EXPORT', label: 'Xuất hàng sang kho khác' },
 ];
 
+export const STOCK_MOVEMENT_CONFIG: Record<
+  string,
+  { isIncoming: boolean; usesAbsoluteValue: boolean }
+> = {
+  ADJUSTMENT: { isIncoming: true, usesAbsoluteValue: false },
+  PURCHASE: { isIncoming: true, usesAbsoluteValue: true },
+  RETURN_SALE: { isIncoming: true, usesAbsoluteValue: true },
+  TRANSFER_IMPORT: { isIncoming: true, usesAbsoluteValue: true },
+
+  SALE: { isIncoming: false, usesAbsoluteValue: true },
+  RETURN_PURCHASE: { isIncoming: false, usesAbsoluteValue: true },
+  TRANSFER_EXPORT: { isIncoming: false, usesAbsoluteValue: true },
+};
+
 export const PURCHASE_STATUS = {
   pending: {
     label: 'Đang chờ duyệt',

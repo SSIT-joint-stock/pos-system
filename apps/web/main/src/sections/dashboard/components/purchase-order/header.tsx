@@ -9,7 +9,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useDebounceCallback } from 'usehooks-ts';
 
 import { useProduct } from '../../../../hooks/product/use-product';
-import { CreatePurchaseOrderItem } from '@main/schemas/purchase/purchase.schema';
+import { CreatePurchaseOrderItem } from '../../../../schemas/purchase/purchase.schema';
 import { Variant } from '@repo/design-system/types';
 import { useRouter } from 'next/navigation';
 

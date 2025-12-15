@@ -9,7 +9,7 @@ import { usePurchase } from '../../../hooks/purchase/use-purchase';
 import { Controller, useFieldArray } from 'react-hook-form';
 import { Variant } from '@repo/design-system/types';
 
-import { CreatePurchaseOrderItem } from '@main/schemas/purchase/purchase.schema';
+import { CreatePurchaseOrderItem } from '../../../schemas/purchase/purchase.schema';
 import SidebarPurchase from '../components/purchase-order/sidebar';
 
 const tableHeaders = [
@@ -24,7 +24,7 @@ const tableHeaders = [
   'Hành động',
 ];
 
-export function PurchaseOrdersV2() {
+export function CreatePurchaseOrders() {
   // HOOK
 
   const [selectedVariants, setSelectedVariants] = useState<Variant[]>([] as Variant[]);
