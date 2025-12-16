@@ -18,3 +18,4 @@ export * from './manage-product-combos-view';
 export * from './info-store-view-v2';
 export * from './product-view';
 export * from './purchase-order-detail-view';
+export * from './export-invoices-views';

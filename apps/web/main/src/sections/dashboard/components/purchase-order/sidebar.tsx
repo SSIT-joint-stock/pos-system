@@ -3,7 +3,7 @@ import { useSupplier } from '../../../../hooks/suplier/use-supplier';
 import { Button, Input, Loading, Modal, Select } from '@repo/design-system/components/ui';
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 import { Menu, Plus, User } from 'lucide-react';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useTransition } from 'react';
 import {
   Control,
   Controller,
@@ -54,6 +54,7 @@ export default function SidebarPurchase({
   selectedVariants,
 }: SidebarPurchaseProps) {
   const { showErrorToast } = useToast();
+  const [isPendingForCreated, startTransition] = useTransition();
   const [openModalCreateSupplier, setOpenModalCreateSupplier] = useState<boolean>(false);
   const router = useRouter();
   const {
@@ -100,9 +101,11 @@ export default function SidebarPurchase({
               const success = await createPurchaseOrder(data);
               if (success.success) {
                 reset();
-                router.push(
-                  `/dashboard/store/${currentStore?.id}/import-invoices/detail/${success?.data?.id}`
-                );
+                startTransition(() => {
+                  router.push(
+                    `/dashboard/store/${currentStore?.id}/import-invoices/detail/${success?.data?.id}`
+                  );
+                });
               }
             }
           })}
@@ -251,6 +254,14 @@ export default function SidebarPurchase({
       >
         <FormCreateSupplier setIsOpenModal={setOpenModalCreateSupplier} />
       </Modal>
+      {isPendingForCreated && (
+        <div className="absolute inset-0 z-50 bg-white/80 flex items-center justify-center">
+          <div className="flex items-center gap-4">
+            <Loading size="sm" color="#3b82f6" />
+            <span className="text-pos-blue-500 text-sm">Đang chuyển trang...</span>
+          </div>
+        </div>
+      )}
     </>
   );
 }

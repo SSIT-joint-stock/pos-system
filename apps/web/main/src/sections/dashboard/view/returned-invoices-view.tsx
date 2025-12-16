@@ -6,6 +6,7 @@ import { Plus } from 'lucide-react';
 import { DisplayField } from '../components/display-field';
 import { DataActionBar } from '../components/data-action-bar';
 import { ActionButtons } from '../components/action-buttons';
+import { IsUpdated } from '../components';
 
 export const tableHeaders = [
   'Mã phiếu trả',
@@ -111,57 +112,64 @@ export const tableData = [
 ];
 
 export function ReturnedInvoicesView() {
+  const isUpdated = true;
   return (
-    <DashboardViewLayout>
-      {/* Header */}
+    <>
+      {isUpdated ? (
+        <IsUpdated />
+      ) : (
+        <DashboardViewLayout>
+          {/* Header */}
 
-      <DisplayField label="Quản lý danh sách đơn trả hàng">
-        <Button title="Tạo phiếu trả hàng" icon={<Plus size={16} />} size="sm" radius="sm" />
-      </DisplayField>
-      <DataActionBar
-        placeholderSearch="Tìm kiếm mã trả hàng, tên khách hàng"
-        statusOptions={[
-          {
-            width: '280px',
-            key: 'status',
-            label: 'Trạng thái phiếu trả',
-            options: [
+          <DisplayField label="Quản lý danh sách đơn trả hàng">
+            <Button title="Tạo phiếu trả hàng" icon={<Plus size={16} />} size="sm" radius="sm" />
+          </DisplayField>
+          <DataActionBar
+            placeholderSearch="Tìm kiếm mã trả hàng, tên khách hàng"
+            statusOptions={[
               {
-                label: 'test',
-                value: 'test value',
+                width: '280px',
+                key: 'status',
+                label: 'Trạng thái phiếu trả',
+                options: [
+                  {
+                    label: 'test',
+                    value: 'test value',
+                  },
+                ],
               },
-            ],
-          },
-        ]}
-        // onFilterChange={(newFilters) => {
-        //   setFilters((prev) => ({
-        //     ...prev,
-        //     ...newFilters,
-        //     product_status: newFilters.status,
-        //   }));
-        // }}
-        // onSearch={(value) => {
-        //   setFilters((prev) => ({ ...prev, q: value }));
-        // }}
-      />
-      <Table
-        hasMarginTop={false}
-        tableHeaders={tableHeaders}
-        data={tableData}
-        renderRow={(row) => (
-          <>
-            <td className="px-4 py-3 text-sm font-semibold text-blue-600">{row.code}</td>
-            <td className="px-4 py-3 text-sm text-gray-600">{row.date}</td>
-            <td className="px-4 py-3 text-sm text-gray-600">{row.customer}</td>
-            <td className="px-4 py-3 text-sm text-gray-600">{row.total}</td>
-            <td className="px-4 py-3 text-sm text-gray-600">{row.quantity}</td>
-            <td className="px-4 py-3 text-sm text-gray-600">{row.status}</td>
-            <td>
-              <ActionButtons onView={() => {}} onEdit={() => {}} onDelete={() => {}} />
-            </td>
-          </>
-        )}
-      />
-    </DashboardViewLayout>
+            ]}
+            // onFilterChange={(newFilters) => {
+            //   setFilters((prev) => ({
+            //     ...prev,
+            //     ...newFilters,
+            //     product_status: newFilters.status,
+            //   }));
+            // }}
+            // onSearch={(value) => {
+            //   setFilters((prev) => ({ ...prev, q: value }));
+            // }}
+          />
+          <Table
+            hasMarginTop={false}
+            tableHeaders={tableHeaders}
+            data={tableData}
+            renderRow={(row) => (
+              <>
+                <td className="px-4 py-3 text-sm font-semibold text-blue-600">{row.code}</td>
+                <td className="px-4 py-3 text-sm text-gray-600">{row.date}</td>
+                <td className="px-4 py-3 text-sm text-gray-600">{row.customer}</td>
+                <td className="px-4 py-3 text-sm text-gray-600">{row.total}</td>
+                <td className="px-4 py-3 text-sm text-gray-600">{row.quantity}</td>
+                <td className="px-4 py-3 text-sm text-gray-600">{row.status}</td>
+                <td>
+                  <ActionButtons onView={() => {}} onEdit={() => {}} onDelete={() => {}} />
+                </td>
+              </>
+            )}
+          />
+        </DashboardViewLayout>
+      )}
+    </>
   );
 }

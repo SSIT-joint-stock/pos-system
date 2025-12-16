@@ -6,6 +6,7 @@ import DashboardViewLayout from '../../../../../main/src/layouts/dashboard-view-
 import { DisplayField } from '../components/display-field';
 import { DataActionBar } from '../components/data-action-bar';
 import { ActionButtons } from '../components/action-buttons';
+import { IsUpdated } from '../components';
 
 const tableHeaders = [
   'Mã lô hàng',
@@ -156,51 +157,58 @@ const tableData = [
 
 export function ManageProductCombosView() {
   const [openUploadOption, setOpenUploadOption] = useState<boolean>(false);
+  const [isUpdated] = useState<boolean>(true);
   return (
-    <DashboardViewLayout>
-      {/* Header */}
-      <DisplayField label="Danh sách nhóm sản phẩm">
-        <Button title="Thêm nhóm sản phẩm" icon={<Plus size={16} />} size="sm" radius="sm" />
-      </DisplayField>
-      <DataActionBar
-        openUploadOption={openUploadOption}
-        setOpenUploadOption={setOpenUploadOption}
-        placeholderSearch="Nhập tên đơn vị tính"
-        dataComplete={['TÊN ĐƠN VỊ TÍNH1', 'TÊN ĐƠN VỊ TÍNH2', 'TÊN ĐƠN VỊ TÍNH3']}
-      />
-      <Table
-        hasMarginTop={false}
-        tableHeaders={tableHeaders}
-        data={tableData}
-        renderRow={(row) => (
-          <>
-            <td className="px-4 py-3 text-sm font-semibold text-pos-blue-600">{row.code}</td>
-            <td className="px-4 py-3 text-sm text-gray-600">{row.date}</td>
-            <td className="px-4 py-3 text-sm text-gray-600">{row.customer}</td>
-            <td className="px-4 py-3 text-sm text-gray-600">{row.method}</td>
-            <td className="px-4 py-3 text-sm text-pos-blue-500 font-medium">{row.import}</td>
-            <td className="px-4 py-3 text-sm text-red-600 font-medium">{row.export}</td>
-            <td className="px-4 py-3 text-sm text-gray-600">{row.transfer}</td>
-            <td className="px-4 py-3 text-sm text-gray-600">{row.note}</td>
-            <td>
-              <ActionButtons
-                onView={() => {
-                  // setOpenViewModal(true);
-                  // getProductById(product.id);
-                }}
-                onEdit={() => {
-                  // setOpenEditModal(true);
-                  // getProductById(product.id);
-                }}
-                onDelete={() => {
-                  // setDeleteModal(true);
-                  // getProductById(product.id);
-                }}
-              />
-            </td>
-          </>
-        )}
-      />
-    </DashboardViewLayout>
+    <>
+      {isUpdated ? (
+        <IsUpdated />
+      ) : (
+        <DashboardViewLayout>
+          {/* Header */}
+          <DisplayField label="Danh sách nhóm sản phẩm">
+            <Button title="Thêm nhóm sản phẩm" icon={<Plus size={16} />} size="sm" radius="sm" />
+          </DisplayField>
+          <DataActionBar
+            openUploadOption={openUploadOption}
+            setOpenUploadOption={setOpenUploadOption}
+            placeholderSearch="Nhập tên đơn vị tính"
+            dataComplete={['TÊN ĐƠN VỊ TÍNH1', 'TÊN ĐƠN VỊ TÍNH2', 'TÊN ĐƠN VỊ TÍNH3']}
+          />
+          <Table
+            hasMarginTop={false}
+            tableHeaders={tableHeaders}
+            data={tableData}
+            renderRow={(row) => (
+              <>
+                <td className="px-4 py-3 text-sm font-semibold text-pos-blue-600">{row.code}</td>
+                <td className="px-4 py-3 text-sm text-gray-600">{row.date}</td>
+                <td className="px-4 py-3 text-sm text-gray-600">{row.customer}</td>
+                <td className="px-4 py-3 text-sm text-gray-600">{row.method}</td>
+                <td className="px-4 py-3 text-sm text-pos-blue-500 font-medium">{row.import}</td>
+                <td className="px-4 py-3 text-sm text-red-600 font-medium">{row.export}</td>
+                <td className="px-4 py-3 text-sm text-gray-600">{row.transfer}</td>
+                <td className="px-4 py-3 text-sm text-gray-600">{row.note}</td>
+                <td>
+                  <ActionButtons
+                    onView={() => {
+                      // setOpenViewModal(true);
+                      // getProductById(product.id);
+                    }}
+                    onEdit={() => {
+                      // setOpenEditModal(true);
+                      // getProductById(product.id);
+                    }}
+                    onDelete={() => {
+                      // setDeleteModal(true);
+                      // getProductById(product.id);
+                    }}
+                  />
+                </td>
+              </>
+            )}
+          />
+        </DashboardViewLayout>
+      )}
+    </>
   );
 }

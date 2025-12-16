@@ -23,7 +23,9 @@ export function ItemBoxChart({
     return num;
   }
   return (
-    <div className={`bg-white py-5 px-4 rounded-xl flex items-center gap-5 shadow ${className}`}>
+    <div
+      className={`bg-white py-5 px-4 rounded-md flex items-center gap-5  ${className} border border-gray-200 `}
+    >
       <div className="flex flex-col gap-2 w-full">
         <div className="flex items-center justify-between w-full">
           <p className="text-gray-600 text-base font-medium">{title}</p>

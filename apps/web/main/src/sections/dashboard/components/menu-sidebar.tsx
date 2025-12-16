@@ -79,23 +79,23 @@ export default function MenuSidebar({
       ],
     },
     {
-      title: 'Giao dịch',
+      title: 'Hóa đơn',
       icon: <Receipt size={20} className="shrink-0" />,
       children: [
         {
-          title: 'Hóa đơn bán hàng',
+          title: 'Hóa đơn bán',
           path: `/dashboard/store/${currentStore?.id}/sales-invoices`,
         },
         {
-          title: 'Hóa đơn nhập hàng',
+          title: 'Hóa đơn nhập ',
           path: `/dashboard/store/${currentStore?.id}/import-invoices`,
         },
         {
-          title: 'Hóa đơn xuất hàng',
+          title: 'Hóa đơn xuất (NCC)',
           path: `/dashboard/store/${currentStore?.id}/export-invoices`,
         },
         {
-          title: 'Hóa đơn trả hàng',
+          title: 'Hóa đơn trả (KH)',
           path: `/dashboard/store/${currentStore?.id}/returned-invoices`,
         },
       ],
@@ -195,7 +195,7 @@ export default function MenuSidebar({
                   <Link
                     key={cIdx}
                     href={child.path}
-                    className={`text-sm font-medium rounded-md p-2  ${child.path === pathName || pathName?.startsWith(child.path) ? 'bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white' : 'text-gray-700 hover:bg-pos-blue-50 hover:text-pos-blue-400'}`}
+                    className={`text-sm font-medium rounded-sm p-2  ${child.path === pathName || pathName?.startsWith(child.path) ? 'bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white' : 'text-gray-700 hover:bg-pos-blue-50 hover:text-pos-blue-400'}`}
                   >
                     {child.title}
                   </Link>

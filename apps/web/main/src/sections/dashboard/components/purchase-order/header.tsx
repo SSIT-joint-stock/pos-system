@@ -98,7 +98,7 @@ export default function Header({
                 </>
               }
             />
-            <Button title="Tìm kiếm" variant="outline" size="sm" radius="sm" />
+            <Button title="Mở rộng" variant="outline" size="sm" radius="sm" />
             <div
               className={`absolute top-full mt-1 left-0 w-full border border-gray-200  bg-white z-50 shadow-md rounded-md  p-3   ${isFocusInputSearch ? 'opacity-100 visible' : 'opacity-0 invisible'}   transition-all max-h-[400px] overflow-x-scroll`}
             >

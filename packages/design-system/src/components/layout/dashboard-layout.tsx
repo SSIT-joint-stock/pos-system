@@ -60,14 +60,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     init();
   }, [hydrated, store, accessToken]);
 
-  if (!hydrated) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <Loading />
-      </div>
-    );
-  }
-
   return (
     <div className="flex w-screen h-screen ">
       {!isSalesPages && <Sidebar isExpand={isExpand} setIsExpand={setIsExpand} />}
@@ -76,7 +68,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <main
           className={`${isSalesPages ? 'flex-1 p-0 overflow-auto  scrollbar-fixed' : 'flex-1 p-4 overflow-auto  scrollbar-fixed'}`}
         >
-          {children}
+          {hydrated ? (
+            children
+          ) : (
+            <div className="flex items-center justify-center w-full h-full bg-white ">
+              <div className="flex items-center gap-4">
+                <Loading color="#3b82f6" size="md" />
+                <span className="text-pos-blue-500 text-sm">Đang lấy dữ liệu ...</span>
+              </div>
+            </div>
+          )}
         </main>
       </div>
     </div>

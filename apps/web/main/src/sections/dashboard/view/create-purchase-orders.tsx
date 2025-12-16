@@ -38,7 +38,6 @@ export function CreatePurchaseOrders() {
       control,
       watch,
       register,
-      getValues,
       reset,
       handleSubmit,
       formState: { errors },
@@ -112,6 +111,7 @@ export function CreatePurchaseOrders() {
                 renderRow={(data, index) => {
                   const variant = selectedVariants.find((p) => p.id === data.variant_id);
                   const item = watchedItems[index];
+                  const cost = item?.unit_cost || 0;
                   if (!variant) return null;
                   return (
                     <>
@@ -202,6 +202,7 @@ export function CreatePurchaseOrders() {
                                   type="text"
                                   onBlur={() => setEditingVariantId(null)}
                                   autoFocus
+                                  min={0}
                                   size="sm"
                                   defaultValue={variant?.cost || 0}
                                   radius="sm"
@@ -217,9 +218,7 @@ export function CreatePurchaseOrders() {
                               className="w-28 text-right"
                               onFocus={() => setEditingVariantId(data.variant_id)}
                               defaultValue={
-                                formatCurrency(
-                                  variant?.cost || getValues(`items.${index}.unit_cost`)
-                                ) || '0'
+                                cost ? formatCurrency(cost) : formatCurrency(data?.unit_cost)
                               }
                             />
                           )}
