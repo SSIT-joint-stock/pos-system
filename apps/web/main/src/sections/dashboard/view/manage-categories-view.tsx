@@ -220,6 +220,7 @@ export function ManageCategoriesView() {
         <form onSubmit={updateCategoryForm.handleSubmit(handleSubmitUpdate)} className="space-y-4">
           <Input
             size="sm"
+            radius="sm"
             label="Tên danh mục"
             placeholder="Nhập tên danh mục..."
             {...updateCategoryForm.register('name')}

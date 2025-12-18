@@ -62,6 +62,8 @@ export function SalesInvoicesView() {
     loading,
     pagination,
     paginationParams,
+    downloadExcelTemplate,
+    exportExcelOrders,
     setPaginationParams,
     setFilters,
     deleteOrder,
@@ -148,6 +150,8 @@ export function SalesInvoicesView() {
             setFilters((prev) => ({ ...prev, q: value }));
           }}
           loading={loading}
+          onDownloadTemplate={downloadExcelTemplate}
+          onExport={exportExcelOrders}
           placeholderSearch="Nhập mã hóa đơn, tên khách hàng"
         />
         {/* TABLE AND PAGINATION */}
