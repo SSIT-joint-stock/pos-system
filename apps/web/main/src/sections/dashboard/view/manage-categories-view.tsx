@@ -13,7 +13,6 @@ import { DataActionBar } from '../components/data-action-bar';
 import { DisplayField } from '../components/display-field';
 import FormCreateCategory from '../components/form-create-category';
 import DashboardViewLayout from '../../../../../main/src/layouts/dashboard-view-layout';
-import * as XLSX from 'xlsx';
 
 const tableHeaders = ['Tên danh mục', 'Mô tả', 'Ngày tạo', 'Thao tác'];
 
@@ -33,42 +32,25 @@ export function ManageCategoriesView() {
     paginationParams,
     filters,
     loading,
+    createCategoryForm,
+    updateCategoryForm,
+    importCategories,
+    exportExcelCategory,
+    downloadExampleCategory,
     getCategories,
     getCategoryById,
     createCategory,
     updateCategory,
     deleteCategory,
-    createCategoryForm,
-    updateCategoryForm,
     setFilters,
     setPaginationParams,
   } = useCategories();
-
-  const handleExportExcel = () => {
-    if (!categories || categories.length === 0) {
-      alert('Không có dữ liệu để xuất');
-      return;
-    }
-
-    const formatted = categories.map((cat: any) => ({
-      ID: cat.id,
-      'Tên danh mục': cat.name,
-      Mô_tả: cat.description ?? '',
-      'Ngày tạo': formatDate(cat.createdAt),
-      'Ngày cập nhật': formatDate(cat.updatedAt),
-    }));
-
-    const worksheet = XLSX.utils.json_to_sheet(formatted);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Danh mục');
-
-    XLSX.writeFile(workbook, 'categories.xlsx');
-  };
 
   // Load categories on mount and when dependencies change
   useEffect(() => {
     if (!currentStore?.id) return;
     getCategories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentStore?.id, paginationParams, filters]);
 
   // Reset form when category changes for edit modal
@@ -142,8 +124,10 @@ export function ManageCategoriesView() {
           onSearch={(value) => {
             setFilters((prev) => ({ ...prev, q: value }));
           }}
+          onDownloadTemplate={downloadExampleCategory}
+          onExport={exportExcelCategory}
+          onUpload={importCategories}
           placeholderSearch="Nhập tên danh mục, mã danh mục"
-          onExport={handleExportExcel}
         />
 
         {/* TABLE */}

@@ -17,6 +17,7 @@ import {
   UpdateCategoryInput,
   UpdateCategorySchema,
 } from '../../schemas/category/category.schema';
+import { exportExcel } from '../../utils/export-excel/export';
 
 interface CategoryFilters extends Record<string, FilterValue> {
   q?: string;
@@ -45,6 +46,7 @@ export function useCategories() {
 
   // STATE
   const currentStore = useAtomValue(currentStoreAtom);
+  const [loadingExport, setLoadingExport] = useState<boolean>(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [category, setCategory] = useState<Category>();
 
@@ -123,6 +125,57 @@ export function useCategories() {
     }
   };
 
+  const downloadExampleCategory = useCallback(async () => {
+    if (!currentStore?.id) return;
+    const res = await api.get(`/stores/${currentStore.id}/categories/excel/example`, {
+      responseType: 'blob',
+    });
+    if (!res) return;
+    exportExcel(
+      res,
+      `mau_danh_sach_danh_muc_${new Date().toLocaleDateString()}.xlsx`,
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+  }, [currentStore?.id]);
+
+  const exportExcelCategory = useCallback(async () => {
+    if (!currentStore?.id) return;
+    setLoadingExport(true);
+    const res = await api.get(`/stores/${currentStore.id}/categories/excel/export`, {
+      responseType: 'blob',
+    });
+
+    if (!res) return;
+
+    exportExcel(
+      res,
+      `danh_sach_danh_muc_${new Date().toLocaleDateString()}.xlsx`,
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+
+    setLoadingExport(false);
+  }, [currentStore?.id]);
+
+  const importCategories = useCallback(
+    async (file: File) => {
+      if (!currentStore?.id) return;
+      const formData = new FormData();
+      formData.append('excel_category', file);
+      const res = await requestWrapper(() =>
+        api.post<ApiResponse>(`/stores/${currentStore.id}/categories/excel/import`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+      );
+      if (res?.data.success) {
+        showSuccessToast(res.data.message as string);
+        getCategories();
+      }
+    },
+    [currentStore?.id, requestWrapper, getCategories, showSuccessToast]
+  );
+
   return {
     getCategories,
     getCategoryById,
@@ -134,6 +187,9 @@ export function useCategories() {
     setSortBy,
     setSort,
     setCategories,
+    downloadExampleCategory,
+    exportExcelCategory,
+    importCategories,
     pagination,
     paginationParams,
     filters,
@@ -142,5 +198,6 @@ export function useCategories() {
     createCategoryForm,
     updateCategoryForm,
     category,
+    loadingExport,
   };
 }

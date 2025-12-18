@@ -11,9 +11,11 @@ import { Loading } from '../ui';
 import Sidebar from '../../../../../apps/web/main/src/sections/dashboard/components/sidebar-screen';
 import HeaderSidebar from '../../../../../apps/web/main/src/sections/dashboard/components/header-sidebar';
 import { usePathname } from 'next/navigation';
+import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathName = usePathname();
+  const { showErrorToast } = useToast();
   const isSalesPages = pathName.endsWith('/sales');
   const [isExpand, setIsExpand] = useState(false);
   const [hydrated, setHydrated] = useState(false);
@@ -52,13 +54,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           currentStore = defaultStore;
           store.set(currentStoreAtom, currentStore);
         }
-      } catch (error) {
-        console.error(error);
+      } catch {
+        showErrorToast('Vui lòng đăng nhâp lại!');
       }
     };
 
     init();
-  }, [hydrated, store, accessToken]);
+  }, [hydrated, store, accessToken, showErrorToast]);
 
   return (
     <div className="flex w-screen h-screen ">
@@ -74,7 +76,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="flex items-center justify-center w-full h-full bg-white ">
               <div className="flex items-center gap-4">
                 <Loading color="#3b82f6" size="md" />
-                <span className="text-pos-blue-500 text-sm">Đang lấy dữ liệu ...</span>
+                <span className="text-pos-blue-500 text-base ">Đang lấy dữ liệu ...</span>
               </div>
             </div>
           )}

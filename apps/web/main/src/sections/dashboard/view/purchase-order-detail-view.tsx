@@ -1,7 +1,7 @@
 'use client';
 import { MoveLeft, PencilLine, Printer } from 'lucide-react';
 import { usePurchase } from '../../../hooks/purchase/use-purchase';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   PAYMENT_STATUS,
@@ -14,12 +14,12 @@ import { Button, Table } from '@repo/design-system/components/ui';
 import { Tooltip } from '@mantine/core';
 import FormAccpetImportPayment from '../components/purchase-order/form-accpet-import-payment';
 import { PurchaseOrder } from '@repo/design-system/types/purchase';
-import { useReactToPrint } from 'react-to-print';
 import InvoicePurchaseOrderPrintContent from '../../print/purchase-order-print-context';
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { useAtomValue } from 'jotai';
 import { Store } from '@repo/design-system/types/store';
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
+import { usePrint } from '../../../hooks/use-print';
 const tableHeaders = [
   'Tên sản phẩm',
   'Số lượng',
@@ -34,35 +34,20 @@ const tableHeaders = [
 export function PurchaseOrdersDetailView({ purchaseId }: { purchaseId: string }) {
   const router = useRouter();
   const { showInfoToast } = useToast();
-  const printRef = useRef<HTMLDivElement>(null);
   const currentStore = useAtomValue(currentStoreAtom);
   // HOOK
-  const [printing, setPrinting] = useState(false);
+
   const [isOpenModalAcceptPayment, setIsOpenModalAcceptPayment] = useState<boolean>(false);
   // CUSTOM HOOKS
   const { getPurchaseOrder, acceptImportPurchase, loading, purchaseOrder } = usePurchase();
+  const { handlePrint, printing, printRef } = usePrint({
+    title: `hoa_don_nhap_${purchaseOrder?.order_number || ''}`,
+  });
   const status = purchaseOrder?.status ? PURCHASE_STATUS_MAP[purchaseOrder.status] : null;
   const paymentStatus = purchaseOrder?.payment_status
     ? PAYMENT_STATUS_MAP[purchaseOrder.payment_status]
     : null;
-  const handlePrint = useReactToPrint({
-    contentRef: printRef,
-    documentTitle: `hoa_don_nhap_${purchaseOrder?.order_number || ''}`,
 
-    onBeforePrint: async () => {
-      setPrinting(true);
-
-      await new Promise((resolve) => setTimeout(resolve, 200));
-    },
-
-    onAfterPrint: () => {
-      setPrinting(false);
-    },
-
-    onPrintError: () => {
-      setPrinting(false);
-    },
-  });
   // EFFECT
   useEffect(() => {
     getPurchaseOrder(purchaseId);

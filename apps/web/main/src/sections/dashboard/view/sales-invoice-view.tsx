@@ -11,8 +11,12 @@ import { DisplayField } from '../components/display-field';
 import { DataActionBar } from '../components/data-action-bar';
 import { ActionButtons } from '../components/action-buttons';
 import { formatPaymentMethod, payment_method } from '../../../constants/method';
+import InvoicePrintContent from '../../../sections/print/invoice-print-context';
+import { usePrint } from '../../../hooks/use-print';
+
 const tableHeaders = [
   'Mã Đơn Hàng',
+  'Số lượng',
   'Khách Hàng',
   'Giá bán',
   'Đã thanh toán',
@@ -65,11 +69,12 @@ export function SalesInvoicesView() {
   // Local state for modals
   const [selectedOrder, setSelectedOrder] = useState<Order>();
 
-  // const [openEditModal, setOpenEditModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
   const [openViewModal, setOpenViewModal] = useState<boolean>(false);
   const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
-
+  const { handlePrint, printing, printRef } = usePrint({
+    title: `hoa_don_ban_${selectedOrder?.code}`,
+  });
   // Handle delete order
   const handleDeleteOrder = async () => {
     if (!selectedOrder?.id) return;
@@ -170,7 +175,12 @@ export function SalesInvoicesView() {
                   <span className="italic text-gray-500 font-medium">Chưa cập nhật</span>
                 )}
               </td>
-              <td className="px-4 py-3 font-medium italic text-gray-600">
+              <td className="px-4 py-3 text-sm text-gray-500 font-semibold truncate">
+                {order?.order_item?.length || (
+                  <span className="italic text-gray-500 font-medium">Chưa cập nhật</span>
+                )}
+              </td>
+              <td className="px-4 py-3 font-medium italic text-gray-500 text-sm">
                 {order.customer_name || 'Khách lẻ'}
               </td>
               <td className="px-4 py-3 text-sm text-gray-500 font-medium">
@@ -246,7 +256,9 @@ export function SalesInvoicesView() {
               {/* Mã đơn hàng */}
               <div className="flex-1 p-2">
                 <div className="text-gray-500">Mã đơn hàng</div>
-                <div className="text-gray-900 font-medium truncate">{selectedOrder?.code}</div>
+                <div className="text-pos-blue-500 font-semibold truncate">
+                  {selectedOrder?.code}
+                </div>
               </div>
 
               {/* Thông tin KH */}
@@ -254,6 +266,12 @@ export function SalesInvoicesView() {
                 <div className="text-gray-500">Thông tin KH</div>
                 <div className="text-gray-900 font-medium">
                   {selectedOrder?.customer_name || 'Khách lẻ'}
+                </div>
+              </div>
+              <div className="flex-1 p-2">
+                <div className="text-gray-500">Nhân viên tạo đơn</div>
+                <div className="text-gray-900 font-medium">
+                  {selectedOrder?.cashier?.email || selectedOrder?.cashier?.username || 'Nhân viên'}
                 </div>
               </div>
 
@@ -267,9 +285,9 @@ export function SalesInvoicesView() {
 
               {/* Ngày tạo */}
               <div className="flex-1 p-2">
-                <div className="text-gray-500">Ngày tạo</div>
+                <div className="text-gray-500">Ngày đặt hàng</div>
                 <div className="text-gray-900 font-medium">
-                  {formatDate(selectedOrder?.createdAt ?? '')}
+                  {formatDate(selectedOrder?.createdAt ?? '', { showTime: true })}
                 </div>
               </div>
             </div>
@@ -361,17 +379,21 @@ export function SalesInvoicesView() {
               onClick={() => setOpenViewModal(false)}
               variant="outline"
             />
+            <div className="hidden">
+              <InvoicePrintContent ref={printRef} order={selectedOrder as Order} />
+            </div>
             <Button
               size="sm"
               radius="sm"
-              onClick={() => showInfoToast('Tính năng đang được cập nhật')}
+              loading={printing}
+              onClick={() => handlePrint()}
               title="In hóa đơn"
             />
           </div>
         </div>
       </Modal>
       {/* DELETE MODAL */}
-      <Modal opened={deleteModal} size="sm" onClose={() => setDeleteModal(false)}>
+      <Modal opened={deleteModal} size="md" onClose={() => setDeleteModal(false)}>
         <div className="space-y-3 flex flex-col items-center">
           <div className="flex flex-col gap-3 items-center justify-center">
             <div className="justify-center flex rounded-full bg-red-100 w-fit text-red-500 p-3.5">
@@ -379,12 +401,12 @@ export function SalesInvoicesView() {
             </div>
             <div className="text-lg font-bold text-center">Bạn Có Chắc Chắn Muốn Xóa?</div>
             <div className="text-sm text-gray-500 text-center">
-              Hành động này không thể hoàn tác. Đơn hàng #{selectedOrder?.code || selectedOrder?.id}{' '}
-              sẽ bị xóa vĩnh viễn.
+              Hành động này không thể hoàn tác. Đơn hàng {selectedOrder?.code || selectedOrder?.id}{' '}
+              sẽ bị xóa vĩnh viễn. Và sản phẩm sẽ được cộng lại vào trong tồn kho
             </div>
           </div>
           <button
-            className="bg-red-600 rounded-lg text-white w-full py-2 cursor-pointer font-bold disabled:opacity-50"
+            className="bg-red-500 rounded-md text-white w-full py-2 cursor-pointer font-bold disabled:opacity-50"
             onClick={handleDeleteOrder}
             disabled={deleteLoading}
           >
