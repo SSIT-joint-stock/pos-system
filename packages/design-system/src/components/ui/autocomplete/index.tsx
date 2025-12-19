@@ -44,6 +44,7 @@ export function AutoComplete({
       variant={variant}
       onChange={onChange}
       rightSection={rightSection}
+      clearable
       leftSection={leftSection}
       className={className}
       comboboxProps={{

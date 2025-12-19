@@ -7,7 +7,10 @@ export const StoreSchema = z.object({
   description: z.string().optional(),
   phone_number: z.string().optional(),
   business_hour: z.string().optional(),
+  city: z.string().optional(),
+  state: z.string().optional(),
   address: z.string().optional(),
+
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime().optional(),
 });

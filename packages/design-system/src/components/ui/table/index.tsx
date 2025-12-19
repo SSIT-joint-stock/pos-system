@@ -21,6 +21,8 @@ export type TableProps<T> = {
   hasMarginTop?: boolean;
   hasPagination?: boolean;
   className?: string;
+  link?: string;
+  hasPadding?: boolean;
 };
 
 export function Table<T>({
@@ -37,12 +39,13 @@ export function Table<T>({
   hasMarginTop = true,
   limit = 10,
   hasPagination = true,
+  hasPadding = true,
   className,
 }: TableProps<T>) {
   const finalHeader = ['STT', ...tableHeaders];
   return (
     <div
-      className={`bg-white border border-black/10 p-5  ${hasMarginTop ? 'mt-5' : ''} flex-col flex overflow-y-auto shadow-md rounded-lg ${className}`}
+      className={`bg-white  ${hasPadding ? 'p-4' : ''}  ${hasMarginTop ? 'mt-0' : ''} flex-col flex overflow-y-auto  rounded-lg ${className}`}
     >
       {/* TABLE */}
       <div
@@ -75,7 +78,7 @@ export function Table<T>({
                     key={idx}
                     className="border-b border-b-gray-100 hover:bg-gray-50 transition-colors duration-300"
                   >
-                    <td className="px-4 py-2 text-xs font-medium text-gray-900">
+                    <td className="px-4 py-3 text-sm font-medium text-gray-900">
                       {numericalOrder(idx, page, limit, total)}
                     </td>
                     {renderRow(item, idx)}
@@ -114,6 +117,7 @@ export function Table<T>({
 
           <Pagination
             size="sm"
+            radius="sm"
             boundaries={2}
             siblings={2}
             total={totalPages}

@@ -8,15 +8,25 @@ export default function FormCreateCategory({
   setOpenCreateModal,
   loading,
 }: {
-  createCategoryForm: any;
-  handleSubmitCreate: any;
-  setOpenCreateModal: any;
-  loading: boolean;
+  createCategoryForm?: any;
+  handleSubmitCreate?: any;
+  setOpenCreateModal?: any;
+  loading?: boolean;
 }) {
   return (
-    <form onSubmit={createCategoryForm.handleSubmit(handleSubmitCreate)} className="space-y-4">
+    <form
+      onSubmit={createCategoryForm.handleSubmit(async (data: any) => {
+        const success = await handleSubmitCreate(data);
+        if (success) {
+          setOpenCreateModal(false);
+          createCategoryForm.reset();
+        }
+      })}
+      className="space-y-4"
+    >
       <Input
         size="sm"
+        radius="sm"
         label="Tên danh mục"
         placeholder="Nhập tên danh mục..."
         {...createCategoryForm.register('name')}
@@ -27,6 +37,8 @@ export default function FormCreateCategory({
       <div>
         <label className="text-sm font-medium text-gray-700 mb-1 block">Mô tả</label>
         <Textarea
+          size="sm"
+          radius="sm"
           placeholder="Nhập mô tả danh mục (tùy chọn)..."
           {...createCategoryForm.register('description')}
           minRows={3}

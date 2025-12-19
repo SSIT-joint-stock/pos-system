@@ -69,7 +69,7 @@ export default function FormCreateCustomer({
       }
       className="flex flex-col gap-4"
     >
-      <div className="flex items-center gap-3">
+      <div className="flex gap-3">
         <Input
           withAsterisk={isEditForm ? false : true}
           label="Tên khách hàng"
@@ -87,8 +87,21 @@ export default function FormCreateCustomer({
             ? updateCustomerForm?.register('phone')
             : createCustomerForm?.register('phone'))}
           name="phone"
+          type="tel"
           placeholder="Nhập số điên thoại"
           className="flex-1"
+          onChange={(e) => {
+            // Chỉ cho phép số
+            const onlyNums = e.target.value.replace(/\D/g, '');
+            e.target.value = onlyNums;
+
+            // Đẩy vào react-hook-form
+            if (isEditForm) {
+              updateCustomerForm?.setValue('phone', onlyNums);
+            } else {
+              createCustomerForm?.setValue('phone', onlyNums);
+            }
+          }}
         />
       </div>
       <div className="flex items-center gap-3">
@@ -129,6 +142,16 @@ export default function FormCreateCustomer({
           name="zip"
           placeholder="Nhập mã zip"
           className="flex-1"
+          onChange={(e) => {
+            const onlyNums = e.target.value.replace(/\D/g, '');
+            e.target.value = onlyNums;
+
+            if (isEditForm) {
+              updateCustomerForm?.setValue('zip', onlyNums);
+            } else {
+              createCustomerForm?.setValue('zip', onlyNums);
+            }
+          }}
         />
       </div>
 

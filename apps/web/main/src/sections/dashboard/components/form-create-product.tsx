@@ -1,6 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client';
-import { formatCurrency } from '../../../../../main/src/utils';
 import { useCategories } from '../../../../../main/src/hooks/categories/use-categories';
 import { useProduct } from '../../../../../main/src/hooks/product/use-product';
 import { MultiSelect } from '@mantine/core';
@@ -95,8 +94,6 @@ export default function FormCreateProduct({
       createProductForm.reset({
         name: selectProduct?.name ?? '',
         sku: selectProduct?.sku ?? '',
-        price: selectProduct?.price ?? 0,
-        cost: selectProduct?.cost ?? 0,
         barcode: selectProduct?.barcode ?? '',
         categoryIds: selectProduct?.categories?.map((c) => c.id) ?? [],
         image_url: selectProduct?.image_url ?? '',
@@ -176,7 +173,7 @@ export default function FormCreateProduct({
                           {product?.name}
                         </h2>
                         <span className="text-sm text-gray-500 font-semibold">
-                          Tồn kho: {product?.inventory.quantity}
+                          {/* Tồn kho: {product?.inventory.quantity} */}
                         </span>
                       </div>
                       {product?.categories?.length > 0 && (
@@ -186,10 +183,10 @@ export default function FormCreateProduct({
                       )}
                       <div className="flex items-center justify-between w-full">
                         <span className="text-sm text-gray-500 font-semibold">
-                          Giá nhập: {formatCurrency(product?.cost)}
+                          {/* Giá nhập: {formatCurrency(product?.cost)} */}
                         </span>
                         <span className="text-sm text-gray-500 font-semibold">
-                          Giá bán: {formatCurrency(product?.price)}
+                          {/* Giá bán: {formatCurrency(product?.price)} */}
                         </span>
                       </div>
                     </div>

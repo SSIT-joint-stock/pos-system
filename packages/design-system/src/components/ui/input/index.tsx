@@ -23,8 +23,10 @@ export type InputProps = React.PropsWithChildren & {
   style?: CSSProperties;
   disabled?: boolean;
   isInputPassword?: boolean;
+
   color?: string;
   withAsterisk?: boolean;
+  styles?: Record<string, any>;
 } & Omit<React.ComponentProps<'input'>, 'size' | 'type' | 'onChange' | 'value'>;
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
@@ -47,6 +49,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       isInputPassword,
       error,
       withAsterisk,
+      styles,
       ...rest
     },
     ref: ForwardedRef<HTMLInputElement>
@@ -65,20 +68,21 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       leftSection,
       rightSection,
       withAsterisk,
+      styles,
       ...rest,
     };
 
     return (
       <div className={`flex flex-col gap-1 ${className ?? ''}`} style={style}>
         {label && (
-          <span
+          <div
             className={`${
               error ? 'text-red-500' : 'text-gray-500'
             } text-sm font-medium cursor-pointer hover:text-gray-700 transition-colors duration-300 ${withAsterisk && 'flex  gap-1'}`}
           >
             {label}
             {withAsterisk && <span className="text-red-500">*</span>}
-          </span>
+          </div>
         )}
         {isInputPassword ? (
           <PasswordInput {...commonProps} />

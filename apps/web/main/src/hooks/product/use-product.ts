@@ -3,7 +3,7 @@
 import api from '../../../../main/src/libs/axios';
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 import { Product } from '@repo/design-system/types';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useRequestHelper } from '../use-request-helper';
 import { useAtomValue } from 'jotai';
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
@@ -18,9 +18,11 @@ import {
 } from '../../../../main/src/schemas/product/product.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FilterValue, useQueryParams } from '../query/use-query-params';
-interface ProductFilters extends Record<string, FilterValue> {
+import { ApiResponse } from '@repo/types/response';
+export interface ProductFilters extends Record<string, FilterValue> {
   q?: string;
   product_status?: string;
+  categories?: string;
 }
 
 export function useProduct() {
@@ -28,10 +30,13 @@ export function useProduct() {
   const { showSuccessToast } = useToast();
   const {
     paginationParams,
-    setPaginationParams,
+    sort,
+    sortBy,
     filters,
-    setFilters,
     pagination,
+
+    setPaginationParams,
+    setFilters,
     setPagination,
     buildParams,
     setSortBy,
@@ -39,6 +44,7 @@ export function useProduct() {
   } = useQueryParams<ProductFilters>({
     q: 'q',
     product_status: 'product_status',
+    categories: 'categories',
   });
   // STATE
   const currentStore = useAtomValue(currentStoreAtom);
@@ -55,25 +61,35 @@ export function useProduct() {
     resolver: zodResolver(CreateInvoiceProductSchema),
   });
   // ACTION FUNCTION
-  const getProducts = async () => {
+  const getProducts = useCallback(async () => {
     const res = await requestWrapper(() =>
       api.get(`/stores/${currentStore?.id}/products/filter-product?${buildParams().toString()}`)
     );
     if (res?.data.success) {
       setProducts(res.data.data);
       setPagination(res.data.pagination);
-      showSuccessToast(res.data.message);
     }
-  };
-  const createProduct = async (data: CreateProductInput) => {
-    if (!currentStore?.id) return;
-    const res = await requestWrapper(() => api.post(`/stores/${currentStore?.id}/products`, data));
-    if (res?.data.success) {
-      getProducts();
-      showSuccessToast(res.data.message);
-      return res.data.data;
-    }
-  };
+  }, [buildParams, requestWrapper, setPagination, currentStore?.id]);
+  const createProduct = useCallback(
+    async (data: CreateProductInput) => {
+      if (!currentStore?.id) return;
+      const res = await requestWrapper(() =>
+        api.post<ApiResponse>(`/stores/${currentStore?.id}/products`, data)
+      );
+      if (res?.data.success) {
+        getProducts();
+        showSuccessToast(res.data.message as string);
+        return {
+          success: true,
+          data: res.data.data,
+        };
+      }
+      return {
+        success: false,
+      };
+    },
+    [currentStore?.id, requestWrapper, getProducts, showSuccessToast]
+  );
   const deleteProduct = async (productId: string) => {
     if (!currentStore?.id) return;
     const res = await requestWrapper(() =>
@@ -92,16 +108,21 @@ export function useProduct() {
     if (res?.data.success) {
       showSuccessToast(res.data.message);
       getProducts();
+      return true;
     }
+    return false;
   };
-  const getProductById = async (productId: string) => {
-    if (!currentStore?.id) return;
-    const res = await api.get(`/stores/${currentStore?.id}/products/${productId}`);
+  const getProductById = useCallback(
+    async (productId: string) => {
+      if (!currentStore?.id) return;
+      const res = await api.get(`/stores/${currentStore?.id}/products/${productId}`);
 
-    if (res?.data.success) {
-      setProduct(res.data.data);
-    }
-  };
+      if (res?.data.success) {
+        setProduct(res.data.data);
+      }
+    },
+    [currentStore?.id]
+  );
   const applyStockMovement = async (productId: string, delta: number, type: string) => {
     if (!currentStore?.id) return;
     const storeId = currentStore?.id ?? '';
@@ -189,5 +210,7 @@ export function useProduct() {
     updateProductForm,
     createInvoiceProductForm,
     product,
+    sort,
+    sortBy,
   };
 }

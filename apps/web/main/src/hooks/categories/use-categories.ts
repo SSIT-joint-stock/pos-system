@@ -3,35 +3,20 @@
 import api from '../../../../main/src/libs/axios';
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 import { Category } from '@repo/design-system/types';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useRequestHelper } from '../use-request-helper';
 import { useAtomValue } from 'jotai';
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FilterValue, useQueryParams } from '../query/use-query-params';
-import { z } from 'zod';
-
-// Schemas
-const CreateCategorySchema = z.object({
-  name: z
-    .string()
-    .min(1, 'Tên danh mục là bắt buộc')
-    .max(255, 'Tên danh mục không được vượt quá 255 ký tự'),
-  description: z.string().max(1000, 'Mô tả không được vượt quá 1000 ký tự').optional(),
-});
-
-const UpdateCategorySchema = z.object({
-  name: z
-    .string()
-    .min(1, 'Tên danh mục là bắt buộc')
-    .max(255, 'Tên danh mục không được vượt quá 255 ký tự')
-    .optional(),
-  description: z.string().max(1000, 'Mô tả không được vượt quá 1000 ký tự').optional(),
-});
-
-type CreateCategoryInput = z.infer<typeof CreateCategorySchema>;
-type UpdateCategoryInput = z.infer<typeof UpdateCategorySchema>;
+import { ApiResponse } from '@repo/types/response';
+import {
+  CreateCategoryInput,
+  CreateCategorySchema,
+  UpdateCategoryInput,
+  UpdateCategorySchema,
+} from '../../schemas/category/category.schema';
 
 interface CategoryFilters extends Record<string, FilterValue> {
   q?: string;
@@ -73,7 +58,7 @@ export function useCategories() {
   });
 
   // ACTION FUNCTIONS
-  const getCategories = async () => {
+  const getCategories = useCallback(async () => {
     if (!currentStore?.id) return;
 
     const res = await requestWrapper(() =>
@@ -85,29 +70,32 @@ export function useCategories() {
       setPagination(res.data.pagination);
       showSuccessToast(res.data.message);
     }
-  };
+  }, [buildParams, requestWrapper, setPagination, showSuccessToast, currentStore?.id]);
 
   const createCategory = async (data: CreateCategoryInput) => {
     if (!currentStore?.id) return;
 
-    const res = await requestWrapper(() => api.post(`/stores/${currentStore.id}/categories`, data));
+    const res = await requestWrapper(() =>
+      api.post<ApiResponse>(`/stores/${currentStore.id}/categories`, data)
+    );
 
     if (res?.data.success) {
       getCategories();
-      showSuccessToast(res.data.message);
-      return res.data.data;
+      showSuccessToast(res.data.message as string);
+      return true;
     }
+    return false;
   };
 
   const deleteCategory = async (categoryId: string) => {
     if (!currentStore?.id) return;
 
     const res = await requestWrapper(() =>
-      api.delete(`/stores/${currentStore.id}/categories/${categoryId}`)
+      api.delete<ApiResponse>(`/stores/${currentStore.id}/categories/${categoryId}`)
     );
 
     if (res?.data.success) {
-      showSuccessToast(res.data.message);
+      showSuccessToast(res.data.message as string);
       getCategories();
     }
   };
@@ -116,11 +104,11 @@ export function useCategories() {
     if (!currentStore?.id) return;
 
     const res = await requestWrapper(() =>
-      api.patch(`/stores/${currentStore.id}/categories/${categoryId}`, data)
+      api.patch<ApiResponse>(`/stores/${currentStore.id}/categories/${categoryId}`, data)
     );
 
     if (res?.data.success) {
-      showSuccessToast(res.data.message);
+      showSuccessToast(res.data.message as string);
       getCategories();
     }
   };

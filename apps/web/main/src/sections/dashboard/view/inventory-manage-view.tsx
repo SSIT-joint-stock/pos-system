@@ -7,6 +7,7 @@ import { NumberInput } from '@mantine/core';
 import useInventory from '../../../../../main/src/hooks/inventory/use-inventory';
 import { Inventory } from '@repo/design-system/types/inventory';
 import { formatCurrency, formatDate } from '../../../../../main/src/utils/';
+import * as XLSX from 'xlsx';
 
 const tableHeaders = [
   'Sản Phẩm',
@@ -55,6 +56,29 @@ export function InventoryManageView() {
     setStatus(selectedInventory?.id ?? '', statusData.status);
     setOpenStatusModal(false);
   };
+
+  const handleExportExcel = () => {
+    if (!inventories || inventories.length === 0) {
+      alert('Không có dữ liệu để xuất');
+      return;
+    }
+
+    const formatted = inventories.map((inv: Inventory) => ({
+      'Sản phẩm': inv.product?.name,
+      'Số lượng': inv.quantity,
+      'Giảm giá (%)': inv.discount,
+      'Tổng giá trị (VND)': inv.total,
+      'Trạng thái': inv.status,
+      'Ngày tạo': formatDate(inv.createdAt),
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(formatted);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Tồn kho');
+
+    XLSX.writeFile(workbook, 'inventory.xlsx');
+  };
+
   return (
     <>
       {/* VIEW MODAL */}
@@ -151,7 +175,10 @@ export function InventoryManageView() {
             placeholder="Nhập phần trăm giảm giá"
             value={revalueData.discount}
             onChange={(value) =>
-              setRevalueData((prev) => ({ ...prev, discount: Number(value ?? 0) }))
+              setRevalueData((prev) => ({
+                ...prev,
+                discount: Number(value ?? 0),
+              }))
             }
             min={0}
             max={100}
@@ -228,11 +255,11 @@ export function InventoryManageView() {
       <div className="flex flex-col h-full">
         {/* ACTION BAR */}
         <FilterBar
-          statusOptions={[
-            { value: 'ACTIVE', label: 'ACTIVE' },
-            { value: 'INACTIVE', label: 'INACTIVE' },
-            { value: 'SOLD', label: 'SOLD' },
-          ]}
+          // statusOptions={[
+          //   { value: "ACTIVE", label: "ACTIVE" },
+          //   { value: "INACTIVE", label: "INACTIVE" },
+          //   { value: "SOLD", label: "SOLD" },
+          // ]}
           onFilterChange={(newFilters) => {
             setFilters(newFilters);
           }}
@@ -241,7 +268,10 @@ export function InventoryManageView() {
           }}
           actions={
             <>
-              <button className="bg-white border text-nowrap border-gray-200 rounded-md flex items-center gap-2 py-2 px-4 cursor-pointer hover:opacity-80 transition-opacity duration-300">
+              <button
+                onClick={handleExportExcel}
+                className="bg-white border text-nowrap border-gray-200 rounded-md flex items-center gap-2 py-2 px-4 cursor-pointer hover:opacity-80 transition-opacity duration-300"
+              >
                 <Download size={16} />
                 <span className="text-gray-900 font-medium text-xs">Xuất dữ liệu</span>
               </button>
