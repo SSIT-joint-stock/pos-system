@@ -1,8 +1,8 @@
 'use client';
-import api from '../../../../main/src/libs/axios';
+import api from '../../libs/axios';
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 import { Order } from '@repo/design-system/types';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRequestHelper } from '../use-request-helper';
 import { useAtomValue } from 'jotai';
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
@@ -14,7 +14,8 @@ import {
   CreateOrderSchema,
   UpdateOrderInput,
   UpdateOrderSchema,
-} from '../../../../main/src/schemas/order/order.schema';
+} from '../../schemas/order/order.schema';
+import { exportExcel } from '../../utils/export-excel/export';
 
 interface OrderFilters extends Record<string, FilterValue> {
   q?: string;
@@ -116,7 +117,29 @@ export function useOrders() {
     return false;
   };
 
-  // Load orders when dependencies change
+  const downloadExcelTemplate = useCallback(async () => {
+    const res = await api.get(`/stores/${currentStore?.id}/orders/excel/template`, {
+      responseType: 'blob',
+    });
+    if (!res) return;
+    exportExcel(
+      res,
+      `mau_danh_sach_don_hang_mua_${new Date().toLocaleDateString()}.xlsx`,
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+  }, [currentStore?.id]);
+
+  const exportExcelOrders = useCallback(async () => {
+    const res = await api.get(`/stores/${currentStore?.id}/orders/excel/export`, {
+      responseType: 'blob',
+    });
+    exportExcel(
+      res,
+      `danh_sach_don_hang_mua_${new Date().toLocaleDateString()}.xlsx`,
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+  }, [currentStore?.id]);
+
   useEffect(() => {
     if (!currentStore?.id) return;
     getOrders();
@@ -141,7 +164,8 @@ export function useOrders() {
 
     createOrder,
     deleteOrder,
-
+    downloadExcelTemplate,
+    exportExcelOrders,
     // Utils
     setFilters,
     setPaginationParams,

@@ -1,4 +1,4 @@
-import { Modal } from '@repo/design-system/components/ui';
+import { Button, Modal } from '@repo/design-system/components/ui';
 import { CircleAlert, Trash } from 'lucide-react';
 
 interface DeleteConfirmationModalProps {
@@ -31,7 +31,7 @@ export function DeleteConfirmationModal({
         </div>
       }
     >
-      <div className="space-y-2.5 flex flex-col items-center">
+      <div className="space-y-4 flex flex-col items-center">
         <div className="flex flex-col gap-3 items-center justify-center">
           <div className="justify-center flex rounded-full bg-red-100 w-fit text-red-500 p-3.5">
             <CircleAlert size={38} />
@@ -43,20 +43,27 @@ export function DeleteConfirmationModal({
             vĩnh viễn.
           </div>
         </div>
-        <button
-          className="bg-red-500 rounded-lg text-white w-full py-2 text-sm cursor-pointer font-bold disabled:opacity-50"
-          onClick={onConfirm}
-          disabled={loading}
-        >
-          {loading ? 'Đang xóa...' : 'Xác Nhận Xóa'}
-        </button>
-        <button
-          className="cursor-pointer text-sm hover:bg-gray-100 transition-colors duration-200 py-2 w-full rounded-md"
-          onClick={onClose}
-          disabled={loading}
-        >
-          Hủy
-        </button>
+
+        <div className="flex items-center gap-4 flex-col justify-center w-full ">
+          <Button
+            title={'Xác nhận xóa'}
+            radius="sm"
+            loading={loading}
+            style={{ width: '100%' }}
+            size="sm"
+            onClick={onConfirm}
+            color="#fb2c36"
+          />
+          <Button
+            title={'Hủy bỏ'}
+            radius="sm"
+            style={{ width: '100%' }}
+            size="sm"
+            variant="outline"
+            onClick={onClose}
+            color="#fb2c36"
+          />
+        </div>
       </div>
     </Modal>
   );

@@ -52,7 +52,7 @@ export function ManageSuppliersView() {
     setFilters,
     getSuppliers,
   } = useSupplier();
-
+  console.log(suppliers);
   useEffect(() => {
     if (!currentStore?.id) return;
     getSuppliers();
@@ -127,11 +127,9 @@ export function ManageSuppliersView() {
                   {supplier.code}
                 </td>
 
-                <td className="px-4 py-3 text-sm text-gray-700">
-                  <Tooltip label={supplier.name} position="top" withArrow>
-                    {supplier && supplier?.name && truncateText(supplier?.name, 54)}
-                  </Tooltip>
-                </td>
+                <Tooltip label={supplier.name} position="top" withArrow>
+                  <td className="px-4 py-3 text-sm text-gray-700">{supplier?.name}</td>
+                </Tooltip>
                 <td className="px-4 py-3 text-sm text-gray-700">
                   {supplier.phone || (
                     <span className="text-sm text-gray-500 italic">Không có dữ liệu</span>

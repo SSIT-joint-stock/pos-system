@@ -434,6 +434,7 @@ export function SalesView() {
                   hasPagination={false}
                   tableHeaders={[
                     'Tên sản phẩm',
+                    'Đơn vị',
                     'Số lượng',
                     'Đơn giá',
                     'VAT',
@@ -456,6 +457,9 @@ export function SalesView() {
                           </span>
                         </Tooltip>
                         <span className="text-xs font-medium">Tồn kho: {variant.onHand}</span>
+                      </td>
+                      <td className="px-4 py-2 text-sm font-semibold text-gray-500">
+                        {variant?.product?.baseUnit || ''}
                       </td>
 
                       <td className="px-4 py-2 text-gray-600">
@@ -485,6 +489,7 @@ export function SalesView() {
                           </button>
                         </div>
                       </td>
+
                       <td
                         onClick={() => handleOpenChangePrice(variant.id, variant.price)}
                         className="px-4 py-2 text-base text-gray-500 underline hover:cursor-pointer hover:text-pos-blue-500"
@@ -628,11 +633,16 @@ export function SalesView() {
                           </div>
 
                           <div className="mt-4 flex flex-col gap-2">
-                            <Tooltip position="top" label={variant.name} withArrow>
-                              <h2 className="text-sm font-semibold text-gray-800 truncate group-hover:text-pos-blue-500 line-clamp-1">
-                                {variant.name}
-                              </h2>
-                            </Tooltip>
+                            <div className="flex items-center justify-between">
+                              <Tooltip position="top" label={variant.name} withArrow>
+                                <h2 className="text-sm font-semibold text-gray-800 truncate group-hover:text-pos-blue-500 line-clamp-1">
+                                  {truncateText(variant.name, 28)}
+                                </h2>
+                              </Tooltip>
+                              <span className="text-xs text-gray-500 font-semibold">
+                                {variant?.product?.baseUnit}
+                              </span>
+                            </div>
                             <div className="flex items-center justify-between ">
                               {variant.onHand > 0 ? (
                                 <span className="text-sm font-medium text-gray-500">

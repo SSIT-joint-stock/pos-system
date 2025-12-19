@@ -8,7 +8,7 @@ import { formatPaymentMethod, payment_method } from '../../constants/method';
 
 interface InvoicePrintContentProps {
   order: Order;
-  store: Store;
+  store?: Store;
 }
 
 // forwardRef để react-to-print truy cập DOM node
@@ -211,23 +211,27 @@ const InvoicePrintContent = forwardRef<HTMLDivElement, InvoicePrintContentProps>
             <span className="text-lg font-semibold">Xin cảm ơn quý khách!</span>
             <span className="text-sm">Hẹn gặp lại!</span>
           </div>
-          <div className="flex items-center justify-center mt-3">
-            {store && store.store_payment[0] && store.store_payment[0].bank_qr_image_url && (
-              <Image
-                placeholder="blur"
-                priority
-                blurDataURL={store.store_payment[0].bank_qr_image_url || '/qr_code_placholder.svg'}
-                src={
-                  `${store.store_payment[0].bank_qr_image_url}&amount=${order?.customer_pay_amount}` ||
-                  ''
-                }
-                className="object-cover"
-                alt="qr_code"
-                width={240}
-                height={240}
-              />
-            )}
-          </div>
+          {store && (
+            <div className="flex items-center justify-center mt-3">
+              {store && store.store_payment[0] && store.store_payment[0].bank_qr_image_url && (
+                <Image
+                  placeholder="blur"
+                  priority
+                  blurDataURL={
+                    store.store_payment[0].bank_qr_image_url || '/qr_code_placholder.svg'
+                  }
+                  src={
+                    `${store.store_payment[0].bank_qr_image_url}&amount=${order?.customer_pay_amount}` ||
+                    ''
+                  }
+                  className="object-cover"
+                  alt="qr_code"
+                  width={240}
+                  height={240}
+                />
+              )}
+            </div>
+          )}
         </div>
       </div>
     );

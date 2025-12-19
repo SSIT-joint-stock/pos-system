@@ -3,8 +3,6 @@ import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { Drawer } from '@mantine/core';
 import { useAtomValue } from 'jotai';
 import { useOrders } from '../../../hooks/orders/use-orders';
-import { useRef } from 'react';
-import { useReactToPrint } from 'react-to-print';
 import InvoicePrintContent from '../../print/invoice-print-context';
 
 import { formatCurrency } from '../../../utils';
@@ -22,6 +20,7 @@ import { formatPaymentMethod, payment_method } from '../../../constants/method';
 import { selectedVariant } from '../view';
 import { Button } from '@repo/design-system/components/ui';
 import useStore from '../../../hooks/store/use-store';
+import { usePrint } from '../../../hooks/use-print';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -43,26 +42,8 @@ export default function Invoice({
 
   const { order, getOrderById } = useOrders();
   const { getStoreDetail, store } = useStore();
+  const { printRef, printing, handlePrint } = usePrint({ title: `hoa_done_${order?.id}` });
   const [isOpenModalQrCode, setIsOpenModalQrCode] = useState<boolean>(false);
-  const [printing, setPrinting] = useState(false);
-  const printRef = useRef<HTMLDivElement>(null);
-  const handlePrint = useReactToPrint({
-    contentRef: printRef,
-    documentTitle: `hoa_don_${order?.code || 'order'}`,
-    onBeforePrint: async () => {
-      setPrinting(true);
-
-      await new Promise((resolve) => setTimeout(resolve, 200));
-    },
-
-    onAfterPrint: () => {
-      setPrinting(false);
-    },
-
-    onPrintError: () => {
-      setPrinting(false);
-    },
-  });
   useEffect(() => {
     if (openModalInvoice && newOrderId) {
       getStoreDetail();
