@@ -1,19 +1,17 @@
-import Image from 'next/image';
-import Link from 'next/link';
+import Image from "next/image";
+import Link from "next/link";
 
 export default function Hero() {
   return (
     <section
       id="home"
-      // Add mobile top padding + larger scroll offset; keep desktop identical
       className="relative isolate md:h-screen h-auto w-full overflow-hidden flex md:items-center md:snap-always md:snap-center pt-24 sm:pt-28 md:pt-0 scroll-mt-24 md:scroll-mt-12"
       style={{
         backgroundImage:
-          'linear-gradient(to bottom, rgba(6,35,110,1) 0%, rgba(28,83,214,0.98) 50%, rgba(28,83,214,0.6) 80%, rgba(255,255,255,0) 100%)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        // (Optional) account for iOS notch if your header hugs the very top:
-        paddingTop: 'max(0px, env(safe-area-inset-top))',
+          "linear-gradient(to bottom, rgba(6,35,110,1) 0%, rgba(28,83,214,0.98) 50%, rgba(28,83,214,0.6) 80%, rgba(255,255,255,0) 100%)",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        paddingTop: "max(0px, env(safe-area-inset-top))",
       }}
     >
       <div className="relative z-10 mx-auto flex md:min-h-screen min-h-0 max-w-6xl items-center px-4 py-10 sm:py-14 md:py-0 w-full">
@@ -28,7 +26,7 @@ export default function Hero() {
             </p>
             <div className="flex flex-wrap gap-3 justify-center md:justify-start">
               <Link
-                href="/auth/login"
+                href="/auth/register"
                 className="inline-flex rounded-full px-5 py-3 text-sm font-bold text-white shadow-lg transition
                            bg-gradient-to-r from-orange-500 to-orange-600 hover:shadow-xl hover:brightness-110"
               >
