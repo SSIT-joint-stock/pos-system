@@ -12,22 +12,20 @@ export default function SigninLayout({
       <div className="flex flex-col items-center justify-center w-full max-w-xl mx-auto p-6  ">
         {children}
       </div>
-      <div className="md:flex flex-col gap-2 items-center justify-center hidden select-none pointer-events-none ">
+      <div className="md:flex flex-col gap-2 items-center justify-center hidden  ">
         <Image
           width={500}
           height={500}
           src={'https://app.easyposs.vn/content/img/login/background.png'}
           alt="Background"
-          className="object-cover w-xl h-xl"
+          className="object-cover w-xl h-xl select-none pointer-events-none"
         />
         <Image
-          src={
-            'https://scontent.fhan15-2.fna.fbcdn.net/v/t39.30808-1/484092122_122203989488132570_8044274968978306274_n.jpg?stp=dst-jpg_s200x200_tt6&_nc_cat=100&ccb=1-7&_nc_sid=2d3e12&_nc_ohc=zoQaYxQci2AQ7kNvwHcZsLe&_nc_oc=Admez4xGpGlOGQt3B_wzxYNt_nt4AQWnJisCcAbYx2o4SpezKBE0svBH-Yt0zRLWni2lEcf7VKjHi3oKGccy110f&_nc_zt=24&_nc_ht=scontent.fhan15-2.fna&_nc_gid=xifVLVpMCoJ04Df1DhWvuQ&oh=00_AfYtlYLlyhjF5BK6n9u1kJlm9eBfAeoPxH089iWgsDuQiw&oe=68D9E5DC'
-          }
+          src={'/logo-company.jpg'}
           alt="logo company"
           width={60}
           height={60}
-          className="object-cover rounded-full"
+          className="object-cover rounded-full select-none pointer-events-none"
         />
         <div className="flex gap-2 flex-col text-xs mt-2">
           <h2 className="text-pos-blue-500 font-medium  uppercase ">

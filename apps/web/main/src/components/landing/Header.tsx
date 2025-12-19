@@ -1,21 +1,33 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import Link from "next/link";
-import Logo from "../common/Logo";
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import Logo from '../common/Logo';
+import { useParams, usePathname, useSearchParams } from 'next/navigation';
 
 const pagesItems = [
-  { title: "Giới thiệu", href: "#home" },
-  { title: "Tính năng", href: "#features" },
-  { title: "Giải pháp", href: "#solutions" },
-  { title: "Bảng giá", href: "#pricing" },
-  { title: "Liên hệ", href: "#contact" },
-  { title: "Hỗ trợ", href: "#support" },
+  { title: 'Giới thiệu', href: '#home' },
+  { title: 'Tính năng', href: '#features' },
+  { title: 'Giải pháp', href: '#solutions' },
+  { title: 'Bảng giá', href: '#pricing' },
+  { title: 'Liên hệ', href: '#contact' },
+  { title: 'Hỗ trợ', href: '#support' },
 ];
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
+  const [activeHash, setActiveHash] = useState('');
 
+  useEffect(() => {
+    setActiveHash(window.location.hash || '#home');
+
+    const handleHashChange = () => {
+      setActiveHash(window.location.hash);
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
   return (
     <header className="fixed top-0 z-50 w-full bg-white shadow-sm">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
@@ -61,7 +73,9 @@ export default function Header() {
             <a
               key={item.title}
               href={item.href}
-              className="hover:text-blue-600 transition-colors duration-300"
+              className={`transition-colors duration-300 ${
+                activeHash === item.href ? 'text-blue-600 font-semibold' : 'text-gray-700'
+              }`}
             >
               {item.title}
             </a>
@@ -90,13 +104,15 @@ export default function Header() {
         <div className="md:hidden px-6 pb-4 space-y-3 bg-white shadow-md">
           <nav className="flex flex-col gap-3 text-base font-medium">
             {pagesItems.map((item) => (
-              <a
+              <Link
                 key={item.title}
                 href={item.href}
-                className="hover:text-blue-600 transition-colors duration-300"
+                className={`transition-colors duration-300 ${
+                  activeHash === item.href ? 'text-blue-600 font-semibold' : 'text-gray-700'
+                }`}
               >
                 {item.title}
-              </a>
+              </Link>
             ))}
           </nav>
           <div className="flex flex-col gap-3 pt-4 border-t border-gray-200">

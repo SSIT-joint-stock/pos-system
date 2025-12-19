@@ -1,4 +1,5 @@
 // eslint-disable-next-line filenames/match-regex
+import { payment_method } from '../../constants/method';
 import { z } from 'zod';
 
 // Enums
@@ -9,8 +10,6 @@ export const OrderStatusEnum = z.enum([
   'CANCELLED',
   'RETURNED',
 ]);
-
-export const PaymentMethodEnum = z.enum(['CASH', 'CREDIT_CARD', 'DEBIT_CARD']);
 
 // OrderItem schema
 export const OrderItemSchema = z.object({
@@ -54,7 +53,15 @@ export const OrderSchema = z.object({
   tax_amount: z.number().min(0),
   total_amount: z.number().min(0),
 
-  payment_method: PaymentMethodEnum.default('CASH'),
+  payment_method: z
+    .enum([
+      payment_method.CASH,
+      payment_method.DIGITAL_WALLET,
+      payment_method.BANK_TRANSFER,
+      payment_method.CREDIT_CARD,
+      payment_method.DEBIT_CARD,
+    ])
+    .default(payment_method.CASH),
   status: OrderStatusEnum.default('PENDING'),
 
   createdAt: z.string().datetime(),
@@ -69,18 +76,30 @@ export const OrderSchema = z.object({
 export const CreateOrderSchema = z.object({
   customer_id: z.string().uuid().optional(),
   customer_name: z.string().optional(),
-  payment_method: PaymentMethodEnum.default('CASH'),
-  status: OrderStatusEnum.default('PENDING'),
-  subtotal_amount: z.number().min(0),
+  payment_method: z
+    .enum([
+      payment_method.CASH,
+      payment_method.DIGITAL_WALLET,
+      payment_method.BANK_TRANSFER,
+      payment_method.CREDIT_CARD,
+      payment_method.DEBIT_CARD,
+    ])
+    .default(payment_method.CASH),
+  customer_pay_amount: z.number().min(0).optional(),
+  subtotal_amount: z.number().min(0).optional(),
   discount_amount: z.number().min(0).optional(),
   tax_amount: z.number().min(0).optional(),
-  total_amount: z.number().min(0),
+  total_amount: z.number().min(0).optional(),
   order_items: z
     .array(
       z.object({
         product_id: z.string().uuid(),
+        tax_rate: z.number().optional(),
+        discount_rate: z.number().optional(),
+        variant_id: z.string().uuid(),
         quantity: z.number().min(1, { message: 'Số lượng phải lớn hơn 0' }),
         price: z.number().min(0),
+        meta: z.record(z.any()).default({}).optional(),
       })
     )
     .min(1, { message: 'Đơn hàng phải có ít nhất 1 sản phẩm' }),

@@ -4,7 +4,7 @@ import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 import { useRequestHelper } from '../use-request-helper';
 import api from '../../libs/axios';
 import { useState } from 'react';
-import { useAtomValue } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import {
   CreateStoreInput,
@@ -25,7 +25,7 @@ const STORE_ENDPOINTS = {
 export default function useStore() {
   // VARIABLE
   const currentStore = useAtomValue(currentStoreAtom);
-  console.log(currentStore);
+  const setCurrentStore = useAtom(currentStoreAtom)[1];
   const [stores, setStores] = useState<Store[]>([]);
   const [store, setStore] = useState<Store>();
   const [stats, setStats] = useState({
@@ -67,17 +67,17 @@ export default function useStore() {
     setStore(storeData);
 
     // Use actual data from API response
-    setStats({
-      totalProducts: storeData._count?.products || 0,
-      totalCategories: storeData._count?.categories || 0,
-      totalCustomers: storeData._count?.customer || 0,
-      totalMembers: storeData._count?.members || 0,
-      // These would come from additional API calls when available
-      todaySales: 0, // Will be 0 until you have an endpoint for this
-      monthlyRevenue: 0, // Will be 0 until you have an endpoint for this
-      averageRating: 0, // Will be 0 until you have an endpoint for this
-      totalOrders: 0, // Will be 0 until you have an endpoint for this
-    });
+    // setStats({
+    //   totalProducts: storeData._count?.products || 0,
+    //   totalCategories: storeData._count?.categories || 0,
+    //   totalCustomers: storeData._count?.customer || 0,
+    //   totalMembers: storeData._count?.members || 0,
+    //   // These would come from additional API calls when available
+    //   todaySales: 0, // Will be 0 until you have an endpoint for this
+    //   monthlyRevenue: 0, // Will be 0 until you have an endpoint for this
+    //   averageRating: 0, // Will be 0 until you have an endpoint for this
+    //   totalOrders: 0, // Will be 0 until you have an endpoint for this
+    // });
   };
 
   const updateStore = async (data: UpdateStoreInput) => {
@@ -86,6 +86,7 @@ export default function useStore() {
     if (res?.data.success) {
       showSuccessToast(res.data.message);
       getStoreDetail();
+      setCurrentStore(res.data.data);
       return res.data.data;
     }
   };

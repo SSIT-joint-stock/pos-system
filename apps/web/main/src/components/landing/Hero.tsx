@@ -1,17 +1,16 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Hero() {
   return (
     <section
       id="home"
-      // Add mobile top padding + larger scroll offset; keep desktop identical
       className="relative isolate md:h-screen h-auto w-full overflow-hidden flex md:items-center md:snap-always md:snap-center pt-24 sm:pt-28 md:pt-0 scroll-mt-24 md:scroll-mt-12"
       style={{
         backgroundImage:
           "linear-gradient(to bottom, rgba(6,35,110,1) 0%, rgba(28,83,214,0.98) 50%, rgba(28,83,214,0.6) 80%, rgba(255,255,255,0) 100%)",
         backgroundSize: "cover",
         backgroundPosition: "center",
-        // (Optional) account for iOS notch if your header hugs the very top:
         paddingTop: "max(0px, env(safe-area-inset-top))",
       }}
     >
@@ -26,15 +25,15 @@ export default function Hero() {
               TÍCH HỢP HÓA ĐƠN ĐIỆN TỬ KHỞI TẠO TỪ MÁY TÍNH TIỀN
             </p>
             <div className="flex flex-wrap gap-3 justify-center md:justify-start">
-              <a
-                href="#"
+              <Link
+                href="/auth/register"
                 className="inline-flex rounded-full px-5 py-3 text-sm font-bold text-white shadow-lg transition
                            bg-gradient-to-r from-orange-500 to-orange-600 hover:shadow-xl hover:brightness-110"
               >
                 Dùng thử miễn phí
-              </a>
+              </Link>
               <a
-                href="#"
+                href="#contact"
                 className="inline-flex rounded-full border-2 border-white/90 px-5 py-3 text-sm font-bold text-white
                            hover:bg-white/10 transition"
               >

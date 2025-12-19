@@ -26,7 +26,7 @@ import {
 } from '@repo/design-system/stores/auth';
 import { useRequestHelper } from '../use-request-helper';
 import { CreateStoreInput, CreateStoreSchema } from '../../schemas/store/store.schema';
-
+import { ApiResponse } from '@repo/types/response';
 const AUTH_ENDPOINTS = {
   REGISTER: '/auth/register',
   VERIFY: '/auth/verify-email',
@@ -71,11 +71,9 @@ export default function useAuth() {
 
   // ========== Auth Functions ==========
   const register = async (data: RegisterData) => {
-    const res = await requestWrapper(
-      () => api.post(AUTH_ENDPOINTS.REGISTER, data),
-      'Đăng ký tạo tài khoản thành công'
-    );
+    const res = await requestWrapper(() => api.post<ApiResponse>(AUTH_ENDPOINTS.REGISTER, data));
     if (res?.data.success) {
+      showSuccessToast(res?.data?.message as string);
       setEmail(res.data?.data?.user.email);
       return true;
     }
@@ -85,13 +83,18 @@ export default function useAuth() {
   const verifyAccount = async (data: VerifyAccountData) => {
     const res = await requestWrapper(
       () =>
-        api.post(AUTH_ENDPOINTS.VERIFY, {
+        api.post<ApiResponse>(AUTH_ENDPOINTS.VERIFY, {
           email,
           verificationCode: data.verificationCode,
         }),
       'Xác thực tài khoản thành công'
     );
-    return !!res;
+
+    if (res?.data.success) {
+      showSuccessToast(res?.data?.message as string);
+      return true;
+    }
+    return false;
   };
 
   const handleVerificationCodeChange = (value: string) => {
@@ -99,19 +102,19 @@ export default function useAuth() {
   };
 
   const resendCode = async () => {
-    await requestWrapper(
-      () => api.post(`${AUTH_ENDPOINTS.RESEND}`, { email }),
-      'Gửi lại mã xác thực thành công'
+    const res = await requestWrapper(() =>
+      api.post<ApiResponse>(`${AUTH_ENDPOINTS.RESEND}`, { email })
     );
+    if (res?.data.success) {
+      showSuccessToast(res?.data?.message as string);
+    }
   };
 
   const login = async (data: LoginData) => {
-    const res = await requestWrapper(
-      () => api.post(AUTH_ENDPOINTS.LOGIN, data),
-      'Đăng nhập thành công!'
-    );
+    const res = await requestWrapper(() => api.post<ApiResponse>(AUTH_ENDPOINTS.LOGIN, data));
     if (res?.data.success) {
       const { stores, access_token } = res.data.data;
+      showSuccessToast(res?.data?.message as string);
       setAccessToken(access_token);
       setStores(stores);
       return true;
@@ -120,7 +123,7 @@ export default function useAuth() {
   };
 
   const profile = async () => {
-    const res = await requestWrapper(() => api.get(AUTH_ENDPOINTS.PROFILE));
+    const res = await requestWrapper(() => api.get<ApiResponse>(AUTH_ENDPOINTS.PROFILE));
     if (res?.data.success) {
       const { user, store } = res.data.data;
       setCurrentUser(user);
@@ -130,14 +133,11 @@ export default function useAuth() {
 
   // Tạo store và tự động set làm current store
   const createStoreInfo = async (data: CreateStoreInput) => {
-    const res = await requestWrapper(
-      () => api.post(AUTH_ENDPOINTS.BUSINESS, data),
-      'Tạo cửa hàng thành công!'
-    );
+    const res = await requestWrapper(() => api.post<ApiResponse>(AUTH_ENDPOINTS.BUSINESS, data));
 
     if (res?.data.success) {
       const newStore = res.data.data;
-
+      showSuccessToast(res?.data?.message as string);
       // Update stores list
       setStores([newStore]);
 
@@ -150,14 +150,14 @@ export default function useAuth() {
   };
 
   const selectStore = async (storeId: string) => {
-    const res = await requestWrapper(
-      () => api.post(`${AUTH_ENDPOINTS.SET_CURRENT_STORE}/${storeId}`),
-      'Đã chọn cửa hàng thành công!'
+    const res = await requestWrapper(() =>
+      api.post<ApiResponse>(`${AUTH_ENDPOINTS.SET_CURRENT_STORE}/${storeId}`)
     );
 
     if (res?.data.success) {
       // eslint-disable-next-line no-unsafe-optional-chaining
       const { access_token, user, store } = res?.data?.data;
+      showSuccessToast(res?.data?.message as string);
       setAccessToken(access_token);
       setCurrentUser(user);
       setCurrentStore(store);
@@ -167,19 +167,20 @@ export default function useAuth() {
   };
 
   const forgotPassword = async (data: ForgotPasswordData) => {
-    const res = await requestWrapper(() => api.post(AUTH_ENDPOINTS.FORGOT, data));
-    if (res) showSuccessToast(res.data.message);
+    const res = await requestWrapper(() => api.post<ApiResponse>(AUTH_ENDPOINTS.FORGOT, data));
+    if (res?.data.success) showSuccessToast(res?.data?.message as string);
     return !!res;
   };
 
   const resetPassword = async (data: ResetPasswordData) => {
-    const res = await requestWrapper(() => api.post(AUTH_ENDPOINTS.RESET, data));
-    if (res) showSuccessToast(res.data.message);
+    const res = await requestWrapper(() => api.post<ApiResponse>(AUTH_ENDPOINTS.RESET, data));
+    if (res?.data.success) showSuccessToast(res?.data?.message as string);
     return !!res;
   };
+
   const logout = async (redirectUrl?: string) => {
-    const res = await requestWrapper(() => api.post(AUTH_ENDPOINTS.LOGOUT));
-    if (res) showSuccessToast(res.data.message);
+    const res = await requestWrapper(() => api.post<ApiResponse>(AUTH_ENDPOINTS.LOGOUT));
+    if (res?.data.success) showSuccessToast(res?.data?.message as string);
     router.push(redirectUrl || `${process.env.NEXT_PUBLIC_MAIN_URL}/auth/login`);
     setAccessToken(null);
     setCurrentStore(null);

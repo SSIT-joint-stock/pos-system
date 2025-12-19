@@ -1,16 +1,17 @@
+import { Tooltip } from '@mantine/core';
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { useAtom } from 'jotai';
 import {
   BookUser,
   ChevronRight,
   LayoutDashboard,
-  NotepadText,
   Package,
   PackageSearch,
   ShoppingCart,
   Store,
   Users,
   Truck,
+  Receipt,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -26,6 +27,7 @@ export default function MenuSidebar({
   setOpenSubmenu: (openSubmenu: number | null) => void;
 }) {
   const pathName = usePathname();
+  console.log(pathName);
 
   const [currentStore] = useAtom(currentStoreAtom);
 
@@ -33,48 +35,80 @@ export default function MenuSidebar({
     {
       title: 'Tổng quan',
       path: `/dashboard/store/${currentStore?.id}/overview`,
-      icon: <LayoutDashboard className="shrink-0" />,
+      icon: <LayoutDashboard size={20} className="shrink-0" />,
     },
     {
       title: 'Quản lý kho',
-      icon: <Package className="shrink-0" />,
+      icon: <Package size={20} className="shrink-0" />,
       children: [
         {
           title: 'Sản phẩm',
           path: `/dashboard/store/${currentStore?.id}/manage-products`,
         },
+        // {
+        //   title: 'Đơn vị tính',
+        //   path: `/dashboard/store/${currentStore?.id}/manage-product-units`,
+        // },
         {
-          title: 'Hàng tồn kho',
-          path: `/dashboard/store/${currentStore?.id}/manage-inventory`,
-        },
-        {
-          title: 'Biến động kho',
-          path: `/dashboard/store/${currentStore?.id}/manage-stock`,
+          title: 'Nhóm sản phẩm',
+          path: `/dashboard/store/${currentStore?.id}/manage-product-combos`,
         },
         {
           title: 'Danh mục',
           path: `/dashboard/store/${currentStore?.id}/manage-categories`,
         },
+        // {
+        //   title: 'Hàng tồn kho',
+        //   path: `/dashboard/store/${currentStore?.id}/manage-inventory`,
+        // },
+      ],
+    },
+
+    {
+      title: 'Phiếu kho',
+      icon: <Truck size={20} className="shrink-0" />,
+      children: [
+        {
+          title: 'Phiếu nhập hàng',
+          path: `/dashboard/store/${currentStore?.id}/purchase-orders`,
+        },
+        {
+          title: 'Phiếu xuất hàng',
+          path: `/dashboard/store/${currentStore?.id}/outbound-orders`,
+        },
       ],
     },
     {
-      title: 'Phiếu nhập hàng',
-      path: `/dashboard/store/${currentStore?.id}/purchase-orders`,
-      icon: <Truck className="shrink-0" />,
+      title: 'Hóa đơn',
+      icon: <Receipt size={20} className="shrink-0" />,
+      children: [
+        {
+          title: 'Hóa đơn bán',
+          path: `/dashboard/store/${currentStore?.id}/sales-invoices`,
+        },
+        {
+          title: 'Hóa đơn nhập ',
+          path: `/dashboard/store/${currentStore?.id}/import-invoices`,
+        },
+        {
+          title: 'Hóa đơn xuất (NCC)',
+          path: `/dashboard/store/${currentStore?.id}/export-invoices`,
+        },
+        {
+          title: 'Hóa đơn trả (KH)',
+          path: `/dashboard/store/${currentStore?.id}/returned-invoices`,
+        },
+      ],
     },
+
     {
       title: 'Bán hàng',
       path: `/dashboard/store/${currentStore?.id}/sales`,
-      icon: <ShoppingCart className="shrink-0" />,
-    },
-    {
-      title: 'Đơn hàng',
-      path: `/dashboard/store/${currentStore?.id}/orders`,
-      icon: <PackageSearch className="shrink-0" />,
+      icon: <ShoppingCart size={20} className="shrink-0" />,
     },
     {
       title: 'Cửa hàng',
-      icon: <Store className="shrink-0" />,
+      icon: <Store size={20} className="shrink-0" />,
       children: [
         {
           title: 'Thông tin cửa hàng',
@@ -88,43 +122,31 @@ export default function MenuSidebar({
     },
 
     {
+      title: 'Biến động kho',
+      path: `/dashboard/store/${currentStore?.id}/manage-stock`,
+      icon: <PackageSearch size={20} className="shrink-0" />,
+    },
+
+    {
       title: 'Nhân viên',
       path: `/dashboard/store/${currentStore?.id}/employees`,
-      icon: <Users className="shrink-0" />,
+      icon: <Users size={20} className="shrink-0" />,
     },
 
     {
       title: 'Danh bạ',
-      icon: <BookUser className="shrink-0" />,
+      icon: <BookUser size={20} className="shrink-0" />,
       children: [
         {
           title: 'Khách hàng',
           path: `/dashboard/store/${currentStore?.id}/manage-customers`,
         },
+        {
+          title: 'Nhà cung cấp',
+          path: `/dashboard/store/${currentStore?.id}/manage-suppliers`,
+        },
       ],
     },
-    // {
-    //   title: 'Báo cáo',
-    //   icon: <NotepadText className="shrink-0" />,
-    //   children: [
-    //     {
-    //       title: 'Doanh thu theo sản phẩm',
-    //       path: `/dashboard/store/${currentStore?.id}/overview`,
-    //     },
-    //     {
-    //       title: 'Doanh thu theo ngày',
-    //       path: `/dashboard/store/${currentStore?.id}/manage-stores`,
-    //     },
-    //     {
-    //       title: 'Sản phẩm bán chạy',
-    //       path: `/dashboard/store/${currentStore?.id}/manage-stores`,
-    //     },
-    //     {
-    //       title: 'Báo cáo cuối ngày',
-    //       path: `/dashboard/store/${currentStore?.id}/manage-stores`,
-    //     },
-    //   ],
-    // },
   ];
 
   return (
@@ -134,29 +156,37 @@ export default function MenuSidebar({
           return (
             // Submenu item has children
             <div key={idx} className="flex flex-col w-full">
-              <button
-                title={item.title}
-                onClick={() => {
-                  setIsExpand(true);
-                  setOpenSubmenu(openSubmenu === idx ? null : idx);
-                }}
-                className={`flex cursor-pointer items-center gap-5 p-2 rounded-lg transition-all duration-300 w-full font-medium
+              <Tooltip
+                color="rgba(125, 124, 124, 1)"
+                withArrow
+                transitionProps={{ transition: 'fade-right', duration: 300 }}
+                label={item.title}
+                position="right"
+                disabled={isExpand}
+              >
+                <button
+                  onClick={() => {
+                    setIsExpand(true);
+                    setOpenSubmenu(openSubmenu === idx ? null : idx);
+                  }}
+                  className={`flex cursor-pointer items-center gap-5 p-2 rounded-sm transition-all duration-300 w-full font-medium
     ${isExpand === false ? 'flex items-center justify-center' : ''}
     ${
-      item.children.some((child) => child.path === pathName)
+      item.children.some((child) => pathName?.startsWith(child.path))
         ? 'bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white'
-        : 'text-gray-500 hover:bg-pos-blue-50 hover:text-pos-blue-400'
+        : 'text-gray-700 hover:bg-pos-blue-50 hover:text-pos-blue-400'
     }`}
-              >
-                <span className="font-medium">{item.icon}</span>
-                {isExpand && <p className="truncate font-medium">{item.title}</p>}
-                {isExpand && (
-                  <ChevronRight
-                    size={16}
-                    className={`ml-auto transition-transform duration-300 ${openSubmenu === idx ? 'rotate-90' : ''}`}
-                  />
-                )}
-              </button>
+                >
+                  <span className="font-medium">{item.icon}</span>
+                  {isExpand && <p className="truncate font-medium text-base">{item.title}</p>}
+                  {isExpand && (
+                    <ChevronRight
+                      size={16}
+                      className={`ml-auto transition-transform duration-300 ${openSubmenu === idx ? 'rotate-90' : ''}`}
+                    />
+                  )}
+                </button>
+              </Tooltip>
               {/* Submenu dropdown */}
               <div
                 className={`flex flex-col pl-4 gap-1 transition-all duration-300 border-l border-l-gray-400 ${isExpand && openSubmenu === idx ? 'max-h-40 opacity-100 visible mt-2 ' : 'max-h-0 opacity-0 p-0 invisible mt-0'}`}
@@ -165,7 +195,7 @@ export default function MenuSidebar({
                   <Link
                     key={cIdx}
                     href={child.path}
-                    className={`text-sm font-medium rounded-md p-2  ${child.path === pathName ? 'bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white' : 'text-gray-500 hover:bg-pos-blue-50 hover:text-pos-blue-400'}`}
+                    className={`text-sm font-medium rounded-sm p-2  ${child.path === pathName || pathName?.startsWith(child.path) ? 'bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white' : 'text-gray-700 hover:bg-pos-blue-50 hover:text-pos-blue-400'}`}
                   >
                     {child.title}
                   </Link>
@@ -176,15 +206,24 @@ export default function MenuSidebar({
         }
         // Submenu item has no children
         return (
-          <Link
-            title={item.title}
+          <Tooltip
+            withArrow
+            color="rgba(125, 124, 124, 1)"
+            transitionProps={{ transition: 'fade-right', duration: 300 }}
+            label={item.title}
+            position="right"
+            disabled={isExpand}
             key={idx}
-            href={item.path}
-            className={`flex items-center gap-5 p-2 rounded-lg  transition-all duration-300 w-full font-medium ${isExpand === false && 'flex items-center justify-center'}   ${item.path === pathName ? 'bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white' : 'text-gray-500 hover:bg-pos-blue-50 hover:text-pos-blue-400'}`}
           >
-            <span>{item.icon}</span>
-            {isExpand && <p className="truncate">{item.title}</p>}
-          </Link>
+            <Link
+              key={idx}
+              href={item.path}
+              className={`flex items-center gap-5 p-2 rounded-sm  transition-all duration-300 w-full font-medium ${isExpand === false && 'flex items-center justify-center'}   ${item.path === pathName ? 'bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white' : 'text-gray-700 hover:bg-pos-blue-50 hover:text-pos-blue-400'}`}
+            >
+              <span>{item.icon}</span>
+              {isExpand && <p className="truncate text-base">{item.title}</p>}
+            </Link>
+          </Tooltip>
         );
       })}
     </div>

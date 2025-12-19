@@ -19,13 +19,28 @@ import { Download, Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import SlidingTabs from '@repo/design-system/components/shared/chart-screen/sliding-line-chart';
 export function DashboardView() {
-  const { cache, handleChangeTimeType } = useStatistics();
+  const {
+    cache,
+    currentStore,
+    handleChangeTimeType,
+    getLowStockProducts,
+    getTopProducts,
+    fetchStatistic,
+  } = useStatistics();
   const [revenue, setRevenue] = useState<ChartPoint | null>(null);
   const [revenueByCategory, setRevenueByCategory] = useState<PieChartProps | null>(null);
   const [revenueSummary, setRevenueSummary] = useState<SummaryRevenue | null>(null);
   const revenueItems = cache.find((item) => item.key === 'revenue');
   const summaryRevenueItems = cache.find((item) => item.key === 'summary-revenue');
   const revenueByCategoryItems = cache.find((item) => item.key === 'revenue-by-category');
+  useEffect(() => {
+    if (currentStore?.id) {
+      getLowStockProducts();
+      getTopProducts();
+      fetchStatistic();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStore?.id]);
   useEffect(() => {
     setRevenue(revenueItems?.data || []);
     setRevenueByCategory(revenueByCategoryItems?.data || null);
@@ -35,9 +50,10 @@ export function DashboardView() {
 
   return (
     <div className="flex  h-fit w-full gap-5 flex-col pb-6">
-      <div className="flex flex-col gap-2">
-        <div className="flex justify-end t">
-          <div className="w-fit bg-white rounded-md py-2 px-3">
+      <div className="flex flex-col gap-2 bg-white py-5 px-4">
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-bold ">Kết quả kinh doanh</h2>
+          <div className="w-fit bg-white rounded-md">
             <SlidingTabs
               data={[
                 { name: 'Ngày', value: 'day' },
@@ -50,7 +66,7 @@ export function DashboardView() {
             />
           </div>
         </div>
-        <div className="grid sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3   w-full overflow-x-auto min-h-fit">
+        <div className="grid sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3   w-full overflow-x-auto min-h-fit mt-4">
           <ItemBoxChart title={'Tổng đơn hàng'} value={revenueSummary?.orderCount} />
           <ItemBoxChart
             value={formatCurrency(revenueSummary?.totalRevenue)}

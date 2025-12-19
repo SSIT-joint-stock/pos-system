@@ -14,6 +14,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 import { FilterValue, useQueryParams } from '../query/use-query-params';
+
 interface CustomerFilters extends Record<string, FilterValue> {
   q?: string;
 }
@@ -21,15 +22,16 @@ interface CustomerFilters extends Record<string, FilterValue> {
 export function useCustomer() {
   const currentStore = useAtomValue(currentStoreAtom);
   const [customers, setCustomers] = useState<Customer[]>([]);
-  // HOOK
+
+  // HOOKS
   const { loading, requestWrapper } = useRequestHelper();
-  const { showSuccessToast } = useToast();
+  const { showSuccessToast, showErrorToast } = useToast();
   const {
     paginationParams,
-    setPaginationParams,
     filters,
-    setFilters,
     pagination,
+    setPaginationParams,
+    setFilters,
     setPagination,
     buildParams,
     setSortBy,
@@ -38,13 +40,15 @@ export function useCustomer() {
     q: 'q',
   });
 
-  //   FORM
+  // FORMS
   const createCustomerForm = useForm<CreateCustomerInput>({
     resolver: zodResolver(CreateCustomerSchema),
   });
   const updateCustomerForm = useForm<UpdateCustomerInput>({
     resolver: zodResolver(UpdateCustomerSchema),
   });
+
+  // GET CUSTOMERS
   const getCustomers = async () => {
     const res = await requestWrapper(() =>
       api.get(`/stores/${currentStore?.id}/customers?${buildParams().toString()}`)
@@ -54,14 +58,31 @@ export function useCustomer() {
       setPagination(res?.data?.pagination);
     }
   };
+
+  // ✅ CREATE CUSTOMER (with duplicate phone check)
   const createCustomer = async (data: CreateCustomerInput) => {
     if (!currentStore?.id) return;
-    const res = await requestWrapper(() => api.post(`/stores/${currentStore?.id}/customers`, data));
+
+    // Check for duplicate phone number before sending API request
+    const trimmedPhone = data.phone?.trim();
+    if (trimmedPhone) {
+      const duplicate = customers.some(
+        (c) => c.phone?.trim().replace(/\s+/g, '') === trimmedPhone.replace(/\s+/g, '')
+      );
+      if (duplicate) {
+        showErrorToast('⚠️ Số điện thoại này đã tồn tại. Vui lòng nhập số khác.');
+        return; // Stop — don't call API
+      }
+    }
+
+    const res = await requestWrapper(() => api.post(`/stores/${currentStore.id}/customers`, data));
     if (res?.data.success) {
       getCustomers();
       showSuccessToast(res.data.message);
     }
   };
+
+  // DELETE CUSTOMER
   const deleteCustomer = async (customerId: string) => {
     if (!currentStore?.id) return;
     const res = await requestWrapper(() =>
@@ -72,6 +93,8 @@ export function useCustomer() {
       getCustomers();
     }
   };
+
+  // UPDATE CUSTOMER
   const updateCustomer = async (customerId: string, data: UpdateCustomerInput) => {
     if (!currentStore?.id) return;
     const res = await requestWrapper(() =>
@@ -82,6 +105,7 @@ export function useCustomer() {
       getCustomers();
     }
   };
+
   return {
     getCustomers,
     createCustomer,
@@ -92,7 +116,6 @@ export function useCustomer() {
     setSortBy,
     setSort,
     setPagination,
-
     createCustomerForm,
     updateCustomerForm,
     customers,

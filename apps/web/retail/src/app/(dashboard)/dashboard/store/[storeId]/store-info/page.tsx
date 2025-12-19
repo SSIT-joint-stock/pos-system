@@ -1,6 +1,6 @@
 import React from 'react';
-import { InfoStoreView } from '../../../../../../../../main/src/sections/dashboard/view';
+import { InfoStoreViewV2 } from '../../../../../../../../main/src/sections/dashboard/view/';
 
 export default function page() {
-  return <InfoStoreView />;
+  return <InfoStoreViewV2 />;
 }
