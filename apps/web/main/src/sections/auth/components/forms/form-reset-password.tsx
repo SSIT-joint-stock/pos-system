@@ -27,9 +27,10 @@ export function FormResetPassword({
         disabled={loading}
         error={errors.resetToken?.message}
         type="text"
-        label="Code"
-        placeholder="Nhập code"
+        label="Mã xác thực"
+        placeholder="Nhập mã xác thực"
         size="sm"
+        radius="sm"
       />
       <Input
         {...register('password')}
@@ -39,6 +40,7 @@ export function FormResetPassword({
         type="password"
         label="Mật khẩu "
         placeholder="Nhập mật khẩu"
+        radius="sm"
         size="sm"
       />
       <Input
@@ -50,12 +52,13 @@ export function FormResetPassword({
         label="Xác thực mật mật khẩu"
         placeholder="Nhập xác thực mật khẩu "
         size="sm"
+        radius="sm"
       />
-      <Button disabled={loading} type="submit" title="Đặt lại mật khẩu" size="sm" />
+      <Button loading={loading} type="submit" title="Đặt lại mật khẩu" size="sm" radius="sm" />
       <div className="flex items-center justify-center w-full">
         <button
           type="button"
-          onClick={() => setModalSteps(0)}
+          onClick={() => setModalSteps(1)}
           className="flex items-center gap-2 cursor-pointer text-gray-500 group transition-all duration-300 hover:text-pos-blue-500  "
         >
           <MoveLeft size={16} className=" group-hover:-translate-x-2 transition-all duration-300" />

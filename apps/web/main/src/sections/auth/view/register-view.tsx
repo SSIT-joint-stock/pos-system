@@ -44,7 +44,7 @@ export function RegisterView() {
         </div>
       </div>
       {/* Form */}
-      <div className="flex flex-col items-center justify-center w-full max-w-md mx-auto p-6 ">
+      <div className="flex flex-col items-center justify-center w-full max-w-xl mx-auto p-6 ">
         {/* Steps */}
         <div className="flex flex-col items-center text-center mb-6">
           <div className="mb-3 p-3 bg-pos-blue-50  text-pos-blue-500 rounded-full">

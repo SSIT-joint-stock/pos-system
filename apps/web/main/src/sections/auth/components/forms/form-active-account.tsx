@@ -3,6 +3,8 @@ import { Button, PinInput } from '@repo/design-system/components/ui';
 import { MoveLeft } from 'lucide-react';
 import React from 'react';
 import { VerifyAccountData } from '../../data';
+import dayjs from 'dayjs';
+import { useCountDown } from '../../../../hooks/use-count-down';
 
 export function FormActiveAccount({
   setActive,
@@ -20,6 +22,16 @@ export function FormActiveAccount({
     resendCode,
     loading,
   } = useAuth();
+  const { remaining, setRemaining, RESEND_COOLDOWN, STORAGE_KEY } = useCountDown();
+  const email = localStorage.getItem('verifiedEmail');
+
+  const handleResend = async () => {
+    await resendCode(email as string);
+
+    const expiredAt = dayjs().add(RESEND_COOLDOWN, 'second');
+    localStorage.setItem(STORAGE_KEY, expiredAt.toISOString());
+    setRemaining(RESEND_COOLDOWN);
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 w-full ">
@@ -27,7 +39,7 @@ export function FormActiveAccount({
         <PinInput
           name="verificationCode"
           onChange={handleVerificationCodeChange}
-          error={errors.verificationCode?.message}
+          error={errors.verificationCode ? 'Vui lòng nhập mã xác thực' : ''}
           length={6}
           radius="md"
         />
@@ -46,11 +58,12 @@ export function FormActiveAccount({
       <p className="text-center text-xs font-medium text-gray-400">
         Chưa nhận được mã xác thức?{' '}
         <button
-          onClick={resendCode}
+          disabled={remaining > 0}
+          onClick={handleResend}
           type="button"
-          className="text-pos-blue-500 hover:underline cursor-pointer"
+          className="text-pos-blue-500 hover:underline cursor-pointer disabled:cursor-not-allowed "
         >
-          Gửi lại mã
+          {remaining > 0 ? `Gửi lại mã sau ${remaining}s` : 'Gửi lại mã'}
         </button>
       </p>
       <div className="flex items-center justify-center w-full">

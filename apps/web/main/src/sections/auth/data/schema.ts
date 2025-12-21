@@ -1,6 +1,6 @@
 import { z } from 'zod';
 export const loginSchema = z.object({
-  usernameOrEmail: z.string().email({ message: 'Email không hợp lệ' }).nonempty({
+  usernameOrEmail: z.string().nonempty({
     message: 'Vui lòng nhập email hoặc tên đăng nhập',
   }),
   password: z

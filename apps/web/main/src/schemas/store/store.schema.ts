@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 export const StoreSchema = z.object({
   id: z.string().uuid(),
-  name: z.string().min(1),
+  name: z.string().nonempty({ message: 'Vui lòng nhập tên doanh nghiệp' }),
   description: z.string().optional(),
   phone_number: z.string().optional(),
   business_hour: z.string().optional(),

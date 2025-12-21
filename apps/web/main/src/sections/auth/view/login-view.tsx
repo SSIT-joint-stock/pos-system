@@ -79,10 +79,14 @@ export function LoginView() {
               handleStoreChange={handleStoreChange}
               loading={loading}
               stores={stores}
+              setIsStepActive={setIsStepActive}
             />
           ) : (
             // User has no stores - show create form
-            <FormBusinessInfo createStoreInfo={handleCreateStore} />
+            <FormBusinessInfo
+              createStoreInfo={handleCreateStore}
+              setIsStepActive={setIsStepActive}
+            />
           )}
         </>
       )}
