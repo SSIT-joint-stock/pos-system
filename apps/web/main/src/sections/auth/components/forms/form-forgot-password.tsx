@@ -24,8 +24,9 @@ export function FormForgotPassword({ onSubmit }: { onSubmit: (data: ForgotPasswo
         label="Email"
         placeholder="Nhập email"
         size="sm"
+        radius="sm"
       />
-      <Button disabled={loading} type="submit" title="Tiếp tục" size="sm" />
+      <Button loading={loading} type="submit" title="Tiếp tục" size="sm" radius="sm" />
     </form>
   );
 }

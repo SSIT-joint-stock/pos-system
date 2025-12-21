@@ -30,7 +30,7 @@ import { ApiResponse } from '@repo/types/response';
 const AUTH_ENDPOINTS = {
   REGISTER: '/auth/register',
   VERIFY: '/auth/verify-email',
-  RESEND: '/auth/resend-code',
+  RESEND: '/auth/reverify-email',
   BUSINESS: '/stores',
   LOGIN: '/auth/login',
   FORGOT: '/auth/forgot-password',
@@ -74,20 +74,18 @@ export default function useAuth() {
     const res = await requestWrapper(() => api.post<ApiResponse>(AUTH_ENDPOINTS.REGISTER, data));
     if (res?.data.success) {
       showSuccessToast(res?.data?.message as string);
+      localStorage.setItem('verifiedEmail', data.email);
       setEmail(res.data?.data?.user.email);
       return true;
     }
     return false;
   };
-
-  const verifyAccount = async (data: VerifyAccountData) => {
-    const res = await requestWrapper(
-      () =>
-        api.post<ApiResponse>(AUTH_ENDPOINTS.VERIFY, {
-          email,
-          verificationCode: data.verificationCode,
-        }),
-      'Xác thực tài khoản thành công'
+  const verifyAccount = async (data: VerifyAccountData, inptEmail?: string) => {
+    const res = await requestWrapper(() =>
+      api.post<ApiResponse>(AUTH_ENDPOINTS.VERIFY, {
+        email: email || inptEmail,
+        verificationCode: data.verificationCode,
+      })
     );
 
     if (res?.data.success) {
@@ -96,12 +94,11 @@ export default function useAuth() {
     }
     return false;
   };
-
   const handleVerificationCodeChange = (value: string) => {
     verifyEmailForm.setValue('verificationCode', value);
   };
 
-  const resendCode = async () => {
+  const resendCode = async (email: string) => {
     const res = await requestWrapper(() =>
       api.post<ApiResponse>(`${AUTH_ENDPOINTS.RESEND}`, { email })
     );
@@ -180,11 +177,14 @@ export default function useAuth() {
 
   const logout = async (redirectUrl?: string) => {
     const res = await requestWrapper(() => api.post<ApiResponse>(AUTH_ENDPOINTS.LOGOUT));
+
     if (res?.data.success) showSuccessToast(res?.data?.message as string);
-    router.push(redirectUrl || `${process.env.NEXT_PUBLIC_MAIN_URL}/auth/login`);
     setAccessToken(null);
     setCurrentStore(null);
     setCurrentUser(null);
+
+    router.push(redirectUrl || `${process.env.NEXT_PUBLIC_MAIN_URL}/auth/login`);
+
     return !!res;
   };
   // Redirect sang dashboard

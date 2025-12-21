@@ -24,6 +24,7 @@ export function FormRegister({ onSubmit }: { onSubmit: (data: RegisterData) => v
         disabled={loading}
         error={errors.username?.message}
         size="sm"
+        radius="sm"
         type="username"
         label="Tên đăng nhập"
         placeholder="Nguyen Van A"
@@ -35,6 +36,7 @@ export function FormRegister({ onSubmit }: { onSubmit: (data: RegisterData) => v
         disabled={loading}
         error={errors.email?.message}
         size="sm"
+        radius="sm"
         type="email"
         label="Email"
         placeholder="example@gmail.com"
@@ -47,6 +49,7 @@ export function FormRegister({ onSubmit }: { onSubmit: (data: RegisterData) => v
         disabled={loading}
         error={errors.password?.message}
         size="sm"
+        radius="sm"
         type="password"
         isInputPassword
         label="Mật Khẩu"
@@ -60,6 +63,7 @@ export function FormRegister({ onSubmit }: { onSubmit: (data: RegisterData) => v
         disabled={loading}
         error={errors.confirmPassword?.message}
         size="sm"
+        radius="sm"
         type="password"
         isInputPassword
         label="Xác thực mật khẩu"
@@ -68,11 +72,19 @@ export function FormRegister({ onSubmit }: { onSubmit: (data: RegisterData) => v
       />
 
       {/* Sign in button */}
-      <Button disabled={loading} type="submit" size="sm" title={'Tiếp tục'} variant="filled" />
+      <Button
+        disabled={loading}
+        type="submit"
+        size="sm"
+        radius="sm"
+        title={'Tiếp tục'}
+        variant="filled"
+      />
       {/* Google sign in */}
       <Button
         type="button"
         size="sm"
+        radius="sm"
         variant="default"
         icon={
           <>
@@ -107,7 +119,7 @@ export function FormRegister({ onSubmit }: { onSubmit: (data: RegisterData) => v
       />
 
       {/* Login link */}
-      <p className="text-center text-xs font-medium text-gray-400">
+      <p className="text-center text-sm font-medium text-gray-400">
         Bạn đã có tài khoản?{' '}
         <RouterLink href="/auth/login" className="text-pos-blue-500 hover:underline">
           Đăng nhập

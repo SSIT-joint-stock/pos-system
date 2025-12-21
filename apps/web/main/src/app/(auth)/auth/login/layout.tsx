@@ -9,7 +9,7 @@ export default function SigninLayout({
 }>) {
   return (
     <div className="grid md:grid-cols-[1fr_0.8fr] grid-cols-1 bg-gray-50/40 h-screen">
-      <div className="flex flex-col items-center justify-center w-full max-w-xl mx-auto p-6  ">
+      <div className="flex flex-col items-center justify-center w-full max-w-2xl mx-auto p-6  ">
         {children}
       </div>
       <div className="md:flex flex-col gap-2 items-center justify-center hidden  ">

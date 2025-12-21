@@ -42,10 +42,11 @@ export default function StepRegister({
           <RouterLink className="w-full flex" href="/auth/login">
             <Button
               onClick={() => {
-                showSuccessToast('Bây giờ bạn có thể đăng nhập vào tài khoản');
+                showSuccessToast('Bây giờ bạn có thể đăng nhập vào tài khoản!');
               }}
               className="flex-1"
               size="sm"
+              radius="sm"
               variant="filled"
             >
               Tiếp tục

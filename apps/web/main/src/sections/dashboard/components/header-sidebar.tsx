@@ -34,7 +34,7 @@ export default function HeaderSidebar() {
   return (
     <header className="bg-white shadow-md shadow-gray-100 px-8 flex items-stretch justify-between h-16 ">
       <span className="text-lg font-semibold text-gray-800 self-center">
-        {currentUser?.username}
+        {currentUser?.username || 'Admin'}
       </span>
       <div className="flex items-stretch ">
         <button className="flex items-center gap-4.5 text-sm justify-center px-3 hover:bg-pos-blue-50 hover:text-pos-blue-500 transition-colors cursor-pointer">
@@ -89,8 +89,10 @@ export default function HeaderSidebar() {
               unoptimized
             />
             <div className="flex flex-col gap-1">
-              <h2 className="text-sm font-medium  truncate text-left">{currentUser?.username}</h2>
-              <p className="text-xs  ">{currentUser?.email}</p>
+              <h2 className="text-sm font-medium  truncate text-left">
+                {currentUser?.username || 'Admin'}
+              </h2>
+              <p className="text-xs  ">{currentUser?.email || 'admin@gmail.com'}</p>
             </div>
           </button>
           <div

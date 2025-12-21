@@ -4,6 +4,7 @@ import { Input, Button, Checkbox, Loading } from '@repo/design-system/components
 import { Lock, Mail } from 'lucide-react';
 import { RouterLink } from '@repo/design-system/routes/components';
 import StepResetPassword from '../steps/step-reset-password';
+import FormReactiveAccount from './form-reactive-account';
 
 export function FormLogin({
   login,
@@ -15,6 +16,7 @@ export function FormLogin({
   loading: boolean;
 }) {
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
+  const [isOpenModalActiveAcc, setIsOpenModalActiveAcc] = useState<boolean>(false);
 
   return (
     <>
@@ -25,8 +27,8 @@ export function FormLogin({
           name="usernameOrEmail"
           error={loginForm.formState.errors.usernameOrEmail?.message}
           size="sm"
-          type="email"
-          label="Email"
+          radius="sm"
+          label="Email / Tên đăng nhập"
           placeholder="example@gmail.com"
           leftSection={<Mail size={16} />}
         />
@@ -37,6 +39,7 @@ export function FormLogin({
           error={loginForm.formState.errors.password?.message}
           isInputPassword
           size="sm"
+          radius="sm"
           type="password"
           label="Password"
           placeholder="**********"
@@ -49,7 +52,7 @@ export function FormLogin({
           <button
             onClick={() => setIsOpenModal(true)}
             type="button"
-            className="text-pos-blue-500 cursor-pointer hover:underline"
+            className="text-pos-blue-500 cursor-pointer hover:underline text-sm font-medium"
           >
             Quên mật khẩu
           </button>
@@ -60,6 +63,7 @@ export function FormLogin({
           disabled={loading}
           type="submit"
           size="sm"
+          radius="sm"
           title={loading ? <Loading /> : 'Đăng nhập'}
           variant="filled"
         />
@@ -67,6 +71,7 @@ export function FormLogin({
         <Button
           type="button"
           size="sm"
+          radius="sm"
           variant="default"
           icon={
             <>
@@ -101,14 +106,26 @@ export function FormLogin({
         />
 
         {/* Sign up link */}
-        <p className="text-center text-xs font-medium text-gray-400">
-          Bạn chưa có tài khoản?{' '}
-          <RouterLink href="/auth/register" className="text-pos-blue-500 hover:underline">
-            Đăng ký
-          </RouterLink>
-        </p>
+        <div className="flex items-center justify-between">
+          <p className="text-center text-sm font-medium text-gray-400">
+            Bạn chưa có tài khoản?{' '}
+            <RouterLink href="/auth/register" className="text-pos-blue-500 hover:underline">
+              Đăng ký
+            </RouterLink>
+          </p>
+          <p
+            onClick={() => setIsOpenModalActiveAcc(true)}
+            className="text-sm text-pos-blue-500 font-medium hover:cursor-pointer hover:underline"
+          >
+            Xác thực tài khoản
+          </p>
+        </div>
       </form>
       <StepResetPassword isOpenModal={isOpenModal} setIsOpenModal={setIsOpenModal} />
+      <FormReactiveAccount
+        isOpenModalActiveAcc={isOpenModalActiveAcc}
+        setIsOpenModalActiveAcc={setIsOpenModalActiveAcc}
+      />
     </>
   );
 }

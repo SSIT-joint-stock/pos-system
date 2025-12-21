@@ -47,6 +47,7 @@ export default function StepResetPassword({
         radius="xl"
         padding="lg"
         size="lg"
+        title={<p className="text-base font-semibold">Quên mật khẩu</p>}
         opened={isOpenModal}
         onClose={() => setIsOpenModal(false)}
       >
