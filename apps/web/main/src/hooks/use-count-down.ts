@@ -1,3 +1,4 @@
+'use client';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 const RESEND_COOLDOWN = 30; // seconds

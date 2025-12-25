@@ -1,8 +1,19 @@
 'use client';
-import api from '../../libs/axios';
-import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 import { zodResolver } from '@hookform/resolvers/zod';
+import useToast from '@repo/design-system/hooks/client/use-toast-notification';
+import {
+  accessTokenAtom,
+  currentStoreAtom,
+  currentUserAtom,
+  storesAtom,
+} from '@repo/design-system/stores/auth';
+import { ApiResponse } from '@repo/types/response';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import api from '../../libs/axios';
+import { CreateStoreInput, CreateStoreSchema } from '../../schemas/store/store.schema';
 import {
   ForgotPasswordData,
   forgotPasswordSchema,
@@ -15,18 +26,7 @@ import {
   VerifyAccountData,
   verifyAccountSchema,
 } from '../../sections/auth/data';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { useAtomValue, useSetAtom } from 'jotai';
-import {
-  accessTokenAtom,
-  currentStoreAtom,
-  storesAtom,
-  currentUserAtom,
-} from '@repo/design-system/stores/auth';
 import { useRequestHelper } from '../use-request-helper';
-import { CreateStoreInput, CreateStoreSchema } from '../../schemas/store/store.schema';
-import { ApiResponse } from '@repo/types/response';
 const AUTH_ENDPOINTS = {
   REGISTER: '/auth/register',
   VERIFY: '/auth/verify-email',
@@ -114,9 +114,15 @@ export default function useAuth() {
       showSuccessToast(res?.data?.message as string);
       setAccessToken(access_token);
       setStores(stores);
-      return true;
+      return {
+        success: true,
+        stores,
+      };
     }
-    return false;
+    return {
+      success: false,
+      stores: [],
+    };
   };
 
   const profile = async () => {
@@ -147,20 +153,23 @@ export default function useAuth() {
   };
 
   const selectStore = async (storeId: string) => {
-    const res = await requestWrapper(() =>
-      api.post<ApiResponse>(`${AUTH_ENDPOINTS.SET_CURRENT_STORE}/${storeId}`)
-    );
+    try {
+      const res = await api.post<ApiResponse>(`${AUTH_ENDPOINTS.SET_CURRENT_STORE}/${storeId}`);
 
-    if (res?.data.success) {
-      // eslint-disable-next-line no-unsafe-optional-chaining
-      const { access_token, user, store } = res?.data?.data;
-      showSuccessToast(res?.data?.message as string);
-      setAccessToken(access_token);
-      setCurrentUser(user);
-      setCurrentStore(store);
-      return true;
+      if (res?.data.success) {
+        // eslint-disable-next-line no-unsafe-optional-chaining
+        const { access_token, store, user } = res?.data?.data;
+        showSuccessToast(res?.data?.message as string);
+        setAccessToken(access_token);
+        setCurrentUser(user);
+        setCurrentStore(store);
+
+        return true;
+      }
+    } catch (error) {
+      console.log(error);
+      return false;
     }
-    return false;
   };
 
   const forgotPassword = async (data: ForgotPasswordData) => {
@@ -187,6 +196,7 @@ export default function useAuth() {
 
     return !!res;
   };
+
   // Redirect sang dashboard
   const goToDashboard = () => {
     router.push(
@@ -216,7 +226,6 @@ export default function useAuth() {
     profile,
     logout,
     goToDashboard,
-
     // utils
 
     setEmail,

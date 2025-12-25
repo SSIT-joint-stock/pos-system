@@ -1,8 +1,9 @@
 'use client';
-import React, { useState } from 'react';
-import { Input, Button, Checkbox, Loading } from '@repo/design-system/components/ui/';
-import { Lock, Mail } from 'lucide-react';
+import { useOauth } from '@main/hooks/oauth/use-oauth';
+import { Button, Checkbox, Input, Loading } from '@repo/design-system/components/ui/';
 import { RouterLink } from '@repo/design-system/routes/components';
+import { Lock, Mail } from 'lucide-react';
+import { useState } from 'react';
 import StepResetPassword from '../steps/step-reset-password';
 import FormReactiveAccount from './form-reactive-account';
 
@@ -17,7 +18,7 @@ export function FormLogin({
 }) {
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isOpenModalActiveAcc, setIsOpenModalActiveAcc] = useState<boolean>(false);
-
+  const { callBackGoogle } = useOauth();
   return (
     <>
       <form onSubmit={loginForm.handleSubmit(login)} className="flex flex-col gap-4 w-full ">
@@ -70,6 +71,7 @@ export function FormLogin({
         {/* Google sign in */}
         <Button
           type="button"
+          onClick={() => callBackGoogle()}
           size="sm"
           radius="sm"
           variant="default"

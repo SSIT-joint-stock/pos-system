@@ -1,17 +1,17 @@
 'use client';
-import React, { useEffect, useState } from 'react';
-import { getDefaultStore, useAtomValue } from 'jotai';
+import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 import {
   accessTokenAtom,
   currentStoreAtom,
   currentUserAtom,
 } from '@repo/design-system/stores/auth';
-import api from '../../../../../apps/web/main/src/libs/axios';
-import { Loading } from '../ui';
-import Sidebar from '../../../../../apps/web/main/src/sections/dashboard/components/sidebar-screen';
-import HeaderSidebar from '../../../../../apps/web/main/src/sections/dashboard/components/header-sidebar';
+import { getDefaultStore, useAtomValue } from 'jotai';
 import { usePathname } from 'next/navigation';
-import useToast from '@repo/design-system/hooks/client/use-toast-notification';
+import React, { useEffect, useState } from 'react';
+import api from '../../../../../apps/web/main/src/libs/axios';
+import HeaderSidebar from '../../../../../apps/web/main/src/sections/dashboard/components/header-sidebar';
+import Sidebar from '../../../../../apps/web/main/src/sections/dashboard/components/sidebar-screen';
+import { Loading } from '../ui';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathName = usePathname();
@@ -36,6 +36,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         // Nếu chưa có token thì refresh
         if (!token) {
           const res = await api.post('/auth/refresh-token');
+          console.log(res.data);
           const { access_token, user, store: defaultStore } = res.data.data;
 
           token = access_token;
@@ -54,7 +55,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           currentStore = defaultStore;
           store.set(currentStoreAtom, currentStore);
         }
-      } catch {
+      } catch (err) {
+        console.log(err);
         showErrorToast('Vui lòng đăng nhâp lại!');
       }
     };
