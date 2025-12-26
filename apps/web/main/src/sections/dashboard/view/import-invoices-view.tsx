@@ -1,44 +1,48 @@
-'use client';
-import DashboardViewLayout from '../../../layouts/dashboard-view-layout';
-import { Button, Table } from '@repo/design-system/components/ui';
-import { Plus } from 'lucide-react';
-import React, { useEffect } from 'react';
-import { DisplayField } from '../components/display-field';
-import { DataActionBar } from '../components/data-action-bar';
-import { ActionButtons } from '../components/action-buttons';
-import { useRouter } from 'next/navigation';
-import { usePurchase } from '../../../hooks/purchase/use-purchase';
-import { formatCurrency, formatDate } from '../../../utils';
+"use client";
+import DashboardViewLayout from "../../../layouts/dashboard-view-layout";
+import { Button, Table } from "@repo/design-system/components/ui";
+import { Plus } from "lucide-react";
+import React, { useEffect } from "react";
+import { DisplayField } from "../components/display-field";
+import { DataActionBar } from "../components/data-action-bar";
+import { ActionButtons } from "../components/action-buttons";
+import { useRouter } from "next/navigation";
+import { usePurchase } from "../../../hooks/purchase/use-purchase";
+import { formatCurrency, formatDate } from "../../../utils";
 import {
   PAYMENT_STATUS,
   PAYMENT_STATUS_MAP,
   PURCHASE_STATUS,
   PURCHASE_STATUS_MAP,
-} from '../../../constants/status';
+} from "../../../constants/status";
 
 const tableHeaders = [
-  'Mã đơn nhập',
-  'Ngày tạo',
-  'Nhà cung cấp / Khách hàng',
-  'Trạng thái',
-  'Trạng thái thanh toán',
-  'Nhân viên tạo',
-  'Số lượng nhập',
-  'Giá trị đơn',
-  'Thao tác',
+  "Mã đơn nhập",
+  "Ngày tạo",
+  "Nhà cung cấp / Khách hàng",
+  "Trạng thái",
+  "Trạng thái thanh toán",
+  "Nhân viên tạo",
+  "Số lượng nhập",
+  "Giá trị đơn",
+  "Thao tác",
 ];
-export const purchaseStatusOptions = Object.entries(PURCHASE_STATUS).map(([key, item]) => ({
-  label: item.label,
-  value: item.value,
-  color: item.color,
-  key, // optional
-}));
-export const paymentStatusOptions = Object.entries(PAYMENT_STATUS).map(([key, item]) => ({
-  label: item.label,
-  value: item.value,
-  color: item.color,
-  key, // optional
-}));
+export const purchaseStatusOptions = Object.entries(PURCHASE_STATUS).map(
+  ([key, item]) => ({
+    label: item.label,
+    value: item.value,
+    color: item.color,
+    key, // optional
+  })
+);
+export const paymentStatusOptions = Object.entries(PAYMENT_STATUS).map(
+  ([key, item]) => ({
+    label: item.label,
+    value: item.value,
+    color: item.color,
+    key, // optional
+  })
+);
 
 export function ImportInvoicesView() {
   const {
@@ -51,6 +55,8 @@ export function ImportInvoicesView() {
     getPurchaseOrders,
     setFilters,
     setPaginationParams,
+    exportPurchaseOrdersExcel,
+    downloadPurchaseOrderTemplate,
   } = usePurchase();
   const router = useRouter();
 
@@ -69,9 +75,9 @@ export function ImportInvoicesView() {
           value={
             <div className="flex items-center text-base gap-4 font-medium text-gray-500 ">
               <p className="">
-                Nhập kho:{' '}
+                Nhập kho:{" "}
                 <span className="text-pos-blue-500 font-semibold text-lg">
-                  {formatCurrency(totalPurchase || 0) || '0'}
+                  {formatCurrency(totalPurchase || 0) || "0"}
                 </span>
               </p>
             </div>
@@ -80,7 +86,7 @@ export function ImportInvoicesView() {
           <div className="flex items-center gap-3">
             <Button
               title="Tạo phiếu nhập hàng"
-              onClick={() => router.push('purchase-orders')}
+              onClick={() => router.push("purchase-orders")}
               icon={<Plus size={16} />}
               size="sm"
               radius="sm"
@@ -91,15 +97,15 @@ export function ImportInvoicesView() {
           placeholderSearch="Tìm kiếm mã phiếu nhập, tên hoặc mã nhà cung cấp / khách hàng"
           statusOptions={[
             {
-              width: '200px',
-              key: 'status',
-              label: 'Trạng thái phiếu nhập',
+              width: "200px",
+              key: "status",
+              label: "Trạng thái phiếu nhập",
               options: purchaseStatusOptions,
             },
             {
-              width: '200px',
-              key: 'payment_status',
-              label: 'Trạng thái thanh toán',
+              width: "200px",
+              key: "payment_status",
+              label: "Trạng thái thanh toán",
               options: paymentStatusOptions,
             },
           ]}
@@ -114,6 +120,8 @@ export function ImportInvoicesView() {
           onSearch={(value) => {
             setFilters((prev) => ({ ...prev, q: value }));
           }}
+          onExport={exportPurchaseOrdersExcel}
+          onDownloadTemplate={downloadPurchaseOrderTemplate}
         />
         <Table
           hasMarginTop={false}
@@ -145,32 +153,34 @@ export function ImportInvoicesView() {
                 }}
                 className="px-4 py-3 text-sm font-semibold text-blue-600 hover:underline cursor-pointer"
               >
-                {data?.order_number || 'N/A'}
+                {data?.order_number || "N/A"}
               </td>
               <td className="px-4 py-3 text-sm text-gray-600">
-                {formatDate(data.createdAt) || 'N/A'}
+                {formatDate(data.createdAt) || "N/A"}
               </td>
               <td className="px-4 py-3 text-sm text-pos-blue-500">
-                {data?.supplier?.name || 'N/A'}
+                {data?.supplier?.name || "N/A"}
               </td>
               <td className={`px-4 py-3 text-sm   `}>
                 <span
                   className={`${PURCHASE_STATUS_MAP[data?.status].color} ${PURCHASE_STATUS_MAP[data?.status].bgColor} py-2 px-3 rounded-md text-nowrap`}
                 >
-                  {PURCHASE_STATUS_MAP[data?.status].label || 'N/A'}
+                  {PURCHASE_STATUS_MAP[data?.status].label || "N/A"}
                 </span>
               </td>
               <td className="px-4 py-3 text-sm text-pos-blue-500 font-medium">
                 <span
                   className={`${PAYMENT_STATUS_MAP[data?.payment_status].color} ${PAYMENT_STATUS_MAP[data?.payment_status].bgColor} py-2 px-3 rounded-md text-nowrap`}
                 >
-                  {PAYMENT_STATUS_MAP[data?.payment_status].label || 'N/A'}
+                  {PAYMENT_STATUS_MAP[data?.payment_status].label || "N/A"}
                 </span>
               </td>
               <td className="px-4 py-3 text-sm text-gray-500 font-medium">
-                {data?.creator?.email || 'N/A'}
+                {data?.creator?.email || "N/A"}
               </td>
-              <td className="px-4 py-3 text-sm text-gray-600">{data?.items.length || 0}</td>
+              <td className="px-4 py-3 text-sm text-gray-600">
+                {data?.items.length || 0}
+              </td>
               <td className="px-4 py-3 text-sm text-gray-600">
                 {formatCurrency(data?.total || 0)}
               </td>
