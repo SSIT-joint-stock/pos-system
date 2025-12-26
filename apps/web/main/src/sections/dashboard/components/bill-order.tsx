@@ -1,9 +1,9 @@
-import { formatCurrency } from '../../../../../main/src/utils';
 import { Drawer, Switch } from '@mantine/core';
 import { Button, Checkbox, Input, Select } from '@repo/design-system/components/ui';
 import React, { ChangeEvent } from 'react';
-import { selectedVariant } from '../view';
+import { formatCurrency } from '../../../../../main/src/utils';
 import { payment_method } from '../../../constants/method';
+import { selectedVariant } from '../view';
 
 export default function BillOrder({
   setChangePaymentMethods,
@@ -38,7 +38,6 @@ export default function BillOrder({
   };
   loading: boolean;
 }) {
-  console.log(isCustomerPayFull);
   return (
     <>
       <Drawer

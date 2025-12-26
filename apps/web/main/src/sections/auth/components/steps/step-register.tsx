@@ -1,9 +1,9 @@
-import { Button } from '@repo/design-system/components/ui';
-import { RouterLink } from '@repo/design-system/routes/components';
-import React, { useCallback } from 'react';
-import { FormActiveAccount, FormRegister } from '../forms';
 import useAuth from '@main/hooks/auth/use-auth';
+import { Button } from '@repo/design-system/components/ui';
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
+import { RouterLink } from '@repo/design-system/routes/components';
+import { useCallback } from 'react';
+import { FormActiveAccount, FormRegister } from '../forms';
 
 export default function StepRegister({
   setIsActive,
@@ -24,7 +24,6 @@ export default function StepRegister({
 
   const handleVerify = useCallback(
     async (data: any) => {
-      console.log(data);
       const success = await verifyAccount(data);
       if (success) setIsActive(2);
     },

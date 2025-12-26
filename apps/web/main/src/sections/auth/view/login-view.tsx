@@ -2,93 +2,50 @@
 import Logo from '@main/components/common/Logo';
 import useAuth from '@main/hooks/auth/use-auth';
 import { FormBusinessInfo, FormLogin } from '@main/sections/auth/components/forms';
-import { currentStoreAtom, storesAtom } from '@repo/design-system/stores/auth';
+import { storesAtom } from '@repo/design-system/stores/auth';
 import { useAtom } from 'jotai';
 import { useState } from 'react';
 import FormSelectStore from '../components/forms/form-select-store';
+export type AuthOnboardingStep = 'LOGIN' | 'CREATE_STORE' | 'SELECT_STORE';
 
 export function LoginView() {
-  const [isStepActive, setIsStepActive] = useState<number>(0);
-  const { login, selectStore, createStoreInfo, goToDashboard, loginForm, loading } = useAuth();
+  const [step, setStep] = useState<AuthOnboardingStep>('LOGIN');
+
   const [stores] = useAtom(storesAtom);
-  const [currentStore, setCurrentStoreLocal] = useAtom(currentStoreAtom);
+  const { login, selectStore, loginForm, loading } = useAuth();
 
   // Handle login success
   const handleLoginSuccess = async (data: any) => {
     const success = await login(data);
-    if (success) {
-      setIsStepActive(1);
+    if (!success.success) return;
+    if (success.stores.length > 0 && success.stores) {
+      setStep('SELECT_STORE');
+    } else {
+      setStep('CREATE_STORE');
     }
   };
-
-  // Handle store selection and redirect
-  const handleStoreSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (currentStore?.id) {
-      const success = await selectStore(currentStore.id);
-      if (success) {
-        goToDashboard();
-      }
-    }
-  };
-  // Handle store change
-  const handleStoreChange = (storeId: string) => {
-    if (!storeId) {
-      setCurrentStoreLocal(null);
-      return;
-    }
-    const selectedStore = stores.find((store) => store.id === storeId);
-    setCurrentStoreLocal(selectedStore || null);
-  };
-
-  // Handle create business and auto redirect
-  const handleCreateStore = async (data: any) => {
-    console.log(data);
-    const result = await createStoreInfo(data);
-    if (result.success && result.autoSet) {
-      goToDashboard();
-    }
-  };
-
   return (
     <>
       <Logo />
 
       <h1 className="md:text-2xl text-xl text-pos-blue-500 font-semibold text-center mt-4 select-none pointer-events-none">
-        Đăng nhập vào tài khoản của bạn
+        {step === 'LOGIN' && ' Đăng nhập vào tài khoản của bạn'}
+        {step === 'CREATE_STORE' && ' Tạo thông tin cửa hàng của bạn'}
+        {step === 'SELECT_STORE' && ' Chọn cửa hàng của bạn'}
       </h1>
 
-      <p className="text-gray-500 text-center sm:text-sm text-xs md:mt-4 mt-2 mb-3 md:w-[360px] w-full select-none pointer-events-none">
+      <p className="text-gray-500 text-center sm:text-sm text-xs md:mt-4 mt-2 mb-7 md:w-[360px] w-full select-none pointer-events-none">
         Trang đăng nhập ưu tiên bảo mật người dùng, mang đến trải nghiệm liền mạch, đảm bảo truy cập
         nhanh chóng và thuận tiện vào nhiều lợi ích của hệ thống.
       </p>
-
       {/* Step 1: Login Form */}
-      {isStepActive === 0 && (
+      {step === 'LOGIN' && (
         <FormLogin login={handleLoginSuccess} loginForm={loginForm} loading={loading} />
       )}
 
-      {/* Step 2: Store Selection or Create */}
-      {isStepActive === 1 && (
-        <>
-          {stores.length > 0 && stores ? (
-            // User has stores - show selection
-            <FormSelectStore
-              currentStore={currentStore}
-              handleStoreSubmit={handleStoreSubmit}
-              handleStoreChange={handleStoreChange}
-              loading={loading}
-              stores={stores}
-              setIsStepActive={setIsStepActive}
-            />
-          ) : (
-            // User has no stores - show create form
-            <FormBusinessInfo
-              createStoreInfo={handleCreateStore}
-              setIsStepActive={setIsStepActive}
-            />
-          )}
-        </>
+      {step === 'CREATE_STORE' && <FormBusinessInfo setStep={setStep} />}
+      {step === 'SELECT_STORE' && (
+        <FormSelectStore handleStoreSubmit={selectStore} loading={loading} stores={stores} />
       )}
     </>
   );

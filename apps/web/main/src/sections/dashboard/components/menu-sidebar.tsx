@@ -7,11 +7,11 @@ import {
   LayoutDashboard,
   Package,
   PackageSearch,
+  Receipt,
   ShoppingCart,
   Store,
-  Users,
   Truck,
-  Receipt,
+  Users,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -27,7 +27,6 @@ export default function MenuSidebar({
   setOpenSubmenu: (openSubmenu: number | null) => void;
 }) {
   const pathName = usePathname();
-  console.log(pathName);
 
   const [currentStore] = useAtom(currentStoreAtom);
 

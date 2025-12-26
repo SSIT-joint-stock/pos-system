@@ -1,20 +1,20 @@
 'use client';
-import DashboardViewLayout from '../../../../../main/src/layouts/dashboard-view-layout';
-import { DollarSign, Plus, ShoppingBag } from 'lucide-react';
-import { useEffect, useState } from 'react';
 import { Button, Modal, Table } from '@repo/design-system/components/ui';
 import { Supplier } from '@repo/design-system/types';
+import { DollarSign, Plus, ShoppingBag } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import DashboardViewLayout from '../../../../../main/src/layouts/dashboard-view-layout';
 
-import { DisplayField } from '../components/display-field';
-import { DataActionBar } from '../components/data-action-bar';
-import { ActionButtons } from '../components/action-buttons';
-import { useSupplier } from '../../../../../main/src/hooks/suplier/use-supplier';
-import { SUPPLIER_STATUS, SUPPLIER_STATUS_MAP } from '../../../../../main/src/constants/status';
-import { DeleteConfirmationModal } from '../components/delete-confirmation-modal';
-import { FormCreateSupplier } from '../components';
-import { truncateText } from '../../../../../main/src/utils';
 import { Tabs, Tooltip } from '@mantine/core';
 import { ItemBoxChart } from '@repo/design-system/components/shared/item';
+import { SUPPLIER_STATUS, SUPPLIER_STATUS_MAP } from '../../../../../main/src/constants/status';
+import { useSupplier } from '../../../../../main/src/hooks/suplier/use-supplier';
+import { truncateText } from '../../../../../main/src/utils';
+import { FormCreateSupplier } from '../components';
+import { ActionButtons } from '../components/action-buttons';
+import { DataActionBar } from '../components/data-action-bar';
+import { DeleteConfirmationModal } from '../components/delete-confirmation-modal';
+import { DisplayField } from '../components/display-field';
 
 const tableHeaders = [
   'Mã nhà cung cấp',
@@ -52,7 +52,7 @@ export function ManageSuppliersView() {
     setFilters,
     getSuppliers,
   } = useSupplier();
-  console.log(suppliers);
+
   useEffect(() => {
     if (!currentStore?.id) return;
     getSuppliers();

@@ -1,9 +1,9 @@
+import axios, { AxiosError } from 'axios';
+import { getDefaultStore } from 'jotai';
 import {
   accessTokenAtom,
   currentUserAtom,
 } from './../../../../../packages/design-system/src/stores/auth';
-import axios, { AxiosError } from 'axios';
-import { getDefaultStore } from 'jotai';
 
 const store = getDefaultStore();
 
@@ -47,10 +47,9 @@ api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const originalRequest = error.config as any;
+    const isLoginRequest = originalRequest.url?.includes('/auth/login');
 
-    if (error.response?.status === 403 && !originalRequest._retry) {
-      const isLoginRequest = originalRequest.url && originalRequest.url.includes('/auth/login');
-
+    if (error.response?.status === 401 && !originalRequest._retry) {
       if (!isLoginRequest) {
         if (isRefreshing) {
           // Nếu đang refresh, đợi trong queue

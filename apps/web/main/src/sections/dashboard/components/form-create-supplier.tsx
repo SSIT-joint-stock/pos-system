@@ -1,18 +1,18 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client';
-import { Button, Input, Select } from '@repo/design-system/components/ui';
-import { RefreshCcw } from 'lucide-react';
-import React, { useEffect } from 'react';
-import { supplierStatusOptions } from '../view';
 import { Textarea } from '@mantine/core';
-import { useSupplier } from '../../../hooks/suplier/use-supplier';
-import { Control, Controller } from 'react-hook-form';
+import { Button, Input, Select } from '@repo/design-system/components/ui';
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 import { Supplier } from '@repo/design-system/types';
+import { RefreshCcw } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { Control, Controller } from 'react-hook-form';
+import { useSupplier } from '../../../hooks/suplier/use-supplier';
 import {
   CreateSupplierInput,
   UpdateSupplierInput,
 } from '../../../schemas/supplier/supplier.schema';
+import { supplierStatusOptions } from '../view';
 
 export function FormCreateSupplier({
   setIsOpenModal,
@@ -64,7 +64,6 @@ export function FormCreateSupplier({
   const handleUpdate = async (data: UpdateSupplierInput) => {
     const success = await updateSupplier(data, selectedSupplier?.id || '');
     if (success) {
-      console.log(success);
       setOpenViewModal?.(false);
       onFetchNewData?.();
       setIsEditForm?.(false);

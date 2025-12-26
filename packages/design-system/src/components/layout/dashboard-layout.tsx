@@ -1,66 +1,57 @@
 'use client';
-import React, { useEffect, useState } from 'react';
-import { getDefaultStore, useAtomValue } from 'jotai';
+import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 import {
   accessTokenAtom,
   currentStoreAtom,
   currentUserAtom,
 } from '@repo/design-system/stores/auth';
+import { getDefaultStore } from 'jotai';
+import { usePathname, useRouter } from 'next/navigation';
+import React, { useEffect, useRef, useState } from 'react';
 import api from '../../../../../apps/web/main/src/libs/axios';
-import { Loading } from '../ui';
-import Sidebar from '../../../../../apps/web/main/src/sections/dashboard/components/sidebar-screen';
 import HeaderSidebar from '../../../../../apps/web/main/src/sections/dashboard/components/header-sidebar';
-import { usePathname } from 'next/navigation';
-import useToast from '@repo/design-system/hooks/client/use-toast-notification';
+import Sidebar from '../../../../../apps/web/main/src/sections/dashboard/components/sidebar-screen';
+import { Loading } from '../ui';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathName = usePathname();
+  const router = useRouter();
+  const isFetched = useRef(false);
   const { showErrorToast } = useToast();
   const isSalesPages = pathName.endsWith('/sales');
   const [isExpand, setIsExpand] = useState(false);
   const [hydrated, setHydrated] = useState(false);
   const store = getDefaultStore();
-  const accessToken = useAtomValue(accessTokenAtom);
   useEffect(() => {
     setHydrated(true);
   }, []);
-
   useEffect(() => {
     if (!hydrated) return;
 
-    const init = async () => {
+    if (isFetched.current) return;
+
+    if (store.get(accessTokenAtom)) {
+      isFetched.current = true;
+      return;
+    }
+    const syncSession = async () => {
       try {
-        let token = accessToken;
-        let currentStore = store.get(currentStoreAtom);
+        const res = await api.post('/auth/refresh-token');
+        const { access_token, user, store: defaultStore } = res.data.data;
 
-        // Nếu chưa có token thì refresh
-        if (!token) {
-          const res = await api.post('/auth/refresh-token');
-          const { access_token, user, store: defaultStore } = res.data.data;
+        store.set(accessTokenAtom, access_token);
+        store.set(currentUserAtom, user);
+        store.set(currentStoreAtom, defaultStore);
 
-          token = access_token;
-          currentStore = defaultStore;
-
-          store.set(accessTokenAtom, token);
-          store.set(currentUserAtom, user);
-          store.set(currentStoreAtom, currentStore);
-        }
-
-        // Nếu chưa có currentStore (do localStorage xóa)
-        if (!currentStore) {
-          const res = await api.get('/auth/profile');
-          const { store: defaultStore } = res.data.data;
-
-          currentStore = defaultStore;
-          store.set(currentStoreAtom, currentStore);
-        }
+        isFetched.current = true;
       } catch {
-        showErrorToast('Vui lòng đăng nhâp lại!');
+        showErrorToast('Phiên làm việc hết hạn, vui lòng đăng nhập lại!');
+        router.push(`${process.env.NEXT_PUBLIC_MAIN_URL}/auth/login`);
       }
     };
 
-    init();
-  }, [hydrated, store, accessToken, showErrorToast]);
+    syncSession();
+  }, [hydrated, store, router, showErrorToast]);
 
   return (
     <div className="flex w-screen h-screen ">
@@ -76,7 +67,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="flex items-center justify-center w-full h-full bg-white ">
               <div className="flex items-center gap-4">
                 <Loading color="#3b82f6" size="md" />
-                <span className="text-pos-blue-500 text-base ">Đang lấy dữ liệu ...</span>
+                <span className="text-pos-blue-500 text-sm font-semibold">
+                  Đang lấy dữ liệu ...
+                </span>
               </div>
             </div>
           )}

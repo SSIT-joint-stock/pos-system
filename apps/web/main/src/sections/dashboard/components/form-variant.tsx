@@ -1,15 +1,15 @@
 import { NumberInput, Table } from '@mantine/core';
-import { useVariant } from '../../../hooks/variant/use-variant';
 import { Button, Input, Modal, Select } from '@repo/design-system/components/ui';
+import { useClickOutside } from '@repo/design-system/hooks/client';
+import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { Product } from '@repo/design-system/types';
+import { useAtomValue } from 'jotai';
 import { PencilLine, Plus, Trash } from 'lucide-react';
 import React, { useEffect } from 'react';
 import { Controller } from 'react-hook-form';
-import { useAtomValue } from 'jotai';
-import { currentStoreAtom } from '@repo/design-system/stores/auth';
-import { formatDate, truncateText } from '../../../utils';
 import { STOCK_MOVEMENT_STATUS } from '../../../constants/status';
-import { useClickOutside } from '@repo/design-system/hooks/client';
+import { useVariant } from '../../../hooks/variant/use-variant';
+import { formatDate, truncateText } from '../../../utils';
 import { calculateNewOnHand } from '../../../utils/caculate/caculate-stock';
 
 export function FormVariant({
@@ -84,7 +84,7 @@ export function FormVariant({
     }
   }, [reset, variant, isEdit]);
   useClickOutside(ref, () => setOpenedPopover(false));
-  console.log(delta);
+
   return (
     <Modal
       title={

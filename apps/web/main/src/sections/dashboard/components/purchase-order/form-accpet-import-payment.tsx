@@ -1,13 +1,13 @@
-import { formatCurrency } from '../../../../utils';
-import { paymentMethods } from '../../../../constants/status';
 import { NumberInput } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { Button, Input, Modal, Select } from '@repo/design-system/components/ui';
+import { PurchaseOrder } from '@repo/design-system/types/purchase';
 import { Calendar } from 'lucide-react';
 import React, { useRef, useState } from 'react';
-import { PurchaseOrder } from '@repo/design-system/types/purchase';
-import { usePurchase } from '../../../../hooks/purchase/use-purchase';
 import { Controller } from 'react-hook-form';
+import { paymentMethods } from '../../../../constants/status';
+import { usePurchase } from '../../../../hooks/purchase/use-purchase';
+import { formatCurrency } from '../../../../utils';
 
 export default function FormAccpetImportPayment({
   setIsOpenModalAcceptPayment,
@@ -35,7 +35,7 @@ export default function FormAccpetImportPayment({
   } = usePurchase();
 
   const unitCost = watch('unit_cost');
-  console.log(unitCost);
+
   return (
     <Modal
       size="xl"
