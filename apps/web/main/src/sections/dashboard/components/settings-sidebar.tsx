@@ -1,4 +1,10 @@
 import { Tooltip } from '@mantine/core';
+import {
+  accessTokenAtom,
+  currentStoreAtom,
+  currentUserAtom,
+} from '@repo/design-system/stores/auth';
+import { getDefaultStore } from 'jotai';
 import { ChevronLeft, ChevronRight, LogOut, Settings } from 'lucide-react';
 import { Loading } from '../../../../../../../packages/design-system/src/components/ui';
 import useAuth from '../../../hooks/auth/use-auth';
@@ -12,6 +18,7 @@ export default function SettingsSidebar({
   setOpenSubmenu: (index: number | null) => void;
 }) {
   const { logout, loading } = useAuth();
+  const store = getDefaultStore();
   return (
     <div className={`flex flex-col  gap-4 font-medium  items-center `}>
       {/* Cài đặt */}
@@ -45,7 +52,12 @@ export default function SettingsSidebar({
       >
         <div
           onClick={async () => {
-            await logout();
+            const success = await logout();
+            if (success) {
+              store.set(accessTokenAtom, '');
+              store.set(currentUserAtom, null);
+              store.set(currentStoreAtom, null);
+            }
           }}
           className={`flex items-center font-medium group  ${isExpand ? 'gap-5' : 'gap-0'} ${isExpand ? 'w-full' : 'w-[40px] '} p-2  transition-all duration-300 cursor-pointer hover:bg-red-400 hover:text-white rounded-lg bg-red-50 text-red-400`}
         >

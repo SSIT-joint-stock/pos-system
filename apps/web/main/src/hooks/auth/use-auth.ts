@@ -159,11 +159,10 @@ export default function useAuth() {
 
       if (res?.data.success) {
         // eslint-disable-next-line no-unsafe-optional-chaining
-        const { access_token, store, user } = res?.data?.data;
         showSuccessToast(res?.data?.message as string);
-        setAccessToken(access_token);
-        setCurrentUser(user);
-        setCurrentStore(store);
+        setAccessToken(null);
+        setCurrentUser(null);
+        setCurrentStore(null);
 
         return true;
       }
