@@ -2,19 +2,19 @@
 'use client';
 import { Button, Table } from '@repo/design-system/components/ui';
 import { Plus } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
-import { formatDate } from '../../../../../main/src/utils/index';
+import { useEffect, useState } from 'react';
 import * as XLSX from 'xlsx';
 import { useProduct } from '../../../../../main/src/hooks/product/use-product';
+import { formatDate } from '../../../../../main/src/utils/index';
 
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { useAtomValue } from 'jotai';
-import { DeleteConfirmationModal } from '../components/delete-confirmation-modal';
-import { DataActionBar } from '../components/data-action-bar';
-import { ActionButtons } from '../components/action-buttons';
-import { DisplayField } from '../components/display-field';
-import DashboardViewLayout from '../../../../../main/src/layouts/dashboard-view-layout';
 import { useRouter } from 'next/navigation';
+import DashboardViewLayout from '../../../../../main/src/layouts/dashboard-view-layout';
+import { ActionButtons } from '../components/action-buttons';
+import { DataActionBar } from '../components/data-action-bar';
+import { DeleteConfirmationModal } from '../components/delete-confirmation-modal';
+import { DisplayField } from '../components/display-field';
 const tableHeaders = [
   'Mã Sản Phẩm',
   'Sản Phẩm',
@@ -127,7 +127,7 @@ export function ManageView() {
           onUpload={uploadProductByExcel}
           onDownloadTemplate={exampleProductExcel}
           loading={loading}
-          placeholderSearch="Nhập tên sản phẩm, mã sản phẩm"
+          placeholderSearch="Nhập tên sản phẩm, mã sản phẩm, barcode..."
         />
 
         {/* TABLE AND PAGINATION */}
