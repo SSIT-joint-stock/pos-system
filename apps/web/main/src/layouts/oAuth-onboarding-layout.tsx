@@ -1,49 +1,64 @@
 'use client';
-
 import useAuth from '@main/hooks/auth/use-auth';
 import api from '@main/libs/axios';
 import { FormBusinessInfo } from '@main/sections/auth/components/forms';
 import FormSelectStore from '@main/sections/auth/components/forms/form-select-store';
+import { Loading } from '@repo/design-system/components/ui';
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 import { accessTokenAtom, currentUserAtom, storesAtom } from '@repo/design-system/stores/auth';
-import { getDefaultStore, useAtomValue } from 'jotai';
+import { getDefaultStore } from 'jotai';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export default function OauthOnboardingLayout() {
-  const pathName = usePathname();
-  // State
   const [hydrated, setHydrated] = useState(false);
-  // Custom hooks
-  const { showErrorToast } = useToast();
-  // Jotai
-  const store = getDefaultStore();
-  const accessToken = useAtomValue(accessTokenAtom);
+  const [isInitializing, setIsInitializing] = useState(true);
+
+  const initialized = useRef(false);
+
   const { selectStore, loading } = useAuth();
-  // Effects
+  const { showErrorToast } = useToast();
+  const store = getDefaultStore();
+  const pathName = usePathname();
+
   useEffect(() => {
     setHydrated(true);
   }, []);
 
   useEffect(() => {
-    if (!hydrated) return;
+    if (!hydrated || initialized.current) return;
 
-    const init = async () => {
+    const initOAuth = async () => {
+      initialized.current = true;
+
       try {
-        // Nếu chưa có token thì refresh
-        const res = await api.post('/auth/refresh-token');
-
+        const res = await api.post('/oauth/refresh-token');
         const { access_token, user, stores } = res.data.data;
+
         store.set(accessTokenAtom, access_token);
         store.set(currentUserAtom, user);
         store.set(storesAtom, stores);
-      } catch {
-        showErrorToast('Vui lòng đăng nhâp lại!');
+
+        setIsInitializing(false);
+      } catch (err) {
+        console.error(err);
+        initialized.current = false;
+        setIsInitializing(false);
       }
     };
 
-    init();
-  }, [hydrated, store, accessToken, showErrorToast]);
+    initOAuth();
+  }, [hydrated, store, showErrorToast]);
+
+  if (!hydrated || isInitializing) {
+    return (
+      <div className="flex items-center gap-4 text-base font-semibold text-pos-blue-500">
+        <Loading size="md" radius="sm" color="#3b82f6" />
+        Đang đồng bộ tài khoản...
+      </div>
+    );
+  }
+
   return (
     <>
       {pathName?.includes('oauth/create-store') && <FormBusinessInfo />}

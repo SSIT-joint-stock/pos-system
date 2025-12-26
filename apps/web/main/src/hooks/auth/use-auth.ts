@@ -41,11 +41,12 @@ const AUTH_ENDPOINTS = {
 };
 
 export default function useAuth() {
-  const { showSuccessToast } = useToast();
-  const { loading, requestWrapper } = useRequestHelper();
   const [email, setEmail] = useState('');
+  const { showSuccessToast, showErrorToast } = useToast();
+  const { loading, requestWrapper } = useRequestHelper();
   const router = useRouter();
   const currentStore = useAtomValue(currentStoreAtom);
+
   const setAccessToken = useSetAtom(accessTokenAtom);
   const setCurrentUser = useSetAtom(currentUserAtom);
   const setCurrentStore = useSetAtom(currentStoreAtom);
@@ -168,6 +169,7 @@ export default function useAuth() {
       }
     } catch (error) {
       console.log(error);
+      showErrorToast('Có lỗi khi chọn cửa hàng, vui lòng thử lại!');
       return false;
     }
   };
@@ -185,16 +187,17 @@ export default function useAuth() {
   };
 
   const logout = async (redirectUrl?: string) => {
-    const res = await requestWrapper(() => api.post<ApiResponse>(AUTH_ENDPOINTS.LOGOUT));
-
-    if (res?.data.success) showSuccessToast(res?.data?.message as string);
-    setAccessToken(null);
-    setCurrentStore(null);
-    setCurrentUser(null);
-
-    router.push(redirectUrl || `${process.env.NEXT_PUBLIC_MAIN_URL}/auth/login`);
-
-    return !!res;
+    try {
+      const res = await api.post<ApiResponse>(AUTH_ENDPOINTS.LOGOUT);
+      if (res?.data.success) {
+        showSuccessToast(res?.data?.message as string);
+        router.push(redirectUrl || `${process.env.NEXT_PUBLIC_MAIN_URL}/auth/login`);
+        return true;
+      }
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
   };
 
   // Redirect sang dashboard

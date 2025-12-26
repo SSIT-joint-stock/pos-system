@@ -74,7 +74,7 @@ export default function FormSelectStore({
           data={stores.map((store: any) => ({
             label: store.name,
             value: store.id,
-            description: store.description,
+            description: store.description || 'Cửa hàng không có mô tả',
             member: store.members?.length || 0,
           }))}
           onChange={(value) => {

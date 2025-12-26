@@ -47,10 +47,9 @@ api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const originalRequest = error.config as any;
+    const isLoginRequest = originalRequest.url?.includes('/auth/login');
 
     if (error.response?.status === 401 && !originalRequest._retry) {
-      const isLoginRequest = originalRequest.url && originalRequest.url.includes('/auth/login');
-
       if (!isLoginRequest) {
         if (isRefreshing) {
           // Nếu đang refresh, đợi trong queue

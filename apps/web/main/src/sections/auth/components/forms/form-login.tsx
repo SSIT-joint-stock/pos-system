@@ -1,9 +1,11 @@
 'use client';
 import { useOauth } from '@main/hooks/oauth/use-oauth';
 import { Button, Checkbox, Input, Loading } from '@repo/design-system/components/ui/';
+import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 import { RouterLink } from '@repo/design-system/routes/components';
 import { Lock, Mail } from 'lucide-react';
-import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
 import StepResetPassword from '../steps/step-reset-password';
 import FormReactiveAccount from './form-reactive-account';
 
@@ -19,6 +21,23 @@ export function FormLogin({
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isOpenModalActiveAcc, setIsOpenModalActiveAcc] = useState<boolean>(false);
   const { callBackGoogle } = useOauth();
+  const { showErrorToast } = useToast();
+  const searchParams = useSearchParams();
+  const error = searchParams?.get('error');
+  const lastErrorShown = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!error || lastErrorShown.current === error) return;
+
+    if (error === 'account_not_verified') {
+      showErrorToast('Email của bạn chưa được xác thực. Vui lòng xác thực email!');
+      lastErrorShown.current = error;
+    } else if (error === 'server_error') {
+      showErrorToast('Có lỗi xảy ra trong quá trình đăng nhập Google.');
+      lastErrorShown.current = error;
+    }
+  }, [error, showErrorToast]);
+
   return (
     <>
       <form onSubmit={loginForm.handleSubmit(login)} className="flex flex-col gap-4 w-full ">
@@ -50,13 +69,12 @@ export function FormLogin({
         {/* Remember me + Forgot password */}
         <div className="flex items-center justify-between text-sm mt-3">
           <Checkbox label="Ghi nhớ tài khoản" radius="xl" size="sm" />
-          <button
+          <p
             onClick={() => setIsOpenModal(true)}
-            type="button"
             className="text-pos-blue-500 cursor-pointer hover:underline text-sm font-medium"
           >
             Quên mật khẩu
-          </button>
+          </p>
         </div>
 
         {/* Sign in button */}

@@ -36,7 +36,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         // Nếu chưa có token thì refresh
         if (!token) {
           const res = await api.post('/auth/refresh-token');
-          console.log(res.data);
+
           const { access_token, user, store: defaultStore } = res.data.data;
 
           token = access_token;
@@ -55,8 +55,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           currentStore = defaultStore;
           store.set(currentStoreAtom, currentStore);
         }
-      } catch (err) {
-        console.log(err);
+      } catch {
         showErrorToast('Vui lòng đăng nhâp lại!');
       }
     };
@@ -78,7 +77,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="flex items-center justify-center w-full h-full bg-white ">
               <div className="flex items-center gap-4">
                 <Loading color="#3b82f6" size="md" />
-                <span className="text-pos-blue-500 text-base ">Đang lấy dữ liệu ...</span>
+                <span className="text-pos-blue-500 text-sm font-semibold">
+                  Đang lấy dữ liệu ...
+                </span>
               </div>
             </div>
           )}

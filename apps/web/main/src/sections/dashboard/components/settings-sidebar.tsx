@@ -1,7 +1,7 @@
+import { Tooltip } from '@mantine/core';
 import { ChevronLeft, ChevronRight, LogOut, Settings } from 'lucide-react';
 import { Loading } from '../../../../../../../packages/design-system/src/components/ui';
 import useAuth from '../../../hooks/auth/use-auth';
-import { Tooltip } from '@mantine/core';
 export default function SettingsSidebar({
   isExpand,
   setIsExpand,
@@ -12,8 +12,6 @@ export default function SettingsSidebar({
   setOpenSubmenu: (index: number | null) => void;
 }) {
   const { logout, loading } = useAuth();
-  console.log(isExpand);
-
   return (
     <div className={`flex flex-col  gap-4 font-medium  items-center `}>
       {/* Cài đặt */}
@@ -46,7 +44,9 @@ export default function SettingsSidebar({
         disabled={isExpand}
       >
         <div
-          onClick={() => logout()}
+          onClick={async () => {
+            await logout();
+          }}
           className={`flex items-center font-medium group  ${isExpand ? 'gap-5' : 'gap-0'} ${isExpand ? 'w-full' : 'w-[40px] '} p-2  transition-all duration-300 cursor-pointer hover:bg-red-400 hover:text-white rounded-lg bg-red-50 text-red-400`}
         >
           <LogOut className="shrink-0" />
