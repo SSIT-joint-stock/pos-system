@@ -1,19 +1,19 @@
-import { PurchaseOrder } from "./../../../../../../packages/design-system/src/types/purchase";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useToastNotification } from '@repo/design-system/hooks/client';
+import { ApiResponse } from '@repo/design-system/types';
+import { useCallback, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import api from '../../libs/axios';
 import {
   AcceptPaymentImport,
   AcceptPaymentImportSChema,
   CreatePurchaseOrder,
   CreatePurchaseOrderSchema,
-} from "../../schemas/purchase/purchase.schema";
-import { useToastNotification } from "@repo/design-system/hooks/client";
-import { useRequestHelper } from "../use-request-helper";
-import { useForm } from "react-hook-form";
-import api from "../../libs/axios";
-import { FilterValue, useQueryParams } from "../query/use-query-params";
-import { useCallback, useState } from "react";
-import { ApiResponse } from "@repo/design-system/types";
-import { exportExcel } from "../../utils/export-excel/export";
+} from '../../schemas/purchase/purchase.schema';
+import { exportExcel } from '../../utils/export-excel/export';
+import { FilterValue, useQueryParams } from '../query/use-query-params';
+import { useRequestHelper } from '../use-request-helper';
+import { PurchaseOrder } from './../../../../../../packages/design-system/src/types/purchase';
 export interface PurchaseOrderFilters extends Record<string, FilterValue> {
   q?: string;
   payment_status?: string;
@@ -37,14 +37,14 @@ export function usePurchase() {
     setSortBy,
     setSort,
   } = useQueryParams<PurchaseOrderFilters>({
-    q: "q",
-    payment_status: "payment_status",
-    status: "status",
+    q: 'q',
+    payment_status: 'payment_status',
+    status: 'status',
   });
 
   const [purchaseOrders, setPurchaseOrders] = useState<PurchaseOrder[]>([]);
   const [purchaseOrder, setPurchaseOrder] = useState<PurchaseOrder>();
-  const [totalPurchase, setTotalPurchase] = useState<string>("");
+  const [totalPurchase, setTotalPurchase] = useState<string>('');
   const formPurchase = useForm<CreatePurchaseOrder>({
     resolver: zodResolver(CreatePurchaseOrderSchema),
     defaultValues: {
@@ -57,9 +57,7 @@ export function usePurchase() {
 
   const createPurchaseOrder = useCallback(
     async (data: CreatePurchaseOrder) => {
-      const res = await requestWrapper(() =>
-        api.post<ApiResponse>("/purchase-order", data)
-      );
+      const res = await requestWrapper(() => api.post<ApiResponse>('/purchase-order', data));
       if (res?.data.success) {
         showSuccessToast(res?.data?.message as string);
         return {
@@ -82,16 +80,13 @@ export function usePurchase() {
       setPurchaseOrders(res?.data?.data as PurchaseOrder[]);
       setPagination(res?.data?.pagination);
       setTotalPurchase(
-        (res?.data?.summary as { totalPurchaseAmount: string })
-          ?.totalPurchaseAmount as string
+        (res?.data?.summary as { totalPurchaseAmount: string })?.totalPurchaseAmount as string
       );
     }
   }, [requestWrapper, buildParams, setPagination]);
   const getPurchaseOrder = useCallback(
     async (id: string) => {
-      const res = await requestWrapper(() =>
-        api.get<ApiResponse>(`/purchase-order/${id}`)
-      );
+      const res = await requestWrapper(() => api.get<ApiResponse>(`/purchase-order/${id}`));
       if (res?.data.success) {
         setPurchaseOrder(res?.data?.data as PurchaseOrder);
       }
@@ -124,30 +119,32 @@ export function usePurchase() {
     },
     [requestWrapper, showSuccessToast]
   );
+
+  // EXCEL
   const exportPurchaseOrdersExcel = useCallback(async () => {
     await requestWrapper(async () => {
-      const res = await api.get("/purchase-order/excel/export", {
-        responseType: "blob",
+      const res = await api.get('/purchase-order/excel/export', {
+        responseType: 'blob',
       });
 
       exportExcel(
-        res.data,
+        res,
         `du_lieu_phieu_nhap_${new Date().toLocaleDateString()}.xlsx`,
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
       );
     });
   }, [requestWrapper]);
 
   const downloadPurchaseOrderTemplate = useCallback(async () => {
     await requestWrapper(async () => {
-      const res = await api.get("/purchase-order/excel/template", {
-        responseType: "blob",
+      const res = await api.get('/purchase-order/excel/template', {
+        responseType: 'blob',
       });
 
       exportExcel(
-        res.data,
+        res,
         `mau_phieu_nhap_${new Date().toLocaleDateString()}.xlsx`,
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
       );
     });
   }, [requestWrapper]);
