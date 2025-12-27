@@ -1,12 +1,11 @@
 'use client';
 import { Button, Modal, Table } from '@repo/design-system/components/ui';
 import { Supplier } from '@repo/design-system/types';
-import { DollarSign, Plus, ShoppingBag } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import DashboardViewLayout from '../../../../../main/src/layouts/dashboard-view-layout';
 
-import { Tabs, Tooltip } from '@mantine/core';
-import { ItemBoxChart } from '@repo/design-system/components/shared/item';
+import { Tooltip } from '@mantine/core';
 import { SUPPLIER_STATUS, SUPPLIER_STATUS_MAP } from '../../../../../main/src/constants/status';
 import { useSupplier } from '../../../../../main/src/hooks/suplier/use-supplier';
 import { truncateText } from '../../../../../main/src/utils';
@@ -172,9 +171,6 @@ export function ManageSuppliersView() {
                       setSelectedSupplier(supplier);
                       setIsEditForm(true);
                     }}
-                    onEdit={() => {
-                      setSelectedSupplier(supplier);
-                    }}
                     onDelete={() => {
                       setSelectedSupplier(supplier);
                       setDeleteModal(true);
@@ -188,7 +184,7 @@ export function ManageSuppliersView() {
       </DashboardViewLayout>
       {/* modal add supplier */}
       <Modal
-        title="Thêm nhà cung cấp"
+        title={<p className="text-base  font-semibold text-gray-900 ">Thêm nhà cung cấp</p>}
         size="xl"
         opened={openAddModal}
         onClose={() => {
@@ -205,7 +201,7 @@ export function ManageSuppliersView() {
       {/* modal view supplier */}
       <Modal
         title={
-          <p className="text-lg font-medium text-gray-900 ">
+          <p className="text-base  font-semibold text-gray-900 ">
             Chi tiết nhà cung cấp - {selectedSupplier?.name}
           </p>
         }
@@ -213,50 +209,13 @@ export function ManageSuppliersView() {
         opened={openViewModal}
         onClose={() => setOpenViewModal(false)}
       >
-        <Tabs variant="pills" radius="sm" defaultValue="info" className="mt-2.5 ">
-          <Tabs.List>
-            <Tabs.Tab value="info">Thông tin nhà cung cấp</Tabs.Tab>
-            <Tabs.Tab value="order">Đơn xuất/nhật kho hàng</Tabs.Tab>
-          </Tabs.List>
-
-          <Tabs.Panel value="info">
-            <div className="space-y-3 mt-6">
-              <div className="bg-gray-50 p-4 rounded-md">
-                <h2 className="text-pos-blue-500 text-xl font-semibold">Thông tin nhà cung cấp</h2>
-                <div className="flex items-center gap-3 mt-3">
-                  <ItemBoxChart
-                    className="flex-1"
-                    title={'Tổng đơn hàng xuất/nhập'}
-                    value={0}
-                    bgIcon="bg-pos-blue-50"
-                    colorIcon="text-pos-blue-500"
-                    icon={<ShoppingBag size={18} />}
-                  />
-                  <ItemBoxChart
-                    className="flex-1"
-                    title={'Tổng tiền'}
-                    bgIcon="bg-green-50"
-                    colorIcon="text-green-500"
-                    icon={<DollarSign size={18} />}
-                    value={0}
-                  />
-                </div>
-              </div>
-              <div className="bg-gray-50 p-4 rounded-md">
-                <h2 className="text-pos-blue-500 text-xl font-semibold">Sửa thông tin</h2>
-                <FormCreateSupplier
-                  setIsEditForm={setIsEditForm}
-                  setOpenViewModal={setOpenViewModal}
-                  onFetchNewData={getSuppliers}
-                  isEditForm={isEditForm}
-                  selectedSupplier={selectedSupplier}
-                />
-              </div>
-            </div>
-          </Tabs.Panel>
-
-          <Tabs.Panel value="order">Messages tab content</Tabs.Panel>
-        </Tabs>
+        <FormCreateSupplier
+          setIsEditForm={setIsEditForm}
+          setOpenViewModal={setOpenViewModal}
+          onFetchNewData={getSuppliers}
+          isEditForm={isEditForm}
+          selectedSupplier={selectedSupplier}
+        />
       </Modal>
 
       <DeleteConfirmationModal

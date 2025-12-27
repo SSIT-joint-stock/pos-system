@@ -41,13 +41,13 @@ export default function MenuSidebar({
       icon: <Package size={20} className="shrink-0" />,
       children: [
         {
+          title: 'Hàng tồn kho',
+          path: `/dashboard/store/${currentStore?.id}/manage-inventory`,
+        },
+        {
           title: 'Sản phẩm',
           path: `/dashboard/store/${currentStore?.id}/manage-products`,
         },
-        // {
-        //   title: 'Đơn vị tính',
-        //   path: `/dashboard/store/${currentStore?.id}/manage-product-units`,
-        // },
         {
           title: 'Nhóm sản phẩm',
           path: `/dashboard/store/${currentStore?.id}/manage-product-combos`,
@@ -56,10 +56,6 @@ export default function MenuSidebar({
           title: 'Danh mục',
           path: `/dashboard/store/${currentStore?.id}/manage-categories`,
         },
-        // {
-        //   title: 'Hàng tồn kho',
-        //   path: `/dashboard/store/${currentStore?.id}/manage-inventory`,
-        // },
       ],
     },
 

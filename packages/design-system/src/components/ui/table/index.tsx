@@ -1,7 +1,7 @@
 'use client';
+import { TableSkeleton } from '@repo/design-system/components/ui/loading-skeleton-table';
 import * as React from 'react';
 import { numericalOrder } from '../../../../../../apps/web/main/src/utils';
-import { TableSkeleton } from '../loading-skeleton-table';
 import { Pagination } from '../pagination';
 import { Select } from '../select';
 export type TableProps<T> = {
@@ -52,7 +52,7 @@ export function Table<T>({
         className={`overflow-y-auto flex-1 scrollbar-thin scrollbar-thumb-gray-50 scrollbar-track-transparent `}
       >
         <table className={`table-auto w-full border-collapse ${data.length === 0 ? 'h-full' : ''}`}>
-          <thead className="sticky top-0 z-10 bg-gray-50">
+          <thead className="sticky top-0 z-20 bg-gray-50">
             <tr className="text-left text-base text-gray-800">
               {finalHeader.map((item, idx) => (
                 <th key={idx} className="px-4 py-2 font-semibold text-nowrap">

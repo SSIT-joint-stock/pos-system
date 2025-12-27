@@ -178,50 +178,6 @@ export function ManageView() {
               </td>
               <td className="px-4 py-3 text-sm text-gray-500">{formatDate(product.createdAt)}</td>
               <td>
-                {/* <div className="flex items-center gap-5 pl-4">
-                    <button
-                      title="Xem chi tiết"
-                      data-tooltip-target="tooltip-default"
-                      onClick={() => {
-                        setOpenViewModal(true);
-                        getProductById(product.id);
-                      }}
-                      className="flex justify-center items-center cursor-pointer w-[36px] h-[36px] bg-gray-50 text-gray-500 rounded-md hover:opacity-100 hover:bg-gray-700 hover:text-white opacity-70 transition-opacity duration-200"
-                    >
-                      <Eye size={16} />
-                    </button>
-
-                    <button
-                      title="Sửa sản phẩm"
-                      onClick={() => {
-                        setOpenEditModal(true);
-                        getProductById(product.id);
-                      }}
-                      className="flex justify-center items-center cursor-pointer w-[36px] h-[36px]  bg-pos-blue-50 text-pos-blue-500 rounded-md hover:opacity-100 hover:bg-pos-blue-500 hover:text-pos-blue-50 opacity-70 transition-opacity duration-200"
-                    >
-                      <Edit size={16} />
-                    </button>
-                    <button
-                      title="Điều chỉnh số lượng"
-                      onClick={() => {
-                        setInventorModal(true);
-                        getProductById(product.id);
-                      }}
-                      className="flex justify-center items-center cursor-pointer w-[36px] h-[36px]  bg-green-50 text-green-500 rounded-md hover:opacity-100 hover:bg-green-500 hover:text-green-50 opacity-70 transition-opacity duration-200"
-                    >
-                      <ShoppingBag size={16} />
-                    </button>
-                    <button
-                      title="Xóa sản phẩm"
-                      onClick={() => {
-                        setDeleteModal(true);
-                        getProductById(product.id);
-                      }}
-                      className="flex justify-center items-center cursor-pointer w-[36px] h-[36px]  bg-red-50 text-red-500 rounded-md hover:opacity-100 hover:bg-red-500 hover:text-white opacity-70 transition-opacity duration-200 ml-auto"
-                    >
-                      <Trash size={16} />
-                    </button>
-                  </div> */}
                 <ActionButtons
                   onView={() => {
                     router.push(`manage-products/detail/${product.id}`);

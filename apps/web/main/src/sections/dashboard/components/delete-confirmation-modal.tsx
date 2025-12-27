@@ -25,9 +25,9 @@ export function DeleteConfirmationModal({
       onClose={onClose}
       size="md"
       title={
-        <div className="flex items-center gap-2 font-medium text-red-600">
+        <div className="flex items-center gap-2 font-semibold text-red-600">
           <Trash size={20} />
-          <p>{title}</p>
+          <p className="text-base">{title}</p>
         </div>
       }
     >
