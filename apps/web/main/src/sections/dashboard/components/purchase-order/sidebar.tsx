@@ -1,9 +1,11 @@
 import { DateInput } from '@mantine/dates';
-import { useSupplier } from '../../../../hooks/suplier/use-supplier';
+import { useDebouncedValue } from '@mantine/hooks';
 import { Button, Input, Loading, Modal, Select } from '@repo/design-system/components/ui';
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
+import { Variant } from '@repo/design-system/types';
 import { Menu, Plus, User } from 'lucide-react';
-import React, { useEffect, useMemo, useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useMemo, useState, useTransition } from 'react';
 import {
   Control,
   Controller,
@@ -12,14 +14,13 @@ import {
   UseFormRegister,
   UseFormReset,
 } from 'react-hook-form';
-import { FormCreateSupplier } from '../form-create-supplier';
+import { useSupplier } from '../../../../hooks/suplier/use-supplier';
 import {
   CreatePurchaseOrder,
   CreatePurchaseOrderItem,
 } from '../../../../schemas/purchase/purchase.schema';
-import { Variant } from '@repo/design-system/types';
 import { formatCurrency } from '../../../../utils';
-import { useRouter } from 'next/navigation';
+import { FormCreateSupplier } from '../form-create-supplier';
 
 type SidebarPurchaseProps = {
   handleSubmit: UseFormHandleSubmit<CreatePurchaseOrder>;
@@ -55,27 +56,33 @@ export default function SidebarPurchase({
 }: SidebarPurchaseProps) {
   const { showErrorToast } = useToast();
   const [isPendingForCreated, startTransition] = useTransition();
-  const [openModalCreateSupplier, setOpenModalCreateSupplier] = useState<boolean>(false);
+  const [searchSupplier, setSearchSupplier] = useState<string>('');
+  const [debouncedSearch] = useDebouncedValue(searchSupplier, 500);
+
+  const [isOpenModalCreateSupplier, setIsOpenModalCreateSupplier] = useState<boolean>(false);
   const router = useRouter();
   const {
     getSuppliers,
+    setFilters,
     suppliers,
     currentStore,
+    filters,
     loading: loadingSuppliers,
-    setFilters,
   } = useSupplier();
 
   useEffect(() => {
+    setFilters((prev) => ({
+      ...prev,
+      q: debouncedSearch,
+    }));
+  }, [debouncedSearch, setFilters]);
+
+  useEffect(() => {
     if (!currentStore?.id) return;
-    setFilters((prev) => {
-      return {
-        ...prev,
-        limit: 20,
-      };
-    });
     getSuppliers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentStore?.id, setFilters]);
+  }, [currentStore?.id, filters]);
+
   const totalPrice = useMemo(() => {
     return watchedItems.reduce(
       (total, item) => {
@@ -90,6 +97,7 @@ export default function SidebarPurchase({
       { total: 0, subtotal: 0 }
     );
   }, [watchedItems, selectedVariants, caculateTotalPerItem]);
+
   return (
     <>
       <div className="w-full bg-white rounded-lg  ">
@@ -132,7 +140,7 @@ export default function SidebarPurchase({
                       <DateInput
                         className="flex-1"
                         {...field}
-                        label="Ngày nhập"
+                        label={<p className="text-sm text-gray-500">Ngày nhập hàng</p>}
                         defaultValue={new Date()}
                         size="sm"
                         valueFormat="DD/MM/YYYY"
@@ -149,7 +157,7 @@ export default function SidebarPurchase({
                       <DateInput
                         className="flex-1"
                         {...field}
-                        label="Ngày dự kiến nhận hàng"
+                        label={<p className="text-sm text-gray-500">Ngày dự kiến nhận hàng</p>}
                         defaultValue={new Date()}
                         size="sm"
                         valueFormat="DD/MM/YYYY"
@@ -161,37 +169,60 @@ export default function SidebarPurchase({
                   />
                 </div>
                 {/* Nhà cung cấp */}
+
                 <Controller
                   name="supplier_id"
                   control={control}
                   render={({ field }) => (
-                    <Select
-                      {...field}
-                      data={suppliers.map((supplier) => ({
-                        label: supplier?.name,
-                        value: supplier?.id,
-                      }))}
-                      leftSection={
-                        loadingSuppliers ? <Loading color="#3b82f6" /> : <User size={16} />
-                      }
-                      label={'Nhà cung cấp'}
-                      placeholder="Tìm kiếm nhà cung cấp"
-                      clearable
-                      error={errors.supplier_id ? 'Vui lòng chọn nhà cung cấp' : ''}
-                      size="sm"
-                      radius="sm"
-                      position="bottom"
-                      rightSection={
-                        <button
-                          type="button"
-                          onClick={() => setOpenModalCreateSupplier(true)}
-                          className="p-2 rounded hover:bg-gray-200 transition duration-200 hover:cursor-pointer"
-                          style={{ pointerEvents: 'auto' }}
-                        >
-                          <Plus size={16} />
-                        </button>
-                      }
-                    />
+                    <div className="space-y-1">
+                      <p className="text-sm text-gray-500">Nhà cung cấp</p>
+                      <div className="flex items-center gap-2">
+                        <Select
+                          {...field}
+                          // for search
+                          searchable
+                          onSearchChange={setSearchSupplier}
+                          searchValue={searchSupplier}
+                          data={suppliers.map((supplier) => ({
+                            label: supplier?.name,
+                            value: supplier?.id,
+                          }))}
+                          filter={({ options }) => options}
+                          nothingFoundMessage="Không tìm thấy nhà cung cấp"
+                          leftSection={<User size={16} />}
+                          placeholder="Tìm kiếm nhà cung cấp"
+                          clearable
+                          error={errors.supplier_id ? 'Vui lòng chọn nhà cung cấp' : ''}
+                          size="sm"
+                          className="flex-1"
+                          radius="sm"
+                          position="bottom"
+                          rightSection={
+                            loadingSuppliers ? (
+                              <Loading color="#3b82f6" size="xs" />
+                            ) : (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() => setIsOpenModalCreateSupplier(true)}
+                                  className="p-2 rounded hover:bg-gray-200 transition duration-200 hover:cursor-pointer"
+                                  style={{ pointerEvents: 'auto' }}
+                                >
+                                  <Plus size={16} />
+                                </button>
+                              </>
+                            )
+                          }
+                        />
+                        <Button
+                          onClick={() => setIsOpenModalCreateSupplier(true)}
+                          title="Thêm NCC"
+                          size="sm"
+                          radius="sm"
+                          variant="outline"
+                        />
+                      </div>
+                    </div>
                   )}
                 />
 
@@ -247,13 +278,18 @@ export default function SidebarPurchase({
         </form>
       </div>
       <Modal
-        title="Thêm nhà cung cấp"
+        title={<p className="text-base font-semibold">Thêm nhà cung cấp</p>}
         size="xl"
-        opened={openModalCreateSupplier}
-        onClose={() => setOpenModalCreateSupplier(false)}
+        opened={isOpenModalCreateSupplier}
+        onClose={() => setIsOpenModalCreateSupplier(false)}
       >
-        <FormCreateSupplier setIsOpenModal={setOpenModalCreateSupplier} />
+        <FormCreateSupplier
+          setIsOpenModal={setIsOpenModalCreateSupplier}
+          onFetchNewData={getSuppliers}
+          isEditForm={false}
+        />
       </Modal>
+
       {isPendingForCreated && (
         <div className="absolute inset-0 z-50 bg-white/80 flex items-center justify-center">
           <div className="flex items-center gap-4">

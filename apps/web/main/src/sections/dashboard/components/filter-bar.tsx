@@ -33,19 +33,29 @@ export default function FilterBar({
 }: FilterBarProps) {
   const [searchValue, setSearchValue] = useState<string>('');
   const [date, setDate] = useState<string[]>([]);
-  const [filterValues, setFilterValues] = useState<Record<string, string | undefined>>({});
+  const [filterValues, setFilterValues] = useState<Record<string, string | null>>({});
 
   const hasMounted = useRef(false);
 
   // theo dõi tất cả filter + date
   useEffect(() => {
+    // Khi component chạy đầu tiên, chúng ta không cần gửi lên API
     if (!hasMounted.current) {
       hasMounted.current = true;
       return;
     }
 
+    const apiFilters: Record<string, any> = {};
+
+    Object.entries(filterValues).forEach(([key, value]) => {
+      // Nếu giá trị là 'all' hoặc null, chúng ta không gửi lên API
+      if (value !== 'all' && value !== null) {
+        apiFilters[key] = value;
+      }
+    });
+
     onFilterChange?.({
-      ...filterValues,
+      ...apiFilters,
       date: date.length === 2 ? [date[0], date[1]] : undefined,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -54,7 +64,7 @@ export default function FilterBar({
   const handleChange = (key: string, value: string | null) => {
     setFilterValues((prev) => ({
       ...prev,
-      [key]: value ?? undefined,
+      [key]: value,
     }));
   };
 
@@ -62,6 +72,7 @@ export default function FilterBar({
     onSearch?.(searchValue);
   };
 
+  console.log(filterValues);
   return (
     <div className={`flex items-center ${hasBg ? 'bg-white p-5 rounded-lg ' : ''}`}>
       <div className="flex items-center w-full gap-2">
@@ -95,20 +106,23 @@ export default function FilterBar({
 
         {/* DYNAMIC SELECT FILTERS */}
         <div className="flex items-center gap-2">
-          {filters.map((f) => (
-            <Select
-              key={f.key}
-              data={f.options}
-              placeholder={f.label}
-              value={filterValues[f.key]}
-              onChange={(val) => handleChange(f.key, val)}
-              size="sm"
-              radius="sm"
-              position="bottom"
-              style={{ width: f.width ?? '200px' }}
-            />
-          ))}
+          {filters.map((f) => {
+            const extendedOptions = [{ label: 'Tất cả', value: 'all' }, ...f.options];
 
+            return (
+              <Select
+                key={f.key}
+                data={extendedOptions}
+                position="bottom"
+                placeholder={f.label}
+                value={filterValues[f.key] ?? 'all'}
+                onChange={(val) => handleChange(f.key, val)}
+                size="sm"
+                radius="sm"
+                style={{ width: f.width ?? '200px' }}
+              />
+            );
+          })}
           {/* DATE FILTER */}
           {hasDatePicker && (
             <div className="w-[26ch] rounded-md">

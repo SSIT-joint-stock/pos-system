@@ -1,17 +1,17 @@
 'use client';
-import { formatCurrency } from '../../../../utils';
-import { useVariant } from '../../../../hooks/variant/use-variant';
 import { Tooltip } from '@mantine/core';
 import { Button, Input, Loading, Modal } from '@repo/design-system/components/ui';
 import { useClickOutside } from '@repo/design-system/hooks/client';
 import { Ellipsis, MoveLeft, Plus, SaveAll, ScanBarcode, Search, SearchX } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { useDebounceCallback } from 'usehooks-ts';
+import { useVariant } from '../../../../hooks/variant/use-variant';
+import { formatCurrency } from '../../../../utils';
 
-import { useProduct } from '../../../../hooks/product/use-product';
-import { CreatePurchaseOrderItem } from '../../../../schemas/purchase/purchase.schema';
 import { Variant } from '@repo/design-system/types';
 import { useRouter } from 'next/navigation';
+import { useProduct } from '../../../../hooks/product/use-product';
+import { CreatePurchaseOrderItem } from '../../../../schemas/purchase/purchase.schema';
 
 export default function Header({
   setSelectedVariants,
@@ -84,7 +84,7 @@ export default function Header({
               rightSection={
                 <>
                   {loading ? (
-                    <Loading color="#3b82f6" size="sm" />
+                    <Loading color="#3b82f6" size="xs" />
                   ) : (
                     <button
                       onClick={() => setIsOpenModalQuickCreateProduct(true)}

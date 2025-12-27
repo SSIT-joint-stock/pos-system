@@ -94,7 +94,7 @@ export function FormCreateSupplier({
   return (
     <form
       onSubmit={isEditForm ? updateHandleSubmit(handleUpdate) : createHandleSubmit(handleCreate)}
-      className="space-y-6 mt-4"
+      className="space-y-6 "
     >
       <div className="space-y-1">
         <p className="text-sm text-gray-500">Mã số thuế</p>
@@ -133,7 +133,7 @@ export function FormCreateSupplier({
           />
         </div>
       </div>
-      <div className="flex items-center gap-4 ">
+      <div className="flex  gap-4 ">
         <Input
           withAsterisk
           label="Tên nhà cung cấp"
@@ -228,12 +228,23 @@ export function FormCreateSupplier({
           cols={4}
         />
       </div>
-      <div className="flex justify-end">
+      <div className="flex justify-end items-center gap-4">
+        <Button
+          type="button"
+          title="Hủy bỏ"
+          onClick={() => {
+            reset();
+            setOpenViewModal?.(false);
+          }}
+          variant="outline"
+          radius="sm"
+          size="sm"
+        />
         <Button
           type="submit"
           disabled={loading}
           title={
-            loading ? 'Đang tạo' : <>{isEditForm ? 'Cập nhât thông tin' : 'Tạo nhà cung cấp'}</>
+            loading ? 'Đang tạo' : <>{isEditForm ? 'Cập nhật thông tin' : 'Tạo nhà cung cấp'}</>
           }
           radius="sm"
           size="sm"

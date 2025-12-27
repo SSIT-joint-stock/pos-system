@@ -2,19 +2,19 @@
 'use client';
 import { Button, Table } from '@repo/design-system/components/ui';
 import { Plus } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
-import { formatDate } from '../../../../../main/src/utils/index';
+import { useEffect, useState } from 'react';
 import * as XLSX from 'xlsx';
 import { useProduct } from '../../../../../main/src/hooks/product/use-product';
+import { formatDate } from '../../../../../main/src/utils/index';
 
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { useAtomValue } from 'jotai';
-import { DeleteConfirmationModal } from '../components/delete-confirmation-modal';
-import { DataActionBar } from '../components/data-action-bar';
-import { ActionButtons } from '../components/action-buttons';
-import { DisplayField } from '../components/display-field';
-import DashboardViewLayout from '../../../../../main/src/layouts/dashboard-view-layout';
 import { useRouter } from 'next/navigation';
+import DashboardViewLayout from '../../../../../main/src/layouts/dashboard-view-layout';
+import { ActionButtons } from '../components/action-buttons';
+import { DataActionBar } from '../components/data-action-bar';
+import { DeleteConfirmationModal } from '../components/delete-confirmation-modal';
+import { DisplayField } from '../components/display-field';
 const tableHeaders = [
   'Mã Sản Phẩm',
   'Sản Phẩm',
@@ -127,7 +127,7 @@ export function ManageView() {
           onUpload={uploadProductByExcel}
           onDownloadTemplate={exampleProductExcel}
           loading={loading}
-          placeholderSearch="Nhập tên sản phẩm, mã sản phẩm"
+          placeholderSearch="Nhập tên sản phẩm, mã sản phẩm, barcode..."
         />
 
         {/* TABLE AND PAGINATION */}
@@ -178,50 +178,6 @@ export function ManageView() {
               </td>
               <td className="px-4 py-3 text-sm text-gray-500">{formatDate(product.createdAt)}</td>
               <td>
-                {/* <div className="flex items-center gap-5 pl-4">
-                    <button
-                      title="Xem chi tiết"
-                      data-tooltip-target="tooltip-default"
-                      onClick={() => {
-                        setOpenViewModal(true);
-                        getProductById(product.id);
-                      }}
-                      className="flex justify-center items-center cursor-pointer w-[36px] h-[36px] bg-gray-50 text-gray-500 rounded-md hover:opacity-100 hover:bg-gray-700 hover:text-white opacity-70 transition-opacity duration-200"
-                    >
-                      <Eye size={16} />
-                    </button>
-
-                    <button
-                      title="Sửa sản phẩm"
-                      onClick={() => {
-                        setOpenEditModal(true);
-                        getProductById(product.id);
-                      }}
-                      className="flex justify-center items-center cursor-pointer w-[36px] h-[36px]  bg-pos-blue-50 text-pos-blue-500 rounded-md hover:opacity-100 hover:bg-pos-blue-500 hover:text-pos-blue-50 opacity-70 transition-opacity duration-200"
-                    >
-                      <Edit size={16} />
-                    </button>
-                    <button
-                      title="Điều chỉnh số lượng"
-                      onClick={() => {
-                        setInventorModal(true);
-                        getProductById(product.id);
-                      }}
-                      className="flex justify-center items-center cursor-pointer w-[36px] h-[36px]  bg-green-50 text-green-500 rounded-md hover:opacity-100 hover:bg-green-500 hover:text-green-50 opacity-70 transition-opacity duration-200"
-                    >
-                      <ShoppingBag size={16} />
-                    </button>
-                    <button
-                      title="Xóa sản phẩm"
-                      onClick={() => {
-                        setDeleteModal(true);
-                        getProductById(product.id);
-                      }}
-                      className="flex justify-center items-center cursor-pointer w-[36px] h-[36px]  bg-red-50 text-red-500 rounded-md hover:opacity-100 hover:bg-red-500 hover:text-white opacity-70 transition-opacity duration-200 ml-auto"
-                    >
-                      <Trash size={16} />
-                    </button>
-                  </div> */}
                 <ActionButtons
                   onView={() => {
                     router.push(`manage-products/detail/${product.id}`);

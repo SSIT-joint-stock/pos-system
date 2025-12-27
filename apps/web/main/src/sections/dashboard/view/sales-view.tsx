@@ -1,14 +1,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client';
-import useToast from '@repo/design-system/hooks/client/use-toast-notification';
-import Invoice from '../components/invoice';
-import FormCreateCustomer from '../components/form-create-customer';
-import Logo from '../../../components/common/Logo';
-import Image from 'next/image';
-import React, { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
-import { useOrders } from '../../../hooks/orders/use-orders';
-import { formatCurrency, truncateText } from '../../../utils/';
+import { Burger, NumberInput, Tooltip } from '@mantine/core';
 import { Button, Input, Loading, Modal, Select, Table } from '@repo/design-system/components/ui';
+import { useClickOutside } from '@repo/design-system/hooks/client';
+import useToast from '@repo/design-system/hooks/client/use-toast-notification';
+import { currentStoreAtom } from '@repo/design-system/stores/auth';
+import { Customer, Variant } from '@repo/design-system/types';
+import { useAtomValue } from 'jotai';
 import {
   Keyboard,
   LogOut,
@@ -23,19 +21,21 @@ import {
   UserPlus,
   X,
 } from 'lucide-react';
-import { useDebounceCallback } from 'usehooks-ts';
-import { Customer, Variant } from '@repo/design-system/types';
-import { currentStoreAtom } from '@repo/design-system/stores/auth';
-import { useAtomValue } from 'jotai';
-import { Burger, NumberInput, Tooltip } from '@mantine/core';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useClickOutside } from '@repo/design-system/hooks/client';
-import { useCustomer } from '../../../hooks/customers/use-customer';
-import FiltersProducts from '../components/filter-products';
-import BillOrder from '../components/bill-order';
-import { useVariant } from '../../../hooks/variant/use-variant';
+import React, { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
+import { useDebounceCallback } from 'usehooks-ts';
+import Logo from '../../../components/common/Logo';
 import { payment_method } from '../../../constants/method';
 import { paymentMethods } from '../../../constants/status';
+import { useCustomer } from '../../../hooks/customers/use-customer';
+import { useOrders } from '../../../hooks/orders/use-orders';
+import { useVariant } from '../../../hooks/variant/use-variant';
+import { formatCurrency, truncateText } from '../../../utils/';
+import BillOrder from '../components/bill-order';
+import FiltersProducts from '../components/filter-products';
+import FormCreateCustomer from '../components/form-create-customer';
+import Invoice from '../components/invoice';
 
 export type selectedVariant = Variant & { selectedQuantity: number; tax_rate?: number };
 type InvoiceSelected = selectedVariant[];
@@ -636,7 +636,7 @@ export function SalesView() {
                             <div className="flex items-center justify-between">
                               <Tooltip position="top" label={variant.name} withArrow>
                                 <h2 className="text-sm font-semibold text-gray-800 truncate group-hover:text-pos-blue-500 line-clamp-1">
-                                  {truncateText(variant.name, 28)}
+                                  {truncateText(variant.name, 22)}
                                 </h2>
                               </Tooltip>
                               <span className="text-xs text-gray-500 font-semibold">

@@ -17,16 +17,20 @@ export function FormVariant({
   product,
   isEdit,
   variantId,
+  baseProductUnit,
+  getVariants,
   onClose,
   getProductById,
   setIsEdit,
 }: {
   variantId?: string;
   isEdit?: boolean;
+  baseProductUnit?: string;
   opened: boolean;
   product: Product;
   onClose: () => void;
-  getProductById: (id: string) => void;
+  getVariants?: () => void;
+  getProductById?: (id: string) => void;
   setIsEdit?: (isEdit: boolean) => void;
 }) {
   const currentStore = useAtomValue(currentStoreAtom);
@@ -105,6 +109,7 @@ export function FormVariant({
               onClose();
               reset();
               getProductById?.(product?.id);
+              getVariants?.();
               setIsEdit?.(false);
             }
           } else {
@@ -112,6 +117,7 @@ export function FormVariant({
             if (success) {
               onClose();
               reset();
+              getVariants?.();
               getProductById?.(product?.id);
               remove();
             }
@@ -257,7 +263,7 @@ export function FormVariant({
                               );
                               if (success) {
                                 setOpenedPopover(false);
-                                getProductById(product?.id || '');
+                                getProductById?.(product?.id || '');
                                 getVariant(variant?.id || '', product?.id || '');
                                 setDelta(0);
                               }
@@ -344,9 +350,15 @@ export function FormVariant({
             />
           </h2>
           <div className="mt-5">
-            {fields.length === 0 ? (
+            {fields && fields.length === 0 ? (
               <p className="text-sm text-gray-500">
-                Chưa có đơn vị quy đổi (chỉ bán theo &lsquo;{product?.baseUnit.trim()}&lsquo;).
+                Chưa có đơn vị quy đổi (bán theo &lsquo;
+                {baseProductUnit
+                  ? baseProductUnit
+                  : product?.baseUnit
+                    ? product.baseUnit.trim()
+                    : ''}
+                &lsquo;).
               </p>
             ) : (
               <div className="space-y-2">
