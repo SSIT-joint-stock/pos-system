@@ -40,24 +40,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     setHydrated(true);
   }, []);
   useEffect(() => {
-    if (!hydrated) return;
+    if (!hydrated || isFetched.current) return;
 
-    if (isFetched.current) return;
+    // if (accessToken) {
+    //   setIsSyncing(false);
+    //   isFetched.current = true;
+    //   return;
+    // }
 
     const syncSession = async () => {
       try {
         const res = await api.post('/auth/refresh-token');
         const data = res?.data?.data;
-        if (data) {
-          setAccessToken(data.access_token);
-          setCurrentUser(data.user);
-          setCurrentStore(data.store);
-        } else {
-          handleAuthError();
-        }
-      } catch {
-        showErrorToast('Phiên làm việc hết hạn, vui lòng đăng nhập lại!');
-        router.push(`${process.env.NEXT_PUBLIC_MAIN_URL}/auth/login`);
+        if (!data) throw new Error('No data returned');
+        setAccessToken(data.access_token);
+        setCurrentUser(data.user);
+        setCurrentStore(data.store);
+      } catch (err) {
+        console.error('Session sync failed:', err);
+        handleAuthError();
       } finally {
         isFetched.current = true;
         setIsSyncing(false);
@@ -65,16 +66,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     };
 
     syncSession();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    hydrated,
-    accessToken,
-    router,
-    showErrorToast,
-    setAccessToken,
-    setCurrentUser,
-    setCurrentStore,
-  ]);
+  }, [hydrated, router, showErrorToast]);
 
   const shouldShowContent = hydrated && !isSyncing && !!accessToken;
 
