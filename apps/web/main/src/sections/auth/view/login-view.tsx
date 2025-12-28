@@ -45,7 +45,12 @@ export function LoginView() {
 
       {step === 'CREATE_STORE' && <FormBusinessInfo setStep={setStep} />}
       {step === 'SELECT_STORE' && (
-        <FormSelectStore handleStoreSubmit={selectStore} loading={loading} stores={stores} />
+        <FormSelectStore
+          handleStoreSubmit={selectStore}
+          loading={loading}
+          stores={stores}
+          setStep={setStep}
+        />
       )}
     </>
   );
