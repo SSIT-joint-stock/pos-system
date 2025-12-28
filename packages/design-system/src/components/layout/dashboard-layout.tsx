@@ -5,7 +5,7 @@ import {
   currentStoreAtom,
   currentUserAtom,
 } from '@repo/design-system/stores/auth';
-import { getDefaultStore } from 'jotai';
+import { useAtom } from 'jotai';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useRef, useState } from 'react';
 import api from '../../../../../apps/web/main/src/libs/axios';
@@ -14,14 +14,28 @@ import Sidebar from '../../../../../apps/web/main/src/sections/dashboard/compone
 import { Loading } from '../ui';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const pathName = usePathname();
-  const router = useRouter();
-  const isFetched = useRef(false);
-  const { showErrorToast } = useToast();
-  const isSalesPages = pathName.endsWith('/sales');
+  // state
   const [isExpand, setIsExpand] = useState(false);
   const [hydrated, setHydrated] = useState(false);
-  const store = getDefaultStore();
+  const [isSyncing, setIsSyncing] = useState(true);
+  const [accessToken, setAccessToken] = useAtom(accessTokenAtom);
+  const [, setCurrentUser] = useAtom(currentUserAtom);
+  const [, setCurrentStore] = useAtom(currentStoreAtom);
+  // nextjs
+  const pathName = usePathname();
+  const isSalesPages = pathName.endsWith('/sales');
+  const router = useRouter();
+  const isFetched = useRef(false);
+  // custom hook
+  const { showErrorToast } = useToast();
+
+  const handleAuthError = () => {
+    showErrorToast('Phiên làm việc hết hạn, vui lòng đăng nhập lại!');
+    setAccessToken(null);
+    setCurrentUser(null);
+    setCurrentStore(null);
+    router.push(`${process.env.NEXT_PUBLIC_MAIN_URL}/auth/login`);
+  };
   useEffect(() => {
     setHydrated(true);
   }, []);
@@ -30,28 +44,39 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     if (isFetched.current) return;
 
-    if (store.get(accessTokenAtom)) {
-      isFetched.current = true;
-      return;
-    }
     const syncSession = async () => {
       try {
         const res = await api.post('/auth/refresh-token');
-        const { access_token, user, store: defaultStore } = res.data.data;
-
-        store.set(accessTokenAtom, access_token);
-        store.set(currentUserAtom, user);
-        store.set(currentStoreAtom, defaultStore);
-
-        isFetched.current = true;
+        const data = res?.data?.data;
+        if (data) {
+          setAccessToken(data.access_token);
+          setCurrentUser(data.user);
+          setCurrentStore(data.store);
+        } else {
+          handleAuthError();
+        }
       } catch {
         showErrorToast('Phiên làm việc hết hạn, vui lòng đăng nhập lại!');
         router.push(`${process.env.NEXT_PUBLIC_MAIN_URL}/auth/login`);
+      } finally {
+        isFetched.current = true;
+        setIsSyncing(false);
       }
     };
 
     syncSession();
-  }, [hydrated, store, router, showErrorToast]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    hydrated,
+    accessToken,
+    router,
+    showErrorToast,
+    setAccessToken,
+    setCurrentUser,
+    setCurrentStore,
+  ]);
+
+  const shouldShowContent = hydrated && !isSyncing && !!accessToken;
 
   return (
     <div className="flex w-screen h-screen ">
@@ -61,14 +86,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <main
           className={`${isSalesPages ? 'flex-1 p-0 overflow-auto  scrollbar-fixed' : 'flex-1 p-4 overflow-auto  scrollbar-fixed'}`}
         >
-          {hydrated ? (
+          {shouldShowContent ? (
             children
           ) : (
             <div className="flex items-center justify-center w-full h-full bg-white ">
               <div className="flex items-center gap-4">
                 <Loading color="#3b82f6" size="md" />
                 <span className="text-pos-blue-500 text-sm font-semibold">
-                  Đang lấy dữ liệu ...
+                  Đang đồng bộ phiên làm việc ...
                 </span>
               </div>
             </div>
