@@ -196,15 +196,17 @@ export function InventoryManageView() {
           )}
         />
       </DashboardViewLayout>
-      <FormVariant
-        isEdit={true}
-        opened={isOpenModalVariant}
-        onClose={() => setIsOpenModalVariant(false)}
-        variantId={selectedVariant?.id || ''}
-        product={selectedVariant?.product || ({} as Product)}
-        baseProductUnit={selectedVariant?.product?.baseUnit || ''}
-        getVariants={getVariantsInStore}
-      />
+      {selectedVariant && selectedVariant.id && selectedVariant?.product?.id && (
+        <FormVariant
+          isEdit={isOpenModalVariant}
+          opened={isOpenModalVariant}
+          onClose={() => setIsOpenModalVariant(false)}
+          variantId={selectedVariant?.id || ''}
+          product={selectedVariant?.product || ({} as Product)}
+          baseProductUnit={selectedVariant?.product?.baseUnit || ''}
+          getVariants={getVariantsInStore}
+        />
+      )}
       <DeleteConfirmationModal
         opened={isOpenModalDeleteVariant}
         loading={loading}
