@@ -88,7 +88,9 @@ export function FormVariant({
     }
   }, [reset, variant, isEdit]);
   useClickOutside(ref, () => setOpenedPopover(false));
-
+  console.log(isEdit);
+  console.log(variantId);
+  console.log(product?.id);
   return (
     <Modal
       title={

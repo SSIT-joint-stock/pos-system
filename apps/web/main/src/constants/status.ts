@@ -138,3 +138,13 @@ export type OrderStatus = keyof typeof ORDER_STATUS;
 export type SupplierStatus = keyof typeof SUPPLIER_STATUS;
 export type StockMovementStatus = (typeof STOCK_MOVEMENT_STATUS)[number]['value'];
 export type PurchaseStatus = keyof typeof PURCHASE_STATUS;
+
+// helper functions map
+
+export function getPurchaseStatusLabel(status: string) {
+  return PURCHASE_STATUS_MAP[status]?.label;
+}
+
+export function getPurchasePaymentStatusLabel(status: string) {
+  return PAYMENT_STATUS_MAP[status]?.label;
+}

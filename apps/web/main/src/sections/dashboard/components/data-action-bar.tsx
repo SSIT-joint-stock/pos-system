@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
-import { UploadMenu } from './upload-menu';
 import FilterBar, { DynamicFilter } from './filter-bar';
+import { UploadMenu } from './upload-menu';
 
 interface DataActionBarProps {
   onSearch?: (value: string) => void;
@@ -12,6 +12,7 @@ interface DataActionBarProps {
   dataComplete?: string[];
   loading?: boolean;
   placeholderSearch?: string;
+  isHaveUpload?: boolean;
   openUploadOption?: boolean;
   setOpenUploadOption?: (value: boolean) => void;
 }
@@ -24,6 +25,7 @@ export function DataActionBar({
   onExport,
   statusOptions,
   dataComplete,
+  isHaveUpload,
   loading = false,
   placeholderSearch = 'Tìm kiếm...',
 }: DataActionBarProps) {
@@ -47,6 +49,7 @@ export function DataActionBar({
             onDownloadTemplate={onDownloadTemplate || (() => {})}
             loading={loading}
             menuRef={uploadMenuRef}
+            isHaveUpload={isHaveUpload}
             onExport={onExport}
           />
         </>

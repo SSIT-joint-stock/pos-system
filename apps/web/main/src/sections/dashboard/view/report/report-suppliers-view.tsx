@@ -1,0 +1,214 @@
+'use client';
+import { Modal, Table } from '@repo/design-system/components/ui';
+import { currentStoreAtom } from '@repo/design-system/stores/auth';
+import { useAtomValue } from 'jotai';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import {
+  getPurchasePaymentStatusLabel,
+  getPurchaseStatusLabel,
+} from '../../../../constants/status';
+import { usePurchase } from '../../../../hooks/purchase/use-purchase';
+import { useReport } from '../../../../hooks/report/use-report';
+import DashboardViewLayout from '../../../../layouts/dashboard-view-layout';
+import { ActionButtons } from '../../../../sections/dashboard/components/action-buttons';
+import { DataActionBar } from '../../../../sections/dashboard/components/data-action-bar';
+import { DisplayField } from '../../../../sections/dashboard/components/display-field';
+import { formatCurrency, formatDate } from '../../../../utils';
+
+const tableHeaders = [
+  'Nhà cung cấp',
+  'Mã NCC',
+  'Số đơn hàng',
+  'Số sản phẩm nhập',
+  'Tổng giá trị nhập',
+  'Đã thanh toán',
+  'Còn nợ',
+  'Thao tác',
+];
+const tableHeadersSelected = [
+  'Mã nhập/xuất',
+  'Loại',
+  'Số lượng',
+  'Trạng thái',
+  'Thanh toán',
+  'Giá trị',
+  'Ngày tạo',
+];
+export function ReportSuppliersView() {
+  const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
+  const [selectedSupplier, setSelectedSupplier] = useState<string>('');
+  const currentStore = useAtomValue(currentStoreAtom);
+  const router = useRouter();
+  const {
+    loading,
+    reportSuppliers,
+    pagination,
+    filters,
+    paginationParams,
+    getReportSuppliers,
+    setFilters,
+    setPaginationParams,
+  } = useReport();
+
+  const {
+    getPurchasesBySupplier,
+    loading: loadingPurchases,
+    purchaseOrders,
+    pagination: paginationPurchases,
+    paginationParams: paginationParamsPurchases,
+    setPaginationParams: setPaginationParamsPurchases,
+  } = usePurchase();
+
+  useEffect(() => {
+    getReportSuppliers();
+  }, [paginationParams, filters]);
+
+  useEffect(() => {
+    if (selectedSupplier) {
+      getPurchasesBySupplier(selectedSupplier);
+    }
+  }, [selectedSupplier, paginationParamsPurchases]);
+  console.log(selectedSupplier);
+  return (
+    <>
+      <DashboardViewLayout>
+        <DisplayField label="Báo cáo nhà cung cấp" />
+
+        <DataActionBar
+          dataComplete={[...new Set(reportSuppliers?.map((p) => p.supplier_name) || [])]}
+          onFilterChange={(newFilters) => {
+            setFilters((prev) => ({
+              ...prev,
+              ...newFilters,
+            }));
+          }}
+          onSearch={(value) => {
+            setFilters((prev) => ({ ...prev, q: value }));
+          }}
+          // onExport={handleExportExcel}
+          isHaveUpload={false}
+          placeholderSearch="Nhập tên, mã, mã số thuế, email, số điện thoại của nhà cung cấp..."
+        />
+
+        {/* TABLE AND PAGINATION */}
+
+        <Table
+          hasMarginTop={false}
+          total={pagination?.total}
+          page={pagination?.page}
+          totalPages={pagination?.totalPages}
+          limit={pagination?.limit}
+          pageSize={pagination?.limit ?? paginationParams.limit}
+          onPageSizeChange={(size) =>
+            setPaginationParams((prev) => ({
+              ...prev,
+              limit: size,
+            }))
+          }
+          onPageChange={(page) =>
+            setPaginationParams((prev) => ({
+              ...prev,
+              page,
+            }))
+          }
+          tableHeaders={tableHeaders}
+          isLoading={loading}
+          data={reportSuppliers}
+          renderRow={(report) => (
+            <>
+              <td className="px-4 py-3 text-sm font-semibold text-gray-900">
+                {report.supplier_name}
+              </td>
+              <td className="px-4 py-3 text-sm  font-semibold text-pos-blue-600 hover:underline cursor-pointer">
+                {report.supplier_code}
+              </td>
+              <td className="px-4 py-3 text-sm font-semibold text-gray-700">
+                {report?.total_purchase_orders}
+              </td>
+
+              <td className="px-4 py-3 text-sm font-semibold text-gray-700">
+                {report?.total_products_in_purchase}
+              </td>
+              <td className="px-4 py-3 text-sm font-semibold text-gray-700">
+                {formatCurrency(report.total_purchase_paid)}
+              </td>
+              <td className="px-4 py-3 text-sm font-semibold text-gray-700">
+                {formatCurrency(report.total_paid)}
+              </td>
+              <td className="px-4 py-3 text-sm font-semibold text-gray-700">
+                {formatCurrency(report.total_unpaid_amount)}
+              </td>
+              <td>
+                <ActionButtons
+                  onView={() => {
+                    setIsOpenModal(true);
+                    setSelectedSupplier(report.supplier_id);
+                  }}
+                />
+              </td>
+            </>
+          )}
+        />
+      </DashboardViewLayout>
+      <Modal
+        opened={isOpenModal}
+        onClose={() => setIsOpenModal(false)}
+        size="70%"
+        title={<p className="text-base font-semibold text-gray-800">Lịch sử nhập/trả hàng </p>}
+      >
+        <Table
+          className="mt-6"
+          total={paginationPurchases?.total}
+          page={paginationPurchases?.page}
+          totalPages={paginationPurchases?.totalPages}
+          limit={paginationPurchases?.limit}
+          pageSize={paginationPurchases?.limit ?? paginationParamsPurchases.limit}
+          onPageSizeChange={(size) =>
+            setPaginationParamsPurchases((prev) => ({
+              ...prev,
+              limit: size,
+            }))
+          }
+          onPageChange={(page) =>
+            setPaginationParamsPurchases((prev) => ({
+              ...prev,
+              page,
+            }))
+          }
+          hasMarginTop={false}
+          hasPadding={false}
+          tableHeaders={tableHeadersSelected}
+          data={purchaseOrders}
+          isLoading={loadingPurchases}
+          renderRow={(selected) => (
+            <>
+              <td
+                onClick={() =>
+                  router.push(
+                    `/dashboard/store/${currentStore?.id}/import-invoices/detail/${selected.id}`
+                  )
+                }
+                className="px-4 py-3 text-sm font-semibold text-pos-blue-500 hover:underline cursor-pointer"
+              >
+                {selected.order_number}
+              </td>
+              <td className="px-4 py-3 text-sm font-semibold text-green-400 ">{'Đơn nhập'}</td>
+              <td className="px-4 py-3 text-sm font-semibold ">{selected?.items?.length}</td>
+              <td className="px-4 py-3 text-sm font-semibold ">
+                {getPurchaseStatusLabel(selected?.status)}
+              </td>
+              <td className="px-4 py-3 text-sm font-semibold ">
+                {getPurchasePaymentStatusLabel(selected?.payment_status)}
+              </td>
+              <td className="px-4 py-3 text-sm font-semibold ">{formatCurrency(selected.total)}</td>
+              <td className="px-4 py-3 text-sm font-semibold ">
+                {formatDate(selected?.order_date, { showTime: true })}
+              </td>
+            </>
+          )}
+        />
+      </Modal>
+    </>
+  );
+}

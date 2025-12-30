@@ -119,7 +119,18 @@ export function usePurchase() {
     },
     [requestWrapper, showSuccessToast]
   );
-
+  const getPurchasesBySupplier = useCallback(
+    async (supplierId: string) => {
+      const res = await requestWrapper(() =>
+        api.get<ApiResponse>(`/purchase-order/supplier/${supplierId}?${buildParams().toString()}`)
+      );
+      if (res?.data.success) {
+        setPurchaseOrders(res?.data?.data as PurchaseOrder[]);
+        setPagination(res?.data?.pagination);
+      }
+    },
+    [requestWrapper, buildParams, setPagination]
+  );
   // EXCEL
   const exportPurchaseOrdersExcel = useCallback(async () => {
     await requestWrapper(async () => {
@@ -171,6 +182,7 @@ export function usePurchase() {
     createPurchaseOrder,
     getPurchaseOrders,
     getPurchaseOrder,
+    getPurchasesBySupplier,
     //export, template
     exportPurchaseOrdersExcel,
     downloadPurchaseOrderTemplate,

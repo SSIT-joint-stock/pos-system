@@ -3,6 +3,7 @@ import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { useAtom } from 'jotai';
 import {
   BookUser,
+  ChartSpline,
   ChevronRight,
   LayoutDashboard,
   Package,
@@ -116,6 +117,24 @@ export default function MenuSidebar({
       ],
     },
 
+    {
+      title: 'Báo cáo',
+      icon: <ChartSpline size={20} className="shrink-0" />,
+      children: [
+        {
+          title: 'Báo cáo khách hàng',
+          path: `/dashboard/store/${currentStore?.id}/report-customers`,
+        },
+        {
+          title: 'Báo cáo nhà cung cấp',
+          path: `/dashboard/store/${currentStore?.id}/report-suppliers`,
+        },
+        {
+          title: 'Báo cáo nhân viên',
+          path: `/dashboard/store/${currentStore?.id}/report-employees`,
+        },
+      ],
+    },
     {
       title: 'Biến động kho',
       path: `/dashboard/store/${currentStore?.id}/manage-stock`,

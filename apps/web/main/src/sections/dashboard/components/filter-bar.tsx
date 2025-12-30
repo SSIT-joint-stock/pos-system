@@ -72,7 +72,6 @@ export default function FilterBar({
     onSearch?.(searchValue);
   };
 
-  console.log(filterValues);
   return (
     <div className={`flex items-center ${hasBg ? 'bg-white p-5 rounded-lg ' : ''}`}>
       <div className="flex items-center w-full gap-2">
