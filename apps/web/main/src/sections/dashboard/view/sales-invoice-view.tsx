@@ -1,18 +1,18 @@
 'use client';
 import { Button, Modal, Table } from '@repo/design-system/components/ui';
-import { BadgeAlert, Plus } from 'lucide-react';
-import React, { useState } from 'react';
-import { formatCurrency, formatDate } from '../../../utils/index';
-import { useOrders } from '../../../hooks/orders/use-orders';
-import { Order } from '@repo/design-system/types';
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
-import DashboardViewLayout from '../../../layouts/dashboard-view-layout';
-import { DisplayField } from '../components/display-field';
-import { DataActionBar } from '../components/data-action-bar';
-import { ActionButtons } from '../components/action-buttons';
+import { Order } from '@repo/design-system/types';
+import { BadgeAlert, Plus } from 'lucide-react';
+import { useState } from 'react';
 import { formatPaymentMethod, payment_method } from '../../../constants/method';
-import InvoicePrintContent from '../../../sections/print/invoice-print-context';
+import { useOrders } from '../../../hooks/orders/use-orders';
 import { usePrint } from '../../../hooks/use-print';
+import DashboardViewLayout from '../../../layouts/dashboard-view-layout';
+import InvoicePrintContent from '../../../sections/print/invoice-print-context';
+import { formatCurrency, formatDate } from '../../../utils/index';
+import { ActionButtons } from '../components/action-buttons';
+import { DataActionBar } from '../components/data-action-bar';
+import { DisplayField } from '../components/display-field';
 
 const tableHeaders = [
   'Mã Đơn Hàng',
@@ -41,8 +41,7 @@ const statusColors: Record<string, string> = {
   PENDING: 'text-orange-500 bg-orange-50  py-1.5 px-2.5 rounded-xs',
   CANCELLED: 'text-red-600 bg-red-50  py-1.5 px-2.5 rounded-xs',
   COMPLETED: 'text-green-500 bg-green-50  py-1.5 px-2.5 rounded-xs',
-  PAID: 'text-green-700 bg-green-50  py-1.5 px-2.5 rounded-xs',
-  REFUNDED: 'text-red-900 bg-red-50  py-1.5 px-2.5 rounded-xs',
+  PROCESSING: 'text-red-900 bg-red-50  py-1.5 px-2.5 rounded-xs',
 };
 
 const statusLabels: Record<string, string> = {
@@ -51,8 +50,7 @@ const statusLabels: Record<string, string> = {
   PENDING: 'Chờ thanh toán',
   CANCELLED: 'Đã hủy',
   COMPLETED: 'Hoàn thành',
-  PAID: 'Đã thanh toán',
-  REFUNDED: 'Đã hoàn tiền',
+  PROCESSING: 'Đang xử lý',
 };
 
 export function SalesInvoicesView() {
@@ -133,8 +131,7 @@ export function SalesInvoicesView() {
                 { value: 'PENDING', label: 'Chờ thanh toán' },
                 { value: 'CANCELLED', label: 'Đã hủy' },
                 { value: 'COMPLETED', label: 'Hoàn thành' },
-                { value: 'PAID', label: 'Đã thanh toán' },
-                { value: 'REFUNDED', label: 'Đã hoàn tiền' },
+                { value: 'PROCESSING', label: 'Đang xử lý' },
               ],
             },
           ]}

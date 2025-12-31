@@ -9,6 +9,7 @@ import {
   getPurchaseStatusLabel,
 } from '../../../../constants/status';
 import { usePurchase } from '../../../../hooks/purchase/use-purchase';
+import { useReportExport } from '../../../../hooks/report-export/use-report-export';
 import { useReport } from '../../../../hooks/report/use-report';
 import DashboardViewLayout from '../../../../layouts/dashboard-view-layout';
 import { ActionButtons } from '../../../../sections/dashboard/components/action-buttons';
@@ -60,6 +61,8 @@ export function ReportSuppliersView() {
     setPaginationParams: setPaginationParamsPurchases,
   } = usePurchase();
 
+  const { exportReportSuppliers } = useReportExport();
+
   useEffect(() => {
     getReportSuppliers();
   }, [paginationParams, filters]);
@@ -69,7 +72,6 @@ export function ReportSuppliersView() {
       getPurchasesBySupplier(selectedSupplier);
     }
   }, [selectedSupplier, paginationParamsPurchases]);
-  console.log(selectedSupplier);
   return (
     <>
       <DashboardViewLayout>
@@ -86,7 +88,7 @@ export function ReportSuppliersView() {
           onSearch={(value) => {
             setFilters((prev) => ({ ...prev, q: value }));
           }}
-          // onExport={handleExportExcel}
+          onExport={exportReportSuppliers}
           isHaveUpload={false}
           placeholderSearch="Nhập tên, mã, mã số thuế, email, số điện thoại của nhà cung cấp..."
         />
