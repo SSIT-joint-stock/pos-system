@@ -19,7 +19,7 @@ export const SUPPLIER_STATUS = {
     bgColor: 'bg-yellow-50',
     value: 'INACTIVE',
   },
-  delete: { label: 'Đã xóa', color: 'tex-red-500', bgColor: 'bg-red-50', value: 'DELETE' },
+  delete: { label: 'Đã xóa', color: 'text-red-500', bgColor: 'bg-red-50', value: 'DELETE' },
 };
 
 export const SUPPLIER_STATUS_MAP = Object.values(SUPPLIER_STATUS).reduce(

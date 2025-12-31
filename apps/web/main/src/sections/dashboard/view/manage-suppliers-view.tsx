@@ -156,7 +156,7 @@ export function ManageSuppliersView() {
                     <span className=" text-gray-500 italic ">Không có dữ liệu</span>
                   )}
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-700">
+                <td className="px-4 py-3 text-sm">
                   <span
                     className={`${SUPPLIER_STATUS_MAP[supplier.status].color} ${SUPPLIER_STATUS_MAP[supplier.status].bgColor} py-2 px-3 rounded-md text-nowrap`}
                   >
