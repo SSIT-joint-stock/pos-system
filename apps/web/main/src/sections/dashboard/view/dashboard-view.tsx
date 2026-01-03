@@ -1,14 +1,11 @@
 'use client';
-import { formatCurrency } from '../../../../../main/src/utils';
-import useStatistics, {
-  SummaryRevenue,
-} from '../../../../../main/src/hooks/statistics/use-statistics';
 import {
   ChartPoint,
   LineChart,
   PieChart,
   PieChartProps,
 } from '@repo/design-system/components/shared/chart-screen';
+import SlidingTabs from '@repo/design-system/components/shared/chart-screen/sliding-line-chart';
 import {
   ItemBoxChart,
   ItemLowStock,
@@ -17,16 +14,13 @@ import {
 import { Select } from '@repo/design-system/components/ui';
 import { Download, Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import SlidingTabs from '@repo/design-system/components/shared/chart-screen/sliding-line-chart';
+import useStatistics, {
+  SummaryRevenue,
+} from '../../../../../main/src/hooks/statistics/use-statistics';
+import { formatCurrency } from '../../../../../main/src/utils';
 export function DashboardView() {
-  const {
-    cache,
-    currentStore,
-    handleChangeTimeType,
-    getLowStockProducts,
-    getTopProducts,
-    fetchStatistic,
-  } = useStatistics();
+  const { cache, handleChangeTimeType, getLowStockProducts, getTopProducts, fetchStatistic } =
+    useStatistics();
   const [revenue, setRevenue] = useState<ChartPoint | null>(null);
   const [revenueByCategory, setRevenueByCategory] = useState<PieChartProps | null>(null);
   const [revenueSummary, setRevenueSummary] = useState<SummaryRevenue | null>(null);
@@ -34,13 +28,12 @@ export function DashboardView() {
   const summaryRevenueItems = cache.find((item) => item.key === 'summary-revenue');
   const revenueByCategoryItems = cache.find((item) => item.key === 'revenue-by-category');
   useEffect(() => {
-    if (currentStore?.id) {
-      getLowStockProducts();
-      getTopProducts();
-      fetchStatistic();
-    }
+    getLowStockProducts();
+    getTopProducts();
+    fetchStatistic();
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentStore?.id]);
+  }, []);
   useEffect(() => {
     setRevenue(revenueItems?.data || []);
     setRevenueByCategory(revenueByCategoryItems?.data || null);
@@ -96,6 +89,7 @@ export function DashboardView() {
             <h2 className="text-xl font-semibold text-gray-800">Sản phẩm bán chạy</h2>
             <Select
               size="sm"
+              radius="sm"
               defaultValue="Theo doanh thu giảm dần"
               data={['Theo doanh thu giảm dần', 'Theo doanh thu tăng dần']}
               position="bottom"
