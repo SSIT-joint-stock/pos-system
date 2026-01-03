@@ -1,4 +1,4 @@
-import { ApiResponse, ReportSupplier } from '@repo/design-system/types';
+import { ApiResponse, ReportCustomer, ReportSupplier } from '@repo/design-system/types';
 import { useCallback, useState } from 'react';
 import { FilterValue, useQueryParams } from '../../hooks/query/use-query-params';
 import { useRequestHelper } from '../../hooks/use-request-helper';
@@ -10,6 +10,7 @@ export interface ReportSupplierFilter extends Record<string, FilterValue> {
 export function useReport() {
   // hooks
   const [reportSuppliers, setReportSuppliers] = useState<ReportSupplier[]>([]);
+  const [reportCustomers, setReportCustomers] = useState<ReportCustomer[]>([]);
   const { loading, requestWrapper } = useRequestHelper();
   const {
     paginationParams,
@@ -37,9 +38,20 @@ export function useReport() {
       setReportSuppliers(res?.data?.data as ReportSupplier[]);
       setPagination(res?.data?.pagination);
     }
-  }, [requestWrapper, buildParams]);
+  }, [requestWrapper, buildParams, setPagination]);
+
+  const getReportCustomers = useCallback(async () => {
+    const res = await requestWrapper(() =>
+      api.get<ApiResponse>(`/report/customers?${buildParams().toString()}`)
+    );
+    if (res?.data.success) {
+      setReportCustomers(res?.data?.data as ReportCustomer[]);
+      setPagination(res?.data?.pagination);
+    }
+  }, [requestWrapper, buildParams, setPagination]);
   return {
     getReportSuppliers,
+    getReportCustomers,
     setPaginationParams,
     setFilters,
     setPagination,
@@ -52,5 +64,6 @@ export function useReport() {
     sortBy,
     filters,
     reportSuppliers,
+    reportCustomers,
   };
 }

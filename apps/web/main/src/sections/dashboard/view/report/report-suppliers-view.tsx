@@ -1,4 +1,5 @@
 'use client';
+import { Tooltip } from '@mantine/core';
 import { Modal, Table } from '@repo/design-system/components/ui';
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { useAtomValue } from 'jotai';
@@ -65,12 +66,14 @@ export function ReportSuppliersView() {
 
   useEffect(() => {
     getReportSuppliers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paginationParams, filters]);
 
   useEffect(() => {
     if (selectedSupplier) {
       getPurchasesBySupplier(selectedSupplier);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSupplier, paginationParamsPurchases]);
   return (
     <>
@@ -132,7 +135,7 @@ export function ReportSuppliersView() {
               <td className="px-4 py-3 text-sm font-semibold text-gray-700">
                 {report?.total_products_in_purchase}
               </td>
-              <td className="px-4 py-3 text-sm font-semibold text-gray-700">
+              <td className="px-4 py-3 text-sm font-semibold text-green-500">
                 {formatCurrency(report.total_purchase_paid)}
               </td>
               <td className="px-4 py-3 text-sm font-semibold text-gray-700">
@@ -185,16 +188,19 @@ export function ReportSuppliersView() {
           isLoading={loadingPurchases}
           renderRow={(selected) => (
             <>
-              <td
-                onClick={() =>
-                  router.push(
-                    `/dashboard/store/${currentStore?.id}/import-invoices/detail/${selected.id}`
-                  )
-                }
-                className="px-4 py-3 text-sm font-semibold text-pos-blue-500 hover:underline cursor-pointer"
-              >
-                {selected.order_number}
-              </td>
+              <Tooltip label={`Xem chi tiết ${selected.order_number}`}>
+                {' '}
+                <td
+                  onClick={() =>
+                    router.push(
+                      `/dashboard/store/${currentStore?.id}/import-invoices/detail/${selected.id}`
+                    )
+                  }
+                  className="px-4 py-3 text-sm font-semibold text-pos-blue-500 hover:underline cursor-pointer"
+                >
+                  {selected.order_number}
+                </td>
+              </Tooltip>
               <td className="px-4 py-3 text-sm font-semibold text-green-400 ">{'Đơn nhập'}</td>
               <td className="px-4 py-3 text-sm font-semibold ">{selected?.items?.length}</td>
               <td className="px-4 py-3 text-sm font-semibold ">

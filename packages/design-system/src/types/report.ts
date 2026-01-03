@@ -11,3 +11,15 @@ export interface ReportSupplier {
   total_paid: number;
   total_unpaid_amount: number;
 }
+
+export interface ReportCustomer {
+  customer_id: string;
+  customer_email: string;
+  customer_name: string;
+  customer_phone: string;
+  total_products_in_orders: number;
+  total_orders: number;
+  total_customer_paid: number;
+  total_paid: number;
+  total_unpaid_amount: number;
+}
