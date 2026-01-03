@@ -1,19 +1,20 @@
-import { Customer } from '@repo/design-system/types';
-import { useState } from 'react';
-import { useRequestHelper } from '../use-request-helper';
-import api from '../../../../main/src/libs/axios';
-import { useAtomValue } from 'jotai';
-import { currentStoreAtom } from '@repo/design-system/stores/auth';
+import { Customer } from "@repo/design-system/types";
+import { useState, useCallback } from "react";
+import { useRequestHelper } from "../use-request-helper";
+import api from "../../../../main/src/libs/axios";
+import { useAtomValue } from "jotai";
+import { currentStoreAtom } from "@repo/design-system/stores/auth";
 import {
   CreateCustomerInput,
   CreateCustomerSchema,
   UpdateCustomerInput,
   UpdateCustomerSchema,
-} from '../../../../main/src/schemas/customer/customer.schema';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import useToast from '@repo/design-system/hooks/client/use-toast-notification';
-import { FilterValue, useQueryParams } from '../query/use-query-params';
+} from "../../../../main/src/schemas/customer/customer.schema";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import useToast from "@repo/design-system/hooks/client/use-toast-notification";
+import { FilterValue, useQueryParams } from "../query/use-query-params";
+import { exportExcel } from "../../utils/export-excel/export";
 
 interface CustomerFilters extends Record<string, FilterValue> {
   q?: string;
@@ -37,7 +38,7 @@ export function useCustomer() {
     setSortBy,
     setSort,
   } = useQueryParams<CustomerFilters>({
-    q: 'q',
+    q: "q",
   });
 
   // FORMS
@@ -51,7 +52,9 @@ export function useCustomer() {
   // GET CUSTOMERS
   const getCustomers = async () => {
     const res = await requestWrapper(() =>
-      api.get(`/stores/${currentStore?.id}/customers?${buildParams().toString()}`)
+      api.get(
+        `/stores/${currentStore?.id}/customers?${buildParams().toString()}`
+      )
     );
     if (res?.data.success) {
       setCustomers(res?.data?.data);
@@ -67,15 +70,21 @@ export function useCustomer() {
     const trimmedPhone = data.phone?.trim();
     if (trimmedPhone) {
       const duplicate = customers.some(
-        (c) => c.phone?.trim().replace(/\s+/g, '') === trimmedPhone.replace(/\s+/g, '')
+        (c) =>
+          c.phone?.trim().replace(/\s+/g, "") ===
+          trimmedPhone.replace(/\s+/g, "")
       );
       if (duplicate) {
-        showErrorToast('⚠️ Số điện thoại này đã tồn tại. Vui lòng nhập số khác.');
+        showErrorToast(
+          "⚠️ Số điện thoại này đã tồn tại. Vui lòng nhập số khác."
+        );
         return; // Stop — don't call API
       }
     }
 
-    const res = await requestWrapper(() => api.post(`/stores/${currentStore.id}/customers`, data));
+    const res = await requestWrapper(() =>
+      api.post(`/stores/${currentStore.id}/customers`, data)
+    );
     if (res?.data.success) {
       getCustomers();
       showSuccessToast(res.data.message);
@@ -95,7 +104,10 @@ export function useCustomer() {
   };
 
   // UPDATE CUSTOMER
-  const updateCustomer = async (customerId: string, data: UpdateCustomerInput) => {
+  const updateCustomer = async (
+    customerId: string,
+    data: UpdateCustomerInput
+  ) => {
     if (!currentStore?.id) return;
     const res = await requestWrapper(() =>
       api.patch(`/stores/${currentStore?.id}/customers/${customerId}`, data)
@@ -105,6 +117,63 @@ export function useCustomer() {
       getCustomers();
     }
   };
+
+  // excel template api call
+  const downloadCustomerTemplate = useCallback(
+    async (storeId: string) => {
+      await requestWrapper(async () => {
+        const res = await api.get(
+          `/stores/${storeId}/customers/excel/example`,
+          {
+            responseType: "blob",
+          }
+        );
+
+        exportExcel(
+          res.data,
+          `customer_template_${new Date().toLocaleDateString()}.xlsx`,
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        );
+      });
+    },
+    [requestWrapper]
+  );
+
+  //export customer excel
+  const exportCustomersExcel = useCallback(
+    async (storeId: string) => {
+      await requestWrapper(async () => {
+        const res = await api.get(`/stores/${storeId}/customers/excel/export`, {
+          responseType: "blob",
+        });
+
+        exportExcel(
+          res.data,
+          `customers_${new Date().toLocaleDateString()}.xlsx`,
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        );
+      });
+    },
+    [requestWrapper]
+  );
+
+  const importCustomersExcel = useCallback(
+    async (storeId: string, file: File) => {
+      const formData = new FormData();
+      formData.append("excel_customer", file);
+
+      const res = await requestWrapper(() =>
+        api.post(`/stores/${storeId}/customers/excel/import`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+      );
+
+      return res;
+    },
+    [requestWrapper]
+  );
 
   return {
     getCustomers,
@@ -116,6 +185,9 @@ export function useCustomer() {
     setSortBy,
     setSort,
     setPagination,
+    downloadCustomerTemplate,
+    exportCustomersExcel,
+    importCustomersExcel,
     createCustomerForm,
     updateCustomerForm,
     customers,

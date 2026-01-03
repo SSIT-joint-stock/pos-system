@@ -1,29 +1,29 @@
-'use client';
-import { Plus } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
-import { Button, Modal, Table } from '@repo/design-system/components/ui';
-import { formatDate } from '@repo/utils';
-import FormCreateCustomer from '../components/form-create-customer';
-import { currentStoreAtom } from '@repo/design-system/stores/auth';
-import { useAtomValue } from 'jotai';
-import { useCustomer } from '../../../../../main/src/hooks/customers/use-customer';
-import { Customer } from '@repo/design-system/types';
+"use client";
+import { Plus } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Button, Modal, Table } from "@repo/design-system/components/ui";
+import { formatDate } from "@repo/utils";
+import FormCreateCustomer from "../components/form-create-customer";
+import { currentStoreAtom } from "@repo/design-system/stores/auth";
+import { useAtomValue } from "jotai";
+import { useCustomer } from "../../../../../main/src/hooks/customers/use-customer";
+import { Customer } from "@repo/design-system/types";
 
-import DashboardViewLayout from '../../../../../main/src/layouts/dashboard-view-layout';
-import { DisplayField } from '../components/display-field';
-import { DataActionBar } from '../components/data-action-bar';
-import { ActionButtons } from '../components/action-buttons';
-import { DeleteConfirmationModal } from '../components/delete-confirmation-modal';
+import DashboardViewLayout from "../../../../../main/src/layouts/dashboard-view-layout";
+import { DisplayField } from "../components/display-field";
+import { DataActionBar } from "../components/data-action-bar";
+import { ActionButtons } from "../components/action-buttons";
+import { DeleteConfirmationModal } from "../components/delete-confirmation-modal";
 
 const tableHeaders = [
-  'Tên Khách Hàng',
-  'Số Điện Thoại',
-  'Email',
-  'Địa Chỉ',
-  'Thành Phố',
-  'Mã Bưu Điện',
-  'Ngày Tạo',
-  'Thao Tác',
+  "Tên Khách Hàng",
+  "Số Điện Thoại",
+  "Email",
+  "Địa Chỉ",
+  "Thành Phố",
+  "Mã Bưu Điện",
+  "Ngày Tạo",
+  "Thao Tác",
 ];
 
 export function ManageCustomersView() {
@@ -47,6 +47,9 @@ export function ManageCustomersView() {
     paginationParams,
     filters,
     loading,
+    downloadCustomerTemplate,
+    exportCustomersExcel,
+    importCustomersExcel,
   } = useCustomer();
 
   useEffect(() => {
@@ -77,8 +80,17 @@ export function ManageCustomersView() {
               product_status: newFilters.status,
             }));
           }}
-          onSearch={(value) => {
-            setFilters((prev) => ({ ...prev, q: value }));
+          onDownloadTemplate={() => {
+            if (!currentStore) return;
+            downloadCustomerTemplate(currentStore.id);
+          }}
+          onExport={() => {
+            if (!currentStore) return;
+            exportCustomersExcel(currentStore.id);
+          }}
+          onUpload={(file) => {
+            if (!currentStore) return;
+            importCustomersExcel(currentStore.id, file);
           }}
         />
 
@@ -108,27 +120,43 @@ export function ManageCustomersView() {
           renderRow={(customer) => {
             return (
               <>
-                <td className="px-4 py-3 text-sm text-gray-700">{customer.name}</td>
+                <td className="px-4 py-3 text-sm text-gray-700">
+                  {customer.name}
+                </td>
                 <td className="px-4 py-3 text-xs text-gray-700">
                   {customer.phone || (
-                    <span className="text-sm text-gray-500 italic">Không có dữ liệu</span>
+                    <span className="text-sm text-gray-500 italic">
+                      Không có dữ liệu
+                    </span>
                   )}
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-700">
                   {customer.email || (
-                    <span className=" text-gray-500 italic">Không có dữ liệu</span>
+                    <span className=" text-gray-500 italic">
+                      Không có dữ liệu
+                    </span>
                   )}
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-700">
                   {customer.address || (
-                    <span className=" text-gray-500 italic">Không có dữ liệu</span>
+                    <span className=" text-gray-500 italic">
+                      Không có dữ liệu
+                    </span>
                   )}
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-700">
-                  {customer.city || <span className=" text-gray-500 italic">Không có dữ liệu</span>}
+                  {customer.city || (
+                    <span className=" text-gray-500 italic">
+                      Không có dữ liệu
+                    </span>
+                  )}
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-700">
-                  {customer.zip || <span className=" text-gray-500 italic">Không có dữ liệu</span>}
+                  {customer.zip || (
+                    <span className=" text-gray-500 italic">
+                      Không có dữ liệu
+                    </span>
+                  )}
                 </td>
 
                 <td className="px-4 py-3 text-sm text-gray-700">
@@ -196,7 +224,7 @@ export function ManageCustomersView() {
         opened={deleteModal}
         onClose={() => setDeleteModal(false)}
         onConfirm={() => {
-          deleteCustomer(selectedCustomer?.id || '');
+          deleteCustomer(selectedCustomer?.id || "");
           setDeleteModal(false);
         }}
       />

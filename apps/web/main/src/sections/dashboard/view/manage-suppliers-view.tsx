@@ -1,36 +1,41 @@
-'use client';
-import { Button, Modal, Table } from '@repo/design-system/components/ui';
-import { Supplier } from '@repo/design-system/types';
-import { Plus } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import DashboardViewLayout from '../../../../../main/src/layouts/dashboard-view-layout';
+"use client";
+import { Button, Modal, Table } from "@repo/design-system/components/ui";
+import { Supplier } from "@repo/design-system/types";
+import { Plus } from "lucide-react";
+import { useEffect, useState } from "react";
+import DashboardViewLayout from "../../../../../main/src/layouts/dashboard-view-layout";
 
-import { Tooltip } from '@mantine/core';
-import { SUPPLIER_STATUS, SUPPLIER_STATUS_MAP } from '../../../../../main/src/constants/status';
-import { useSupplier } from '../../../../../main/src/hooks/suplier/use-supplier';
-import { truncateText } from '../../../../../main/src/utils';
-import { FormCreateSupplier } from '../components';
-import { ActionButtons } from '../components/action-buttons';
-import { DataActionBar } from '../components/data-action-bar';
-import { DeleteConfirmationModal } from '../components/delete-confirmation-modal';
-import { DisplayField } from '../components/display-field';
+import { Tooltip } from "@mantine/core";
+import {
+  SUPPLIER_STATUS,
+  SUPPLIER_STATUS_MAP,
+} from "../../../../../main/src/constants/status";
+import { useSupplier } from "../../../../../main/src/hooks/suplier/use-supplier";
+import { truncateText } from "../../../../../main/src/utils";
+import { FormCreateSupplier } from "../components";
+import { ActionButtons } from "../components/action-buttons";
+import { DataActionBar } from "../components/data-action-bar";
+import { DeleteConfirmationModal } from "../components/delete-confirmation-modal";
+import { DisplayField } from "../components/display-field";
 
 const tableHeaders = [
-  'Mã nhà cung cấp',
-  'Tên nhà cung cấp',
-  'Số Điện Thoại',
-  'Email',
-  'Địa Chỉ',
-  'Mã số thuế',
-  'Trạng thái',
-  'Thao Tác',
+  "Mã nhà cung cấp",
+  "Tên nhà cung cấp",
+  "Số Điện Thoại",
+  "Email",
+  "Địa Chỉ",
+  "Mã số thuế",
+  "Trạng thái",
+  "Thao Tác",
 ];
-export const supplierStatusOptions = Object.entries(SUPPLIER_STATUS).map(([key, item]) => ({
-  label: item.label,
-  value: item.value,
-  color: item.color,
-  key, // optional
-}));
+export const supplierStatusOptions = Object.entries(SUPPLIER_STATUS).map(
+  ([key, item]) => ({
+    label: item.label,
+    value: item.value,
+    color: item.color,
+    key, // optional
+  })
+);
 
 export function ManageSuppliersView() {
   const [openAddModal, setOpenAddModal] = useState<boolean>(false);
@@ -50,6 +55,9 @@ export function ManageSuppliersView() {
     setPaginationParams,
     setFilters,
     getSuppliers,
+    downloadSupplierTemplate,
+    importSuppliersExcel,
+    exportSuppliersExcel,
   } = useSupplier();
 
   useEffect(() => {
@@ -78,9 +86,9 @@ export function ManageSuppliersView() {
           placeholderSearch="Tìm kiếm tên, email, mã của nhà cung cấp"
           statusOptions={[
             {
-              width: '280px',
-              key: 'status',
-              label: 'Trạng thái nhà cung cấp',
+              width: "280px",
+              key: "status",
+              label: "Trạng thái nhà cung cấp",
               options: supplierStatusOptions,
             },
           ]}
@@ -93,6 +101,17 @@ export function ManageSuppliersView() {
           }}
           onSearch={(value) => {
             setFilters((prev) => ({ ...prev, q: value }));
+          }}
+          onDownloadTemplate={() => {
+            downloadSupplierTemplate();
+          }}
+          onUpload={(file) => {
+            if (!currentStore) return;
+            importSuppliersExcel(currentStore.id, file);
+          }}
+          onExport={() => {
+            if (!currentStore) return;
+            exportSuppliersExcel(currentStore.id);
           }}
         />
 
@@ -127,33 +146,45 @@ export function ManageSuppliersView() {
                 </td>
 
                 <Tooltip label={supplier.name} position="top" withArrow>
-                  <td className="px-4 py-3 text-sm text-gray-700">{supplier?.name}</td>
+                  <td className="px-4 py-3 text-sm text-gray-700">
+                    {supplier?.name}
+                  </td>
                 </Tooltip>
                 <td className="px-4 py-3 text-sm text-gray-700">
                   {supplier.phone || (
-                    <span className="text-sm text-gray-500 italic">Không có dữ liệu</span>
+                    <span className="text-sm text-gray-500 italic">
+                      Không có dữ liệu
+                    </span>
                   )}
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-700">
                   {supplier.email || (
-                    <span className=" text-gray-500 italic">Không có dữ liệu</span>
+                    <span className=" text-gray-500 italic">
+                      Không có dữ liệu
+                    </span>
                   )}
                 </td>
                 <Tooltip
-                  label={supplier.address || 'Không có dữ liệu'}
+                  label={supplier.address || "Không có dữ liệu"}
                   position="top"
                   withArrow
                   color="rgba(125, 124, 124, 1)"
                 >
                   <td className="px-4 py-3 text-sm text-gray-700">
-                    {(supplier && supplier?.address && truncateText(supplier?.address, 54)) || (
-                      <span className=" text-gray-500 italic">Không có dữ liệu</span>
+                    {(supplier &&
+                      supplier?.address &&
+                      truncateText(supplier?.address, 54)) || (
+                      <span className=" text-gray-500 italic">
+                        Không có dữ liệu
+                      </span>
                     )}
                   </td>
                 </Tooltip>
                 <td className="px-4 py-3 text-sm text-gray-700">
                   {supplier.tax_code || (
-                    <span className=" text-gray-500 italic ">Không có dữ liệu</span>
+                    <span className=" text-gray-500 italic ">
+                      Không có dữ liệu
+                    </span>
                   )}
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-700">
@@ -184,7 +215,11 @@ export function ManageSuppliersView() {
       </DashboardViewLayout>
       {/* modal add supplier */}
       <Modal
-        title={<p className="text-base  font-semibold text-gray-900 ">Thêm nhà cung cấp</p>}
+        title={
+          <p className="text-base  font-semibold text-gray-900 ">
+            Thêm nhà cung cấp
+          </p>
+        }
         size="xl"
         opened={openAddModal}
         onClose={() => {
@@ -223,7 +258,7 @@ export function ManageSuppliersView() {
         opened={deleteModal}
         onClose={() => setDeleteModal(false)}
         onConfirm={() => {
-          deleteSupplier(selectedSupplier?.id || '');
+          deleteSupplier(selectedSupplier?.id || "");
           setDeleteModal(false);
         }}
       />

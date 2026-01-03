@@ -1,29 +1,31 @@
-'use client';
-import { zodResolver } from '@hookform/resolvers/zod';
-import useToast from '@repo/design-system/hooks/client/use-toast-notification';
-import { currentStoreAtom } from '@repo/design-system/stores/auth';
-import { ApiResponse, Supplier } from '@repo/design-system/types';
-import { useAtomValue } from 'jotai';
-import { useCallback, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import api from '../../../../main/src/libs/axios';
+"use client";
+import { zodResolver } from "@hookform/resolvers/zod";
+import useToast from "@repo/design-system/hooks/client/use-toast-notification";
+import { currentStoreAtom } from "@repo/design-system/stores/auth";
+import { ApiResponse, Supplier } from "@repo/design-system/types";
+import { useAtomValue } from "jotai";
+import { useCallback, useState } from "react";
+import { useForm } from "react-hook-form";
+import api from "../../../../main/src/libs/axios";
 import {
   CreateSupplierInput,
   CreateSupplierSchema,
   UpdateSupplierInput,
   UpdateSupplierSchema,
-} from '../../../../main/src/schemas/supplier/supplier.schema';
-import { FilterValue, useQueryParams } from '../query/use-query-params';
-import { useRequestHelper } from '../use-request-helper';
+} from "../../../../main/src/schemas/supplier/supplier.schema";
+import { FilterValue, useQueryParams } from "../query/use-query-params";
+import { useRequestHelper } from "../use-request-helper";
 interface SupplierFilters extends Record<string, FilterValue> {
   q?: string;
 }
+import { exportExcel } from "../../utils/export-excel/export";
 
 export function useSupplier() {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [supplierInfo, setSupplierInfo] = useState<Supplier | null>(null);
 
-  const [supplierInfoByTaxCode, setSupplierInfoByTaxCode] = useState<Supplier | null>(null);
+  const [supplierInfoByTaxCode, setSupplierInfoByTaxCode] =
+    useState<Supplier | null>(null);
   const { loading, requestWrapper } = useRequestHelper();
   const { showSuccessToast } = useToast();
   const {
@@ -47,7 +49,9 @@ export function useSupplier() {
   const getSuppliers = useCallback(async () => {
     if (!currentStore?.id) return;
     const res = await requestWrapper(() =>
-      api.get<ApiResponse>(`/supplier/${currentStore?.id}?${buildParams().toString()}`)
+      api.get<ApiResponse>(
+        `/supplier/${currentStore?.id}?${buildParams().toString()}`
+      )
     );
     if (res?.data.success) {
       setSuppliers(res?.data?.data as Supplier[]);
@@ -69,17 +73,25 @@ export function useSupplier() {
   const deleteSupplier = async (supplierId: string) => {
     if (!currentStore?.id) return;
     const res = await requestWrapper(() =>
-      api.delete<ApiResponse>(`/supplier/${currentStore?.id}/delete/${supplierId}`)
+      api.delete<ApiResponse>(
+        `/supplier/${currentStore?.id}/delete/${supplierId}`
+      )
     );
     if (res?.data.success) {
       showSuccessToast(res.data.message as string);
       getSuppliers();
     }
   };
-  const updateSupplier = async (data: UpdateSupplierInput, supplierId: string) => {
+  const updateSupplier = async (
+    data: UpdateSupplierInput,
+    supplierId: string
+  ) => {
     if (!currentStore?.id) return;
     const res = await requestWrapper(() =>
-      api.patch<ApiResponse>(`/supplier/${currentStore?.id}/update/${supplierId}`, data)
+      api.patch<ApiResponse>(
+        `/supplier/${currentStore?.id}/update/${supplierId}`,
+        data
+      )
     );
     if (res?.data.success) {
       updateSupplierForm.reset();
@@ -114,6 +126,54 @@ export function useSupplier() {
     }
     return false;
   };
+
+  const downloadSupplierTemplate = useCallback(async () => {
+    await requestWrapper(async () => {
+      const res = await api.get("/supplier/excel/example", {
+        responseType: "blob",
+      });
+
+      exportExcel(
+        res.data,
+        `supplier_template_${new Date().toLocaleDateString()}.xlsx`,
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      );
+    });
+  }, [requestWrapper]);
+
+  const importSuppliersExcel = useCallback(
+    async (storeId: string, file: File) => {
+      const formData = new FormData();
+      formData.append("excel_supplier", file); // MUST match docs
+
+      const res = await requestWrapper(() =>
+        api.post(`/supplier/excel/import/${storeId}`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        })
+      );
+
+      return res;
+    },
+    [requestWrapper]
+  );
+
+  const exportSuppliersExcel = useCallback(
+    async (storeId: string) => {
+      await requestWrapper(async () => {
+        const res = await api.get(`/supplier/excel/export/${storeId}`, {
+          responseType: "blob",
+        });
+
+        exportExcel(
+          res.data,
+          `suppliers_${new Date().toLocaleDateString()}.xlsx`,
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        );
+      });
+    },
+    [requestWrapper]
+  );
+
   return {
     loading,
     suppliers,
@@ -137,5 +197,8 @@ export function useSupplier() {
     buildParams,
     setSortBy,
     setSort,
+    downloadSupplierTemplate,
+    importSuppliersExcel,
+    exportSuppliersExcel,
   };
 }
