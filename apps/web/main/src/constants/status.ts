@@ -1,10 +1,51 @@
 import { payment_method } from './method';
 
 export const ORDER_STATUS = {
-  pending: { label: 'Pending', color: 'yellow' },
-  paid: { label: 'Paid', color: 'green' },
-  cancelled: { label: 'Cancelled', color: 'red' },
-} as const;
+  overage: {
+    label: 'Trả thừa',
+    color: 'text-pos-blue-500',
+    bgColor: 'bg-pos-blue-50',
+    value: 'OVERAGE',
+  },
+  returned: {
+    label: 'Đã trả hàng',
+    color: 'text-red-900',
+    bgColor: 'bg-red-50',
+    value: 'RETURNED',
+  },
+  pending: {
+    label: 'Chờ thanh toán',
+    color: 'text-red-500',
+    bgColor: 'bg-red-50',
+    value: 'PENDING',
+  },
+  cancelled: {
+    label: 'Đã hủy',
+    color: 'text-red-600',
+    bgColor: 'bg-red-50',
+    value: 'CANCELLED',
+  },
+  completed: {
+    label: 'Hoàn thành',
+    color: 'text-green-500',
+    bgColor: 'bg-green-50',
+    value: 'COMPLETED',
+  },
+  processing: {
+    label: 'Đang xử lý',
+    color: 'text-red-900',
+    bgColor: 'bg-red-50',
+    value: 'PROCESSING',
+  },
+};
+
+export const ORDER_STATUS_MAP = Object.values(ORDER_STATUS).reduce(
+  (acc, item) => {
+    acc[item.value] = item;
+    return acc;
+  },
+  {} as Record<string, { label: string; color: string; bgColor: string; value: string }>
+);
 
 export const SUPPLIER_STATUS = {
   active: {
@@ -19,7 +60,7 @@ export const SUPPLIER_STATUS = {
     bgColor: 'bg-yellow-50',
     value: 'INACTIVE',
   },
-  delete: { label: 'Đã xóa', color: 'tex-red-500', bgColor: 'bg-red-50', value: 'DELETE' },
+  delete: { label: 'Đã xóa', color: 'text-red-500', bgColor: 'bg-red-50', value: 'DELETE' },
 };
 
 export const SUPPLIER_STATUS_MAP = Object.values(SUPPLIER_STATUS).reduce(
@@ -138,3 +179,17 @@ export type OrderStatus = keyof typeof ORDER_STATUS;
 export type SupplierStatus = keyof typeof SUPPLIER_STATUS;
 export type StockMovementStatus = (typeof STOCK_MOVEMENT_STATUS)[number]['value'];
 export type PurchaseStatus = keyof typeof PURCHASE_STATUS;
+
+// helper functions map
+
+export function getPurchaseStatusLabel(status: string) {
+  return PURCHASE_STATUS_MAP[status]?.label;
+}
+
+export function getPurchasePaymentStatusLabel(status: string) {
+  return PAYMENT_STATUS_MAP[status]?.label;
+}
+
+export function getOrderStatusLabel(status: string) {
+  return ORDER_STATUS_MAP[status]?.label;
+}

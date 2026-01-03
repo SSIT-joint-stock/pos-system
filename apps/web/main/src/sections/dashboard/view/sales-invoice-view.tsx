@@ -1,18 +1,19 @@
 'use client';
 import { Button, Modal, Table } from '@repo/design-system/components/ui';
-import { BadgeAlert, Plus } from 'lucide-react';
-import React, { useState } from 'react';
-import { formatCurrency, formatDate } from '../../../utils/index';
-import { useOrders } from '../../../hooks/orders/use-orders';
 import { Order } from '@repo/design-system/types';
-import useToast from '@repo/design-system/hooks/client/use-toast-notification';
-import DashboardViewLayout from '../../../layouts/dashboard-view-layout';
-import { DisplayField } from '../components/display-field';
-import { DataActionBar } from '../components/data-action-bar';
-import { ActionButtons } from '../components/action-buttons';
+import { BadgeAlert, Plus } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { formatPaymentMethod, payment_method } from '../../../constants/method';
-import InvoicePrintContent from '../../../sections/print/invoice-print-context';
+import { ORDER_STATUS_MAP } from '../../../constants/status';
+import { useOrders } from '../../../hooks/orders/use-orders';
 import { usePrint } from '../../../hooks/use-print';
+import DashboardViewLayout from '../../../layouts/dashboard-view-layout';
+import InvoicePrintContent from '../../../sections/print/invoice-print-context';
+import { formatCurrency, formatDate } from '../../../utils/index';
+import { ActionButtons } from '../components/action-buttons';
+import { DataActionBar } from '../components/data-action-bar';
+import { DisplayField } from '../components/display-field';
 
 const tableHeaders = [
   'Mã Đơn Hàng',
@@ -35,28 +36,8 @@ const tableHeadersSelected = [
   'Thành tiền',
 ];
 
-const statusColors: Record<string, string> = {
-  OVERAGE: 'text-blue-500 bg-blue-50 py-1.5 px-2.5 rounded-xs',
-  RETURNED: 'text-red-900 bg-red-50  py-1.5 px-2.5 rounded-xs',
-  PENDING: 'text-orange-500 bg-orange-50  py-1.5 px-2.5 rounded-xs',
-  CANCELLED: 'text-red-600 bg-red-50  py-1.5 px-2.5 rounded-xs',
-  COMPLETED: 'text-green-500 bg-green-50  py-1.5 px-2.5 rounded-xs',
-  PAID: 'text-green-700 bg-green-50  py-1.5 px-2.5 rounded-xs',
-  REFUNDED: 'text-red-900 bg-red-50  py-1.5 px-2.5 rounded-xs',
-};
-
-const statusLabels: Record<string, string> = {
-  OVERAGE: 'Trả thừa',
-  RETURNED: 'Đã trả hàng',
-  PENDING: 'Chờ thanh toán',
-  CANCELLED: 'Đã hủy',
-  COMPLETED: 'Hoàn thành',
-  PAID: 'Đã thanh toán',
-  REFUNDED: 'Đã hoàn tiền',
-};
-
 export function SalesInvoicesView() {
-  const { showInfoToast } = useToast();
+  const router = useRouter();
   const {
     orders,
     loading,
@@ -133,8 +114,7 @@ export function SalesInvoicesView() {
                 { value: 'PENDING', label: 'Chờ thanh toán' },
                 { value: 'CANCELLED', label: 'Đã hủy' },
                 { value: 'COMPLETED', label: 'Hoàn thành' },
-                { value: 'PAID', label: 'Đã thanh toán' },
-                { value: 'REFUNDED', label: 'Đã hoàn tiền' },
+                { value: 'PROCESSING', label: 'Đang xử lý' },
               ],
             },
           ]}
@@ -174,7 +154,10 @@ export function SalesInvoicesView() {
           isLoading={loading}
           renderRow={(order) => (
             <>
-              <td className="px-4 py-3 text-sm text-pos-blue-600 font-semibold truncate">
+              <td
+                onClick={() => router.push(`sales-invoices/detail/${order.id}`)}
+                className="px-4 py-3 text-sm text-pos-blue-600 font-semibold truncate hover:underline cursor-pointer"
+              >
                 {order.code || (
                   <span className="italic text-gray-500 font-medium">Chưa cập nhật</span>
                 )}
@@ -210,9 +193,13 @@ export function SalesInvoicesView() {
                 {formatPaymentMethod(order.payment_method as payment_method)}
               </td>
               <td className="px-4 py-3">
-                <span className={`text-sm font-medium rounded-xl ${statusColors[order.status]}`}>
-                  {statusLabels[order.status] || order.status}
-                </span>
+                {order.status && (
+                  <span
+                    className={`text-sm font-medium rounded-sm p-2  ${ORDER_STATUS_MAP[order.status].color} ${ORDER_STATUS_MAP[order.status].bgColor}`}
+                  >
+                    {ORDER_STATUS_MAP[order.status].label || order.status}
+                  </span>
+                )}
               </td>
               <td className="px-4 py-3 font-medium text-sm text-gray-500">
                 {formatDate(order.createdAt)}
@@ -222,9 +209,9 @@ export function SalesInvoicesView() {
                   onView={() => {
                     handleViewOrder(order);
                   }}
-                  onEdit={() => {
-                    showInfoToast('Tính năng đang được cập nhật');
-                  }}
+                  // onEdit={() => {
+                  //   showInfoToast('Tính năng đang được cập nhật');
+                  // }}
                   onDelete={() => {
                     setDeleteModal(true);
                     setSelectedOrder(order);
@@ -243,11 +230,13 @@ export function SalesInvoicesView() {
             <span className="text-sm font-medium text-gray-500">
               Chi tiết đơn hàng - {selectedOrder?.code}
             </span>
-            <span
-              className={`text-sm font-medium rounded-xl ${statusColors[selectedOrder?.status ?? '']}`}
-            >
-              {statusLabels[selectedOrder?.status ?? ''] || selectedOrder?.status}
-            </span>
+            {selectedOrder && selectedOrder.status && (
+              <span
+                className={`text-sm font-medium rounded-xl p-2  ${ORDER_STATUS_MAP[selectedOrder?.status ?? ''].color} ${ORDER_STATUS_MAP[selectedOrder?.status ?? ''].bgColor}`}
+              >
+                {ORDER_STATUS_MAP[selectedOrder?.status ?? ''].label || selectedOrder?.status}
+              </span>
+            )}
           </div>
         }
         opened={openViewModal}

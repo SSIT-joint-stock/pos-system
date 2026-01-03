@@ -51,7 +51,8 @@ export function InventoryManageView() {
   useClickOutside(refVariantSelect, () => {
     setIsOpenMoreUnit(false);
   });
-  console.log(selectedVariant?.product?.baseUnit);
+  console.log(selectedVariant?.product);
+
   return (
     <>
       <DashboardViewLayout>
@@ -183,8 +184,8 @@ export function InventoryManageView() {
               <td>
                 <ActionButtons
                   onView={() => {
-                    setIsOpenModalVariant(true);
                     setSelectedVariant(variant);
+                    setIsOpenModalVariant(true);
                   }}
                   onDelete={() => {
                     setSelectedVariant(variant);
@@ -198,7 +199,7 @@ export function InventoryManageView() {
       </DashboardViewLayout>
       {selectedVariant && selectedVariant.id && selectedVariant?.product?.id && (
         <FormVariant
-          isEdit={isOpenModalVariant}
+          isEdit={true || isOpenModalVariant}
           opened={isOpenModalVariant}
           onClose={() => setIsOpenModalVariant(false)}
           variantId={selectedVariant?.id || ''}
