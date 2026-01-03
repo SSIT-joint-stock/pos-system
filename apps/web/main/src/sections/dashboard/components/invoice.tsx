@@ -1,26 +1,26 @@
 'use client';
-import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { Drawer } from '@mantine/core';
+import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { useAtomValue } from 'jotai';
 import { useOrders } from '../../../hooks/orders/use-orders';
 import InvoicePrintContent from '../../print/invoice-print-context';
 
 import { formatCurrency } from '../../../utils';
 
-import React, { useEffect, useState } from 'react';
-import { QrCode as QrCodeIc } from 'lucide-react';
-import Image from 'next/image';
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
-import timezone from 'dayjs/plugin/timezone';
-import QrCode from './qr-code';
+import { Button } from '@repo/design-system/components/ui';
 import { Order } from '@repo/design-system/types';
 import { Store } from '@repo/design-system/types/store';
+import dayjs from 'dayjs';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
+import { QrCode as QrCodeIc } from 'lucide-react';
+import Image from 'next/image';
+import React, { useEffect, useState } from 'react';
 import { formatPaymentMethod, payment_method } from '../../../constants/method';
-import { selectedVariant } from '../view';
-import { Button } from '@repo/design-system/components/ui';
 import useStore from '../../../hooks/store/use-store';
 import { usePrint } from '../../../hooks/use-print';
+import { selectedVariant } from '../view';
+import QrCode from './qr-code';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -42,7 +42,9 @@ export default function Invoice({
 
   const { order, getOrderById } = useOrders();
   const { getStoreDetail, store } = useStore();
-  const { printRef, printing, handlePrint } = usePrint({ title: `hoa_done_${order?.id}` });
+  const { printRef, printing, handlePrint } = usePrint({
+    title: `hoa_don_ban_${order?.code}`,
+  });
   const [isOpenModalQrCode, setIsOpenModalQrCode] = useState<boolean>(false);
   useEffect(() => {
     if (openModalInvoice && newOrderId) {
@@ -132,7 +134,11 @@ export default function Invoice({
                     <p>Khách hàng</p>
                   </td>
                   <td className="text-center">
-                    <p>{order?.customer?.name || <span className="italic">Khách lẻ</span>}</p>
+                    <p>
+                      {order?.customer?.name || order?.customer_name || (
+                        <span className="italic">Khách lẻ</span>
+                      )}
+                    </p>
                   </td>
                 </tr>
               </tbody>
