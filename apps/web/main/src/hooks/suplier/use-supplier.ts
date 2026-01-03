@@ -13,6 +13,7 @@ import {
   UpdateSupplierInput,
   UpdateSupplierSchema,
 } from '../../../../main/src/schemas/supplier/supplier.schema';
+import { exportExcel } from '../../utils/export-excel/export';
 import { FilterValue, useQueryParams } from '../query/use-query-params';
 import { useRequestHelper } from '../use-request-helper';
 interface SupplierFilters extends Record<string, FilterValue> {
@@ -54,6 +55,7 @@ export function useSupplier() {
       setPagination(res?.data.pagination);
     }
   }, [currentStore?.id, buildParams, requestWrapper, setPagination]);
+
   const createSupplier = async (data: CreateSupplierInput) => {
     if (!currentStore?.id) return;
     const res = await requestWrapper(() =>
@@ -66,6 +68,7 @@ export function useSupplier() {
     }
     return false;
   };
+
   const deleteSupplier = async (supplierId: string) => {
     if (!currentStore?.id) return;
     const res = await requestWrapper(() =>
@@ -76,6 +79,7 @@ export function useSupplier() {
       getSuppliers();
     }
   };
+
   const updateSupplier = async (data: UpdateSupplierInput, supplierId: string) => {
     if (!currentStore?.id) return;
     const res = await requestWrapper(() =>
@@ -89,6 +93,7 @@ export function useSupplier() {
     }
     return false;
   };
+
   const getSupplier = async (supplierId: string) => {
     if (!currentStore?.id) return;
     const res = await requestWrapper(() =>
@@ -114,6 +119,57 @@ export function useSupplier() {
     }
     return false;
   };
+
+  const downloadSupplierTemplate = useCallback(async () => {
+    await requestWrapper(async () => {
+      const res = await api.get('/supplier/excel/example', {
+        responseType: 'blob',
+      });
+
+      exportExcel(
+        res,
+        `mau_nhap_danh_sach_nha_cung_cap_${new Date().toLocaleDateString()}.xlsx`,
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      );
+    });
+  }, [requestWrapper]);
+
+  const importSuppliersExcel = useCallback(
+    async (storeId: string, file: File) => {
+      const formData = new FormData();
+      formData.append('excel_supplier', file); // MUST match docs
+
+      const res = await requestWrapper(() =>
+        api.post(`/supplier/excel/import/${storeId}`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        })
+      );
+
+      if (res?.data.success) {
+        showSuccessToast('Nhập danh sách thành công!' as string);
+        getSuppliers();
+      }
+    },
+    [requestWrapper, getSuppliers, showSuccessToast]
+  );
+
+  const exportSuppliersExcel = useCallback(
+    async (storeId: string) => {
+      await requestWrapper(async () => {
+        const res = await api.get(`/supplier/excel/export/${storeId}`, {
+          responseType: 'blob',
+        });
+
+        exportExcel(
+          res,
+          `danh_sach_nha_cung_cap_${new Date().toLocaleDateString()}.xlsx`,
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        );
+      });
+    },
+    [requestWrapper]
+  );
+
   return {
     loading,
     suppliers,
@@ -137,5 +193,8 @@ export function useSupplier() {
     buildParams,
     setSortBy,
     setSort,
+    downloadSupplierTemplate,
+    importSuppliersExcel,
+    exportSuppliersExcel,
   };
 }

@@ -1,19 +1,19 @@
 'use client';
-import { Plus } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
 import { Button, Modal, Table } from '@repo/design-system/components/ui';
-import { formatDate } from '@repo/utils';
-import FormCreateCustomer from '../components/form-create-customer';
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
-import { useAtomValue } from 'jotai';
-import { useCustomer } from '../../../../../main/src/hooks/customers/use-customer';
 import { Customer } from '@repo/design-system/types';
+import { formatDate } from '@repo/utils';
+import { useAtomValue } from 'jotai';
+import { Plus } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useCustomer } from '../../../../../main/src/hooks/customers/use-customer';
+import FormCreateCustomer from '../components/form-create-customer';
 
 import DashboardViewLayout from '../../../../../main/src/layouts/dashboard-view-layout';
-import { DisplayField } from '../components/display-field';
-import { DataActionBar } from '../components/data-action-bar';
 import { ActionButtons } from '../components/action-buttons';
+import { DataActionBar } from '../components/data-action-bar';
 import { DeleteConfirmationModal } from '../components/delete-confirmation-modal';
+import { DisplayField } from '../components/display-field';
 
 const tableHeaders = [
   'Tên Khách Hàng',
@@ -47,6 +47,9 @@ export function ManageCustomersView() {
     paginationParams,
     filters,
     loading,
+    downloadCustomerTemplate,
+    exportCustomersExcel,
+    importCustomersExcel,
   } = useCustomer();
 
   useEffect(() => {
@@ -77,8 +80,17 @@ export function ManageCustomersView() {
               product_status: newFilters.status,
             }));
           }}
-          onSearch={(value) => {
-            setFilters((prev) => ({ ...prev, q: value }));
+          onDownloadTemplate={() => {
+            if (!currentStore) return;
+            downloadCustomerTemplate(currentStore.id);
+          }}
+          onExport={() => {
+            if (!currentStore) return;
+            exportCustomersExcel(currentStore.id);
+          }}
+          onUpload={(file) => {
+            if (!currentStore) return;
+            importCustomersExcel(currentStore.id, file);
           }}
         />
 
@@ -109,7 +121,7 @@ export function ManageCustomersView() {
             return (
               <>
                 <td className="px-4 py-3 text-sm text-gray-700">{customer.name}</td>
-                <td className="px-4 py-3 text-xs text-gray-700">
+                <td className="px-4 py-3 text-sm text-gray-700">
                   {customer.phone || (
                     <span className="text-sm text-gray-500 italic">Không có dữ liệu</span>
                   )}

@@ -1,19 +1,20 @@
-import { Customer } from '@repo/design-system/types';
-import { useState } from 'react';
-import { useRequestHelper } from '../use-request-helper';
-import api from '../../../../main/src/libs/axios';
-import { useAtomValue } from 'jotai';
+import { zodResolver } from '@hookform/resolvers/zod';
+import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
+import { Customer } from '@repo/design-system/types';
+import { useAtomValue } from 'jotai';
+import { useCallback, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import api from '../../../../main/src/libs/axios';
 import {
   CreateCustomerInput,
   CreateCustomerSchema,
   UpdateCustomerInput,
   UpdateCustomerSchema,
 } from '../../../../main/src/schemas/customer/customer.schema';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import useToast from '@repo/design-system/hooks/client/use-toast-notification';
+import { exportExcel } from '../../utils/export-excel/export';
 import { FilterValue, useQueryParams } from '../query/use-query-params';
+import { useRequestHelper } from '../use-request-helper';
 
 interface CustomerFilters extends Record<string, FilterValue> {
   q?: string;
@@ -49,7 +50,7 @@ export function useCustomer() {
   });
 
   // GET CUSTOMERS
-  const getCustomers = async () => {
+  const getCustomers = useCallback(async () => {
     const res = await requestWrapper(() =>
       api.get(`/stores/${currentStore?.id}/customers?${buildParams().toString()}`)
     );
@@ -57,7 +58,7 @@ export function useCustomer() {
       setCustomers(res?.data?.data);
       setPagination(res?.data?.pagination);
     }
-  };
+  }, [buildParams, currentStore?.id, requestWrapper, setPagination]);
 
   // ✅ CREATE CUSTOMER (with duplicate phone check)
   const createCustomer = async (data: CreateCustomerInput) => {
@@ -106,6 +107,63 @@ export function useCustomer() {
     }
   };
 
+  // excel template api call
+  const downloadCustomerTemplate = useCallback(
+    async (storeId: string) => {
+      await requestWrapper(async () => {
+        const res = await api.get(`/stores/${storeId}/customers/excel/example`, {
+          responseType: 'blob',
+        });
+
+        exportExcel(
+          res,
+          `mau_danh_sach_khach_hang${new Date().toLocaleDateString()}.xlsx`,
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        );
+      });
+    },
+    [requestWrapper]
+  );
+
+  //export customer excel
+  const exportCustomersExcel = useCallback(
+    async (storeId: string) => {
+      await requestWrapper(async () => {
+        const res = await api.get(`/stores/${storeId}/customers/excel/export`, {
+          responseType: 'blob',
+        });
+
+        exportExcel(
+          res,
+          `danh_sach_khach_hang${new Date().toLocaleDateString()}.xlsx`,
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        );
+      });
+    },
+    [requestWrapper]
+  );
+
+  const importCustomersExcel = useCallback(
+    async (storeId: string, file: File) => {
+      const formData = new FormData();
+      formData.append('excel_customer', file);
+
+      const res = await requestWrapper(() =>
+        api.post(`/stores/${storeId}/customers/excel/import`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+      );
+
+      if (res?.data.success) {
+        showSuccessToast('Nhập danh sách thành công!' as string);
+        getCustomers();
+      }
+    },
+    [requestWrapper, getCustomers, showSuccessToast]
+  );
+
   return {
     getCustomers,
     createCustomer,
@@ -116,6 +174,9 @@ export function useCustomer() {
     setSortBy,
     setSort,
     setPagination,
+    downloadCustomerTemplate,
+    exportCustomersExcel,
+    importCustomersExcel,
     createCustomerForm,
     updateCustomerForm,
     customers,
