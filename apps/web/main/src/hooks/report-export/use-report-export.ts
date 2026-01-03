@@ -12,7 +12,18 @@ export function useReportExport() {
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     );
   };
+  const exportReportCustomer = async () => {
+    const res = await api.get(`/report/excel/customers`, {
+      responseType: 'blob',
+    });
+    exportExcel(
+      res,
+      `bao_cao_khach_hang_${new Date().toLocaleDateString()}.xlsx`,
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+  };
   return {
     exportReportSuppliers,
+    exportReportCustomer,
   };
 }

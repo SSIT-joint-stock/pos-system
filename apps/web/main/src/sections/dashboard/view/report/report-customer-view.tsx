@@ -62,7 +62,7 @@ export function ReportCustomerView() {
     setPaginationParams: setPaginationParamsOrders,
   } = useOrders();
 
-  const { exportReportSuppliers } = useReportExport();
+  const { exportReportCustomer } = useReportExport();
 
   useEffect(() => {
     getReportCustomers();
@@ -102,7 +102,7 @@ export function ReportCustomerView() {
           onSearch={(value) => {
             setFilters((prev) => ({ ...prev, q: value }));
           }}
-          onExport={exportReportSuppliers}
+          onExport={exportReportCustomer}
           isHaveUpload={false}
           placeholderSearch="Nhập tên, email, số điện thoại của khách hàng..."
         />
