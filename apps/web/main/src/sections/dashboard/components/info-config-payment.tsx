@@ -1,22 +1,30 @@
 'use client';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button, Input, Select } from '@repo/design-system/components/ui';
+import useToast from '@repo/design-system/hooks/client/use-toast-notification';
+import { currentStoreAtom } from '@repo/design-system/stores/auth';
+import { BankInfo, CurrentBankInfo } from '@repo/design-system/types';
+import { ApiResponse } from '@repo/types/response';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { QrCode as QrCodeIC } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import api from '../../../libs/axios';
 import {
   ConfigInfoPayment,
   ConfigInfoPaymentInput,
 } from '../../../schemas/info-payment/info-payment.schema';
-import api from '../../../libs/axios';
-import useToast from '@repo/design-system/hooks/client/use-toast-notification';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Input, Select } from '@repo/design-system/components/ui';
-import { BankInfo, CurrentBankInfo } from '@repo/design-system/types';
-import { ApiResponse } from '@repo/types/response';
-import { QrCode as QrCodeIC } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import { currentStoreAtom } from '@repo/design-system/stores/auth';
-import { useAtomValue, useSetAtom } from 'jotai';
 import QrCode from './qr-code';
 
-export function InfoConfigPayment({ tab }: { tab: string }) {
+export function InfoConfigPayment({
+  tab,
+  isModal = false,
+  setIsOpenSettingBank,
+}: {
+  tab?: string;
+  isModal?: boolean;
+  setIsOpenSettingBank?: (isOpen: boolean) => void;
+}) {
   const [banks, setBanks] = useState<BankInfo[]>([]);
   const [currentBank, setCurrentBank] = useState<CurrentBankInfo | null>(null);
   const [isOpenQrPayment, setIsOpenQrPayment] = useState<boolean>(false);
@@ -45,18 +53,19 @@ export function InfoConfigPayment({ tab }: { tab: string }) {
         ...currentStore,
         qrPayment: res.data?.data?.bank_qr_image_url as string,
       });
+      setIsOpenSettingBank?.(false);
       setLoading(false);
     }
     setLoading(false);
   };
 
   useEffect(() => {
-    if (tab === 'payment') {
+    if (tab === 'payment' || isModal === true) {
       api.get<ApiResponse<{ data: BankInfo[] }>>('/common/banks').then((res) => {
         setBanks(res?.data?.data?.data || []);
       });
     }
-  }, [tab]);
+  }, [tab, isModal]);
   useEffect(() => {
     if (!currentStore?.id) return;
     api
@@ -82,17 +91,22 @@ export function InfoConfigPayment({ tab }: { tab: string }) {
   return (
     <>
       <div className="space-y-12">
-        <div className="flex items-center gap-6">
-          <h1 className="text-3xl font-semibold text-pos-blue-500 border-b-2 pb-1 border-b-pos-blue-500 w-fit ">
-            Thiết lập thanh toán
-          </h1>
-          <button
-            onClick={() => setIsOpenQrPayment(true)}
-            className="border border-gray-300 cursor-pointer  p-2 rounded-md hover:bg-gray-50 transition-colors duration-200"
-          >
-            <QrCodeIC size={22} />
-          </button>
-        </div>
+        {tab === 'payment' && (
+          <div className="flex items-center gap-6">
+            <h1
+              className={`text-3xl font-semibold text-pos-blue-500 border-b-2 pb-1 border-b-pos-blue-500 w-fit `}
+            >
+              Thiết lập thanh toán
+            </h1>
+            <button
+              onClick={() => setIsOpenQrPayment(true)}
+              className="border border-gray-300 cursor-pointer  p-2 rounded-md hover:bg-gray-50 transition-colors duration-200"
+            >
+              <QrCodeIC size={22} />
+            </button>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit(handleConfigInfo)} className="w-full space-y-6">
           <div className="flex items-center gap-3 w-full ">
             <Controller
@@ -121,6 +135,7 @@ export function InfoConfigPayment({ tab }: { tab: string }) {
                     }
                     label="Ngân hàng"
                     radius="sm"
+                    size={isModal ? 'sm' : 'md'}
                     position="bottom"
                   />
                 );
@@ -129,6 +144,7 @@ export function InfoConfigPayment({ tab }: { tab: string }) {
 
             <Input
               radius="sm"
+              size={isModal ? 'sm' : 'md'}
               {...register('bank_name')}
               error={errors.bank_name?.message}
               disabled
@@ -142,6 +158,7 @@ export function InfoConfigPayment({ tab }: { tab: string }) {
               {...register('bank_account_number')}
               error={errors.bank_account_number?.message}
               radius="sm"
+              size={isModal ? 'sm' : 'md'}
               className="flex-1"
               label="Số tài khoản"
               placeholder="Nhập số tài khoản"
@@ -154,6 +171,7 @@ export function InfoConfigPayment({ tab }: { tab: string }) {
               }}
               error={errors.bank_account_name?.message}
               radius="sm"
+              size={isModal ? 'sm' : 'md'}
               className="flex-1 "
               label="Tên người thụ hưởng"
               placeholder="Nhập người thụ hưởng"
@@ -163,8 +181,9 @@ export function InfoConfigPayment({ tab }: { tab: string }) {
             <Button
               type="submit"
               title={loading ? 'Đang cập nhật' : 'Cập nhật'}
-              disabled={loading}
-              size="sm"
+              size={isModal ? 'sm' : 'md'}
+              radius="sm"
+              loading={loading}
             />
           </div>
         </form>
