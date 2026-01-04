@@ -157,7 +157,7 @@ export function ReportCustomerView() {
               </td>
               <td className={`px-4 py-3 text-sm font-semibold `}>
                 <span
-                  className={`${report.total_unpaid_amount < 0 ? 'text-red-600' : 'tex-pos-blue-500'}`}
+                  className={`${report.total_unpaid_amount < 0 && 'text-red-600'} ${report.total_unpaid_amount > 0 && 'text-pos-blue-500'}`}
                 >
                   {formatCurrency(report.total_unpaid_amount).replace('-', '')}
                 </span>
