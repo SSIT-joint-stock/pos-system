@@ -189,7 +189,6 @@ export function ReportSuppliersView() {
           renderRow={(selected) => (
             <>
               <Tooltip label={`Xem chi tiết ${selected.order_number}`}>
-                {' '}
                 <td
                   onClick={() =>
                     router.push(
