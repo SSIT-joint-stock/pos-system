@@ -16,7 +16,11 @@ export interface PurchaseOrderItem {
 
 export interface Supplier {
   name: string;
+  tax_code: string;
+  email: string;
   code: string;
+  phone: string;
+  address: string;
 }
 
 export interface Creator {

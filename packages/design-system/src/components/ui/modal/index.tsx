@@ -1,6 +1,6 @@
 'use client';
-import * as React from 'react';
 import { Modal as MantineModal } from '@mantine/core';
+import * as React from 'react';
 export type SizeModal =
   | 'xs'
   | 'sm'
@@ -10,6 +10,7 @@ export type SizeModal =
   | 'full'
   | 'content'
   | '46%'
+  | '60%'
   | '70%'
   | '80%'
   | '90%'

@@ -69,7 +69,7 @@ export default function MenuSidebar({
           path: `/dashboard/store/${currentStore?.id}/purchase-orders`,
         },
         {
-          title: 'Phiếu xuất hàng',
+          title: 'Phiếu trả hàng nhập',
           path: `/dashboard/store/${currentStore?.id}/outbound-orders`,
         },
       ],

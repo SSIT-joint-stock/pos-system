@@ -131,6 +131,18 @@ export function usePurchase() {
     },
     [requestWrapper, buildParams, setPagination]
   );
+
+  const getPurchaseOrderByNumberCode = useCallback(
+    async (numberCode: string) => {
+      const res = await requestWrapper(() =>
+        api.get<ApiResponse>(`/purchase-order/order-number/${numberCode}`)
+      );
+      if (res?.data.success) {
+        setPurchaseOrder(res?.data?.data as PurchaseOrder);
+      }
+    },
+    [requestWrapper, setPurchaseOrder]
+  );
   // EXCEL
   const exportPurchaseOrdersExcel = useCallback(async () => {
     await requestWrapper(async () => {
@@ -183,6 +195,7 @@ export function usePurchase() {
     getPurchaseOrders,
     getPurchaseOrder,
     getPurchasesBySupplier,
+    getPurchaseOrderByNumberCode,
     //export, template
     exportPurchaseOrdersExcel,
     downloadPurchaseOrderTemplate,

@@ -8,11 +8,12 @@ interface UploadMenuProps {
   onOpen: () => void;
   onFileSelect: (file: File) => void;
   onDownloadTemplate: () => void;
+  onExport?: () => void;
   isOpen: boolean;
   loading?: boolean;
   menuRef: React.RefObject<HTMLDivElement>;
   isHaveUpload?: boolean;
-  onExport?: () => void;
+  isHaveExport?: boolean;
 }
 
 export function UploadMenu({
@@ -20,6 +21,7 @@ export function UploadMenu({
   loading = false,
   menuRef,
   isHaveUpload = true,
+  isHaveExport = true,
   onClose,
   onOpen,
   onFileSelect,
@@ -80,15 +82,17 @@ export function UploadMenu({
         </div>
       )}
 
-      <button
-        onClick={() => {
-          onExport?.();
-        }}
-        className="bg-white border text-nowrap border-gray-200 rounded-md flex items-center gap-2 py-2 px-4  cursor-pointer hover:opacity-80 transition-opacity duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        <Download size={16} />
-        <span className="text-gray-900 font-medium text-sm"> Xuất dữ liệu</span>
-      </button>
+      {isHaveExport && (
+        <button
+          onClick={() => {
+            onExport?.();
+          }}
+          className="bg-white border text-nowrap border-gray-200 rounded-md flex items-center gap-2 py-2 px-4  cursor-pointer hover:opacity-80 transition-opacity duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <Download size={16} />
+          <span className="text-gray-900 font-medium text-sm"> Xuất dữ liệu</span>
+        </button>
+      )}
     </>
   );
 }
