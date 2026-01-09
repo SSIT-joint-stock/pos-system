@@ -1,6 +1,11 @@
 import { useCallback, useState } from "react";
 import api from "../../../../main/src/libs/axios";
 import { useRequestHelper } from "../use-request-helper";
+import {
+  AddMemberByEmailSchema,
+  CreateMemberSchema,
+  UpdateMemberRoleSchema,
+} from "../../../../main/src/schemas/store-member/store-member.schema";
 
 export function useStoreMember(storeId?: string) {
   const { requestWrapper, loading } = useRequestHelper();
@@ -22,6 +27,7 @@ export function useStoreMember(storeId?: string) {
   const addMemberByEmail = useCallback(
     async (email: string) => {
       if (!storeId) return;
+      AddMemberByEmailSchema.parse({ email });
       return requestWrapper(() =>
         api.post(`/store-member/add-member/${storeId}`, { email })
       );
@@ -38,6 +44,7 @@ export function useStoreMember(storeId?: string) {
       confirmPassword: string;
     }) => {
       if (!storeId) return;
+      CreateMemberSchema.parse(payload);
       return requestWrapper(() =>
         api.post(`/store-member/${storeId}/members/create`, payload)
       );
@@ -63,6 +70,7 @@ export function useStoreMember(storeId?: string) {
   const updateMemberRole = useCallback(
     async (memberUserId: string, role: string) => {
       if (!storeId) return;
+      UpdateMemberRoleSchema.parse({ role });
       return requestWrapper(() =>
         api.patch(`/store-member/${storeId}/members/${memberUserId}/role`, {
           role,
