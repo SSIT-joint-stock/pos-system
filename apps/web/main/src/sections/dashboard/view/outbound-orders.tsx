@@ -1,11 +1,14 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
-import { NumberInput, Textarea, Tooltip } from '@mantine/core';
+import { Menu, NumberInput, Textarea, Tooltip } from '@mantine/core';
 import { Button, Modal, Table } from '@repo/design-system/components/ui';
 import { Variant } from '@repo/design-system/types';
 import { ChevronDown } from 'lucide-react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { Controller, useFieldArray } from 'react-hook-form';
 import { PAYMENT_STATUS_MAP } from '../../../constants/status';
+import { usePurchaseReturn } from '../../../hooks/purchase-return/use-purchase-return';
 import { usePurchase } from '../../../hooks/purchase/use-purchase';
 import { DataActionBar } from '../../../sections/dashboard/components/data-action-bar';
 import Header from '../../../sections/dashboard/components/purchase-order/header';
@@ -25,18 +28,66 @@ const tableHeadersPurchaseOrder = [
 
 export function OutboundOrders() {
   const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
 
   const search = searchParams?.get('purchase_order_id');
   const [selectedVariants, setSelectedVariants] = useState<Variant[]>([] as Variant[]);
   const [isOpenModalSelectPurchase, setIsOpenModalSelectPurchase] = useState<boolean>(false);
+  const [isOpenSearch, setIsOpenSearch] = useState<boolean>(false);
 
-  const { getPurchaseOrderByNumberCode, loading, purchaseOrder } = usePurchase();
+  const { getPurchaseOrderByNumberCode, setPurchaseOrder, loading, purchaseOrder } = usePurchase();
+  const {
+    createPurchaseReturnWithPO,
+    formPurchase: { control, watch, register, reset, handleSubmit },
+    loading: loadingCreate,
+  } = usePurchaseReturn();
+  const { fields, append } = useFieldArray({
+    control,
+    name: 'items',
+  });
+  const watchedItems = watch('items');
+  const itemsLength = watchedItems.length;
 
   useEffect(() => {
     if (!search) return;
     getPurchaseOrderByNumberCode(search);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search]);
+
+  useEffect(() => {
+    if (!purchaseOrder) return;
+    reset({
+      items: [],
+    });
+    purchaseOrder.items.forEach((item) => {
+      append({
+        purchase_order_item_id: item.id,
+        quantity: 0,
+        unit_cost: Number(item.unit_cost),
+        reason: null,
+      });
+    });
+    // purchaseOrder.items
+    //   .filter((item) => Number(item.quantity) - Number(item.quantity_returned) > 0)
+    //   .forEach((item) => {
+    //     append({
+    //       purchase_order_item_id: item.id,
+    //       quantity: 0,
+    //       unit_cost: Number(item.unit_cost),
+    //       reason: null,
+    //     });
+    //   });
+  }, [purchaseOrder]);
+
+  const total = watchedItems.reduce(
+    (prev, current) => prev + current.quantity * current.unit_cost,
+    0
+  );
+  const handleSuccess = () => {
+    setPurchaseOrder(null);
+    reset();
+    router?.replace(pathname || '/');
+  };
 
   return (
     <>
@@ -45,10 +96,13 @@ export function OutboundOrders() {
         <div className="flex-1 flex flex-col  overflow-hidden">
           {/* Header */}
           <Header
-            setSelectedVariants={setSelectedVariants}
+            isOpenSearch={isOpenSearch}
             selectedVariants={selectedVariants}
+            purchaseOrder={purchaseOrder || null}
+            setPurchaseOrder={setPurchaseOrder}
+            setIsOpenSearch={setIsOpenSearch}
+            setSelectedVariants={setSelectedVariants}
             setIsOpenModalSelectPurchase={setIsOpenModalSelectPurchase}
-            purchaseOrder={purchaseOrder}
           />
           {/* Content Area */}
           <div className="flex-1 bg-white rounded-lg shadow   h-full p-2">
@@ -57,87 +111,182 @@ export function OutboundOrders() {
                 <h2 className="text-xl font-semibold text-gray-500 text-center ">
                   Bạn chưa thêm sản phẩm nào
                 </h2>
-                <Button radius="sm" title="Tạo đơn trả hàng nhập" size="sm" />
+                <Menu shadow="lg" width={300} withinPortal={false} position="bottom" offset={5}>
+                  <Menu.Target>
+                    <div>
+                      <Button
+                        radius="sm"
+                        title="Tạo đơn trả hàng nhập"
+                        size="md"
+                        rightSection={<ChevronDown size={16} />}
+                      />
+                    </div>
+                  </Menu.Target>
+
+                  <Menu.Dropdown>
+                    <Menu.Item
+                      onClick={() => setIsOpenSearch(true)}
+                      className="hover:bg-gray-50 rounded-md p-2 text-sm font-medium text-gray-900 cursor-pointer"
+                    >
+                      Trả hàng không theo đơn nhập
+                    </Menu.Item>
+                    <Menu.Item
+                      onClick={() => setIsOpenModalSelectPurchase(true)}
+                      className="hover:bg-gray-50 rounded-md p-2 text-sm font-medium text-gray-900  cursor-pointer"
+                    >
+                      Trả hàng theo đơn nhập
+                    </Menu.Item>
+                  </Menu.Dropdown>
+                </Menu>
               </div>
             ) : (
               <Table
                 hasPadding={false}
                 isLoading={loading}
                 tableHeaders={tableHeaders}
-                data={purchaseOrder?.items || []}
+                data={fields || []}
                 hasPagination={false}
                 hasMarginTop={false}
-                renderRow={(data) => (
-                  <>
-                    <Tooltip label={data?.item_name} position="bottom">
-                      <td className="px-4 py-2.5 text-sm font-semibold text-blue-600 ">
-                        {truncateText(data?.item_name, 30) || 'N/A'}
+                renderRow={(data, index) => {
+                  const poItem = purchaseOrder.items[index];
+                  const item = watchedItems[index];
+                  const baseUnitCost = Number(poItem.unit_cost || 0);
+                  const taxPerUnit =
+                    poItem.tax_amount && poItem.quantity
+                      ? Number(poItem.tax_amount) / Number(poItem.quantity)
+                      : 0;
+
+                  const discountPerUnit =
+                    poItem.discount_amount && poItem.quantity
+                      ? Number(poItem.discount_amount) / Number(poItem.quantity)
+                      : 0;
+
+                  const realUnitCost = baseUnitCost + taxPerUnit - discountPerUnit;
+                  return (
+                    <>
+                      <Tooltip label={poItem?.item_name} position="bottom">
+                        <td className="px-4 py-2.5 text-sm font-semibold text-blue-600 ">
+                          {truncateText(poItem?.item_name, 30) || 'N/A'}
+                        </td>
+                      </Tooltip>
+                      <td className="px-4 py-2.5 text-sm font-semibold ">
+                        {poItem?.unit || 'N/A'}
                       </td>
-                    </Tooltip>
-                    <td className="px-4 py-2.5 text-sm font-semibold ">{data?.unit || 'N/A'}</td>
-                    <td className="px-4 py-2.5  ">
-                      <div className="flex items-center gap-2">
-                        <NumberInput
-                          size="sm"
-                          radius="sm"
-                          min={0}
-                          max={Number(data?.quantity)}
-                          placeholder="Số lượng"
-                          className="w-32"
+                      <td className="px-4 py-2.5  ">
+                        <div className="flex items-center gap-2">
+                          <Controller
+                            name={`items.${index}.quantity`}
+                            control={control}
+                            rules={{
+                              min: 0,
+                              max: poItem.quantity,
+                            }}
+                            render={({ field }) => (
+                              <NumberInput
+                                value={field.value ?? ''}
+                                onChange={(val) => {
+                                  // Cho phép rỗng khi user xoá
+                                  if (val === '' || val === null) {
+                                    field.onChange(null);
+                                    return;
+                                  }
+
+                                  const num = Number(val);
+                                  if (num < 0) return;
+                                  if (num > Number(poItem.quantity)) {
+                                    field.onChange(poItem.quantity);
+                                    return;
+                                  }
+
+                                  field.onChange(num);
+                                }}
+                                onBlur={() => {
+                                  // Khi blur mà rỗng → set về 0
+                                  if (field.value === null || field.value === undefined) {
+                                    field.onChange(0);
+                                  }
+                                }}
+                                min={0}
+                                max={Number(poItem.quantity)}
+                                clampBehavior="strict"
+                                allowDecimal={false}
+                                hideControls
+                                placeholder="0"
+                                size="sm"
+                                radius="sm"
+                                className="w-32"
+                              />
+                            )}
+                          />
+                          <p className="text-sm ">
+                            {item?.quantity}/
+                            {Number(poItem?.quantity) - Number(poItem?.quantity_returned || 0)}{' '}
+                            {poItem.unit}
+                          </p>
+                        </div>
+                      </td>
+                      <td className="px-4 py-2.5 text-sm font-semibold  hover:bg-gray-200 transition-colors duration-200 cursor-pointer rounded-md relative group">
+                        <span className="flex items-center gap-2">
+                          {formatCurrency(realUnitCost) || 'N/A'}
+                          <ChevronDown size={16} />
+                        </span>
+                        <div className="absolute top-full mt-1 left-0 w-sm bg-white z-10 shadow rounded-md p-4 space-y-3 hidden group-hover:block">
+                          <div className="flex items-center justify-between">
+                            <span>Giá nhập gốc</span>
+                            <span>{formatCurrency(baseUnitCost)}</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span>Thuế / đơn vị</span>
+                            <span>{formatCurrency(taxPerUnit)}</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span>Chiết khấu / đơn vị</span>
+                            <span>- {formatCurrency(discountPerUnit)}</span>
+                          </div>
+                          <div className="border-t pt-2 flex items-center justify-between font-semibold border-t-gray-300">
+                            <span>Đơn giá thực tế</span>
+                            <span>{formatCurrency(realUnitCost)}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-2.5 text-sm font-semibold  ">
+                        <Controller
+                          name={`items.${index}.reason`}
+                          control={control}
+                          render={({ field }) => (
+                            <Textarea
+                              placeholder="Lý do trả sản phẩm ..."
+                              onChange={(value) => {
+                                field.onChange(value);
+                              }}
+                              className="text-sm text-gray-500 placeholder:text-sm placeholder:font-medium font-medium"
+                            />
+                          )}
                         />
-                        <p className="text-sm ">
-                          0/{data?.quantity} {data.unit}
-                        </p>
-                      </div>
-                    </td>
-                    <td className="px-4 py-2.5 text-sm font-semibold  hover:bg-gray-200 transition-colors duration-200 cursor-pointer rounded-md relative group">
-                      <span className="flex items-center gap-2">
-                        {formatCurrency(data?.total) || 'N/A'}
-                        <ChevronDown size={16} />
-                      </span>
-                      <div className="absolute top-full mt-1 left-0 w-sm  h-fit bg-white z-10 shadow rounded-md p-4 space-y-3 hidden group-hover:block ">
-                        <div className="flex items-center justify-between">
-                          <span>Đơn giá nhập gốc </span>
-                          <span className="text-pos-blue-500">
-                            {formatCurrency(data?.unit_cost)}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span>Đơn giá thuế </span>
-                          <span>{formatCurrency(data?.tax_amount)}</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span>Đơn giá chiết khấu </span>
-                          <span>{formatCurrency(data?.discount_amount)}</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-2.5 text-sm font-semibold  ">
-                      <Textarea
-                        placeholder="Lý do trả sản phẩm ..."
-                        className="text-sm text-gray-500 placeholder:text-sm placeholder:font-medium font-medium"
-                      />
-                    </td>
-                    <td className="px-4 py-2.5 text-sm font-semibold  ">
-                      {formatCurrency(data?.total) || 'N/A'}
-                    </td>
-                    {/* <td className="px-4 py-2.5   ">
-                      <button
-                        disabled
-                        className="disabled:text-gray-500 disabled:cursor-not-allowed"
-                      >
-                        <X size={18} />
-                      </button>
-                    </td> */}
-                  </>
-                )}
+                      </td>
+                      <td className="px-4 py-2.5 text-sm font-semibold  ">
+                        {formatCurrency(Number(item?.quantity) * Number(realUnitCost))}
+                      </td>
+                    </>
+                  );
+                }}
               />
             )}
           </div>
         </div>
 
         {/* Sidebar - Right Side */}
-        <Sidebar purchaseOrder={purchaseOrder} />
+        <Sidebar
+          purchaseOrder={purchaseOrder}
+          loadingCreate={loadingCreate}
+          control={control}
+          total={total}
+          itemsLength={itemsLength}
+          handleSuccess={handleSuccess}
+          createPurchaseReturnWithPO={createPurchaseReturnWithPO}
+          register={register}
+          handleSubmit={handleSubmit}
+        />
       </div>
       <Modal
         title={<p className="text-xl font-semibold">Chọn đơn nhập hàng để trả</p>}

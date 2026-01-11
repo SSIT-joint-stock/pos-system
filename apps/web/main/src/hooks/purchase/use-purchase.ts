@@ -43,7 +43,7 @@ export function usePurchase() {
   });
 
   const [purchaseOrders, setPurchaseOrders] = useState<PurchaseOrder[]>([]);
-  const [purchaseOrder, setPurchaseOrder] = useState<PurchaseOrder>();
+  const [purchaseOrder, setPurchaseOrder] = useState<PurchaseOrder | null>(null);
   const [totalPurchase, setTotalPurchase] = useState<string>('');
   const formPurchase = useForm<CreatePurchaseOrder>({
     resolver: zodResolver(CreatePurchaseOrderSchema),
@@ -189,8 +189,10 @@ export function usePurchase() {
     setPaginationParams,
     setFilters,
     setSortBy,
+
     setPagination,
     setSort,
+    setPurchaseOrder,
     createPurchaseOrder,
     getPurchaseOrders,
     getPurchaseOrder,

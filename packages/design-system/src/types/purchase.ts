@@ -1,10 +1,12 @@
 export interface PurchaseOrderItem {
+  id: string;
   product_id: string;
   item_name: string;
   unit: string;
   applied_factor: string;
   total_base_qty: string;
   quantity: string;
+  quantity_returned: string;
   unit_cost: string;
   total: string;
   notes: string | null;

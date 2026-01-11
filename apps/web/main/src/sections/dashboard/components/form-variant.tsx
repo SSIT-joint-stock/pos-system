@@ -271,6 +271,7 @@ export function FormVariant({
                               }
                             }}
                             loading={loading}
+                            disabled={delta === 0}
                             title="Lưu"
                             type="button"
                             radius="sm"

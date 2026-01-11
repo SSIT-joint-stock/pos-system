@@ -18,16 +18,22 @@ export default function Header({
   setSelectedVariants,
   append,
   setIsOpenModalSelectPurchase,
+  setIsOpenSearch,
+  setPurchaseOrder,
+  isOpenSearch,
   selectedVariants,
   fields,
   purchaseOrder,
 }: {
   setSelectedVariants?: React.Dispatch<React.SetStateAction<Variant[]>>;
+  setPurchaseOrder?: (purchaseOrder: PurchaseOrder | null) => void;
   append?: (selectedVariant: CreatePurchaseOrderItem) => void;
   setIsOpenModalSelectPurchase?: (isOpen: boolean) => void;
+  setIsOpenSearch?: (isOpen: boolean) => void;
+  isOpenSearch?: boolean;
   selectedVariants?: Variant[];
   fields?: CreatePurchaseOrderItem[];
-  purchaseOrder?: PurchaseOrder;
+  purchaseOrder?: PurchaseOrder | null;
 }) {
   // HOOK
   const ref = useRef<HTMLDivElement>(null);
@@ -57,7 +63,10 @@ export default function Header({
   }, 500);
 
   // FUNCTION
-  useClickOutside(ref, () => setIsFocusInputSearch(false));
+  useClickOutside(ref, () => {
+    setIsFocusInputSearch(false);
+    setIsOpenSearch?.(false);
+  });
   useEffect(() => {
     getVariantsInStore();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -71,7 +80,10 @@ export default function Header({
         >
           <div className="flex items-center gap-3">
             <button
-              onClick={() => router.back()}
+              onClick={() => {
+                router.back();
+                setPurchaseOrder?.(null);
+              }}
               className="w-9 h-9 flex items-center hover:bg-gray-50 hover:text-gray-900 transition-colors duration-200 cursor-pointer justify-center border border-gray-200 bg-white text-gray-500 rounded-md"
             >
               <MoveLeft size={18} />
@@ -99,7 +111,11 @@ export default function Header({
                 onChange={(e) => {
                   debouncedSearch(e.target.value);
                 }}
-                onFocus={() => setIsFocusInputSearch(true)}
+                onFocus={() => {
+                  setIsFocusInputSearch(true);
+                  setIsOpenSearch?.(true);
+                }}
+                autoFocus={isFocusInputSearch || isOpenSearch}
                 className="flex-1"
                 placeholder="Tìm kiếm theo tên, mã SKU, mã vạch Barcode... "
                 rightSection={
@@ -128,7 +144,7 @@ export default function Header({
               />
               <Button title="Mở rộng" variant="outline" size="sm" radius="sm" />
               <div
-                className={`absolute top-full mt-1 left-0 w-full border border-gray-200  bg-white z-50 shadow-md rounded-md  p-3   ${isFocusInputSearch ? 'opacity-100 visible' : 'opacity-0 invisible'}   transition-all max-h-[400px] overflow-x-scroll`}
+                className={`absolute top-full mt-1 left-0 w-full border border-gray-200  bg-white z-50 shadow-md rounded-md  p-3   ${isFocusInputSearch || isOpenSearch ? 'opacity-100 visible' : 'opacity-0 invisible'}   transition-all max-h-[400px] overflow-x-scroll`}
               >
                 {pathName?.includes('outbound-orders') && !selectedVariants?.length && (
                   <button
