@@ -31,5 +31,17 @@ export const PurchaseReturnWithPurchaseOrderSchema = z.object({
   items: z.array(PurchaseReturnItemSchema).optional().default([]),
 });
 
+/**
+ * Create Purchase return without purchase order
+ */
+export const PurchaseReturnWithoutPOSchema = z.object({
+  supplier_id: z.string().uuid().nullable(),
+  reason: z.string().optional().nullable(),
+  notes: z.string().optional().nullable(),
+  return_date: z.coerce.date().optional(),
+  items: z.array(PurchaseReturnItemSchema).optional().default([]),
+});
+
 export type PurchaseReturnWithPurchaseOrder = z.infer<typeof PurchaseReturnWithPurchaseOrderSchema>;
+export type PurchaseReturnWithoutPO = z.infer<typeof PurchaseReturnWithoutPOSchema>;
 export type PurchaseReturnItem = z.infer<typeof PurchaseReturnItemSchema>;

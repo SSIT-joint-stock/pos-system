@@ -1,30 +1,22 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client';
-import { Menu, NumberInput, Textarea, Tooltip } from '@mantine/core';
+import { Menu } from '@mantine/core';
 import { Button, Modal, Table } from '@repo/design-system/components/ui';
 import { Variant } from '@repo/design-system/types';
 import { ChevronDown } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Controller, useFieldArray } from 'react-hook-form';
+import { useFieldArray } from 'react-hook-form';
 import { PAYMENT_STATUS_MAP } from '../../../constants/status';
 import { usePurchaseReturn } from '../../../hooks/purchase-return/use-purchase-return';
 import { usePurchase } from '../../../hooks/purchase/use-purchase';
 import { DataActionBar } from '../../../sections/dashboard/components/data-action-bar';
 import Header from '../../../sections/dashboard/components/purchase-order/header';
+import TableWithPo from '../../../sections/dashboard/components/purchase-return/table-with-po';
+import TableWithoutPO from '../../../sections/dashboard/components/purchase-return/table-without-po';
 import { paymentStatusOptions } from '../../../sections/dashboard/view/import-invoices-view';
-import { formatCurrency, formatDate, truncateText } from '../../../utils';
+import { formatCurrency, formatDate } from '../../../utils';
 import { Sidebar } from '../components';
-const tableHeaders = ['Tên sản phẩm', 'Đơn vị', 'Số lượng', 'Đơn giá trả', 'Lý do', 'Thành tiền'];
-const tableHeadersPurchaseOrder = [
-  'Mã đơn nhập',
-  'Ngày tạo',
-  'Nhà cung cấp',
-  'Trạng thái thanh toán',
-  'Số lượng',
-  'Tổng tiền',
-  'Thao tác',
-];
 
 export function OutboundOrders() {
   const searchParams = useSearchParams();
@@ -39,15 +31,37 @@ export function OutboundOrders() {
   const { getPurchaseOrderByNumberCode, setPurchaseOrder, loading, purchaseOrder } = usePurchase();
   const {
     createPurchaseReturnWithPO,
-    formPurchase: { control, watch, register, reset, handleSubmit },
+    createPurchaseReturnWithoutPO,
+    formPurchaseWithPO: { control, watch, register, reset, handleSubmit },
+    formPurchaseWithoutPO: {
+      control: controlWithoutPO,
+      watch: watchWithoutPO,
+      reset: resetWithoutPO,
+      handleSubmit: handleSubmitWithoutPO,
+      formState: { errors: errorsWithoutPO },
+      setValue: setValueWithoutPO,
+    },
     loading: loadingCreate,
   } = usePurchaseReturn();
   const { fields, append } = useFieldArray({
     control,
     name: 'items',
   });
+
+  const {
+    fields: fieldsWithoutPO,
+    append: appendWithoutPO,
+    remove: removeWithoutPO,
+    update: updateWithoutPO,
+  } = useFieldArray({
+    control: controlWithoutPO,
+    name: 'items',
+  });
+
   const watchedItems = watch('items');
+  const watchedItemsWithoutPO = watchWithoutPO('items');
   const itemsLength = watchedItems.length;
+  const itemsLengthWithoutPO = watchedItemsWithoutPO.length;
 
   useEffect(() => {
     if (!search) return;
@@ -83,10 +97,29 @@ export function OutboundOrders() {
     (prev, current) => prev + current.quantity * current.unit_cost,
     0
   );
+  const totalWithoutPO = watchedItemsWithoutPO.reduce(
+    (prev, current) => prev + current.quantity * current.unit_cost,
+    0
+  );
   const handleSuccess = () => {
-    setPurchaseOrder(null);
-    reset();
-    router?.replace(pathname || '/');
+    if (purchaseOrder) {
+      setPurchaseOrder(null);
+      reset({
+        items: [],
+        notes: '',
+        reason: '',
+      });
+      router?.replace(pathname || '/');
+    } else {
+      resetWithoutPO({
+        items: [],
+        notes: '',
+        reason: '',
+        supplier_id: null,
+      });
+      setValueWithoutPO('supplier_id', null);
+      setSelectedVariants([] as Variant[]);
+    }
   };
 
   return (
@@ -103,10 +136,12 @@ export function OutboundOrders() {
             setIsOpenSearch={setIsOpenSearch}
             setSelectedVariants={setSelectedVariants}
             setIsOpenModalSelectPurchase={setIsOpenModalSelectPurchase}
+            fieldsWithoutPO={fieldsWithoutPO}
+            appendPurchaseReturnWithoutPO={appendWithoutPO}
           />
           {/* Content Area */}
           <div className="flex-1 bg-white rounded-lg shadow   h-full p-2">
-            {!purchaseOrder ? (
+            {!purchaseOrder && fieldsWithoutPO.length === 0 && selectedVariants.length === 0 ? (
               <div className="flex flex-col items-center justify-center gap-1.5 h-full">
                 <h2 className="text-xl font-semibold text-gray-500 text-center ">
                   Bạn chưa thêm sản phẩm nào
@@ -125,152 +160,44 @@ export function OutboundOrders() {
 
                   <Menu.Dropdown>
                     <Menu.Item
-                      onClick={() => setIsOpenSearch(true)}
-                      className="hover:bg-gray-50 rounded-md p-2 text-sm font-medium text-gray-900 cursor-pointer"
-                    >
-                      Trả hàng không theo đơn nhập
-                    </Menu.Item>
-                    <Menu.Item
                       onClick={() => setIsOpenModalSelectPurchase(true)}
                       className="hover:bg-gray-50 rounded-md p-2 text-sm font-medium text-gray-900  cursor-pointer"
                     >
                       Trả hàng theo đơn nhập
                     </Menu.Item>
+                    <Menu.Item
+                      onClick={() => setIsOpenSearch(true)}
+                      className="hover:bg-gray-50 rounded-md p-2 text-sm font-medium text-gray-900 cursor-pointer"
+                    >
+                      Trả hàng không theo đơn nhập
+                    </Menu.Item>
                   </Menu.Dropdown>
                 </Menu>
               </div>
             ) : (
-              <Table
-                hasPadding={false}
-                isLoading={loading}
-                tableHeaders={tableHeaders}
-                data={fields || []}
-                hasPagination={false}
-                hasMarginTop={false}
-                renderRow={(data, index) => {
-                  const poItem = purchaseOrder.items[index];
-                  const item = watchedItems[index];
-                  const baseUnitCost = Number(poItem.unit_cost || 0);
-                  const taxPerUnit =
-                    poItem.tax_amount && poItem.quantity
-                      ? Number(poItem.tax_amount) / Number(poItem.quantity)
-                      : 0;
-
-                  const discountPerUnit =
-                    poItem.discount_amount && poItem.quantity
-                      ? Number(poItem.discount_amount) / Number(poItem.quantity)
-                      : 0;
-
-                  const realUnitCost = baseUnitCost + taxPerUnit - discountPerUnit;
-                  return (
-                    <>
-                      <Tooltip label={poItem?.item_name} position="bottom">
-                        <td className="px-4 py-2.5 text-sm font-semibold text-blue-600 ">
-                          {truncateText(poItem?.item_name, 30) || 'N/A'}
-                        </td>
-                      </Tooltip>
-                      <td className="px-4 py-2.5 text-sm font-semibold ">
-                        {poItem?.unit || 'N/A'}
-                      </td>
-                      <td className="px-4 py-2.5  ">
-                        <div className="flex items-center gap-2">
-                          <Controller
-                            name={`items.${index}.quantity`}
-                            control={control}
-                            rules={{
-                              min: 0,
-                              max: poItem.quantity,
-                            }}
-                            render={({ field }) => (
-                              <NumberInput
-                                value={field.value ?? ''}
-                                onChange={(val) => {
-                                  // Cho phép rỗng khi user xoá
-                                  if (val === '' || val === null) {
-                                    field.onChange(null);
-                                    return;
-                                  }
-
-                                  const num = Number(val);
-                                  if (num < 0) return;
-                                  if (num > Number(poItem.quantity)) {
-                                    field.onChange(poItem.quantity);
-                                    return;
-                                  }
-
-                                  field.onChange(num);
-                                }}
-                                onBlur={() => {
-                                  // Khi blur mà rỗng → set về 0
-                                  if (field.value === null || field.value === undefined) {
-                                    field.onChange(0);
-                                  }
-                                }}
-                                min={0}
-                                max={Number(poItem.quantity)}
-                                clampBehavior="strict"
-                                allowDecimal={false}
-                                hideControls
-                                placeholder="0"
-                                size="sm"
-                                radius="sm"
-                                className="w-32"
-                              />
-                            )}
-                          />
-                          <p className="text-sm ">
-                            {item?.quantity}/
-                            {Number(poItem?.quantity) - Number(poItem?.quantity_returned || 0)}{' '}
-                            {poItem.unit}
-                          </p>
-                        </div>
-                      </td>
-                      <td className="px-4 py-2.5 text-sm font-semibold  hover:bg-gray-200 transition-colors duration-200 cursor-pointer rounded-md relative group">
-                        <span className="flex items-center gap-2">
-                          {formatCurrency(realUnitCost) || 'N/A'}
-                          <ChevronDown size={16} />
-                        </span>
-                        <div className="absolute top-full mt-1 left-0 w-sm bg-white z-10 shadow rounded-md p-4 space-y-3 hidden group-hover:block">
-                          <div className="flex items-center justify-between">
-                            <span>Giá nhập gốc</span>
-                            <span>{formatCurrency(baseUnitCost)}</span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span>Thuế / đơn vị</span>
-                            <span>{formatCurrency(taxPerUnit)}</span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span>Chiết khấu / đơn vị</span>
-                            <span>- {formatCurrency(discountPerUnit)}</span>
-                          </div>
-                          <div className="border-t pt-2 flex items-center justify-between font-semibold border-t-gray-300">
-                            <span>Đơn giá thực tế</span>
-                            <span>{formatCurrency(realUnitCost)}</span>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-2.5 text-sm font-semibold  ">
-                        <Controller
-                          name={`items.${index}.reason`}
-                          control={control}
-                          render={({ field }) => (
-                            <Textarea
-                              placeholder="Lý do trả sản phẩm ..."
-                              onChange={(value) => {
-                                field.onChange(value);
-                              }}
-                              className="text-sm text-gray-500 placeholder:text-sm placeholder:font-medium font-medium"
-                            />
-                          )}
-                        />
-                      </td>
-                      <td className="px-4 py-2.5 text-sm font-semibold  ">
-                        {formatCurrency(Number(item?.quantity) * Number(realUnitCost))}
-                      </td>
-                    </>
-                  );
-                }}
-              />
+              <>
+                {purchaseOrder && (
+                  <TableWithPo
+                    loading={loading}
+                    fields={fields}
+                    purchaseOrder={purchaseOrder}
+                    control={control}
+                    watchedItems={watchedItems}
+                  />
+                )}
+                {selectedVariants.length > 0 && fieldsWithoutPO.length > 0 && (
+                  <TableWithoutPO
+                    removeWithoutPO={removeWithoutPO}
+                    updateWithoutPO={updateWithoutPO}
+                    setSelectedVariants={setSelectedVariants}
+                    selectedVariants={selectedVariants}
+                    fieldsWithoutPO={fieldsWithoutPO}
+                    control={controlWithoutPO}
+                    loading={loadingCreate}
+                    watchWithoutPO={watchedItemsWithoutPO}
+                  />
+                )}
+              </>
             )}
           </div>
         </div>
@@ -280,12 +207,18 @@ export function OutboundOrders() {
           purchaseOrder={purchaseOrder}
           loadingCreate={loadingCreate}
           control={control}
+          controlWithoutPO={controlWithoutPO}
           total={total}
           itemsLength={itemsLength}
+          errorsWithoutPO={errorsWithoutPO}
+          itemsLengthWithoutPO={itemsLengthWithoutPO}
+          totalWithoutPO={totalWithoutPO}
           handleSuccess={handleSuccess}
           createPurchaseReturnWithPO={createPurchaseReturnWithPO}
+          createPurchaseReturnWithoutPO={createPurchaseReturnWithoutPO}
           register={register}
-          handleSubmit={handleSubmit}
+          handleSubmitWithPO={handleSubmit}
+          handleSubmitWithoutPO={handleSubmitWithoutPO}
         />
       </div>
       <Modal
@@ -310,6 +243,15 @@ function ManagePurchaseOrderComplete({
   isOpenModalSelectPurchase: boolean;
   setIsOpenModalSelectPurchase: (isOpen: boolean) => void;
 }) {
+  const tableHeadersPurchaseOrder = [
+    'Mã đơn nhập',
+    'Ngày tạo',
+    'Nhà cung cấp',
+    'Trạng thái thanh toán',
+    'Số lượng',
+    'Tổng tiền',
+    'Thao tác',
+  ];
   const router = useRouter();
   const {
     getPurchaseOrders,
@@ -341,7 +283,7 @@ function ManagePurchaseOrderComplete({
       <DataActionBar
         hasBg={false}
         setWidth="100%"
-        placeholderSearch="Tìm kiếm mã phiếu nhập, tên hoặc mã nhà cung cấp / khách hàng"
+        placeholderSearch="Tìm kiếm mã phiếu nhập, tên hoặc mã nhà cung cấp"
         statusOptions={[
           {
             width: '200px',
@@ -354,7 +296,6 @@ function ManagePurchaseOrderComplete({
           setFilters((prev) => ({
             ...prev,
             ...newFilters,
-            status: newFilters.status,
             payment_status: newFilters.payment_status,
           }));
         }}

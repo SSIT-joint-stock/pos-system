@@ -6,6 +6,8 @@ import { useForm } from 'react-hook-form';
 import { useRequestHelper } from '../../hooks/use-request-helper';
 import api from '../../libs/axios';
 import {
+  PurchaseReturnWithoutPO,
+  PurchaseReturnWithoutPOSchema,
   PurchaseReturnWithPurchaseOrder,
   PurchaseReturnWithPurchaseOrderSchema,
 } from '../../schemas/purchase-return/purchase-return.schema';
@@ -14,8 +16,14 @@ export function usePurchaseReturn() {
   const { showSuccessToast } = useToast();
   const { loading, requestWrapper } = useRequestHelper();
   // Form
-  const formPurchase = useForm<PurchaseReturnWithPurchaseOrder>({
+  const formPurchaseWithPO = useForm<PurchaseReturnWithPurchaseOrder>({
     resolver: zodResolver(PurchaseReturnWithPurchaseOrderSchema),
+    defaultValues: {
+      items: [],
+    },
+  });
+  const formPurchaseWithoutPO = useForm<PurchaseReturnWithoutPO>({
+    resolver: zodResolver(PurchaseReturnWithoutPOSchema),
     defaultValues: {
       items: [],
     },
@@ -39,9 +47,27 @@ export function usePurchaseReturn() {
     [requestWrapper, showSuccessToast]
   );
 
+  const createPurchaseReturnWithoutPO = useCallback(
+    async (data: PurchaseReturnWithoutPO) => {
+      const res = await requestWrapper(() => api.post<ApiResponse>(`/purchase-return/free`, data));
+      if (res?.data.success) {
+        showSuccessToast(res?.data?.message as string);
+        return {
+          success: true,
+        };
+      }
+      return {
+        success: false,
+      };
+    },
+    [requestWrapper, showSuccessToast]
+  );
+
   return {
-    formPurchase,
+    formPurchaseWithPO,
+    formPurchaseWithoutPO,
     loading,
+    createPurchaseReturnWithoutPO,
     createPurchaseReturnWithPO,
   };
 }

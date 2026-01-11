@@ -8,6 +8,7 @@ import { useDebounceCallback } from 'usehooks-ts';
 import { useVariant } from '../../../../hooks/variant/use-variant';
 import { formatCurrency } from '../../../../utils';
 
+import { PurchaseReturnItem } from '@main/schemas/purchase-return/purchase-return.schema';
 import { Variant } from '@repo/design-system/types';
 import { PurchaseOrder } from '@repo/design-system/types/purchase';
 import { usePathname, useRouter } from 'next/navigation';
@@ -17,22 +18,26 @@ import { CreatePurchaseOrderItem } from '../../../../schemas/purchase/purchase.s
 export default function Header({
   setSelectedVariants,
   append,
+  appendPurchaseReturnWithoutPO,
   setIsOpenModalSelectPurchase,
   setIsOpenSearch,
   setPurchaseOrder,
   isOpenSearch,
   selectedVariants,
   fields,
+  fieldsWithoutPO,
   purchaseOrder,
 }: {
   setSelectedVariants?: React.Dispatch<React.SetStateAction<Variant[]>>;
   setPurchaseOrder?: (purchaseOrder: PurchaseOrder | null) => void;
   append?: (selectedVariant: CreatePurchaseOrderItem) => void;
+  appendPurchaseReturnWithoutPO?: (selectedVariant: PurchaseReturnItem) => void;
   setIsOpenModalSelectPurchase?: (isOpen: boolean) => void;
   setIsOpenSearch?: (isOpen: boolean) => void;
   isOpenSearch?: boolean;
   selectedVariants?: Variant[];
   fields?: CreatePurchaseOrderItem[];
+  fieldsWithoutPO?: PurchaseReturnItem[];
   purchaseOrder?: PurchaseOrder | null;
 }) {
   // HOOK
@@ -173,10 +178,12 @@ export default function Header({
                       <div
                         key={variant.id}
                         onClick={() => {
-                          const existed = fields?.some((item) => item.variant_id === variant.id);
-
+                          const existed =
+                            fields?.some((item) => item.variant_id === variant.id) ||
+                            fieldsWithoutPO?.some((item) => item.variant_id === variant.id);
                           if (existed) {
                             setIsFocusInputSearch(false);
+                            setIsOpenSearch?.(false);
                             return;
                           }
 
@@ -189,9 +196,16 @@ export default function Header({
                             discount_rate: 0,
                             unit: variant.product.baseUnit,
                           });
+                          appendPurchaseReturnWithoutPO?.({
+                            variant_id: variant.id,
+                            product_id: variant.product_id,
+                            quantity: 0,
+                            unit_cost: variant.cost || 0,
+                          });
 
                           setSelectedVariants?.((prev) => [...prev, variant]);
                           setIsFocusInputSearch(false);
+                          setIsOpenSearch?.(false);
                         }}
                         className="border-b cursor-pointer border-b-gray-200 flex items-center justify-between py-3 px-2 hover:bg-gray-50 transition-colors duration-200"
                       >

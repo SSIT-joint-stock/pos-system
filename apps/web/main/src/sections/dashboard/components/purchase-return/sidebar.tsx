@@ -1,11 +1,18 @@
 // import { Textarea } from '@mantine/core';
 import { Textarea } from '@mantine/core';
-import { Button, DatePickerInput, Select } from '@repo/design-system/components/ui';
+import { useDebouncedValue } from '@mantine/hooks';
+import { Button, DatePickerInput, Loading, Modal, Select } from '@repo/design-system/components/ui';
 import { PurchaseOrder } from '@repo/design-system/types/purchase';
-import { Check, Menu, Plus } from 'lucide-react';
+import { Check, Menu, Plus, User } from 'lucide-react';
 import Image from 'next/image';
+import { useEffect, useState } from 'react';
 import { Controller, UseFormHandleSubmit, UseFormRegister } from 'react-hook-form';
-import { PurchaseReturnWithPurchaseOrder } from '../../../../schemas/purchase-return/purchase-return.schema';
+import { useSupplier } from '../../../../hooks/suplier/use-supplier';
+import {
+  PurchaseReturnWithoutPO,
+  PurchaseReturnWithPurchaseOrder,
+} from '../../../../schemas/purchase-return/purchase-return.schema';
+import { FormCreateSupplier } from '../../../../sections/dashboard/components/form-create-supplier';
 import { formatCurrency } from '../../../../utils';
 
 export interface SidebarProps {
@@ -20,34 +27,85 @@ export interface SidebarProps {
         success: boolean;
       }
     | Promise<{ success: boolean }>;
+  createPurchaseReturnWithoutPO: (data: PurchaseReturnWithoutPO) =>
+    | {
+        success: boolean;
+      }
+    | Promise<{ success: boolean }>;
   loadingCreate: boolean;
   control: any;
+
   total: number;
+  totalWithoutPO: number;
+
   itemsLength: number;
+  itemsLengthWithoutPO: number;
+
+  errorsWithoutPO: any;
+  controlWithoutPO: any;
 
   register: UseFormRegister<PurchaseReturnWithPurchaseOrder>;
-  handleSubmit: UseFormHandleSubmit<PurchaseReturnWithPurchaseOrder>;
+  handleSubmitWithPO: UseFormHandleSubmit<PurchaseReturnWithPurchaseOrder>;
+  handleSubmitWithoutPO: UseFormHandleSubmit<PurchaseReturnWithoutPO>;
 }
 export function Sidebar({
   purchaseOrder,
   loadingCreate,
   control,
+  controlWithoutPO,
   total,
+  totalWithoutPO,
   itemsLength,
+  itemsLengthWithoutPO,
+  errorsWithoutPO,
   createPurchaseReturnWithPO,
-  handleSubmit,
+  createPurchaseReturnWithoutPO,
+  handleSubmitWithPO,
+  handleSubmitWithoutPO,
   handleSuccess,
 }: SidebarProps) {
+  const [isOpenModalCreateSupplier, setIsOpenModalCreateSupplier] = useState<boolean>(false);
+  const [searchSupplier, setSearchSupplier] = useState<string>('');
+  const [debouncedSearch] = useDebouncedValue(searchSupplier, 500);
+
+  const {
+    getSuppliers,
+    setFilters,
+    suppliers,
+    currentStore,
+    filters,
+    loading: loadingSuppliers,
+  } = useSupplier();
+
+  useEffect(() => {
+    setFilters((prev) => ({
+      ...prev,
+      status: 'ACTIVE',
+      q: debouncedSearch,
+    }));
+  }, [debouncedSearch, setFilters]);
+
+  useEffect(() => {
+    if (!currentStore?.id || purchaseOrder) return;
+    getSuppliers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStore?.id, filters]);
+
   return (
     <>
       <div className="w-1/4 bg-white rounded-lg  ">
         <form
-          onSubmit={handleSubmit(async (data) => {
-            const { success } = await createPurchaseReturnWithPO(purchaseOrder?.id as string, data);
-            if (success) {
-              handleSuccess();
-            }
-          })}
+          onSubmit={
+            purchaseOrder
+              ? handleSubmitWithPO(async (data) => {
+                  const { success } = await createPurchaseReturnWithPO(purchaseOrder.id, data);
+                  if (success) handleSuccess();
+                })
+              : handleSubmitWithoutPO(async (data) => {
+                  const { success } = await createPurchaseReturnWithoutPO(data);
+                  if (success) handleSuccess();
+                })
+          }
           className="p-6 flex flex-col justify-between h-full"
         >
           {/* Header */}
@@ -100,29 +158,57 @@ export function Sidebar({
                     </div>
                   </div>
                 ) : (
-                  <Select
-                    data={['Test']}
-                    label={'Nhà cung cấp'}
-                    placeholder="Tìm kiếm nhà cung cấp"
-                    clearable
-                    size="sm"
-                    radius="sm"
-                    position="bottom"
-                    rightSection={
-                      <button
-                        type="button"
-                        className="p-2 rounded hover:bg-gray-200 transition duration-200 hover:cursor-pointer"
-                        style={{ pointerEvents: 'auto' }}
-                      >
-                        <Plus size={16} />
-                      </button>
-                    }
+                  <Controller
+                    name="supplier_id"
+                    control={purchaseOrder ? control : controlWithoutPO}
+                    render={({ field }) => (
+                      <div className="space-y-1">
+                        <p className="text-sm text-gray-500">Nhà cung cấp</p>
+                        <Select
+                          {...field}
+                          searchable
+                          onSearchChange={setSearchSupplier}
+                          searchValue={searchSupplier}
+                          data={suppliers.map((supplier) => ({
+                            label: supplier?.name,
+                            value: supplier?.id,
+                          }))}
+                          filter={({ options }) => options}
+                          nothingFoundMessage="Không tìm thấy nhà cung cấp"
+                          leftSection={<User size={16} />}
+                          placeholder="Tìm kiếm nhà cung cấp"
+                          clearable
+                          error={errorsWithoutPO.supplier_id ? 'Vui lòng chọn nhà cung cấp' : ''}
+                          size="sm"
+                          className="flex-1"
+                          radius="sm"
+                          value={field.value ?? null}
+                          position="bottom"
+                          rightSection={
+                            loadingSuppliers ? (
+                              <Loading color="#3b82f6" size="xs" />
+                            ) : (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() => setIsOpenModalCreateSupplier(true)}
+                                  className="p-2 rounded hover:bg-gray-200 transition duration-200 hover:cursor-pointer"
+                                  style={{ pointerEvents: 'auto' }}
+                                >
+                                  <Plus size={16} />
+                                </button>
+                              </>
+                            )
+                          }
+                        />
+                      </div>
+                    )}
                   />
                 )}
                 {/* Date */}
                 <Controller
                   name="return_date"
-                  control={control}
+                  control={purchaseOrder ? control : controlWithoutPO}
                   render={({ field }) => (
                     <DatePickerInput
                       {...field}
@@ -140,7 +226,7 @@ export function Sidebar({
                   <span className="text-sm text-gray-500">Lý do</span>
                   <Controller
                     name={`reason`}
-                    control={control}
+                    control={purchaseOrder ? control : controlWithoutPO}
                     render={({ field }) => (
                       <Textarea {...field} placeholder="Nhập lý do ..." size="sm" radius={'sm'} />
                     )}
@@ -150,7 +236,7 @@ export function Sidebar({
                   <span className="text-sm text-gray-500">Ghi chú</span>
                   <Controller
                     name={`notes`}
-                    control={control}
+                    control={purchaseOrder ? control : controlWithoutPO}
                     render={({ field }) => (
                       <Textarea {...field} placeholder="Nhập ghi chú ..." size="sm" radius={'sm'} />
                     )}
@@ -160,14 +246,18 @@ export function Sidebar({
               <div className="flex flex-col gap-3 mt-8">
                 <div className="flex items-center justify-between">
                   <span className="text-gray-900 font-semibold text-base">Số lượng sản phẩm:</span>
-                  <span className="text-gray-900 font-semibold">{itemsLength || 0}</span>
+                  <span className="text-gray-900 font-semibold">
+                    {purchaseOrder ? itemsLength : itemsLengthWithoutPO}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-pos-blue-500 font-semibold text-base">
                     Giá trị hoàn trả:
                   </span>
                   <span className="text-pos-blue-500 font-semibold">
-                    {formatCurrency(total || 0)}
+                    {purchaseOrder
+                      ? formatCurrency(total || 0)
+                      : formatCurrency(totalWithoutPO || 0)}
                   </span>
                 </div>
               </div>
@@ -188,6 +278,18 @@ export function Sidebar({
           </div>
         </form>
       </div>
+      <Modal
+        title={<p className="text-base font-semibold">Thêm nhà cung cấp</p>}
+        size="xl"
+        opened={isOpenModalCreateSupplier}
+        onClose={() => setIsOpenModalCreateSupplier(false)}
+      >
+        <FormCreateSupplier
+          setIsOpenModal={setIsOpenModalCreateSupplier}
+          onFetchNewData={getSuppliers}
+          isEditForm={false}
+        />
+      </Modal>
     </>
   );
 }
