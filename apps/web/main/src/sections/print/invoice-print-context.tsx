@@ -1,10 +1,10 @@
-import React, { forwardRef } from 'react';
-import Image from 'next/image';
-import dayjs from 'dayjs';
-import { formatCurrency } from '../../utils';
 import { Order } from '@repo/design-system/types';
 import { Store } from '@repo/design-system/types/store';
+import dayjs from 'dayjs';
+import Image from 'next/image';
+import { forwardRef } from 'react';
 import { formatPaymentMethod, payment_method } from '../../constants/method';
+import { formatCurrency } from '../../utils';
 
 interface InvoicePrintContentProps {
   order: Order;
@@ -67,7 +67,11 @@ const InvoicePrintContent = forwardRef<HTMLDivElement, InvoicePrintContentProps>
                   <p>Khách hàng</p>
                 </td>
                 <td className="text-center">
-                  <p>{order?.customer?.name || <span className="italic">Khách lẻ</span>}</p>
+                  <p>
+                    {order?.customer?.name || order?.customer_name || (
+                      <span className="italic">Khách lẻ</span>
+                    )}
+                  </p>
                 </td>
               </tr>
             </tbody>
@@ -83,19 +87,19 @@ const InvoicePrintContent = forwardRef<HTMLDivElement, InvoicePrintContentProps>
             </colgroup>
             <tbody style={{ width: '100%' }} className="h-[50px] overflow-y-scroll">
               <tr className={'border border-gray-900 text-sm p-2'}>
-                <th className="text-left">
+                <th className="text-left pl-2">
                   <span>Sản phẩm</span>
                 </th>
-                <th className="text-left">
+                <th className="text-left pl-2">
                   <span>Đơn giá</span>
                 </th>
-                <th className="text-left">
+                <th className="text-left pl-2">
                   <span>Tổng thuế (VAT)</span>
                 </th>
                 <th className="text-center">
                   <span>Số lượng</span>
                 </th>
-                <th className="text-right">
+                <th className="text-right pr-2">
                   <span>Thành tiền</span>
                 </th>
               </tr>

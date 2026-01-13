@@ -1,20 +1,20 @@
-import { Customer } from "@repo/design-system/types";
-import { useState, useCallback } from "react";
-import { useRequestHelper } from "../use-request-helper";
-import api from "../../../../main/src/libs/axios";
-import { useAtomValue } from "jotai";
-import { currentStoreAtom } from "@repo/design-system/stores/auth";
+import { zodResolver } from '@hookform/resolvers/zod';
+import useToast from '@repo/design-system/hooks/client/use-toast-notification';
+import { currentStoreAtom } from '@repo/design-system/stores/auth';
+import { Customer } from '@repo/design-system/types';
+import { useAtomValue } from 'jotai';
+import { useCallback, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import api from '../../../../main/src/libs/axios';
 import {
   CreateCustomerInput,
   CreateCustomerSchema,
   UpdateCustomerInput,
   UpdateCustomerSchema,
-} from "../../../../main/src/schemas/customer/customer.schema";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import useToast from "@repo/design-system/hooks/client/use-toast-notification";
-import { FilterValue, useQueryParams } from "../query/use-query-params";
-import { exportExcel } from "../../utils/export-excel/export";
+} from '../../../../main/src/schemas/customer/customer.schema';
+import { exportExcel } from '../../utils/export-excel/export';
+import { FilterValue, useQueryParams } from '../query/use-query-params';
+import { useRequestHelper } from '../use-request-helper';
 
 interface CustomerFilters extends Record<string, FilterValue> {
   q?: string;
@@ -38,7 +38,7 @@ export function useCustomer() {
     setSortBy,
     setSort,
   } = useQueryParams<CustomerFilters>({
-    q: "q",
+    q: 'q',
   });
 
   // FORMS
@@ -50,17 +50,15 @@ export function useCustomer() {
   });
 
   // GET CUSTOMERS
-  const getCustomers = async () => {
+  const getCustomers = useCallback(async () => {
     const res = await requestWrapper(() =>
-      api.get(
-        `/stores/${currentStore?.id}/customers?${buildParams().toString()}`
-      )
+      api.get(`/stores/${currentStore?.id}/customers?${buildParams().toString()}`)
     );
     if (res?.data.success) {
       setCustomers(res?.data?.data);
       setPagination(res?.data?.pagination);
     }
-  };
+  }, [buildParams, currentStore?.id, requestWrapper, setPagination]);
 
   // ✅ CREATE CUSTOMER (with duplicate phone check)
   const createCustomer = async (data: CreateCustomerInput) => {
@@ -70,21 +68,15 @@ export function useCustomer() {
     const trimmedPhone = data.phone?.trim();
     if (trimmedPhone) {
       const duplicate = customers.some(
-        (c) =>
-          c.phone?.trim().replace(/\s+/g, "") ===
-          trimmedPhone.replace(/\s+/g, "")
+        (c) => c.phone?.trim().replace(/\s+/g, '') === trimmedPhone.replace(/\s+/g, '')
       );
       if (duplicate) {
-        showErrorToast(
-          "⚠️ Số điện thoại này đã tồn tại. Vui lòng nhập số khác."
-        );
+        showErrorToast('⚠️ Số điện thoại này đã tồn tại. Vui lòng nhập số khác.');
         return; // Stop — don't call API
       }
     }
 
-    const res = await requestWrapper(() =>
-      api.post(`/stores/${currentStore.id}/customers`, data)
-    );
+    const res = await requestWrapper(() => api.post(`/stores/${currentStore.id}/customers`, data));
     if (res?.data.success) {
       getCustomers();
       showSuccessToast(res.data.message);
@@ -104,10 +96,7 @@ export function useCustomer() {
   };
 
   // UPDATE CUSTOMER
-  const updateCustomer = async (
-    customerId: string,
-    data: UpdateCustomerInput
-  ) => {
+  const updateCustomer = async (customerId: string, data: UpdateCustomerInput) => {
     if (!currentStore?.id) return;
     const res = await requestWrapper(() =>
       api.patch(`/stores/${currentStore?.id}/customers/${customerId}`, data)
@@ -122,17 +111,14 @@ export function useCustomer() {
   const downloadCustomerTemplate = useCallback(
     async (storeId: string) => {
       await requestWrapper(async () => {
-        const res = await api.get(
-          `/stores/${storeId}/customers/excel/example`,
-          {
-            responseType: "blob",
-          }
-        );
+        const res = await api.get(`/stores/${storeId}/customers/excel/example`, {
+          responseType: 'blob',
+        });
 
         exportExcel(
-          res.data,
-          `customer_template_${new Date().toLocaleDateString()}.xlsx`,
-          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+          res,
+          `mau_danh_sach_khach_hang${new Date().toLocaleDateString()}.xlsx`,
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         );
       });
     },
@@ -144,13 +130,13 @@ export function useCustomer() {
     async (storeId: string) => {
       await requestWrapper(async () => {
         const res = await api.get(`/stores/${storeId}/customers/excel/export`, {
-          responseType: "blob",
+          responseType: 'blob',
         });
 
         exportExcel(
-          res.data,
-          `customers_${new Date().toLocaleDateString()}.xlsx`,
-          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+          res,
+          `danh_sach_khach_hang${new Date().toLocaleDateString()}.xlsx`,
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         );
       });
     },
@@ -160,19 +146,22 @@ export function useCustomer() {
   const importCustomersExcel = useCallback(
     async (storeId: string, file: File) => {
       const formData = new FormData();
-      formData.append("excel_customer", file);
+      formData.append('excel_customer', file);
 
       const res = await requestWrapper(() =>
         api.post(`/stores/${storeId}/customers/excel/import`, formData, {
           headers: {
-            "Content-Type": "multipart/form-data",
+            'Content-Type': 'multipart/form-data',
           },
         })
       );
 
-      return res;
+      if (res?.data.success) {
+        showSuccessToast('Nhập danh sách thành công!' as string);
+        getCustomers();
+      }
     },
-    [requestWrapper]
+    [requestWrapper, getCustomers, showSuccessToast]
   );
 
   return {

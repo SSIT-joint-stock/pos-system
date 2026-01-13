@@ -1,8 +1,10 @@
+'use client';
 import { Drawer, Switch } from '@mantine/core';
-import { Button, Checkbox, Input, Select } from '@repo/design-system/components/ui';
-import React, { ChangeEvent } from 'react';
+import { Button, Checkbox, Input, Modal, Select } from '@repo/design-system/components/ui';
+import React, { ChangeEvent, useState } from 'react';
 import { formatCurrency } from '../../../../../main/src/utils';
 import { payment_method } from '../../../constants/method';
+import { InfoConfigPayment } from '../../../sections/dashboard/components/info-config-payment';
 import { selectedVariant } from '../view';
 
 export default function BillOrder({
@@ -38,6 +40,26 @@ export default function BillOrder({
   };
   loading: boolean;
 }) {
+  const [isOpenSettingBank, setIsOpenSettingBank] = useState<boolean>(false);
+  function getJumpPayments(total: number, count = 5): number[] {
+    const tiers = [
+      1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 1000000, 2000000, 5000000,
+      10000000,
+    ];
+
+    if (total >= tiers[tiers.length - 1]) {
+      const base = Math.ceil(total / 1_000_000) * 1_000_000;
+      return Array.from({ length: count }, (_, i) => base * (i + 1));
+    }
+
+    const startIndex = tiers.findIndex((v) => v >= total);
+
+    return tiers.slice(startIndex, startIndex + count);
+  }
+  const quickPayments = React.useMemo(() => {
+    return getJumpPayments(summary.total);
+  }, [summary.total]);
+
   return (
     <>
       <Drawer
@@ -57,6 +79,8 @@ export default function BillOrder({
           <div className="flex flex-col gap-4">
             <Select
               name="paymentMethod"
+              radius="sm"
+              size="sm"
               onChange={(value) => setChangePaymentMethods(value as payment_method)}
               position="bottom"
               label={'Phương thức thanh toán'}
@@ -67,6 +91,8 @@ export default function BillOrder({
               <span className="text-sm  text-gray-500"> Số tiền khách trả </span>
               <div className="flex items-center gap-2 ">
                 <Input
+                  radius="sm"
+                  size="sm"
                   value={priceCustomerPay.replace(/\B(?=(\d{3})+(?!\d))/g, '.')}
                   placeholder="Số tiền khách trả"
                   type="text"
@@ -87,6 +113,7 @@ export default function BillOrder({
                   }}
                 />
                 <Button
+                  radius="sm"
                   size="sm"
                   onClick={() => {
                     setIsCustomerPayFull(true);
@@ -95,6 +122,12 @@ export default function BillOrder({
                   title="Trả đủ"
                 />
               </div>
+              <button
+                onClick={() => setIsOpenSettingBank(true)}
+                className="text-left hover:underline text-pos-blue-500 mt-2 cursor-pointer w-fit"
+              >
+                <span className="text-sm  font-semibold">Cấu hình tài khoản thụ hưởng</span>
+              </button>
             </div>
             <div className="flex items-center justify-between">
               <Checkbox
@@ -120,6 +153,24 @@ export default function BillOrder({
                   : `Khách chưa trả đủ: ${formatCurrency(summary?.total - Number(priceCustomerPay || 0))}`}
               </span>
             </div>
+            {quickPayments.length > 0 && (
+              <div className="grid grid-cols-3 gap-2.5">
+                {quickPayments.map((amount) => (
+                  <div
+                    key={amount}
+                    onClick={() => {
+                      setPriceCustomerPay(String(amount));
+                      setIsCustomerPayFull(true);
+                    }}
+                    className={`bg-gray-50 text-gray-500 rounded-full p-2
+          text-center font-semibold cursor-pointer
+          hover:bg-pos-blue-50 hover:text-pos-blue-500 ${Number(priceCustomerPay) === amount && 'bg-pos-blue-50 text-pos-blue-500'}`}
+                  >
+                    {formatCurrency(amount)}
+                  </div>
+                ))}
+              </div>
+            )}
             <hr className="border-b border-b-white border-t-gray-400 " />
             <div className="grid grid-cols-2 justify-between">
               <span className="text-base text-gray-800 font-semibold"> Tổng tiền trước thuế </span>{' '}
@@ -156,6 +207,17 @@ export default function BillOrder({
           </div>
         </div>
       </Drawer>
+      <Modal
+        title={<span className="text-base font-semibold">Cấu hình tài khoản thụ hưởng</span>}
+        size="xl"
+        opened={isOpenSettingBank}
+        onClose={() => setIsOpenSettingBank(false)}
+      >
+        <InfoConfigPayment
+          isModal={isOpenSettingBank}
+          setIsOpenSettingBank={setIsOpenSettingBank}
+        />
+      </Modal>
     </>
   );
 }

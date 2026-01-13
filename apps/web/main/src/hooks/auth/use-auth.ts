@@ -155,7 +155,9 @@ export default function useAuth() {
 
   const selectStore = async (storeId: string) => {
     try {
-      const res = await api.post<ApiResponse>(`${AUTH_ENDPOINTS.SET_CURRENT_STORE}/${storeId}`);
+      const res = await requestWrapper(() =>
+        api.post<ApiResponse>(`${AUTH_ENDPOINTS.SET_CURRENT_STORE}/${storeId}`)
+      );
 
       if (res?.data.success) {
         // eslint-disable-next-line no-unsafe-optional-chaining

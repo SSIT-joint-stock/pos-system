@@ -73,6 +73,7 @@ export default function SidebarPurchase({
   useEffect(() => {
     setFilters((prev) => ({
       ...prev,
+      status: 'ACTIVE',
       q: debouncedSearch,
     }));
   }, [debouncedSearch, setFilters]);

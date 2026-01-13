@@ -1,14 +1,12 @@
 'use client';
-import api from '../../libs/axios';
-import useToast from '@repo/design-system/hooks/client/use-toast-notification';
-import { Order } from '@repo/design-system/types';
-import { useCallback, useEffect, useState } from 'react';
-import { useRequestHelper } from '../use-request-helper';
-import { useAtomValue } from 'jotai';
-import { currentStoreAtom } from '@repo/design-system/stores/auth';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { FilterValue, useQueryParams } from '../query/use-query-params';
+import useToast from '@repo/design-system/hooks/client/use-toast-notification';
+import { currentStoreAtom } from '@repo/design-system/stores/auth';
+import { Order } from '@repo/design-system/types';
+import { useAtomValue } from 'jotai';
+import { useCallback, useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import api from '../../libs/axios';
 import {
   CreateOrderInput,
   CreateOrderSchema,
@@ -16,6 +14,8 @@ import {
   UpdateOrderSchema,
 } from '../../schemas/order/order.schema';
 import { exportExcel } from '../../utils/export-excel/export';
+import { FilterValue, useQueryParams } from '../query/use-query-params';
+import { useRequestHelper } from '../use-request-helper';
 
 interface OrderFilters extends Record<string, FilterValue> {
   q?: string;
@@ -60,11 +60,7 @@ export function useOrders() {
 
   // ACTION FUNCTIONS
   const getOrders = async () => {
-    if (!currentStore?.id) return;
-
-    const res = await requestWrapper(() =>
-      api.get(`/stores/${currentStore?.id}/orders?${buildParams().toString()}`)
-    );
+    const res = await requestWrapper(() => api.get(`/orders?${buildParams().toString()}`));
 
     if (res?.data.success) {
       setOrders(res.data.data);
@@ -73,11 +69,7 @@ export function useOrders() {
   };
 
   const getOrderById = async (orderId: string) => {
-    if (!currentStore?.id) return;
-
-    const res = await requestWrapper(() =>
-      api.get(`/stores/${currentStore?.id}/orders/${orderId}`)
-    );
+    const res = await requestWrapper(() => api.get(`/orders/${orderId}`));
 
     if (res?.data.success) {
       setOrder(res.data.data);
@@ -86,10 +78,7 @@ export function useOrders() {
   };
 
   const createOrder = async (data: CreateOrderInput) => {
-    console.log(data);
-    if (!currentStore?.id) return;
-
-    const res = await requestWrapper(() => api.post(`/stores/${currentStore?.id}/orders`, data));
+    const res = await requestWrapper(() => api.post(`/orders`, data));
 
     if (res?.data.success) {
       await getOrders();
@@ -102,7 +91,7 @@ export function useOrders() {
     if (!currentStore?.id) return;
 
     const res = await requestWrapper(() =>
-      api.delete(`/stores/${currentStore?.id}/orders/`, {
+      api.delete(`/orders/`, {
         data: { orderId },
       })
     );
@@ -117,8 +106,21 @@ export function useOrders() {
     return false;
   };
 
+  const getOrdersByCustomer = useCallback(
+    async (customerId: string) => {
+      const res = await requestWrapper(() =>
+        api.get(`/orders/customer/${customerId}?${buildParams().toString()}`)
+      );
+      if (res?.data.success) {
+        setOrders(res?.data?.data);
+        setPagination(res?.data?.pagination);
+      }
+    },
+    [buildParams, requestWrapper, setPagination]
+  );
+
   const downloadExcelTemplate = useCallback(async () => {
-    const res = await api.get(`/stores/${currentStore?.id}/orders/excel/template`, {
+    const res = await api.get(`/orders/excel/template`, {
       responseType: 'blob',
     });
     if (!res) return;
@@ -127,10 +129,10 @@ export function useOrders() {
       `mau_danh_sach_don_hang_mua_${new Date().toLocaleDateString()}.xlsx`,
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     );
-  }, [currentStore?.id]);
+  }, []);
 
   const exportExcelOrders = useCallback(async () => {
-    const res = await api.get(`/stores/${currentStore?.id}/orders/excel/export`, {
+    const res = await api.get(`/excel/export`, {
       responseType: 'blob',
     });
     exportExcel(
@@ -138,12 +140,12 @@ export function useOrders() {
       `danh_sach_don_hang_mua_${new Date().toLocaleDateString()}.xlsx`,
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     );
-  }, [currentStore?.id]);
+  }, []);
 
   useEffect(() => {
-    if (!currentStore?.id) return;
     getOrders();
-  }, [currentStore?.id, paginationParams, filters]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paginationParams, filters]);
 
   return {
     // Data
@@ -166,6 +168,7 @@ export function useOrders() {
     deleteOrder,
     downloadExcelTemplate,
     exportExcelOrders,
+    getOrdersByCustomer,
     // Utils
     setFilters,
     setPaginationParams,

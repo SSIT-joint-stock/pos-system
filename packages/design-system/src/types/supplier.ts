@@ -1,3 +1,5 @@
+import { PurchaseOrder } from '@repo/design-system/types/purchase';
+
 export enum SupplierStatus {
   ACTIVE = 'ACTIVE',
   INACTIVE = 'INACTIVE',
@@ -20,6 +22,7 @@ export interface Supplier {
   createdAt: string;
   updatedAt: string;
   deletedAt: string;
+  purchase_orders?: PurchaseOrder[];
 }
 export interface SupplierInfoByTaxCode {
   data: Supplier;

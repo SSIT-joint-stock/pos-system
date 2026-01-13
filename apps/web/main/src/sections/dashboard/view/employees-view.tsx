@@ -28,6 +28,7 @@ const roleColors: Record<string, string> = {
   MEMBER: "bg-green-100 text-green-800 px-2 py-1",
 };
 export default function EmployeesView() {
+  const isUpdated = true;
   const currentStore = useAtomValue(currentStoreAtom);
 
   // const { members, getMembersInStore, addMemberToStore, deleteMemberFromStore } = useStore();
@@ -123,6 +124,10 @@ export default function EmployeesView() {
                   setOpenEditModal(false);
                   setOpenViewModal(false);
                 }}
+                title="Thêm nhân viên mới"
+                icon={<Plus size={16} />}
+                size="sm"
+                radius="sm"
               />
             </td>
           </>
@@ -162,9 +167,18 @@ export default function EmployeesView() {
             name="email"
             type="email"
           />
-          <Button type="submit" title="Thêm nhân viên" size="md" />
-        </form>
-      </Modal>
+          {/* TABLE AND PAGINATION */}
+          <Table
+            totalPages={members.length}
+            tableHeaders={tableHeaders}
+            data={members}
+            renderRow={(member) => (
+              <>
+                <td className="px-4 py-3 text-sm font-medium text-gray-900">{member.user.id}</td>
+                <td className="px-4 py-3 text-sm text-gray-500 font-medium">
+                  {member.user.username}
+                </td>
+                <td className="px-4 py-3 text-sm text-gray-500">{member.user.email}</td>
 
       {/* DELETE MODAL */}
       <DeleteConfirmationModal

@@ -1,9 +1,7 @@
 'use client';
-import { useEffect, useState } from 'react';
-import { useRequestHelper } from '../use-request-helper';
+import { useState } from 'react';
 import api from '../../../../main/src/libs/axios';
-import { useAtomValue } from 'jotai';
-import { currentStoreAtom } from '@repo/design-system/stores/auth';
+import { useRequestHelper } from '../use-request-helper';
 export interface Notification {
   title: string;
   time: string;
@@ -29,9 +27,13 @@ interface ProductItem {
   price: number;
 }
 interface TopProduct {
-  product: ProductItem;
+  id: string;
+  name: string;
+  price: number;
+  baseProductName: string;
+  baseUnit: string;
+  imageUrl: string;
   quantitySold: number;
-  total: number;
 }
 interface LowStockProduct {
   product: ProductItem;
@@ -69,15 +71,11 @@ export default function useStatistics() {
     },
   ]);
   const [loadingNoti, setLoadingNoti] = useState(false);
-  const currentStore = useAtomValue(currentStoreAtom);
   const { loading, requestWrapper } = useRequestHelper();
   const getNotifications = async () => {
-    if (!currentStore?.id) return;
     try {
       setLoadingNoti(true);
-      const res = await api.get(
-        `/stores/${currentStore?.id}/statistics/notifications?type=${typeNotification}`
-      );
+      const res = await api.get(`/statistics/notifications?type=${typeNotification}`);
 
       if (res?.data.success) {
         setLoadingNoti(false);
@@ -88,17 +86,16 @@ export default function useStatistics() {
     }
   };
   const fetchStatisticByKey = async (key: string, type: string) => {
-    if (!currentStore?.id) return;
     let url = '';
     switch (key) {
       case 'revenue':
-        url = `/stores/${currentStore?.id}/statistics/revenue?type=${type}`;
+        url = `/statistics/revenue?type=${type}`;
         break;
       case 'summary-revenue':
-        url = `/stores/${currentStore?.id}/statistics/summary-revenue?type=${type}`;
+        url = `/statistics/summary-revenue?type=${type}`;
         break;
       case 'revenue-by-category':
-        url = `/stores/${currentStore?.id}/statistics/revenue-by-category?type=${type}`;
+        url = `/statistics/revenue-by-category?type=${type}`;
         break;
       default:
         return null;
@@ -121,17 +118,13 @@ export default function useStatistics() {
     setCache(updated);
   };
   const getTopProducts = async () => {
-    const res = await requestWrapper(() =>
-      api.get(`/stores/${currentStore?.id}/statistics/top-products`)
-    );
+    const res = await requestWrapper(() => api.get(`/statistics/top-products`));
     if (res?.data.success) {
       setTopsProducts(res?.data?.data);
     }
   };
   const getLowStockProducts = async () => {
-    const res = await requestWrapper(() =>
-      api.get(`/stores/${currentStore?.id}/statistics/low-stock-product`)
-    );
+    const res = await requestWrapper(() => api.get(`/statistics/low-stock-product`));
     if (res?.data.success) {
       setLowStockProducts(res?.data?.data);
     }
@@ -162,7 +155,6 @@ export default function useStatistics() {
     setTypeNotification,
     getTopProducts,
     getLowStockProducts,
-    currentStore,
     handleChangeTypeNotification,
   };
 }

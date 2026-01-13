@@ -2,8 +2,8 @@ const SkeletonRow = ({ numColumns }: { numColumns: number }) => {
   return (
     <tr className="border-b border-b-gray-100 animate-pulse">
       {Array.from({ length: numColumns }).map((_, idx) => (
-        <td key={idx} className="px-4 py-4">
-          <div className="h-4 bg-gray-100 rounded"></div>
+        <td key={idx} className="px-3 py-3">
+          <div className="h-4 bg-gray-100 rounded-sm"></div>
         </td>
       ))}
     </tr>
