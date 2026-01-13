@@ -79,10 +79,8 @@ export default function Header({
 
   return (
     <>
-      <div className="w-full bg-white mb-3 p-4 rounded-lg flex items-center justify-between">
-        <div
-          className={`flex items-center gap-8  ${pathName?.includes('purchase-order') ? 'lg:w-2/3' : 'lg:w-3/4'} w-full`}
-        >
+      <div className="w-full bg-white mb-3 p-4 rounded-md flex items-center justify-between">
+        <div className={`flex items-center gap-8  lg:w-3/4 w-full`}>
           <div className="flex items-center gap-3">
             <button
               onClick={() => {

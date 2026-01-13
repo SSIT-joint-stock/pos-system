@@ -37,12 +37,12 @@ export default function TableWithPo({
         const item = watchedItems[index];
         const baseUnitCost = Number(poItem?.unit_cost ?? 0);
         const taxPerUnit =
-          poItem.tax_amount && poItem.quantity
+          poItem?.tax_amount && poItem?.quantity
             ? Number(poItem.tax_amount) / Number(poItem.quantity)
             : 0;
 
         const discountPerUnit =
-          poItem.discount_amount && poItem.quantity
+          poItem?.discount_amount && poItem?.quantity
             ? Number(poItem.discount_amount) / Number(poItem.quantity)
             : 0;
 

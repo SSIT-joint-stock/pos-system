@@ -1,8 +1,8 @@
 'use client';
 import Image from 'next/image';
 import { useState } from 'react';
-import SettingsSidebar from './settings-sidebar';
 import MenuSidebar from './menu-sidebar';
+import SettingsSidebar from './settings-sidebar';
 export default function SideBar({
   isExpand,
   setIsExpand,
@@ -16,7 +16,7 @@ export default function SideBar({
       className={`h-screen relative  flex flex-col bg-white overflow-x-none shadow-md shadow-gray-100 transition-all duration-300 ${isExpand ? 'w-56' : 'w-20'} }`}
     >
       {/* Menu items */}
-      <div className=" h-full flex flex-col gap-2 p-4 ">
+      <div className=" h-full flex flex-col gap-2 p-3 ">
         {/* Should be to component */}
         <div
           className={`flex items-center gap-4 mb-4 ${isExpand ? 'justify-start' : 'justify-center'}`}

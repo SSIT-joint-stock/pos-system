@@ -1,12 +1,12 @@
 'use client';
-import React, { useEffect, useRef, useState } from 'react';
-import { Bell, Lock, MessageCircle, MessageCircleQuestion, User } from 'lucide-react';
+import { ItemNotification } from '@repo/design-system/components/shared/item';
+import { useClickOutside } from '@repo/design-system/hooks/client';
 import { currentStoreAtom, currentUserAtom } from '@repo/design-system/stores/auth';
 import { useAtomValue } from 'jotai';
+import { Bell, Lock, MessageCircle, MessageCircleQuestion, User } from 'lucide-react';
 import Image from 'next/image';
-import { useClickOutside } from '@repo/design-system/hooks/client';
+import { useEffect, useRef, useState } from 'react';
 import useStatistics from '../../../../../main/src/hooks/statistics/use-statistics';
-import { ItemNotification } from '@repo/design-system/components/shared/item';
 export default function HeaderSidebar() {
   const [isShowNotification, setIsShowNotifications] = useState<boolean>(false);
   const [isShowUserManagement, setIsShowUserManagement] = useState(false);
@@ -34,7 +34,7 @@ export default function HeaderSidebar() {
   return (
     <header className="bg-white shadow-md shadow-gray-100 px-8 flex items-stretch justify-between h-16 ">
       <span className="text-lg font-semibold text-gray-800 self-center">
-        {currentUser?.username || 'Admin'}
+        Xin chào, {currentUser?.username || 'Admin'}
       </span>
       <div className="flex items-stretch ">
         <button className="flex items-center gap-4.5 text-sm justify-center px-3 hover:bg-pos-blue-50 hover:text-pos-blue-500 transition-colors cursor-pointer">

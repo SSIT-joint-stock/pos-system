@@ -10,6 +10,7 @@ import { useFieldArray } from 'react-hook-form';
 import { PAYMENT_STATUS_MAP } from '../../../constants/status';
 import { usePurchaseReturn } from '../../../hooks/purchase-return/use-purchase-return';
 import { usePurchase } from '../../../hooks/purchase/use-purchase';
+import ReturnProductLayout from '../../../layouts/return-product-layout';
 import { DataActionBar } from '../../../sections/dashboard/components/data-action-bar';
 import Header from '../../../sections/dashboard/components/purchase-order/header';
 import TableWithPo from '../../../sections/dashboard/components/purchase-return/table-with-po';
@@ -124,103 +125,103 @@ export function OutboundOrders() {
 
   return (
     <>
-      <div className="flex h-full overflow-hidden gap-6 ">
-        {/* Main Content - Left Side */}
-        <div className="flex-1 flex flex-col  overflow-hidden">
-          {/* Header */}
-          <Header
-            isOpenSearch={isOpenSearch}
-            selectedVariants={selectedVariants}
-            purchaseOrder={purchaseOrder || null}
-            setPurchaseOrder={setPurchaseOrder}
-            setIsOpenSearch={setIsOpenSearch}
-            setSelectedVariants={setSelectedVariants}
-            setIsOpenModalSelectPurchase={setIsOpenModalSelectPurchase}
-            fieldsWithoutPO={fieldsWithoutPO}
-            appendPurchaseReturnWithoutPO={appendWithoutPO}
+      {/* <div className="flex h-full overflow-hidden gap-6 "> */}
+      <ReturnProductLayout
+        sidebar={
+          <Sidebar
+            purchaseOrder={purchaseOrder}
+            loadingCreate={loadingCreate}
+            control={control}
+            controlWithoutPO={controlWithoutPO}
+            total={total}
+            itemsLength={itemsLength}
+            errorsWithoutPO={errorsWithoutPO}
+            itemsLengthWithoutPO={itemsLengthWithoutPO}
+            totalWithoutPO={totalWithoutPO}
+            handleSuccess={handleSuccess}
+            createPurchaseReturnWithPO={createPurchaseReturnWithPO}
+            createPurchaseReturnWithoutPO={createPurchaseReturnWithoutPO}
+            register={register}
+            handleSubmitWithPO={handleSubmit}
+            handleSubmitWithoutPO={handleSubmitWithoutPO}
           />
-          {/* Content Area */}
-          <div className="flex-1 bg-white rounded-lg shadow   h-full p-2">
-            {!purchaseOrder && fieldsWithoutPO.length === 0 && selectedVariants.length === 0 ? (
-              <div className="flex flex-col items-center justify-center gap-1.5 h-full">
-                <h2 className="text-xl font-semibold text-gray-500 text-center ">
-                  Bạn chưa thêm sản phẩm nào
-                </h2>
-                <Menu shadow="lg" width={300} withinPortal={false} position="bottom" offset={5}>
-                  <Menu.Target>
-                    <div>
-                      <Button
-                        radius="sm"
-                        title="Tạo đơn trả hàng nhập"
-                        size="md"
-                        rightSection={<ChevronDown size={16} />}
-                      />
-                    </div>
-                  </Menu.Target>
-
-                  <Menu.Dropdown>
-                    <Menu.Item
-                      onClick={() => setIsOpenModalSelectPurchase(true)}
-                      className="hover:bg-gray-50 rounded-md p-2 text-sm font-medium text-gray-900  cursor-pointer"
-                    >
-                      Trả hàng theo đơn nhập
-                    </Menu.Item>
-                    <Menu.Item
-                      onClick={() => setIsOpenSearch(true)}
-                      className="hover:bg-gray-50 rounded-md p-2 text-sm font-medium text-gray-900 cursor-pointer"
-                    >
-                      Trả hàng không theo đơn nhập
-                    </Menu.Item>
-                  </Menu.Dropdown>
-                </Menu>
-              </div>
-            ) : (
-              <>
-                {purchaseOrder && (
-                  <TableWithPo
-                    loading={loading}
-                    fields={fields}
-                    purchaseOrder={purchaseOrder}
-                    control={control}
-                    watchedItems={watchedItems}
-                  />
-                )}
-                {selectedVariants.length > 0 && fieldsWithoutPO.length > 0 && (
-                  <TableWithoutPO
-                    removeWithoutPO={removeWithoutPO}
-                    updateWithoutPO={updateWithoutPO}
-                    setSelectedVariants={setSelectedVariants}
-                    selectedVariants={selectedVariants}
-                    fieldsWithoutPO={fieldsWithoutPO}
-                    control={controlWithoutPO}
-                    loading={loadingCreate}
-                    watchWithoutPO={watchedItemsWithoutPO}
-                  />
-                )}
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* Sidebar - Right Side */}
-        <Sidebar
-          purchaseOrder={purchaseOrder}
-          loadingCreate={loadingCreate}
-          control={control}
-          controlWithoutPO={controlWithoutPO}
-          total={total}
-          itemsLength={itemsLength}
-          errorsWithoutPO={errorsWithoutPO}
-          itemsLengthWithoutPO={itemsLengthWithoutPO}
-          totalWithoutPO={totalWithoutPO}
-          handleSuccess={handleSuccess}
-          createPurchaseReturnWithPO={createPurchaseReturnWithPO}
-          createPurchaseReturnWithoutPO={createPurchaseReturnWithoutPO}
-          register={register}
-          handleSubmitWithPO={handleSubmit}
-          handleSubmitWithoutPO={handleSubmitWithoutPO}
+        }
+      >
+        {/* Header */}
+        <Header
+          isOpenSearch={isOpenSearch}
+          selectedVariants={selectedVariants}
+          purchaseOrder={purchaseOrder || null}
+          setPurchaseOrder={setPurchaseOrder}
+          setIsOpenSearch={setIsOpenSearch}
+          setSelectedVariants={setSelectedVariants}
+          setIsOpenModalSelectPurchase={setIsOpenModalSelectPurchase}
+          fieldsWithoutPO={fieldsWithoutPO}
+          appendPurchaseReturnWithoutPO={appendWithoutPO}
         />
-      </div>
+        {/* Content Area */}
+        <div className="flex-1 bg-white rounded-md shadow   h-full p-2">
+          {!purchaseOrder && fieldsWithoutPO.length === 0 && selectedVariants.length === 0 ? (
+            <div className="flex flex-col items-center justify-center gap-1.5 h-full">
+              <h2 className="text-xl font-semibold text-gray-700 mb-2 text-center ">
+                Bạn chưa thêm sản phẩm nào
+              </h2>
+              <Menu shadow="lg" width={300} withinPortal={false} position="bottom" offset={5}>
+                <Menu.Target>
+                  <div>
+                    <Button
+                      radius="sm"
+                      title="Tạo đơn trả hàng nhập"
+                      size="md"
+                      rightSection={<ChevronDown size={16} />}
+                    />
+                  </div>
+                </Menu.Target>
+
+                <Menu.Dropdown>
+                  <Menu.Item
+                    onClick={() => setIsOpenModalSelectPurchase(true)}
+                    className="hover:bg-gray-50 rounded-md p-2 text-sm font-medium text-gray-900  cursor-pointer"
+                  >
+                    Trả hàng theo đơn nhập
+                  </Menu.Item>
+                  <Menu.Item
+                    onClick={() => setIsOpenSearch(true)}
+                    className="hover:bg-gray-50 rounded-md p-2 text-sm font-medium text-gray-900 cursor-pointer"
+                  >
+                    Trả hàng không theo đơn nhập
+                  </Menu.Item>
+                </Menu.Dropdown>
+              </Menu>
+            </div>
+          ) : (
+            <>
+              {purchaseOrder && (
+                <TableWithPo
+                  loading={loading}
+                  fields={fields}
+                  purchaseOrder={purchaseOrder}
+                  control={control}
+                  watchedItems={watchedItems}
+                />
+              )}
+              {selectedVariants.length > 0 && fieldsWithoutPO.length > 0 && (
+                <TableWithoutPO
+                  removeWithoutPO={removeWithoutPO}
+                  updateWithoutPO={updateWithoutPO}
+                  setSelectedVariants={setSelectedVariants}
+                  selectedVariants={selectedVariants}
+                  fieldsWithoutPO={fieldsWithoutPO}
+                  control={controlWithoutPO}
+                  loading={loadingCreate}
+                  watchWithoutPO={watchedItemsWithoutPO}
+                />
+              )}
+            </>
+          )}
+        </div>
+      </ReturnProductLayout>
+      {/* </div> */}
       <Modal
         title={<p className="text-xl font-semibold">Chọn đơn nhập hàng để trả</p>}
         size="70%"
