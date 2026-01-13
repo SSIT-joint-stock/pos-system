@@ -277,15 +277,15 @@ export function PurchaseOrdersDetailView({ purchaseId }: { purchaseId: string })
             purchaseOrder?.payments.map((payment) => (
               <div
                 key={payment.id}
-                className="py-4 border-y border-y-gray-300 flex items-center justify-between"
+                className="py-4 px-2 bg-pos-blue-50 flex items-center justify-between font-semibold"
               >
-                <p className="text-sm text-gray-900 ">
+                <p className="text-sm text-pos-blue-500 ">
                   Tiền cần trả nhà cung cấp: {formatCurrency(purchaseOrder?.total || 0)}
                 </p>
-                <p className="text-sm text-gray-900 ">
+                <p className="text-sm text-pos-blue-500 ">
                   Đã trả: {formatCurrency(payment?.unit_cost || 0)}
                 </p>
-                <p className="text-sm text-gray-900 ">
+                <p className="text-sm text-pos-blue-500 ">
                   Còn phải trả:{' '}
                   {formatCurrency(Number(purchaseOrder?.total) - Number(payment?.unit_cost) || 0)}
                 </p>

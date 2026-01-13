@@ -175,6 +175,35 @@ export const paymentMethods = [
   },
 ];
 
+export const PURCHASE_RETURN_STATUS = {
+  draft: {
+    label: 'Đang chờ duyệt',
+    color: 'text-yellow-500',
+    bgColor: 'bg-yellow-50',
+    value: 'DRAFT',
+  },
+  completed: {
+    label: 'Đã hoàn trả',
+    color: 'text-green-500',
+    bgColor: 'bg-green-50',
+    value: 'COMPLETED',
+  },
+  cancelled: {
+    label: 'Đã hoàn trả',
+    color: 'text-red-500',
+    bgColor: 'bg-red-50',
+    value: 'CANCELLED',
+  },
+};
+
+export const PURCHASE_RETURN_STATUS_MAP = Object.values(PURCHASE_RETURN_STATUS).reduce(
+  (acc, item) => {
+    acc[item.value] = item;
+    return acc;
+  },
+  {} as Record<string, { label: string; color: string; bgColor: string; value: string }>
+);
+
 export type OrderStatus = keyof typeof ORDER_STATUS;
 export type SupplierStatus = keyof typeof SUPPLIER_STATUS;
 export type StockMovementStatus = (typeof STOCK_MOVEMENT_STATUS)[number]['value'];

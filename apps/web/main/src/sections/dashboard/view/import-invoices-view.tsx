@@ -27,13 +27,13 @@ const tableHeaders = [
   'Giá trị đơn',
   'Thao tác',
 ];
-export const purchaseStatusOptions = Object.entries(PURCHASE_STATUS).map(([key, item]) => ({
+const purchaseStatusOptions = Object.entries(PURCHASE_STATUS).map(([key, item]) => ({
   label: item.label,
   value: item.value,
   color: item.color,
   key, // optional
 }));
-export const paymentStatusOptions = Object.entries(PAYMENT_STATUS).map(([key, item]) => ({
+const paymentStatusOptions = Object.entries(PAYMENT_STATUS).map(([key, item]) => ({
   label: item.label,
   value: item.value,
   color: item.color,

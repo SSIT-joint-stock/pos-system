@@ -42,6 +42,15 @@ export const PurchaseReturnWithoutPOSchema = z.object({
   items: z.array(PurchaseReturnItemSchema).optional().default([]),
 });
 
+export const AcceptPaymentExportSChema = z.object({
+  payment_method: z.string().nonempty({ message: 'Vui lòng chọn phương thức thanh toán' }),
+  amount: z.number().min(0).nonnegative({ message: 'Vui lòng số tiền thanh toán' }),
+  payment_date: z.coerce.date().optional(),
+  reference: z.string().optional(),
+  notes: z.string().optional().nullable(),
+});
+
 export type PurchaseReturnWithPurchaseOrder = z.infer<typeof PurchaseReturnWithPurchaseOrderSchema>;
 export type PurchaseReturnWithoutPO = z.infer<typeof PurchaseReturnWithoutPOSchema>;
 export type PurchaseReturnItem = z.infer<typeof PurchaseReturnItemSchema>;
+export type AcceptPaymentExport = z.infer<typeof AcceptPaymentExportSChema>;

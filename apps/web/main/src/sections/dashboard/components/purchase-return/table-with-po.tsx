@@ -56,7 +56,7 @@ export default function TableWithPo({
             </Tooltip>
             <td className="px-4 py-2.5 text-sm font-semibold ">{poItem?.unit || 'N/A'}</td>
             <td className="px-4 py-2.5  ">
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col gap-1">
                 <Controller
                   name={`items.${index}.quantity`}
                   control={control}
@@ -102,9 +102,10 @@ export default function TableWithPo({
                   )}
                 />
                 <p className="text-sm ">
-                  {item?.quantity}/
-                  {Number(poItem?.quantity) - Number(poItem?.quantity_returned || 0)} {poItem.unit}
+                  SL nhâp: {item?.quantity}/
+                  {Number(poItem?.quantity) - Number(poItem?.quantity_returned || 0)}
                 </p>
+                <p className="text-sm ">Tồn gốc: {Number(poItem?.quantity)}</p>
               </div>
             </td>
             <td className="px-4 py-2.5 text-sm font-semibold  hover:bg-gray-200 transition-colors duration-200 cursor-pointer rounded-md relative group">

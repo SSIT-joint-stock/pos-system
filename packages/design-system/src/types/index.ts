@@ -5,6 +5,7 @@ export * from './communes';
 export * from './order';
 export * from './product';
 export * from './province';
+export * from './purchase-return';
 export * from './report';
 export * from './reward-point';
 export * from './supplier';

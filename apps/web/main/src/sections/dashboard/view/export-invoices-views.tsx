@@ -6,10 +6,10 @@ import { useEffect } from 'react';
 import {
   PAYMENT_STATUS,
   PAYMENT_STATUS_MAP,
-  PURCHASE_STATUS,
-  PURCHASE_STATUS_MAP,
+  PURCHASE_RETURN_STATUS,
+  PURCHASE_RETURN_STATUS_MAP,
 } from '../../../constants/status';
-import { usePurchase } from '../../../hooks/purchase/use-purchase';
+import { usePurchaseReturn } from '../../../hooks/purchase-return/use-purchase-return';
 import DashboardViewLayout from '../../../layouts/dashboard-view-layout';
 import { formatCurrency, formatDate } from '../../../utils';
 import { ActionButtons } from '../components/action-buttons';
@@ -17,22 +17,25 @@ import { DataActionBar } from '../components/data-action-bar';
 import { DisplayField } from '../components/display-field';
 
 const tableHeaders = [
+  'Mã đơn',
   'Mã đơn nhập',
   'Ngày tạo',
-  'Nhà cung cấp / Khách hàng',
+  'Nhà cung cấp',
   'Trạng thái',
   'Trạng thái thanh toán',
   'Nhân viên tạo',
-  'Số lượng nhập',
+  'Số lượng trả',
   'Giá trị đơn',
   'Thao tác',
 ];
-export const purchaseStatusOptions = Object.entries(PURCHASE_STATUS).map(([key, item]) => ({
-  label: item.label,
-  value: item.value,
-  color: item.color,
-  key, // optional
-}));
+export const purchaseReturnStatusOptions = Object.entries(PURCHASE_RETURN_STATUS).map(
+  ([key, item]) => ({
+    label: item.label,
+    value: item.value,
+    color: item.color,
+    key, // optional
+  })
+);
 export const paymentStatusOptions = Object.entries(PAYMENT_STATUS).map(([key, item]) => ({
   label: item.label,
   value: item.value,
@@ -42,22 +45,20 @@ export const paymentStatusOptions = Object.entries(PAYMENT_STATUS).map(([key, it
 
 export function ExportInvoicesViews() {
   const {
-    purchaseOrders,
+    purchaseReturns,
     loading,
     paginationParams,
     pagination,
-    totalPurchase,
     filters,
-    getPurchaseOrders,
+
+    getPurchaseReturns,
     setFilters,
     setPaginationParams,
-    exportPurchaseOrdersExcel,
-    downloadPurchaseOrderTemplate,
-  } = usePurchase();
+  } = usePurchaseReturn();
   const router = useRouter();
 
   useEffect(() => {
-    getPurchaseOrders();
+    getPurchaseReturns();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paginationParams, filters]);
 
@@ -66,23 +67,11 @@ export function ExportInvoicesViews() {
       <DashboardViewLayout>
         {/* Header */}
 
-        <DisplayField
-          label="Quản lý xuất nhập kho"
-          value={
-            <div className="flex items-center text-base gap-4 font-medium text-gray-500 ">
-              <p className="">
-                Nhập kho:{' '}
-                <span className="text-pos-blue-500 font-semibold text-lg">
-                  {formatCurrency(totalPurchase || 0) || '0'}
-                </span>
-              </p>
-            </div>
-          }
-        >
+        <DisplayField label="Quản lý xuất nhập kho">
           <div className="flex items-center gap-3">
             <Button
-              title="Tạo phiếu nhập hàng"
-              onClick={() => router.push('purchase-orders')}
+              title="Tạo phiếu trả hàng"
+              onClick={() => router.push('outbound-orders')}
               icon={<Plus size={16} />}
               size="sm"
               radius="sm"
@@ -90,13 +79,13 @@ export function ExportInvoicesViews() {
           </div>
         </DisplayField>
         <DataActionBar
-          placeholderSearch="Tìm kiếm mã phiếu nhập, tên hoặc mã nhà cung cấp"
+          placeholderSearch="Tìm kiếm mã phiếu trả, tên hoặc mã nhà cung cấp"
           statusOptions={[
             {
               width: '200px',
               key: 'status',
               label: 'Trạng thái phiếu nhập',
-              options: purchaseStatusOptions,
+              options: purchaseReturnStatusOptions,
             },
             {
               width: '200px',
@@ -116,13 +105,13 @@ export function ExportInvoicesViews() {
           onSearch={(value) => {
             setFilters((prev) => ({ ...prev, q: value }));
           }}
-          onExport={exportPurchaseOrdersExcel}
-          onDownloadTemplate={downloadPurchaseOrderTemplate}
+          // onExport={exportPurchaseOrdersExcel}
+          // onDownloadTemplate={downloadPurchaseOrderTemplate}
         />
         <Table
           hasMarginTop={false}
           tableHeaders={tableHeaders}
-          data={purchaseOrders}
+          data={purchaseReturns}
           isLoading={loading}
           total={pagination?.total}
           totalPages={pagination?.totalPages}
@@ -145,11 +134,23 @@ export function ExportInvoicesViews() {
             <>
               <td
                 onClick={() => {
-                  router.push(`import-invoices/detail/${data?.id}`);
+                  router.push(`export-invoices/detail/${data?.id}`);
                 }}
                 className="px-4 py-3 text-sm font-semibold text-blue-600 hover:underline cursor-pointer"
               >
-                {data?.order_number || 'N/A'}
+                {data?.return_number || 'N/A'}
+              </td>
+              <td
+                onClick={
+                  data?.purchase_order
+                    ? () => {
+                        router.push(`import-invoices/detail/${data?.purchase_order?.id}`);
+                      }
+                    : () => {}
+                }
+                className="px-4 py-3 text-sm font-semibold text-blue-600 hover:underline cursor-pointer"
+              >
+                {data?.purchase_order?.order_number}
               </td>
               <td className="px-4 py-3 text-sm text-gray-600">
                 {formatDate(data.createdAt) || 'N/A'}
@@ -159,9 +160,9 @@ export function ExportInvoicesViews() {
               </td>
               <td className={`px-4 py-3 text-sm   `}>
                 <span
-                  className={`${PURCHASE_STATUS_MAP[data?.status].color} ${PURCHASE_STATUS_MAP[data?.status].bgColor} py-2 px-3 rounded-md text-nowrap`}
+                  className={`${PURCHASE_RETURN_STATUS_MAP[data?.status].color} ${PURCHASE_RETURN_STATUS_MAP[data?.status].bgColor} py-2 px-3 rounded-md text-nowrap`}
                 >
-                  {PURCHASE_STATUS_MAP[data?.status].label || 'N/A'}
+                  {PURCHASE_RETURN_STATUS_MAP[data?.status].label || 'N/A'}
                 </span>
               </td>
               <td className="px-4 py-3 text-sm text-pos-blue-500 font-medium">

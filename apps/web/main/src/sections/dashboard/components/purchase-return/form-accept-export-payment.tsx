@@ -2,32 +2,29 @@ import { NumberInput } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { Button, Input, Modal, Select } from '@repo/design-system/components/ui';
 import { PurchaseReturn } from '@repo/design-system/types';
-import { PurchaseOrder } from '@repo/design-system/types/purchase';
 import { Calendar } from 'lucide-react';
 import React, { useRef, useState } from 'react';
 import { Controller } from 'react-hook-form';
 import { paymentMethods } from '../../../../constants/status';
-import { usePurchase } from '../../../../hooks/purchase/use-purchase';
+import { usePurchaseReturn } from '../../../../hooks/purchase-return/use-purchase-return';
 import { formatCurrency } from '../../../../utils';
 
-export default function FormAccpetImportPayment({
+export default function FormAcceptExportPayment({
   setIsOpenModalAcceptPayment,
-  getPurchaseOrder,
   isOpenModalAcceptPayment,
-  purchaseOrder,
+  purchaseReturn,
+  getPurchaseReturn,
 }: {
   setIsOpenModalAcceptPayment: React.Dispatch<React.SetStateAction<boolean>>;
-  getPurchaseOrder?: (id: string) => void;
   getPurchaseReturn?: (id: string) => void;
   isOpenModalAcceptPayment: boolean;
-  purchaseOrder?: PurchaseOrder;
   purchaseReturn?: PurchaseReturn;
 }) {
   const [isFocusInput, setIsFocusInput] = useState<boolean>(true);
   const ref = useRef<HTMLDivElement>(null);
   const {
-    acceptPaymentPurchase,
-    formAcceptPayment: {
+    acceptPaymentExport,
+    formAcceptPaymentExport: {
       control,
       formState: { errors },
       watch,
@@ -35,9 +32,9 @@ export default function FormAccpetImportPayment({
       handleSubmit,
     },
     loading,
-  } = usePurchase();
+  } = usePurchaseReturn();
 
-  const unitCost = watch('unit_cost');
+  const amount = watch('amount');
 
   return (
     <Modal
@@ -48,11 +45,11 @@ export default function FormAccpetImportPayment({
     >
       <form
         onSubmit={handleSubmit(async (data) => {
-          if (purchaseOrder) {
-            const success = await acceptPaymentPurchase?.(purchaseOrder?.id, data);
+          if (purchaseReturn) {
+            const success = await acceptPaymentExport?.(purchaseReturn?.id, data);
             if (success) {
               setIsOpenModalAcceptPayment(false);
-              getPurchaseOrder?.(purchaseOrder?.id);
+              getPurchaseReturn?.(purchaseReturn?.id);
             }
           }
         })}
@@ -81,19 +78,17 @@ export default function FormAccpetImportPayment({
             <div className="flex-1">
               {isFocusInput ? (
                 <Controller
-                  name="unit_cost"
+                  name="amount"
                   control={control}
                   render={({ field }) => (
                     <NumberInput
                       {...field}
                       size="sm"
-                      max={Number(purchaseOrder?.total)}
+                      max={Number(purchaseReturn?.total)}
                       radius="sm"
                       autoFocus
-                      // value={field.value ?? purchaseOrder?.total ?? 0}
                       readOnly
-                      defaultValue={purchaseOrder?.total || 0}
-                      // className="flex-1"
+                      defaultValue={purchaseReturn?.total || 0}
                       onBlur={() => setIsFocusInput(false)}
                       placeholder="Số tiền thanh toán"
                       label={'Số tiền thanh toán'}
@@ -104,9 +99,8 @@ export default function FormAccpetImportPayment({
                 <Input
                   size="sm"
                   defaultValue={
-                    formatCurrency(
-                      unitCost === undefined ? purchaseOrder?.total : String(unitCost)
-                    ) || 0
+                    formatCurrency(amount === undefined ? purchaseReturn?.total : String(amount)) ||
+                    0
                   }
                   radius="sm"
                   readOnly
@@ -156,7 +150,14 @@ export default function FormAccpetImportPayment({
               radius="sm"
               variant="outline"
             />
-            <Button loading={loading} title="Xác nhận" type="submit" size="sm" radius="sm" />
+            <Button
+              loading={loading}
+              disabled={!purchaseReturn}
+              title="Xác nhận"
+              type="submit"
+              size="sm"
+              radius="sm"
+            />
           </div>
         </div>
       </form>
