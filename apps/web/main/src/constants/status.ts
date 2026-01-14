@@ -222,3 +222,16 @@ export function getPurchasePaymentStatusLabel(status: string) {
 export function getOrderStatusLabel(status: string) {
   return ORDER_STATUS_MAP[status]?.label;
 }
+
+export const purchaseStatusOptions = Object.entries(PURCHASE_STATUS).map(([key, item]) => ({
+  label: item.label,
+  value: item.value,
+  color: item.color,
+  key, // optional
+}));
+export const paymentStatusOptions = Object.entries(PAYMENT_STATUS).map(([key, item]) => ({
+  label: item.label,
+  value: item.value,
+  color: item.color,
+  key, // optional
+}));

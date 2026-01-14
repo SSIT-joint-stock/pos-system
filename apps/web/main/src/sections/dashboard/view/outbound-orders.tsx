@@ -7,7 +7,7 @@ import { ChevronDown } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useFieldArray } from 'react-hook-form';
-import { PAYMENT_STATUS_MAP } from '../../../constants/status';
+import { PAYMENT_STATUS_MAP, paymentStatusOptions } from '../../../constants/status';
 import { usePurchaseReturn } from '../../../hooks/purchase-return/use-purchase-return';
 import { usePurchase } from '../../../hooks/purchase/use-purchase';
 import ReturnProductLayout from '../../../layouts/return-product-layout';
@@ -15,7 +15,6 @@ import { DataActionBar } from '../../../sections/dashboard/components/data-actio
 import Header from '../../../sections/dashboard/components/purchase-order/header';
 import TableWithPo from '../../../sections/dashboard/components/purchase-return/table-with-po';
 import TableWithoutPO from '../../../sections/dashboard/components/purchase-return/table-without-po';
-import { paymentStatusOptions } from '../../../sections/dashboard/view/import-invoices-view';
 import { formatCurrency, formatDate } from '../../../utils';
 import { Sidebar } from '../components';
 

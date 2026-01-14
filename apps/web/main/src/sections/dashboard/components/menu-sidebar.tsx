@@ -236,7 +236,7 @@ export default function MenuSidebar({
                         ${
                           item.children.some((child) => pathName?.startsWith(child.path))
                             ? 'bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white shadow-sm'
-                            : 'text-gray-600 hover:bg-pos-blue-50 hover:text-pos-blue-600'
+                            : 'text-gray-800 hover:bg-pos-blue-50 hover:text-pos-blue-600'
                         }`}
                     >
                       <span className="shrink-0">{item.icon}</span>
@@ -273,7 +273,7 @@ export default function MenuSidebar({
                           ${
                             child.path === pathName || pathName?.startsWith(child.path)
                               ? 'text-pos-blue-600 bg-pos-blue-50'
-                              : 'text-gray-500 hover:text-pos-blue-500 hover:bg-gray-50'
+                              : 'text-gray-800 hover:text-pos-blue-500 hover:bg-gray-50'
                           }`}
                       >
                         {child.title}
@@ -302,7 +302,7 @@ export default function MenuSidebar({
                     ${
                       item.path === pathName
                         ? 'bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white shadow-sm'
-                        : 'text-gray-600 hover:bg-pos-blue-50 hover:text-pos-blue-600'
+                        : 'text-gray-800 hover:bg-pos-blue-50 hover:text-pos-blue-600'
                     }`}
                 >
                   <span className="shrink-0">{item.icon}</span>

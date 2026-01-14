@@ -8,6 +8,8 @@ export const PurchaseReturnItemSchema = z.object({
   product_id: z.string().uuid().optional(),
   variant_id: z.string().uuid().optional(),
 
+  unit: z.string().optional(),
+
   purchase_order_item_id: z.string().uuid().optional(),
 
   quantity: z.number().min(0, {

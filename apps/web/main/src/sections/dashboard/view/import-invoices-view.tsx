@@ -4,10 +4,10 @@ import { Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import {
-  PAYMENT_STATUS,
   PAYMENT_STATUS_MAP,
-  PURCHASE_STATUS,
+  paymentStatusOptions,
   PURCHASE_STATUS_MAP,
+  purchaseStatusOptions,
 } from '../../../constants/status';
 import { usePurchase } from '../../../hooks/purchase/use-purchase';
 import DashboardViewLayout from '../../../layouts/dashboard-view-layout';
@@ -27,18 +27,6 @@ const tableHeaders = [
   'Giá trị đơn',
   'Thao tác',
 ];
-const purchaseStatusOptions = Object.entries(PURCHASE_STATUS).map(([key, item]) => ({
-  label: item.label,
-  value: item.value,
-  color: item.color,
-  key, // optional
-}));
-const paymentStatusOptions = Object.entries(PAYMENT_STATUS).map(([key, item]) => ({
-  label: item.label,
-  value: item.value,
-  color: item.color,
-  key, // optional
-}));
 
 export function ImportInvoicesView() {
   const {

@@ -20,8 +20,8 @@ const tableHeaders = [
   'Đơn vị quy đổi',
   'Tồn kho',
   'Đơn đang về',
-  'Giá nhập',
   'Giá bán',
+  'Giá nhập',
   'Ngày tạo',
   'Thao tác',
 ];
