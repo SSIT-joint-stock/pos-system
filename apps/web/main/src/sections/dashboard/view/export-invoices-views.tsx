@@ -12,7 +12,6 @@ import {
 import { usePurchaseReturn } from '../../../hooks/purchase-return/use-purchase-return';
 import DashboardViewLayout from '../../../layouts/dashboard-view-layout';
 import { formatCurrency, formatDate } from '../../../utils';
-import { ActionButtons } from '../components/action-buttons';
 import { DataActionBar } from '../components/data-action-bar';
 import { DisplayField } from '../components/display-field';
 
@@ -26,7 +25,6 @@ const tableHeaders = [
   'Nhân viên tạo',
   'Số lượng trả',
   'Giá trị đơn',
-  'Thao tác',
 ];
 export const purchaseReturnStatusOptions = Object.entries(PURCHASE_RETURN_STATUS).map(
   ([key, item]) => ({
@@ -178,13 +176,6 @@ export function ExportInvoicesViews() {
               <td className="px-4 py-3 text-sm text-gray-600">{data?.items.length || 0}</td>
               <td className="px-4 py-3 text-sm text-gray-600">
                 {formatCurrency(data?.total || 0)}
-              </td>
-              <td>
-                <ActionButtons
-                  onView={() => {
-                    router.push(`import-invoices/detail/${data?.id}`);
-                  }}
-                />
               </td>
             </>
           )}
