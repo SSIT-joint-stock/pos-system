@@ -73,8 +73,8 @@ export default function FilterBar({
   };
 
   return (
-    <div className={`flex items-center ${hasBg ? 'bg-white p-5 rounded-lg ' : ''}`}>
-      <div className="flex items-center w-full gap-2">
+    <div className={`flex items-center ${hasBg ? 'bg-white px-5 pt-4 pb-6  rounded-lg ' : ''}`}>
+      <div className="flex items-center w-full gap-2.5">
         {/* SEARCH */}
         <form
           onSubmit={(e) => {
@@ -86,6 +86,7 @@ export default function FilterBar({
         >
           <AutoComplete
             onChange={setSearchValue}
+            label="Tìm kiếm"
             size="sm"
             radius="sm"
             placeholder={placeholderInputSearch ?? 'Tìm kiếm'}
@@ -104,7 +105,7 @@ export default function FilterBar({
         </form>
 
         {/* DYNAMIC SELECT FILTERS */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           {filters.map((f) => {
             const extendedOptions = [{ label: 'Tất cả', value: 'all' }, ...f.options];
 
@@ -113,6 +114,7 @@ export default function FilterBar({
                 key={f.key}
                 data={extendedOptions}
                 position="bottom"
+                defaultLabel={f.label}
                 placeholder={f.label}
                 value={filterValues[f.key] ?? 'all'}
                 onChange={(val) => handleChange(f.key, val)}
@@ -127,6 +129,7 @@ export default function FilterBar({
             <div className="w-[26ch] rounded-md">
               <DatePickerInput
                 type="range"
+                label="Tìm theo thời gian"
                 radius="sm"
                 clearable
                 placeholder="VD: 15/08/2025 - 22/08/2025"
@@ -141,7 +144,12 @@ export default function FilterBar({
       </div>
 
       {/* ACTIONS */}
-      <div className="flex items-center gap-2 justify-end w-fit">{actions}</div>
+      <div className="flex flex-col justify-end">
+        {/* Spacer giả label */}
+        <div className="h-[25px]" />
+
+        <div className="flex items-center gap-2 justify-end">{actions}</div>
+      </div>
     </div>
   );
 }

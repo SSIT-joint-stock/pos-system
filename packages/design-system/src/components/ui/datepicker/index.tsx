@@ -1,9 +1,9 @@
 'use client';
-import * as React from 'react';
+import { DatePickerInput as MantineDatePicker } from '@mantine/dates';
 import dayjs from 'dayjs';
 import 'dayjs/locale/vi';
+import * as React from 'react';
 dayjs.locale('vi');
-import { DatePickerInput as MantineDatePicker } from '@mantine/dates';
 
 type TypeDate = 'range' | 'default' | 'multiple';
 type SizeInput = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
@@ -47,35 +47,36 @@ export function DatePickerInput({
   defaultDate,
 }: DatePickerProps) {
   return (
-    <div className={`flex flex-col gap-1 ${className}`}>
-      {label && (
-        <span
-          className={` text-sm font-medium cursor-pointer text-gray-500 hover:text-gray-700 transition-colors duration-300`}
-        >
-          {label}
-        </span>
-      )}
-      <MantineDatePicker
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
-        type={type}
-        variant={variant}
-        radius={radius}
-        size={size}
-        description={description}
-        className={className}
-        defaultDate={defaultDate}
-        defaultValue={defaultValue}
-        clearable={clearable}
-        style={style}
-        leftSection={leftSection}
-        maxDate={dayjs().toDate()}
-        valueFormat="DD/MM/YYYY"
-        monthLabelFormat={(month) => dayjs(month).format('MMMM')}
-        weekdayFormat={(day) => dayjs(day).format('dd')}
-        rightSection={rightSection}
-      />
-    </div>
+    // <div className={`flex flex-col gap-1 ${className}`}>
+    //   {label && (
+    //     <span
+    //       className={` text-sm font-medium cursor-pointer text-gray-500 hover:text-gray-700 transition-colors duration-300`}
+    //     >
+    //       {label}
+    //     </span>
+    //   )}
+    <MantineDatePicker
+      placeholder={placeholder}
+      value={value}
+      onChange={onChange}
+      label={label}
+      type={type}
+      variant={variant}
+      radius={radius}
+      size={size}
+      description={description}
+      className={className}
+      defaultDate={defaultDate}
+      defaultValue={defaultValue}
+      clearable={clearable}
+      style={style}
+      leftSection={leftSection}
+      maxDate={dayjs().toDate()}
+      valueFormat="DD/MM/YYYY"
+      monthLabelFormat={(month) => dayjs(month).format('MMMM')}
+      weekdayFormat={(day) => dayjs(day).format('dd')}
+      rightSection={rightSection}
+    />
+    // </div>
   );
 }

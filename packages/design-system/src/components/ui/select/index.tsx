@@ -1,7 +1,7 @@
 'use client';
+import { CheckIcon, Group, Select as MantineSelect, Text } from '@mantine/core';
+import type { CSSProperties, ForwardedRef, ReactNode } from 'react';
 import * as React from 'react';
-import { Select as MantineSelect, Group, Text, CheckIcon } from '@mantine/core';
-import type { CSSProperties, ReactNode, ForwardedRef } from 'react';
 
 // Type size
 type SizeSelect = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
@@ -34,6 +34,7 @@ export type SelectProps = {
   defaultValue?: string;
   clearable?: boolean;
   name?: string;
+  defaultLabel?: string;
   searchable?: boolean;
   value?: string;
   onChange?: (value: string) => void;
@@ -65,6 +66,7 @@ export const Select = React.forwardRef<HTMLInputElement, SelectProps>(
       defaultValue,
       clearable,
       name,
+      defaultLabel,
       searchable = false,
       onChange,
       value,
@@ -91,6 +93,7 @@ export const Select = React.forwardRef<HTMLInputElement, SelectProps>(
           searchable={searchable}
           onChange={onChange}
           defaultValue={defaultValue}
+          label={defaultLabel}
           radius={radius}
           size={size}
           clearable={clearable}
