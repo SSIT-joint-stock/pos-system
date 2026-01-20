@@ -1,175 +1,138 @@
 'use client';
-import React from 'react';
-import DashboardViewLayout from '../../../../../main/src/layouts/dashboard-view-layout';
 import { Button, Table } from '@repo/design-system/components/ui';
+import { currentStoreAtom } from '@repo/design-system/stores/auth';
+import { useAtomValue } from 'jotai';
 import { Plus } from 'lucide-react';
-import { DisplayField } from '../components/display-field';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import {
+  ORDER_RETURN_STATUS_MAP,
+  ORDER_RETURN_TYPE_MAP,
+  orderReturnStatusOptions,
+} from '../../../constants/reason-return';
+import { useOrderReturn } from '../../../hooks/orders/use-order-return';
+import DashboardViewLayout from '../../../layouts/dashboard-view-layout';
+import { formatDate } from '../../../utils';
 import { DataActionBar } from '../components/data-action-bar';
-import { ActionButtons } from '../components/action-buttons';
-import { IsUpdated } from '../components';
+import { DisplayField } from '../components/display-field';
 
 export const tableHeaders = [
   'Mã phiếu trả',
   'Ngày trả',
-  'Tên khách hàng',
-  'Tổng tiền trả',
+  'Mã phiếu bán',
+  'Khách hàng',
   'Số sản phẩm',
-  'Trạng thái',
-  'Thao tác',
-];
-
-export const tableData = [
-  {
-    stt: 1,
-    code: 'PT001',
-    date: '26/11/2025',
-    customer: 'Nguyễn Văn A',
-    total: '120.000',
-    quantity: 3,
-    status: 'Hoàn tất',
-  },
-  {
-    stt: 2,
-    code: 'PT002',
-    date: '26/11/2025',
-    customer: 'Trần Thị B',
-    total: '80.000',
-    quantity: 2,
-    status: 'Hoàn tất',
-  },
-  {
-    stt: 3,
-    code: 'PT003',
-    date: '26/11/2025',
-    customer: 'Pham Minh C',
-    total: '250.000',
-    quantity: 5,
-    status: 'Đang xử lý',
-  },
-  {
-    stt: 4,
-    code: 'PT004',
-    date: '25/11/2025',
-    customer: 'Lê Thu D',
-    total: '60.000',
-    quantity: 1,
-    status: 'Hoàn tất',
-  },
-  {
-    stt: 5,
-    code: 'PT005',
-    date: '25/11/2025',
-    customer: 'Nguyễn Văn A',
-    total: '150.000',
-    quantity: 4,
-    status: 'Đã hủy',
-  },
-  {
-    stt: 6,
-    code: 'PT006',
-    date: '24/11/2025',
-    customer: 'Khách Lệ',
-    total: '95.000',
-    quantity: 2,
-    status: 'Hoàn tất',
-  },
-  {
-    stt: 7,
-    code: 'PT007',
-    date: '24/11/2025',
-    customer: 'Tạ Minh E',
-    total: '40.000',
-    quantity: 1,
-    status: 'Đang xử lý',
-  },
-  {
-    stt: 8,
-    code: 'PT008',
-    date: '23/11/2025',
-    customer: 'Võ Đình F',
-    total: '300.000',
-    quantity: 6,
-    status: 'Hoàn tất',
-  },
-  {
-    stt: 9,
-    code: 'PT009',
-    date: '22/11/2025',
-    customer: 'Trần Đại G',
-    total: '15.000',
-    quantity: 1,
-    status: 'Hoàn tất',
-  },
-  {
-    stt: 10,
-    code: 'PT010',
-    date: '21/11/2025',
-    customer: 'Khách Lệ',
-    total: '50.000',
-    quantity: 2,
-    status: 'Đang xử lý',
-  },
+  'Trạng thái hoàn trả',
+  'Trạng thái nhận hàng',
 ];
 
 export function ReturnedInvoicesView() {
-  const isUpdated = true;
+  const router = useRouter();
+  const currentStore = useAtomValue(currentStoreAtom);
+  const {
+    filters,
+    orderReturns,
+    loading,
+    pagination,
+    paginationParams,
+    getAllReturnOrder,
+    setFilters,
+    setPaginationParams,
+  } = useOrderReturn();
+  useEffect(() => {
+    getAllReturnOrder();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters, paginationParams]);
   return (
     <>
-      {isUpdated ? (
-        <IsUpdated />
-      ) : (
-        <DashboardViewLayout>
-          {/* Header */}
+      <DashboardViewLayout>
+        {/* Header */}
 
-          <DisplayField label="Quản lý danh sách đơn trả hàng">
-            <Button title="Tạo phiếu trả hàng" icon={<Plus size={16} />} size="sm" radius="sm" />
-          </DisplayField>
-          <DataActionBar
-            placeholderSearch="Tìm kiếm mã trả hàng, tên khách hàng"
-            statusOptions={[
-              {
-                width: '280px',
-                key: 'status',
-                label: 'Trạng thái phiếu trả',
-                options: [
-                  {
-                    label: 'test',
-                    value: 'test value',
-                  },
-                ],
-              },
-            ]}
-            // onFilterChange={(newFilters) => {
-            //   setFilters((prev) => ({
-            //     ...prev,
-            //     ...newFilters,
-            //     product_status: newFilters.status,
-            //   }));
-            // }}
-            // onSearch={(value) => {
-            //   setFilters((prev) => ({ ...prev, q: value }));
-            // }}
+        <DisplayField label="Quản lý danh sách đơn trả hàng">
+          <Button
+            onClick={() => router.push(`/dashboard/store/${currentStore?.id}/returned-orders`)}
+            title="Tạo phiếu trả hàng"
+            icon={<Plus size={16} />}
+            size="sm"
+            radius="sm"
           />
-          <Table
-            hasMarginTop={false}
-            tableHeaders={tableHeaders}
-            data={tableData}
-            renderRow={(row) => (
-              <>
-                <td className="px-4 py-3 text-sm font-semibold text-blue-600">{row.code}</td>
-                <td className="px-4 py-3 text-sm text-gray-600">{row.date}</td>
-                <td className="px-4 py-3 text-sm text-gray-600">{row.customer}</td>
-                <td className="px-4 py-3 text-sm text-gray-600">{row.total}</td>
-                <td className="px-4 py-3 text-sm text-gray-600">{row.quantity}</td>
-                <td className="px-4 py-3 text-sm text-gray-600">{row.status}</td>
-                <td>
-                  <ActionButtons onView={() => {}} onEdit={() => {}} onDelete={() => {}} />
-                </td>
-              </>
-            )}
-          />
-        </DashboardViewLayout>
-      )}
+        </DisplayField>
+        <DataActionBar
+          placeholderSearch="Tìm kiếm theo tên khách hàng, số điện thoại khách hàng, mã trả, mã bán"
+          statusOptions={[
+            {
+              width: '280px',
+              key: 'return_status',
+              label: 'Trạng thái hoàn trả',
+              options: orderReturnStatusOptions,
+            },
+          ]}
+          onFilterChange={(newFilters) => {
+            setFilters((prev) => ({
+              ...prev,
+              ...newFilters,
+            }));
+          }}
+          onSearch={(value) => {
+            setFilters((prev) => ({ ...prev, q: value }));
+          }}
+        />
+        <Table
+          hasMarginTop={false}
+          tableHeaders={tableHeaders}
+          isLoading={loading}
+          total={pagination?.total}
+          totalPages={pagination?.totalPages}
+          page={pagination?.page}
+          limit={pagination?.limit || 0}
+          pageSize={pagination?.limit ?? paginationParams.limit}
+          onPageChange={(page) =>
+            setPaginationParams((prev) => ({
+              ...prev,
+              page: page,
+            }))
+          }
+          onPageSizeChange={(size) =>
+            setPaginationParams((prev) => ({
+              ...prev,
+              limit: size,
+            }))
+          }
+          data={orderReturns}
+          renderRow={(row) => (
+            <>
+              <td
+                onClick={() => {
+                  router.push(`returned-invoices/detail/${row?.id}`);
+                }}
+                className="px-4 py-3 text-sm font-semibold text-blue-600 hover:underline cursor-pointer"
+              >
+                {row.order_return_number || 'N/A'}
+              </td>
+              <td className="px-4 py-3 text-sm text-gray-600">{formatDate(row.createdAt)}</td>
+              <td className="px-4 py-3 text-sm text-pos-blue-500 font-semibold cursor-pointer hover:underline">
+                {row.order_number}
+              </td>
+              <td className="px-4 py-3 text-sm text-gray-600">{row.customer_name || 'N/A'}</td>
+              <td className="px-4 py-3 text-sm text-gray-600">{row.items_length} sản phẩm</td>
+              <td className={`px-4 py-3 text-sm`}>
+                <span
+                  className={`p-2  ${ORDER_RETURN_STATUS_MAP[row.return_status].color} ${ORDER_RETURN_STATUS_MAP[row.return_status].bgColor} rounded-sm`}
+                >
+                  {ORDER_RETURN_STATUS_MAP[row.return_status].label}
+                </span>
+              </td>
+              <td className={`px-4 py-3 text-sm `}>
+                <span
+                  className={` ${ORDER_RETURN_TYPE_MAP[row.return_type]?.color} ${ORDER_RETURN_TYPE_MAP[row.return_type]?.bgColor} p-2 rounded-sm`}
+                >
+                  {ORDER_RETURN_TYPE_MAP[row.return_type].label}
+                </span>
+              </td>
+            </>
+          )}
+        />
+      </DashboardViewLayout>
     </>
   );
 }

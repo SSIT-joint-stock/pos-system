@@ -11,6 +11,7 @@ export interface OrderItem {
   product_id: string;
   variant_id: string;
   quantity: number;
+  quantity_return: number;
   tax_rate: number;
   discount_rate: number;
   price: number;

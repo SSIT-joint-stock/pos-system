@@ -9,7 +9,7 @@ import { useVariant } from '../../../../hooks/variant/use-variant';
 import { formatCurrency } from '../../../../utils';
 
 import { PurchaseReturnItem } from '@main/schemas/purchase-return/purchase-return.schema';
-import { Variant } from '@repo/design-system/types';
+import { Order, Variant } from '@repo/design-system/types';
 import { PurchaseOrder } from '@repo/design-system/types/purchase';
 import { usePathname, useRouter } from 'next/navigation';
 import { useProduct } from '../../../../hooks/product/use-product';
@@ -22,14 +22,18 @@ export default function Header({
   setIsOpenModalSelectPurchase,
   setIsOpenSearch,
   setPurchaseOrder,
+  setOrder,
   isOpenSearch,
   selectedVariants,
   fields,
   fieldsWithoutPO,
   purchaseOrder,
+  title,
+  haveSearch = true,
 }: {
   setSelectedVariants?: React.Dispatch<React.SetStateAction<Variant[]>>;
   setPurchaseOrder?: (purchaseOrder: PurchaseOrder | null) => void;
+  setOrder?: (order: Order | null) => void;
   append?: (selectedVariant: CreatePurchaseOrderItem) => void;
   appendPurchaseReturnWithoutPO?: (selectedVariant: PurchaseReturnItem) => void;
   setIsOpenModalSelectPurchase?: (isOpen: boolean) => void;
@@ -39,6 +43,8 @@ export default function Header({
   fields?: CreatePurchaseOrderItem[];
   fieldsWithoutPO?: PurchaseReturnItem[];
   purchaseOrder?: PurchaseOrder | null;
+  title?: string | React.ReactNode;
+  haveSearch?: boolean;
 }) {
   // HOOK
   const ref = useRef<HTMLDivElement>(null);
@@ -86,26 +92,20 @@ export default function Header({
               onClick={() => {
                 router.back();
                 setPurchaseOrder?.(null);
+                setOrder?.(null);
               }}
               className="w-9 h-9 flex items-center hover:bg-gray-50 hover:text-gray-900 transition-colors duration-200 cursor-pointer justify-center border border-gray-200 bg-white text-gray-500 rounded-md"
             >
               <MoveLeft size={18} />
             </button>
-            <h1 className="text-xl font-semibold text-pos-blue-500 text-nowrap">
-              {pathName?.includes('purchase-order') ? (
-                ' Phiếu nhập hàng'
-              ) : (
-                <>
-                  {purchaseOrder
-                    ? `Tạo đơn trả hàng cho đơn nhập ${purchaseOrder?.order_number}`
-                    : 'Tạo đơn trả hàng'}
-                </>
-              )}
-            </h1>
+            <h1 className="text-xl font-semibold text-pos-blue-500 text-nowrap">{title}</h1>
           </div>
 
           {!purchaseOrder && (
-            <div className="relative w-fit flex items-center gap-2 flex-1" ref={ref}>
+            <div
+              className={`relative w-fit flex items-center gap-2 flex-1 ${haveSearch ? 'block' : 'hidden'}`}
+              ref={ref}
+            >
               <Input
                 type="search"
                 radius="sm"

@@ -64,108 +64,112 @@ export default function TableWithPo({
 
         return (
           <>
-            <Tooltip label={poItem?.item_name} position="bottom">
-              <td className="px-4 py-2.5 text-sm font-semibold text-blue-600 ">
-                {truncateText(poItem?.item_name, 30) || 'N/A'}
-              </td>
-            </Tooltip>
+            {poItem && (
+              <>
+                <Tooltip label={poItem?.item_name} position="bottom">
+                  <td className="px-4 py-2.5 text-sm font-semibold text-blue-600 ">
+                    {truncateText(poItem?.item_name, 30) || 'N/A'}
+                  </td>
+                </Tooltip>
 
-            {/* Hiển thị đơn vị nhập từ PO */}
-            <td className="px-4 py-2.5 text-sm font-semibold">{poItem?.unit || 'N/A'}</td>
+                {/* Hiển thị đơn vị nhập từ PO */}
+                <td className="px-4 py-2.5 text-sm font-semibold">{poItem?.unit || 'N/A'}</td>
 
-            <td className="px-4 py-2.5">
-              <div className="flex flex-col gap-1">
-                <Controller
-                  name={`items.${index}.quantity`}
-                  control={control}
-                  render={({ field }) => (
-                    <NumberInput
-                      {...field}
-                      value={field.value ?? ''}
-                      onChange={(val) => {
-                        if (val === '' || val === null) {
-                          field.onChange(null);
-                          return;
-                        }
-                        const num = Number(val);
-                        // Chặn không cho nhập quá số lượng còn lại trong PO
-                        if (num > maxReturnableInPoUnit) {
-                          field.onChange(maxReturnableInPoUnit);
-                          return;
-                        }
-                        field.onChange(num);
-                      }}
-                      min={0}
-                      max={maxReturnableInPoUnit}
-                      clampBehavior="strict"
-                      allowDecimal={false}
-                      hideControls
-                      placeholder="0"
-                      size="sm"
-                      radius="sm"
-                      className="w-32"
+                <td className="px-4 py-2.5">
+                  <div className="flex flex-col gap-1">
+                    <Controller
+                      name={`items.${index}.quantity`}
+                      control={control}
+                      render={({ field }) => (
+                        <NumberInput
+                          {...field}
+                          value={field.value ?? ''}
+                          onChange={(val) => {
+                            if (val === '' || val === null) {
+                              field.onChange(null);
+                              return;
+                            }
+                            const num = Number(val);
+                            // Chặn không cho nhập quá số lượng còn lại trong PO
+                            if (num > maxReturnableInPoUnit) {
+                              field.onChange(maxReturnableInPoUnit);
+                              return;
+                            }
+                            field.onChange(num);
+                          }}
+                          min={0}
+                          max={maxReturnableInPoUnit}
+                          clampBehavior="strict"
+                          allowDecimal={false}
+                          hideControls
+                          placeholder="0"
+                          size="sm"
+                          radius="sm"
+                          className="w-32"
+                        />
+                      )}
                     />
-                  )}
-                />
-                {/* Hiển thị thông tin hỗ trợ người dùng */}
-                <p className="text-[11px] text-gray-500">
-                  Có thể trả:{' '}
-                  <span className="font-bold text-orange-600">{maxReturnableInPoUnit}</span>{' '}
-                  {poItem?.unit}
-                </p>
-                {factor > 1 && (
-                  <p className="text-[10px] text-gray-400 italic">
-                    (1 {poItem.unit} = {factor} đơn vị gốc)
-                  </p>
-                )}
-              </div>
-            </td>
+                    {/* Hiển thị thông tin hỗ trợ người dùng */}
+                    <p className="text-[11px] text-gray-500">
+                      Có thể trả:{' '}
+                      <span className="font-bold text-orange-600">{maxReturnableInPoUnit}</span>{' '}
+                      {poItem?.unit}
+                    </p>
+                    {factor > 1 && (
+                      <p className="text-[10px] text-gray-400 italic">
+                        (1 {poItem.unit} = {factor} đơn vị gốc)
+                      </p>
+                    )}
+                  </div>
+                </td>
 
-            <td className="px-4 py-2.5 text-sm font-semibold hover:bg-gray-100 cursor-pointer relative group">
-              <span className="flex items-center gap-2">
-                {formatCurrency(realUnitCostOfPoItem)}
-                <ChevronDown size={14} />
-              </span>
-              {/* Tooltip chi tiết đơn giá */}
-              <div className="absolute top-full mt-1 left-0 w-64 bg-white z-50 shadow-xl border border-gray-200 rounded-md p-3 hidden group-hover:block">
-                <div className="space-y-1 text-xs">
-                  <div className="flex justify-between">
-                    <span>Giá nhập (gốc):</span> <span>{formatCurrency(baseUnitCost)}</span>
+                <td className="px-4 py-2.5 text-sm font-semibold hover:bg-gray-100 cursor-pointer relative group">
+                  <span className="flex items-center gap-2">
+                    {formatCurrency(realUnitCostOfPoItem)}
+                    <ChevronDown size={14} />
+                  </span>
+                  {/* Tooltip chi tiết đơn giá */}
+                  <div className="absolute top-full mt-1 left-0 w-64 bg-white z-50 shadow-xl border border-gray-200 rounded-md p-3 hidden group-hover:block">
+                    <div className="space-y-1 text-xs">
+                      <div className="flex justify-between">
+                        <span>Giá nhập (gốc):</span> <span>{formatCurrency(baseUnitCost)}</span>
+                      </div>
+                      <div className="flex justify-between text-green-600">
+                        <span>Thuế quy đổi:</span> <span>+{formatCurrency(taxPerBase)}</span>
+                      </div>
+                      <div className="flex justify-between text-red-600">
+                        <span>CK quy đổi:</span> <span>-{formatCurrency(discountPerBase)}</span>
+                      </div>
+                      <div className="border-t pt-1 mt-1 font-bold flex justify-between">
+                        <span>Giá thực tế:</span>
+                        <span>{formatCurrency(realUnitCostOfPoItem)}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex justify-between text-green-600">
-                    <span>Thuế quy đổi:</span> <span>+{formatCurrency(taxPerBase)}</span>
-                  </div>
-                  <div className="flex justify-between text-red-600">
-                    <span>CK quy đổi:</span> <span>-{formatCurrency(discountPerBase)}</span>
-                  </div>
-                  <div className="border-t pt-1 mt-1 font-bold flex justify-between">
-                    <span>Giá thực tế:</span>
-                    <span>{formatCurrency(realUnitCostOfPoItem)}</span>
-                  </div>
-                </div>
-              </div>
-            </td>
+                </td>
 
-            <td className="px-4 py-2.5 text-sm">
-              <Controller
-                name={`items.${index}.reason`}
-                control={control}
-                render={({ field }) => (
-                  <Textarea
-                    onChange={(value) => field.onChange(value)}
-                    placeholder="Lý do..."
-                    autosize
-                    minRows={2}
-                    size="sm"
-                    radius={'sm'}
+                <td className="px-4 py-2.5 text-sm">
+                  <Controller
+                    name={`items.${index}.reason`}
+                    control={control}
+                    render={({ field }) => (
+                      <Textarea
+                        onChange={(value) => field.onChange(value)}
+                        placeholder="Lý do..."
+                        autosize
+                        minRows={2}
+                        size="sm"
+                        radius={'sm'}
+                      />
+                    )}
                   />
-                )}
-              />
-            </td>
+                </td>
 
-            <td className="px-4 py-2.5 text-sm font-bold text-pos-blue-600">
-              {formatCurrency(Number(item?.quantity || 0) * realUnitCostOfPoItem)}
-            </td>
+                <td className="px-4 py-2.5 text-sm font-bold text-pos-blue-600">
+                  {formatCurrency(Number(item?.quantity || 0) * realUnitCostOfPoItem)}
+                </td>
+              </>
+            )}
           </>
         );
       }}

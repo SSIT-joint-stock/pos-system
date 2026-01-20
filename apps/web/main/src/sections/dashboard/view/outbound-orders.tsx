@@ -148,6 +148,13 @@ export function OutboundOrders() {
       >
         {/* Header */}
         <Header
+          title={
+            <>
+              {purchaseOrder
+                ? `Tạo đơn trả hàng nhập ${purchaseOrder?.order_number}`
+                : 'Tạo đơn trả hàng nhập'}
+            </>
+          }
           isOpenSearch={isOpenSearch}
           selectedVariants={selectedVariants}
           purchaseOrder={purchaseOrder || null}

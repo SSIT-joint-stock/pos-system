@@ -122,8 +122,8 @@ export function Table<T>({
           <Pagination
             size="sm"
             radius="sm"
-            boundaries={2}
-            siblings={2}
+            // boundaries={2}
+            // siblings={2}
             total={totalPages}
             onChange={onPageChange}
           />

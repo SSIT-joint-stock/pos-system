@@ -101,7 +101,12 @@ export function CreatePurchaseOrders() {
           />
         }
       >
-        <Header setSelectedVariants={setSelectedVariants} append={append} fields={fields} />
+        <Header
+          setSelectedVariants={setSelectedVariants}
+          append={append}
+          fields={fields}
+          title="Tạo đơn nhập hàng"
+        />
         {/* Content Area */}
         <div className="flex-1 bg-white rounded-md shadow   h-full p-2 ">
           {fields.length === 0 ? (

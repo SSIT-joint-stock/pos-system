@@ -23,3 +23,6 @@ export * from './sales-view';
 export * from './order-detail-view';
 export * from './purchase-return-detail';
 export * from './report';
+
+export * from './return-order-detail-view';
+export * from './return-order-view';

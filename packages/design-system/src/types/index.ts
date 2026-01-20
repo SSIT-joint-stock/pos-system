@@ -3,6 +3,7 @@ export * from './bank';
 export * from './category';
 export * from './communes';
 export * from './order';
+export * from './order-return';
 export * from './product';
 export * from './province';
 export * from './purchase-return';
