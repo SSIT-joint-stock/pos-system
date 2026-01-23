@@ -3,6 +3,7 @@ import { DateInput } from '@mantine/dates';
 import { Button, Input, Modal, Select } from '@repo/design-system/components/ui';
 import { IOrderReturn } from '@repo/design-system/types';
 import { Calendar } from 'lucide-react';
+import { useEffect } from 'react';
 import { Controller, UseFormReturn } from 'react-hook-form';
 import { paymentMethods } from '../../../../constants/status';
 import { AcceptPaymentReturn } from '../../../../schemas/order/order-return.schema';
@@ -31,6 +32,14 @@ export function FormAcceptPayment({
 
     formState: { errors },
   } = acceptPaymentForm;
+  useEffect(() => {
+    if (orderReturn?.suggest_total) {
+      setValue('amount', Number(orderReturn.suggest_total), {
+        shouldValidate: true,
+        shouldDirty: false,
+      });
+    }
+  }, [orderReturn?.suggest_total]);
   return (
     <Modal
       size="xl"
@@ -41,6 +50,7 @@ export function FormAcceptPayment({
       <form
         onSubmit={handleSubmit(async (data) => {
           const success = await acceptPaymentReturn(orderReturn.id, data);
+          console.log(success);
           if (success) {
             setIsOpenModalAcceptPayment(false);
             getReturnOrder(orderReturn.id);
@@ -75,15 +85,11 @@ export function FormAcceptPayment({
                 render={({ field }) => (
                   <div className="flex flex-col gap-1">
                     <NumberInput
-                      onChange={(value) => {
-                        setValue(
-                          'amount',
-                          Number(value) || Number(orderReturn?.suggest_total) || 0
-                        );
-                      }}
+                      {...field}
+                      value={field.value ?? Number(orderReturn?.suggest_total) ?? 0}
+                      onChange={(value) => field.onChange(Number(value) || 0)}
                       min={0}
                       max={Number(orderReturn?.suggest_total) || 100}
-                      defaultValue={Number(orderReturn?.suggest_total) || 0}
                       clampBehavior="strict"
                       size="sm"
                       thousandSeparator=","

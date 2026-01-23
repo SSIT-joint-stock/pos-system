@@ -11,6 +11,7 @@ import {
   ORDER_RETURN_TYPE_MAP,
   OrderItemReturnReason,
 } from '../../../constants/reason-return';
+import { getPaymentMethodLabel } from '../../../constants/status';
 import { useOrderReturn } from '../../../hooks/orders/use-order-return';
 import DetailLayout from '../../../layouts/detail-layout';
 import {
@@ -49,12 +50,10 @@ export function ReturnOrderDetailView({ returnId }: { returnId?: string }) {
     );
 
   const canAcceptStock =
-    orderReturn &&
-    orderReturn.return_type !== order_return_type.FULL &&
-    ![order_return_status.CANCELLED, order_return_status.REFUNDED].includes(
-      orderReturn.return_status
-    );
+    (orderReturn && orderReturn.return_type !== order_return_type.FULL) ||
+    orderReturn?.return_status === order_return_status.REQUESTED;
 
+  console.log(orderReturn);
   return (
     <>
       <DetailLayout>
@@ -146,12 +145,43 @@ export function ReturnOrderDetailView({ returnId }: { returnId?: string }) {
               </span>
             </div>
             <Divider />
-            <div className="flex items-center justify-between">
-              <span className="text-base font-semibold">Gợi ý hoàn tiền</span>
-              <span className="text-pos-blue-500 font-semibold text-base">
-                {formatCurrency(orderReturn?.suggest_total || 0)}
-              </span>
-            </div>
+            {orderReturn?.return_status !== order_return_status.REFUNDED && (
+              <div className="flex items-center justify-between">
+                <span className="text-base font-semibold">Gợi ý hoàn tiền</span>
+                <span className="text-pos-blue-500 font-semibold text-base">
+                  {formatCurrency(orderReturn?.suggest_total || 0)}
+                </span>
+              </div>
+            )}
+            {orderReturn?.return_status === order_return_status.REFUNDED && (
+              <>
+                {orderReturn?.payment.map((item) => (
+                  <div key={item.id} className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-base font-semibold">Tổng đã hoàn tiền</span>
+                      <span className="text-green-500 font-semibold text-base">
+                        {formatCurrency(item.amount)}
+                      </span>
+                    </div>
+                    <Divider />
+                    <div className="flex items-center justify-between">
+                      <span className="text-base font-semibold">Phương thức hoàn tiền</span>
+                      <span className=" font-semibold text-base">
+                        {getPaymentMethodLabel(item.payment_method)}
+                      </span>
+                    </div>
+                    <Divider />
+
+                    <div className="flex items-center justify-between">
+                      <span className="text-base font-semibold">Ngày hoàn tiền</span>
+                      <span className=" font-semibold text-base">
+                        {formatDate(item.createdAt, { showTime: true })}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </>
+            )}
           </div>
 
           <div className="flex items-center justify-end gap-2">

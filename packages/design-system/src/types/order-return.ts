@@ -18,7 +18,7 @@ export interface IOrderReturn {
   items_length: number;
   createdAt: Date;
   creator: IOrderReturnCreator;
-  payments: IOrderReturnPayment[];
+  payment: IOrderReturnPayment[];
   items: IOrderReturnItem[];
   updatedAt: Date;
 }
