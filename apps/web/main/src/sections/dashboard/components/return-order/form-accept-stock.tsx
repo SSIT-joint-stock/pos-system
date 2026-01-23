@@ -1,9 +1,9 @@
-import { AcceptQuantity } from '@main/schemas/order/order-return.schema';
 import { NumberInput } from '@mantine/core';
 import { Button, Modal, Table } from '@repo/design-system/components/ui';
 import { IOrderReturn } from '@repo/design-system/types';
 import { useEffect } from 'react';
 import { Controller, useFieldArray, UseFormReturn } from 'react-hook-form';
+import { AcceptQuantity } from '../../../../schemas/order/order-return.schema';
 
 export function FormAcceptStock({
   isOpen,
