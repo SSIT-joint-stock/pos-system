@@ -1,6 +1,12 @@
 import { DateInput } from '@mantine/dates';
 import { useDebouncedValue } from '@mantine/hooks';
-import { Button, Loading, Modal, Select } from '@repo/design-system/components/ui';
+import {
+  Button,
+  Loading,
+  LoadingCreatedToDetail,
+  Modal,
+  Select,
+} from '@repo/design-system/components/ui';
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 import { Variant } from '@repo/design-system/types';
 import { Menu, Plus, User } from 'lucide-react';
@@ -283,14 +289,7 @@ export default function SidebarPurchase({
         />
       </Modal>
 
-      {isPendingForCreated && (
-        <div className="absolute inset-0 z-50 bg-white/80 flex items-center justify-center">
-          <div className="flex items-center gap-4">
-            <Loading size="sm" color="#3b82f6" />
-            <span className="text-pos-blue-500 text-sm">Đang chuyển trang...</span>
-          </div>
-        </div>
-      )}
+      {isPendingForCreated && <LoadingCreatedToDetail />}
     </>
   );
 }

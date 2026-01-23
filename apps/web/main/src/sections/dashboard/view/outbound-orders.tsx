@@ -58,10 +58,11 @@ export function OutboundOrders() {
     name: 'items',
   });
 
-  const watchedItems = watch('items');
-  const watchedItemsWithoutPO = watchWithoutPO('items');
-  const itemsLength = watchedItems.length;
-  const itemsLengthWithoutPO = watchedItemsWithoutPO.length;
+  const watchedItems = watch('items') ?? [];
+  const watchedItemsWithoutPO = watchWithoutPO('items') ?? [];
+  const itemsLength = watchedItems.reduce((acc, item) => acc + item.quantity, 0) || 0;
+  const itemsLengthWithoutPO =
+    watchedItemsWithoutPO.reduce((acc, item) => acc + item.quantity, 0) || 0;
 
   useEffect(() => {
     if (!search) return;

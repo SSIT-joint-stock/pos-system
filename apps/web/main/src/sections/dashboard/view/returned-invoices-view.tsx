@@ -18,12 +18,12 @@ import { DisplayField } from '../components/display-field';
 
 export const tableHeaders = [
   'Mã phiếu trả',
-  'Ngày trả',
   'Mã phiếu bán',
   'Khách hàng',
   'Số sản phẩm',
   'Trạng thái hoàn trả',
   'Trạng thái nhận hàng',
+  'Ngày trả',
 ];
 
 export function ReturnedInvoicesView() {
@@ -109,8 +109,12 @@ export function ReturnedInvoicesView() {
               >
                 {row.order_return_number || 'N/A'}
               </td>
-              <td className="px-4 py-3 text-sm text-gray-600">{formatDate(row.createdAt)}</td>
-              <td className="px-4 py-3 text-sm text-pos-blue-500 font-semibold cursor-pointer hover:underline">
+              <td
+                onClick={() => {
+                  router.push(`sales-invoices/detail/${row?.order_id}`);
+                }}
+                className="px-4 py-3 text-sm text-pos-blue-500 font-semibold cursor-pointer hover:underline"
+              >
                 {row.order_number}
               </td>
               <td className="px-4 py-3 text-sm text-gray-600">{row.customer_name || 'N/A'}</td>
@@ -129,6 +133,7 @@ export function ReturnedInvoicesView() {
                   {ORDER_RETURN_TYPE_MAP[row.return_type].label}
                 </span>
               </td>
+              <td className="px-4 py-3 text-sm text-gray-600">{formatDate(row.createdAt)}</td>
             </>
           )}
         />

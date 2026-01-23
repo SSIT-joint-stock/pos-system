@@ -1,12 +1,24 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 import { Divider, NumberInput, Textarea, Tooltip } from '@mantine/core';
-import { Button, Input, Modal, Select, Table } from '@repo/design-system/components/ui';
+import {
+  Button,
+  LoadingCreatedToDetail,
+  Modal,
+  Select,
+  Table,
+} from '@repo/design-system/components/ui';
+import { currentStoreAtom } from '@repo/design-system/stores/auth';
+import { useAtomValue } from 'jotai';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { Controller, useFieldArray } from 'react-hook-form';
+import { useEffect, useMemo, useState, useTransition } from 'react';
+import { Controller, useFieldArray, useWatch } from 'react-hook-form';
 import { formatPaymentMethod, payment_method } from '../../../constants/method';
-import { ORDER_ITEM_RETURN_REASON_OPTIONS } from '../../../constants/reason-return';
+import {
+  getOrderItemReturnReasonLabel,
+  ORDER_ITEM_RETURN_REASON_OPTIONS,
+  OrderItemReturnReason,
+} from '../../../constants/reason-return';
 import { ORDER_STATUS_MAP } from '../../../constants/status';
 import { useOrderReturn } from '../../../hooks/orders/use-order-return';
 import { useOrders } from '../../../hooks/orders/use-orders';
@@ -35,11 +47,13 @@ const tableHeadersSelected = [
   'Thành tiền',
 ];
 export default function ReturnOrderView() {
+  const currentStore = useAtomValue(currentStoreAtom);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const search = searchParams?.get('order_number');
 
+  const [isPending, startTransition] = useTransition();
   const [isOpenModalOrders, setIsOpenModalOrders] = useState<boolean>(false);
 
   const {
@@ -55,14 +69,34 @@ export default function ReturnOrderView() {
   } = useOrders();
   const {
     createReturnOrder,
-    orderReturnForm: { control, reset, watch, handleSubmit, register },
+    orderReturnForm: { control, reset, handleSubmit },
     loading: loadingReturnOrder,
   } = useOrderReturn();
   const { fields, append } = useFieldArray({
     control,
     name: 'items',
   });
-  const watchedItems = watch('items');
+  const watchedItems =
+    useWatch({
+      control,
+      name: 'items',
+    }) ?? [];
+
+  const totalPrice = useMemo(() => {
+    if (!order) return 0;
+
+    return watchedItems.reduce((acc, item) => {
+      if (!item.quantity || item.quantity <= 0) return acc;
+
+      const orderItem = order.order_item.find((oi) => oi.id === item.order_item_id);
+
+      if (!orderItem) return acc;
+
+      return acc + Number(orderItem.price) * Number(item.quantity);
+    }, 0);
+  }, [watchedItems, order]);
+
+  const suggestRefund = Math.min(totalPrice, Number(order?.customer_pay_amount || 0));
 
   useEffect(() => {
     if (!search) return;
@@ -83,9 +117,11 @@ export default function ReturnOrderView() {
       append({
         order_item_id: item.id,
         quantity: 0,
+        reason_status: OrderItemReturnReason.UNKNOWN,
       });
     });
   }, [append, reset, order]);
+
   return (
     <>
       <ReturnProductLayout
@@ -93,27 +129,25 @@ export default function ReturnOrderView() {
           <form
             onSubmit={handleSubmit(async (data) => {
               const success = await createReturnOrder(order?.id || '', data);
-              if (success) {
+              if (success.success && success.data) {
                 setOrder(null);
                 reset({
                   items: [],
-                  order_return_number: '',
                   reason: '',
                 });
                 router?.replace(pathname || '/');
+                startTransition(() => {
+                  router.push(
+                    `/dashboard/store/${currentStore?.id}/returned-invoices/detail/${success?.data.id}`
+                  );
+                });
               }
             })}
             className="flex flex-col justify-between p-4 h-full"
           >
             <div className="space-y-5 h-full">
               <h2 className="text-base font-semibold">Chi tiết đơn trả hàng bán {order?.code}</h2>
-              <Input
-                {...register('order_return_number')}
-                size="sm"
-                radius="sm"
-                label="Mã đơn trả hàng"
-                placeholder="Nhập mã đơn trả hàng"
-              />
+
               <Controller
                 control={control}
                 name="reason"
@@ -127,38 +161,69 @@ export default function ReturnOrderView() {
                   />
                 )}
               />
+              <Divider />
+              <div className="space-y-2">
+                <h3 className="text-base font-semibold">Ghi chú</h3>
+
+                {watchedItems.every((item) => item.quantity === 0) && (
+                  <p className="text-sm text-gray-500">Chưa có sản phẩm trả hàng</p>
+                )}
+
+                {watchedItems &&
+                  watchedItems.length > 0 &&
+                  watchedItems
+                    .filter((item) => item.quantity !== 0)
+                    .map((item) => {
+                      const orderItem = order?.order_item.find(
+                        (oi) => oi.id === item.order_item_id
+                      );
+                      return (
+                        <div key={item.order_item_id} className="space-y-1 ">
+                          <p className="text-sm">
+                            Trả hàng sản phẩm: {orderItem?.variant?.name} x {item.quantity}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            Lý do:{' '}
+                            {getOrderItemReturnReasonLabel(
+                              item.reason_status as OrderItemReturnReason
+                            )}
+                          </p>
+                        </div>
+                      );
+                    })}
+              </div>
 
               <Divider />
-              <h3 className="text-base font-semibold">Than toán đơn trả</h3>
+              <h3 className="text-base font-semibold">Thanh toán đơn trả</h3>
               <div className="flex items-center justify-between">
                 <div className="flex flex-col gap-1">
                   <p className="text-sm font-medium text-gray-900">Tổng hoàn sản phẩm</p>
                   <span className="text-xs text-gray-500 font-medium">
-                    {fields.length} sản phẩm
+                    {watchedItems?.reduce((acc, item) => acc + item.quantity, 0)} sản phẩm
                   </span>
                 </div>
                 <span className="text-gray-900 text-sm font-medium">
-                  {formatCurrency(order?.total_amount || 0)}
+                  {formatCurrency(totalPrice || 0)}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <p className="text-base font-semibold text-gray-900">Tổng hoàn trả</p>
                 <span className="text-gray-900 text-sm font-semibold">
-                  {formatCurrency(order?.total_amount || 0)}
+                  {formatCurrency(totalPrice || 0)}
                 </span>
               </div>
               <Divider />
               <div className="flex items-center justify-between">
                 <p className="text-base font-semibold text-gray-900">Gợi ý hoàn tiền</p>
                 <span className="text-pos-blue-500 text-base font-semibold">
-                  {formatCurrency(order?.customer_pay_amount || 0)}
+                  {formatCurrency(suggestRefund || 0)}
                 </span>
               </div>
               <Divider />
             </div>
             <Button
               loading={loadingReturnOrder}
-              disabled={fields.length === 0}
+              disabled={watchedItems?.reduce((acc, item) => acc + (item.quantity || 0), 0) === 0}
               title="Tạo đơn trả hàng"
               type="submit"
               className="w-full h-full"
@@ -181,7 +246,7 @@ export default function ReturnOrderView() {
               </h2>
               <Button
                 type="button"
-                size="sm"
+                size="md"
                 radius="sm"
                 title="Tạo đơn trả hàng bán"
                 onClick={() => setIsOpenModalOrders(true)}
@@ -196,10 +261,13 @@ export default function ReturnOrderView() {
                 tableHeaders={tableHeadersSelected}
                 data={fields}
                 renderRow={(data, index) => {
-                  const orderItem = order?.order_item[index];
+                  const itemForm = watchedItems[index];
+                  if (!itemForm) return null;
+                  const orderItem = order?.order_item.find(
+                    (oi) => oi.id === itemForm.order_item_id
+                  );
                   const maxQuantityOrder =
                     (orderItem?.quantity || 0) - (orderItem?.quantity_return || 0);
-                  // const item = watchedItems[index];
 
                   return (
                     <>
@@ -261,9 +329,13 @@ export default function ReturnOrderView() {
                           <td className="px-4 py-2.5 text-sm font-semibold text-gray-600">
                             <Controller
                               control={control}
+                              defaultValue={OrderItemReturnReason.UNKNOWN}
                               name={`items.${index}.reason_status`}
                               render={({ field }) => (
                                 <Select
+                                  value={
+                                    watchedItems[index].quantity === 0 ? '' : field.value || ''
+                                  }
                                   onChange={(value) => {
                                     field.onChange(value);
                                   }}
@@ -279,7 +351,7 @@ export default function ReturnOrderView() {
                             />
                           </td>
                           <td className="px-4 py-2.5 text-sm font-semibold text-blue-600 ">
-                            {formatCurrency(orderItem?.price || '')}
+                            {formatCurrency(orderItem?.price * watchedItems[index].quantity || '')}
                           </td>
                         </>
                       )}
@@ -369,6 +441,7 @@ export default function ReturnOrderView() {
           )}
         />
       </Modal>
+      {isPending && <LoadingCreatedToDetail />}
     </>
   );
 }

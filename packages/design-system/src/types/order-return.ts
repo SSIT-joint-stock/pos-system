@@ -13,6 +13,7 @@ export interface IOrderReturn {
   reason: string;
   return_type: order_return_type;
   return_status: order_return_status;
+  suggest_total: string;
   total: string;
   items_length: number;
   createdAt: Date;
@@ -30,6 +31,7 @@ export interface IOrderReturnItem {
   variant_id: string;
   item_name: string;
   quantity: number;
+  quantity_refunded: number;
   total: string;
   reason_status: string;
   condition: string | null;

@@ -1,25 +1,52 @@
+// export enum OrderItemReturnReason {
+//   UNKNOWN = 'UNKNOWN',
+//   CUSTOMER_CHANGED_MIND = 'CUSTOMER_CHANGED_MIND',
+//   NOT_AS_DESCRIBED = 'NOT_AS_DESCRIBED',
+//   WRONG_ITEM_SENT = 'WRONG_ITEM_SENT',
+//   DAMAGED = 'DAMAGED',
+//   DEFECTIVE = 'DEFECTIVE',
+//   WRONG_SIZE = 'WRONG_SIZE',
+//   WRONG_COLOR = 'WRONG_COLOR',
+//   WRONG_MODEL = 'WRONG_MODEL',
+//   OTHER = 'OTHER',
+// }
 export enum OrderItemReturnReason {
-  UNKNOWN = 'UNKNOWN',
-  CUSTOMER_CHANGED_MIND = 'CUSTOMER_CHANGED_MIND',
-  NOT_AS_DESCRIBED = 'NOT_AS_DESCRIBED',
-  WRONG_ITEM_SENT = 'WRONG_ITEM_SENT',
-  DAMAGED = 'DAMAGED',
-  DEFECTIVE = 'DEFECTIVE',
-  WRONG_SIZE = 'WRONG_SIZE',
-  WRONG_COLOR = 'WRONG_COLOR',
-  WRONG_MODEL = 'WRONG_MODEL',
-  OTHER = 'OTHER',
+  UNKNOWN = 'UNKNOWN', // Không xác định
+
+  // Nhóm lỗi Shop/Sản phẩm
+  PRODUCT_DEFECT = 'PRODUCT_DEFECT', // Hàng lỗi/hỏng
+  WRONG_PRODUCT = 'WRONG_PRODUCT', // Giao sai hàng
+  NOT_AS_DESCRIBED = 'NOT_AS_DESCRIBED', // Khác mô tả
+  EXPIRED = 'EXPIRED', // Hết hạn
+  INCOMPLETE = 'INCOMPLETE', // Thiếu phụ kiện
+  POOR_QUALITY = 'POOR_QUALITY', // Chất lượng kém
+  // Nhóm vận chuyển
+  SHIPPING_DAMAGE = 'SHIPPING_DAMAGE', // Hư hỏng do vận chuyển
+  LATE_DELIVERY = 'LATE_DELIVERY', // Giao trễ
+
+  // Nhóm khách hàng
+  CHANGE_OF_MIND = 'CHANGE_OF_MIND', // Đổi ý/Không thích nữa
+  SIZE_UNFIT = 'SIZE_UNFIT', // Không vừa (Size)
+  ACCIDENTAL_ORDER = 'ACCIDENTAL_ORDER', // Đặt nhầm
+  BETTER_PRICE = 'BETTER_PRICE', // Tìm thấy giá rẻ hơn
+
+  // Khác
+  OTHER = 'OTHER', // Lý do khác
 }
 export const ORDER_ITEM_RETURN_REASON_LABEL: Record<OrderItemReturnReason, string> = {
   [OrderItemReturnReason.UNKNOWN]: 'Không xác định',
-  [OrderItemReturnReason.CUSTOMER_CHANGED_MIND]: 'Khách hàng thay đổi ý định',
-  [OrderItemReturnReason.NOT_AS_DESCRIBED]: 'Sản phẩm không đúng mô tả',
-  [OrderItemReturnReason.WRONG_ITEM_SENT]: 'Giao sai sản phẩm',
-  [OrderItemReturnReason.DAMAGED]: 'Sản phẩm bị hư hỏng',
-  [OrderItemReturnReason.DEFECTIVE]: 'Sản phẩm bị lỗi, không hoạt động',
-  [OrderItemReturnReason.WRONG_SIZE]: 'Sai kích cỡ / kích thước',
-  [OrderItemReturnReason.WRONG_COLOR]: 'Giao sai màu sắc',
-  [OrderItemReturnReason.WRONG_MODEL]: 'Sai mẫu / kiểu dáng',
+  [OrderItemReturnReason.PRODUCT_DEFECT]: 'Hàng lỗi/hỏng',
+  [OrderItemReturnReason.WRONG_PRODUCT]: 'Giao sai hàng',
+  [OrderItemReturnReason.NOT_AS_DESCRIBED]: 'Khác mô tả',
+  [OrderItemReturnReason.EXPIRED]: 'Hết hạn',
+  [OrderItemReturnReason.INCOMPLETE]: 'Thiếu phụ kiện',
+  [OrderItemReturnReason.POOR_QUALITY]: 'Chất lượng kém',
+  [OrderItemReturnReason.SHIPPING_DAMAGE]: 'Hư hỏng do vận chuyển',
+  [OrderItemReturnReason.LATE_DELIVERY]: 'Giao trễ',
+  [OrderItemReturnReason.CHANGE_OF_MIND]: 'Đổi ý/Không thích nữa',
+  [OrderItemReturnReason.SIZE_UNFIT]: 'Không vừa (Size)',
+  [OrderItemReturnReason.ACCIDENTAL_ORDER]: 'Đặt nhầm',
+  [OrderItemReturnReason.BETTER_PRICE]: 'Tìm thấy giá rẻ hơn',
   [OrderItemReturnReason.OTHER]: 'Lý do khác',
 };
 

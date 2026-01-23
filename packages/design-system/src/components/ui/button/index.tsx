@@ -40,6 +40,7 @@ export function Button({
   radius = 'md',
   size = 'md',
   type = 'button',
+
   icon,
   rightSection,
   className,

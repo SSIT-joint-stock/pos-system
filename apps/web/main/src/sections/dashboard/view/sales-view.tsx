@@ -110,41 +110,44 @@ export function SalesView() {
       updateCurrentInvoice([...selectedVariants, { ...product, selectedQuantity: 1 }]);
     }
   };
-
   const handleIncreaseQuantity = (id: string) => {
-    setSelectedVariants((prev) =>
-      prev.map((p) => {
-        if (p.id === id) {
-          const newQuantity = (p.selectedQuantity || 1) + 1;
-          return {
-            ...p,
-            selectedQuantity: newQuantity > p.onHand ? p.onHand : newQuantity,
-          };
-        }
-        return p;
-      })
-    );
+    const updated = selectedVariants.map((p) => {
+      if (p.id === id) {
+        const newQty = Math.min((p.selectedQuantity || 1) + 1, p.onHand);
+        return { ...p, selectedQuantity: newQty };
+      }
+      return p;
+    });
+
+    updateCurrentInvoice(updated);
   };
 
   const handleDecreaseQuantity = (id: string) => {
-    setSelectedVariants((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, selectedQuantity: (p.selectedQuantity || 1) - 1 } : p))
-    );
+    const updated = selectedVariants.map((p) => {
+      if (p.id === id) {
+        return {
+          ...p,
+          selectedQuantity: Math.max(1, (p.selectedQuantity || 1) - 1),
+        };
+      }
+      return p;
+    });
+
+    updateCurrentInvoice(updated);
   };
 
   const handleChangQuantity = (id: string, value: number) => {
-    setSelectedVariants((prev) =>
-      prev.map((p) => {
-        if (p.id === id) {
-          let safeValue = value;
-          if (value > p.onHand) {
-            safeValue = p.onHand;
-          }
-          return { ...p, selectedQuantity: safeValue };
-        }
-        return p;
-      })
-    );
+    if (Number.isNaN(value)) return;
+
+    const updated = selectedVariants.map((p) => {
+      if (p.id === id) {
+        const safeValue = Math.min(Math.max(1, value), p.onHand);
+        return { ...p, selectedQuantity: safeValue };
+      }
+      return p;
+    });
+
+    updateCurrentInvoice(updated);
   };
 
   const handleRemoveSelectedProduct = (id: string) => {
@@ -308,6 +311,7 @@ export function SalesView() {
     }));
   };
   useClickOutside(openMenuSettingsRef, () => setIsOpenMenuSettings(false));
+  console.log(selectedVariants);
   return (
     <>
       <div className="h-screen flex flex-col gap-2 overflow-hidden p-4">

@@ -53,7 +53,6 @@ export function PurchaseOrdersDetailView({ purchaseId }: { purchaseId: string })
     getPurchaseOrder(purchaseId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [purchaseId]);
-  console.log(currentIdx);
   return (
     <>
       <DetailLayout>

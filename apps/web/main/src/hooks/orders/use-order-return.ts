@@ -6,7 +6,14 @@ import { useForm } from 'react-hook-form';
 import { FilterValue, useQueryParams } from '../../hooks/query/use-query-params';
 import { useRequestHelper } from '../../hooks/use-request-helper';
 import api from '../../libs/axios';
-import { OrderReturn, OrderReturnSchema } from '../../schemas/order/order-return.schema';
+import {
+  AcceptPaymentReturn,
+  AcceptPaymentReturnSchema,
+  AcceptQuantitySchema,
+  OrderReturn,
+  OrderReturnSchema,
+} from '../../schemas/order/order-return.schema';
+import { AcceptQuantity } from './../../schemas/order/order-return.schema';
 
 interface OrderReturnFilters extends Record<string, FilterValue> {
   q?: string;
@@ -38,8 +45,41 @@ export function useOrderReturn() {
   const orderReturnForm = useForm<OrderReturn>({
     resolver: zodResolver(OrderReturnSchema),
   });
+  const acceptQuantityForm = useForm<AcceptQuantity>({
+    resolver: zodResolver(AcceptQuantitySchema),
+  });
+  const acceptPaymentForm = useForm<AcceptPaymentReturn>({
+    resolver: zodResolver(AcceptPaymentReturnSchema),
+  });
   const createReturnOrder = async (orderId: string, data: OrderReturn) => {
     const res = await requestWrapper(() => api.post<ApiResponse>(`/order-return/${orderId}`, data));
+    if (res?.data.success) {
+      showSuccessToast(res?.data?.message as string);
+      return {
+        success: true,
+        data: res.data.data as IOrderReturn,
+      };
+    }
+    return {
+      success: false,
+      data: null,
+    };
+  };
+
+  const acceptStockQuantity = async (returnId: string, data: AcceptQuantity) => {
+    const res = await requestWrapper(() =>
+      api.patch<ApiResponse>(`/order-return/accept-stock/${returnId}`, data)
+    );
+    if (res?.data.success) {
+      showSuccessToast(res?.data?.message as string);
+      return true;
+    }
+    return false;
+  };
+  const acceptPaymentReturn = async (returnId: string, data: AcceptPaymentReturn) => {
+    const res = await requestWrapper(() =>
+      api.post<ApiResponse>(`/order-return/accept-payment/${returnId}`, data)
+    );
     if (res?.data.success) {
       showSuccessToast(res?.data?.message as string);
       return true;
@@ -85,6 +125,8 @@ export function useOrderReturn() {
     pagination,
     paginationParams,
     filters,
+    acceptQuantityForm,
+    acceptPaymentForm,
     setPaginationParams,
     setFilters,
     setSort,
@@ -94,5 +136,7 @@ export function useOrderReturn() {
     getAllReturnOrder,
     getReturnOrder,
     cancelOrderReturn,
+    acceptStockQuantity,
+    acceptPaymentReturn,
   };
 }
