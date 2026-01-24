@@ -23,7 +23,7 @@ export function LineChart({
   return (
     <>
       <div className="flex items-center justify-between mb-6">
-        <p className="text-2xl font-bold">Doanh Thu</p>
+        <p className="text-2xl font-bold">Doanh thu bán hàng</p>
         <SlidingTabs
           data={[
             { name: 'Ngày', value: 'day' },
@@ -59,7 +59,7 @@ export function LineChart({
                 <p className="text-gray-800 font-semibold mb-1 flex items-center gap-1">
                   <span>Thời gian: </span> <span className="text-pos-blue-600">{label}</span>
                 </p>
-                <p className="text-gray-500">
+                <p className="text-gray-500 font-semibold">
                   Doanh thu:{' '}
                   <span className="text-pos-blue-600 font-bold">{formatCurrency(item.value)}</span>
                 </p>

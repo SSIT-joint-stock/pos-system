@@ -1,9 +1,9 @@
 'use client';
 import {
+  CategoryBarChart,
+  CategoryDataProps,
   ChartPoint,
   LineChart,
-  PieChart,
-  PieChartProps,
 } from '@repo/design-system/components/shared/chart-screen';
 import SlidingTabs from '@repo/design-system/components/shared/chart-screen/sliding-line-chart';
 import {
@@ -22,7 +22,7 @@ export function DashboardView() {
   const { cache, handleChangeTimeType, getLowStockProducts, getTopProducts, fetchStatistic } =
     useStatistics();
   const [revenue, setRevenue] = useState<ChartPoint | null>(null);
-  const [revenueByCategory, setRevenueByCategory] = useState<PieChartProps | null>(null);
+  const [revenueByCategory, setRevenueByCategory] = useState<CategoryDataProps | null>(null);
   const [revenueSummary, setRevenueSummary] = useState<SummaryRevenue | null>(null);
   const revenueItems = cache.find((item) => item.key === 'revenue');
   const summaryRevenueItems = cache.find((item) => item.key === 'summary-revenue');
@@ -103,7 +103,7 @@ export function DashboardView() {
       </div>
       <div className="grid grid-cols-[0.9fr_0.4fr] gap-4 w-full  h-[460px] ">
         <div className=" shadow-md rounded-md p-6  w-full bg-white h-full">
-          <PieChart
+          <CategoryBarChart
             data={revenueByCategory}
             onChangeTypeTime={handleChangeTimeType}
             keyChart="revenue-by-category"

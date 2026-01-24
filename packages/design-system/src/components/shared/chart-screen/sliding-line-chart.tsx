@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useRef, useState, useLayoutEffect } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 export default function SlidingTabs({
   data,
   onChangeTypeData,
@@ -23,10 +23,13 @@ export default function SlidingTabs({
 
   return (
     <>
-      <div ref={containerRef} className="relative flex w-fit rounded-lg p-1 overflow-x-auto">
+      <div
+        ref={containerRef}
+        className="relative flex w-fit rounded-sm p-1 overflow-x-auto border border-gray-50 bg-gray-50/100"
+      >
         <div
           ref={indicatorRef}
-          className="absolute top-1 bottom-1 bg-white  rounded-md shadow-2xl shadow-pos-blue-100 transition-all duration-300 border border-pos-blue-200"
+          className="absolute top-1 bottom-1 bg-white  rounded-sm shadow-xl shadow-pos-blue-100 transition-all duration-300 border border-pos-blue-200"
         />
         {data.map((item, i) => (
           <button
