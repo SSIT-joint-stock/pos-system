@@ -226,6 +226,10 @@ export function getPaymentMethodLabel(method: string) {
   const methodObj = paymentMethods.find((m) => m.value === method);
   return methodObj ? methodObj.label : 'N/A';
 }
+export function getStockMovementStatusLabel(status: string) {
+  const statusObj = STOCK_MOVEMENT_STATUS.find((s) => s.value === status);
+  return statusObj ? statusObj.label : 'N/A';
+}
 
 export const purchaseStatusOptions = Object.entries(PURCHASE_STATUS).map(([key, item]) => ({
   label: item.label,
