@@ -42,7 +42,7 @@ export function DashboardView() {
   }, [cache, revenue?.type]);
 
   return (
-    <div className="flex  h-fit w-full gap-5 flex-col pb-6">
+    <div className="flex  h-fit w-full gap-5 flex-col ">
       <div className="flex flex-col gap-2 bg-white py-5 px-4">
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-bold ">Kết quả kinh doanh</h2>
@@ -80,7 +80,7 @@ export function DashboardView() {
         </div>
       </div>
       <div className="grid grid-cols-[0.9fr_0.4fr] gap-4 w-full  h-full">
-        <div className=" shadow-md rounded-md   h-[400px] w-full bg-white p-6">
+        <div className=" shadow-md rounded-md   h-full w-full bg-white p-4">
           <LineChart data={revenue} onChangeTypeTime={handleChangeTimeType} keyChart="revenue" />
         </div>
 
@@ -102,7 +102,7 @@ export function DashboardView() {
         </div>
       </div>
       <div className="grid grid-cols-[0.9fr_0.4fr] gap-4 w-full  h-[460px] ">
-        <div className=" shadow-md rounded-md p-6  w-full bg-white h-full">
+        <div className=" shadow-md rounded-md p-4  w-full bg-white h-full">
           <CategoryBarChart
             data={revenueByCategory}
             onChangeTypeTime={handleChangeTimeType}

@@ -1,5 +1,5 @@
 import { BarChart } from '@mantine/charts';
-import { formatCurrency } from '../../../../../../apps/web/main/src/utils';
+import { formatCompactNumber, formatCurrency } from '../../../../../../apps/web/main/src/utils';
 import SlidingTabs from './sliding-line-chart';
 
 export interface CategoryDataProps {
@@ -56,7 +56,7 @@ export function CategoryBarChart({
             data={chartData}
             dataKey="name" // Trục X hiển thị tên ngành hàng
             series={[{ name: 'Doanh thu', color: 'blue.5' }]} // Màu cột mặc định
-            valueFormatter={(value) => formatCurrency(value)}
+            valueFormatter={(value) => formatCompactNumber(value)}
             tickLine="y"
             gridAxis="xy"
             withTooltip
