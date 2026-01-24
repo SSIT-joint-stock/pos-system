@@ -1,10 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client';
-import { Divider, NumberInput, Textarea, Tooltip } from '@mantine/core';
+import { Divider, Textarea, Tooltip } from '@mantine/core';
 import {
   Button,
   LoadingCreatedToDetail,
   Modal,
+  NumberInput,
   Select,
   Table,
 } from '@repo/design-system/components/ui';
@@ -308,8 +309,6 @@ export default function ReturnOrderView() {
                                     }}
                                     min={0}
                                     max={maxQuantityOrder}
-                                    clampBehavior="strict"
-                                    allowDecimal={false}
                                     hideControls
                                     placeholder="0"
                                     size="sm"

@@ -1,6 +1,5 @@
-import { NumberInput } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
-import { Button, Input, Modal, Select } from '@repo/design-system/components/ui';
+import { Button, Input, Modal, NumberInput, Select } from '@repo/design-system/components/ui';
 import { PurchaseReturn } from '@repo/design-system/types';
 import { PurchaseOrder } from '@repo/design-system/types/purchase';
 import { Calendar } from 'lucide-react';

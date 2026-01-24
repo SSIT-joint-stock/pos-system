@@ -1,5 +1,5 @@
-import { NumberInput } from '@mantine/core';
-import React, { useState, useMemo } from 'react';
+import { NumberInput } from '@repo/design-system/components/ui';
+import { useMemo, useState } from 'react';
 
 interface Product {
   id: number;
@@ -76,7 +76,6 @@ export default function CartDetails() {
             <div className="flex justify-end">
               <NumberInput
                 hideControls
-                suffix="₫"
                 onChange={(value: string | number) => {
                   handleDiscountChange(product.id, Number(value) || 0);
                 }}

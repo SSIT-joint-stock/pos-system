@@ -1,5 +1,4 @@
-import { NumberInput } from '@mantine/core';
-import { Button, Modal, Table } from '@repo/design-system/components/ui';
+import { Button, Modal, NumberInput, Table } from '@repo/design-system/components/ui';
 import { IOrderReturn } from '@repo/design-system/types';
 import { useEffect } from 'react';
 import { Controller, useFieldArray, UseFormReturn } from 'react-hook-form';
@@ -101,8 +100,6 @@ export function FormAcceptStock({
                             }}
                             min={0}
                             max={maxQuantityOrder}
-                            clampBehavior="strict"
-                            allowDecimal={false}
                             hideControls
                             placeholder="0"
                             size="sm"

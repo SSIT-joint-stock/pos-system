@@ -1,7 +1,15 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client';
-import { Burger, NumberInput, Tooltip } from '@mantine/core';
-import { Button, Input, Loading, Modal, Select, Table } from '@repo/design-system/components/ui';
+import { Burger, Tooltip } from '@mantine/core';
+import {
+  Button,
+  Input,
+  Loading,
+  Modal,
+  NumberInput,
+  Select,
+  Table,
+} from '@repo/design-system/components/ui';
 import { useClickOutside } from '@repo/design-system/hooks/client';
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
@@ -507,7 +515,7 @@ export function SalesView() {
                           radius="sm"
                           value={variant.tax_rate ?? 0}
                           onChange={(value) => {
-                            handleUpdateVariantTaxRate(variant.id, value as number);
+                            handleUpdateVariantTaxRate(variant.id, Number(value));
                           }}
                           min={0}
                           className="w-28"
@@ -685,24 +693,30 @@ export function SalesView() {
           opened={openModalChangePrice}
           onClose={() => setOpenModalChangePrice(false)}
           size="md"
-          title="Thay đổi giá"
+          title={<p className="text-base font-semibold">Thay đổi giá</p>}
         >
           <form
-            className="flex flex-col gap-2.5"
+            className="flex flex-col gap-2"
             onSubmit={(e) => {
               e.preventDefault();
               handleApplyChangePrice();
             }}
           >
-            <Input
+            <NumberInput
               name="price"
-              value={String(newPrice)}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => setNewPrice(Number(e.target.value))}
+              value={newPrice}
+              onChange={(value) => setNewPrice(Number(value))}
               size="sm"
-              type="number"
+              radius="sm"
               placeholder="Giá"
             />
-            <Button size="sm" title="Thay đổi" style={{ width: '100%' }} type="submit" />
+            <Button
+              radius="sm"
+              size="sm"
+              title="Thay đổi"
+              style={{ width: '100%' }}
+              type="submit"
+            />
           </form>
         </Modal>
         {/* MODAL FOR ORDER */}

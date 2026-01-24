@@ -3,6 +3,7 @@ export * from './button';
 export * from './checkbox';
 export * from './datepicker';
 export * from './input';
+export * from './input-number';
 export * from './loading';
 export * from './loading-created-to-detail';
 export * from './loading-skeleton-table';

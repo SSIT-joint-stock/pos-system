@@ -1,6 +1,6 @@
 'use client';
-import { NumberInput, Popover, Tooltip } from '@mantine/core';
-import { Button, Input, Table } from '@repo/design-system/components/ui';
+import { Popover, Tooltip } from '@mantine/core';
+import { Button, Input, NumberInput, Table } from '@repo/design-system/components/ui';
 import { Variant } from '@repo/design-system/types';
 import { Percent, Upload, X } from 'lucide-react';
 import { useRef, useState } from 'react';

@@ -1,6 +1,5 @@
-import { NumberInput } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
-import { Button, Input, Modal, Select } from '@repo/design-system/components/ui';
+import { Button, Input, Modal, NumberInput, Select } from '@repo/design-system/components/ui';
 import { IOrderReturn } from '@repo/design-system/types';
 import { Calendar } from 'lucide-react';
 import { useEffect } from 'react';
@@ -39,6 +38,7 @@ export function FormAcceptPayment({
         shouldDirty: false,
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orderReturn?.suggest_total]);
   return (
     <Modal
@@ -89,13 +89,11 @@ export function FormAcceptPayment({
                       value={field.value ?? Number(orderReturn?.suggest_total) ?? 0}
                       onChange={(value) => field.onChange(Number(value) || 0)}
                       min={0}
-                      max={Number(orderReturn?.suggest_total) || 100}
-                      clampBehavior="strict"
-                      size="sm"
-                      thousandSeparator=","
+                      max={Number(orderReturn?.suggest_total)}
+                      size={'sm'}
                       radius="sm"
                       placeholder="Số tiền thanh toán"
-                      label={<span className="text-sm text-gray-500">Số tiền thanh toán</span>}
+                      label={'Số tiền thanh toán'}
                     />
                     <span className="text-xs text-gray-500">
                       Hoàn tối đa: {formatCurrency(orderReturn?.suggest_total || 0)}

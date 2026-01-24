@@ -174,11 +174,11 @@ export default function BillOrder({
             <hr className="border-b border-b-white border-t-gray-400 " />
             <div className="grid grid-cols-2 justify-between">
               <span className="text-base text-gray-800 font-semibold"> Tổng tiền trước thuế </span>{' '}
-              <span className="text-right">{formatCurrency(summary?.subTotal)}</span>
+              <span className="text-right font-semibold">{formatCurrency(summary?.subTotal)}</span>
             </div>
             <div className="grid grid-cols-2 justify-between">
               <span className="text-base text-gray-800 font-semibold"> Thuế đơn hàng </span>
-              <span className="text-right">{formatCurrency(summary?.taxAmount)}</span>
+              <span className="text-right font-semibold">{formatCurrency(summary?.taxAmount)}</span>
             </div>
 
             <div className="grid grid-cols-2 justify-between">

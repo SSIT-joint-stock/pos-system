@@ -1,5 +1,5 @@
-import { NumberInput, Textarea, Tooltip } from '@mantine/core';
-import { Table } from '@repo/design-system/components/ui';
+import { Textarea, Tooltip } from '@mantine/core';
+import { NumberInput, Table } from '@repo/design-system/components/ui';
 import { PurchaseOrder } from '@repo/design-system/types/purchase';
 import { ChevronDown } from 'lucide-react';
 import { Control, Controller } from 'react-hook-form';
@@ -99,8 +99,6 @@ export default function TableWithPo({
                           }}
                           min={0}
                           max={maxReturnableInPoUnit}
-                          clampBehavior="strict"
-                          allowDecimal={false}
                           hideControls
                           placeholder="0"
                           size="sm"

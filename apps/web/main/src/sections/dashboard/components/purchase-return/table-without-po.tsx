@@ -1,5 +1,5 @@
-import { NumberInput, Textarea, Tooltip } from '@mantine/core';
-import { Button, Modal, Table } from '@repo/design-system/components/ui';
+import { Textarea, Tooltip } from '@mantine/core';
+import { Button, Modal, NumberInput, Table } from '@repo/design-system/components/ui';
 import { Variant } from '@repo/design-system/types';
 import { X } from 'lucide-react';
 import { useState } from 'react';
@@ -79,7 +79,6 @@ export default function TableWithoutPO({
                       <NumberInput
                         value={field.value ?? ''}
                         onChange={(val) => {
-                          // Cho phép rỗng khi user xoá
                           if (val === '' || val === null) {
                             field.onChange(null);
                             return;
@@ -101,8 +100,6 @@ export default function TableWithoutPO({
                         }}
                         min={0}
                         max={Number(variant.onHand)}
-                        clampBehavior="strict"
-                        allowDecimal={false}
                         hideControls
                         placeholder="0"
                         size="sm"
