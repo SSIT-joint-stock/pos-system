@@ -214,6 +214,9 @@ export type PurchaseStatus = keyof typeof PURCHASE_STATUS;
 export function getPurchaseStatusLabel(status: string) {
   return PURCHASE_STATUS_MAP[status]?.label;
 }
+export function getPurchaseReturnStatusLabel(status: string) {
+  return PURCHASE_RETURN_STATUS_MAP[status]?.label;
+}
 
 export function getPurchasePaymentStatusLabel(status: string) {
   return PAYMENT_STATUS_MAP[status]?.label;

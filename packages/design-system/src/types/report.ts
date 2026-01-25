@@ -1,3 +1,7 @@
+export enum PurchaseType {
+  PURCHASE_ORDER = 'purchase_order',
+  PURCHASE_RETURN = 'purchase_return',
+}
 export interface ReportSupplier {
   supplier_id: string;
   supplier_code: string;
@@ -5,11 +9,34 @@ export interface ReportSupplier {
   supplier_tax_code: string;
   supplier_status: string;
   purchase_orders_code_numbers: string[];
+  purchase_return_code_numbers: string[];
   total_products_in_purchase: number;
   total_purchase_orders: number;
+  total_purchase_returns: number;
   total_purchase_paid: number;
   total_paid: number;
   total_unpaid_amount: number;
+}
+
+export interface ReportSupplierDetailResponse {
+  data: ReportSupplierDetail[];
+  pagination: {
+    limit: number;
+    page: number;
+    total: number;
+    totalPages: number;
+  };
+  totalPurchaseOrders: number;
+  totalPurchaseReturns: number;
+}
+export interface ReportSupplierDetail {
+  id: string;
+  code: string;
+  amount: number;
+  status: string;
+  payment_status: string;
+  createdAt: string;
+  purchase_type: PurchaseType; // đơn nhập
 }
 
 export interface ReportCustomer {

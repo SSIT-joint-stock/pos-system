@@ -1,15 +1,17 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 import { Tooltip } from '@mantine/core';
 import { Modal, Table } from '@repo/design-system/components/ui';
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
+import { PurchaseType } from '@repo/design-system/types';
 import { useAtomValue } from 'jotai';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import {
   getPurchasePaymentStatusLabel,
+  getPurchaseReturnStatusLabel,
   getPurchaseStatusLabel,
 } from '../../../../constants/status';
-import { usePurchase } from '../../../../hooks/purchase/use-purchase';
 import { useReportExport } from '../../../../hooks/report-export/use-report-export';
 import { useReport } from '../../../../hooks/report/use-report';
 import DashboardViewLayout from '../../../../layouts/dashboard-view-layout';
@@ -21,8 +23,8 @@ import { formatCurrency, formatDate } from '../../../../utils';
 const tableHeaders = [
   'Nhà cung cấp',
   'Mã NCC',
-  'Số đơn hàng',
-  'Số sản phẩm nhập',
+  'Đơn hàng trả',
+  'Đơn hàng nhập',
   'Tổng giá trị nhập',
   'Đã thanh toán',
   'Còn nợ',
@@ -31,7 +33,6 @@ const tableHeaders = [
 const tableHeadersSelected = [
   'Mã nhập/xuất',
   'Loại',
-  'Số lượng',
   'Trạng thái',
   'Thanh toán',
   'Giá trị',
@@ -45,36 +46,26 @@ export function ReportSuppliersView() {
   const {
     loading,
     reportSuppliers,
+    reportSupplier,
     pagination,
     filters,
     paginationParams,
     getReportSuppliers,
+    getReportSupplier,
     setFilters,
     setPaginationParams,
   } = useReport();
-
-  const {
-    getPurchasesBySupplier,
-    loading: loadingPurchases,
-    purchaseOrders,
-    pagination: paginationPurchases,
-    paginationParams: paginationParamsPurchases,
-    setPaginationParams: setPaginationParamsPurchases,
-  } = usePurchase();
 
   const { exportReportSuppliers } = useReportExport();
 
   useEffect(() => {
     getReportSuppliers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paginationParams, filters]);
-
   useEffect(() => {
-    if (selectedSupplier) {
-      getPurchasesBySupplier(selectedSupplier);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedSupplier, paginationParamsPurchases]);
+    if (!selectedSupplier) return;
+    getReportSupplier(selectedSupplier);
+  }, [selectedSupplier]);
+  console.log(reportSupplier);
   return (
     <>
       <DashboardViewLayout>
@@ -129,12 +120,12 @@ export function ReportSuppliersView() {
                 {report.supplier_code}
               </td>
               <td className="px-4 py-3 text-sm font-semibold text-gray-700">
-                {report?.total_purchase_orders}
+                {report?.total_purchase_returns} đơn
+              </td>
+              <td className="px-4 py-3 text-sm font-semibold text-gray-700">
+                {report?.total_purchase_orders} đơn
               </td>
 
-              <td className="px-4 py-3 text-sm font-semibold text-gray-700">
-                {report?.total_products_in_purchase}
-              </td>
               <td className="px-4 py-3 text-sm font-semibold text-green-500">
                 {formatCurrency(report.total_purchase_paid)}
               </td>
@@ -156,6 +147,7 @@ export function ReportSuppliersView() {
           )}
         />
       </DashboardViewLayout>
+
       <Modal
         opened={isOpenModal}
         onClose={() => setIsOpenModal(false)}
@@ -164,53 +156,46 @@ export function ReportSuppliersView() {
       >
         <Table
           className="mt-6"
-          total={paginationPurchases?.total}
-          page={paginationPurchases?.page}
-          totalPages={paginationPurchases?.totalPages}
-          limit={paginationPurchases?.limit}
-          pageSize={paginationPurchases?.limit ?? paginationParamsPurchases.limit}
-          onPageSizeChange={(size) =>
-            setPaginationParamsPurchases((prev) => ({
-              ...prev,
-              limit: size,
-            }))
-          }
-          onPageChange={(page) =>
-            setPaginationParamsPurchases((prev) => ({
-              ...prev,
-              page,
-            }))
-          }
+          hasPagination={false}
           hasMarginTop={false}
           hasPadding={false}
           tableHeaders={tableHeadersSelected}
-          data={purchaseOrders}
-          isLoading={loadingPurchases}
+          data={reportSupplier?.data || []}
           renderRow={(selected) => (
             <>
-              <Tooltip label={`Xem chi tiết ${selected.order_number}`}>
+              <Tooltip label={`Xem chi tiết ${selected.code}`}>
                 <td
                   onClick={() =>
                     router.push(
-                      `/dashboard/store/${currentStore?.id}/import-invoices/detail/${selected.id}`
+                      `/dashboard/store/${currentStore?.id}/${
+                        selected?.purchase_type === PurchaseType.PURCHASE_ORDER
+                          ? 'import-invoices/detail'
+                          : '/export-invoices/detail'
+                      }/${selected?.id}`
                     )
                   }
                   className="px-4 py-3 text-sm font-semibold text-pos-blue-500 hover:underline cursor-pointer"
                 >
-                  {selected.order_number}
+                  {selected.code}
                 </td>
               </Tooltip>
-              <td className="px-4 py-3 text-sm font-semibold text-green-400 ">{'Đơn nhập'}</td>
-              <td className="px-4 py-3 text-sm font-semibold ">{selected?.items?.length}</td>
+              <td className="px-4 py-3 text-sm font-semibold">
+                {selected?.purchase_type === PurchaseType.PURCHASE_ORDER ? 'Đơn nhập' : 'Đơn trả'}
+              </td>
+
               <td className="px-4 py-3 text-sm font-semibold ">
-                {getPurchaseStatusLabel(selected?.status)}
+                {selected?.purchase_type === PurchaseType.PURCHASE_ORDER
+                  ? getPurchaseStatusLabel(selected?.status)
+                  : getPurchaseReturnStatusLabel(selected?.status)}
               </td>
               <td className="px-4 py-3 text-sm font-semibold ">
                 {getPurchasePaymentStatusLabel(selected?.payment_status)}
               </td>
-              <td className="px-4 py-3 text-sm font-semibold ">{formatCurrency(selected.total)}</td>
               <td className="px-4 py-3 text-sm font-semibold ">
-                {formatDate(selected?.order_date, { showTime: true })}
+                {formatCurrency(selected.amount)}
+              </td>
+              <td className="px-4 py-3 text-sm font-semibold ">
+                {formatDate(selected?.createdAt, { showTime: true })}
               </td>
             </>
           )}
