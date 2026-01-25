@@ -1,12 +1,11 @@
 'use client';
 import { Tooltip } from '@mantine/core';
 import { Button, Table } from '@repo/design-system/components/ui';
-import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { PurchaseOrder } from '@repo/design-system/types/purchase';
 import { Store } from '@repo/design-system/types/store';
 import { useAtomValue } from 'jotai';
-import { MoveLeft, PencilLine, Printer } from 'lucide-react';
+import { Archive, ChevronRight, MoveLeft, Printer } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import {
@@ -34,11 +33,11 @@ const tableHeaders = [
 ];
 export function PurchaseOrdersDetailView({ purchaseId }: { purchaseId: string }) {
   const router = useRouter();
-  const { showInfoToast } = useToast();
   const currentStore = useAtomValue(currentStoreAtom);
   // HOOK
 
   const [isOpenModalAcceptPayment, setIsOpenModalAcceptPayment] = useState<boolean>(false);
+  const [currentIdx, setCurrentIdx] = useState<number | null>();
   // CUSTOM HOOKS
   const { getPurchaseOrder, acceptImportPurchase, loading, purchaseOrder } = usePurchase();
   const { handlePrint, printing, printRef } = usePrint({
@@ -54,7 +53,6 @@ export function PurchaseOrdersDetailView({ purchaseId }: { purchaseId: string })
     getPurchaseOrder(purchaseId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [purchaseId]);
-
   return (
     <>
       <DetailLayout>
@@ -83,6 +81,18 @@ export function PurchaseOrdersDetailView({ purchaseId }: { purchaseId: string })
           </div>
           <div className="flex items-center gap-3">
             <Button
+              title="Hoàn trả"
+              icon={<Archive size={18} />}
+              variant="outline"
+              onClick={() => {
+                router.push(
+                  `/dashboard/store/${currentStore?.id}/outbound-orders?purchase_order_id=${purchaseOrder?.order_number}`
+                );
+              }}
+              size="sm"
+              radius="sm"
+            />
+            {/* <Button
               title="Sửa đơn"
               icon={<PencilLine size={18} />}
               variant="outline"
@@ -91,7 +101,7 @@ export function PurchaseOrdersDetailView({ purchaseId }: { purchaseId: string })
               }}
               size="sm"
               radius="sm"
-            />
+            /> */}
             <div className="hidden">
               <InvoicePurchaseOrderPrintContent
                 ref={printRef}
@@ -193,6 +203,97 @@ export function PurchaseOrdersDetailView({ purchaseId }: { purchaseId: string })
             </div>
           )}
         </div>
+        {/* History purchase return */}
+        <div className="bg-white p-4 rounded-md h-fit">
+          <h2 className="text-lg font-semibold flex items-center justify-between">
+            Lịch sử trả hàng
+          </h2>
+          {purchaseOrder?.purchase_returns.length === 0 && (
+            <p className="text-sm text-gray-500 font-semibold text-center mt-5">
+              Không có lịch sử trả hàng
+            </p>
+          )}
+          {purchaseOrder &&
+            purchaseOrder?.purchase_returns.length > 0 &&
+            purchaseOrder?.purchase_returns.map((data, index) => (
+              <div
+                key={data.id}
+                className={` space-y-3 mt-5 pl-3 ${purchaseOrder?.purchase_returns?.length - 1 !== index && 'border-b border-b-gray-200 pb-3'} `}
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-3.5 h-3.5 bg-pos-blue-500 p-1 border border-pos-blue-100 rounded-full"></div>
+                  <span
+                    onClick={() =>
+                      router.push(
+                        `/dashboard/store/${purchaseOrder?.store_id}/export-invoices/detail/${data?.id}`
+                      )
+                    }
+                    className="text-sm text-pos-blue-500 font-semibold hover:underline cursor-pointer"
+                  >
+                    {data.return_number}
+                  </span>
+                  <div
+                    className="flex items-center gap-4 cursor-pointer group"
+                    onClick={() => {
+                      setCurrentIdx((prev) => (prev === index ? null : index));
+                    }}
+                  >
+                    <span className="text-sm text-gray-500">
+                      {formatDate(data.return_date, {
+                        showTime: true,
+                      }) || 'N/A'}
+                    </span>
+                    <ChevronRight
+                      size={16}
+                      className={`
+    text-gray-500 group-hover:text-gray-900 transition-transform duration-300
+    ${index === currentIdx ? 'rotate-90' : ''}
+  `}
+                    />
+                  </div>
+                </div>
+                <div
+                  className={`
+    space-y-2.5 w-[60%]
+    overflow-hidden
+    transition-all duration-300 ease-in-out
+    ${
+      index === currentIdx
+        ? 'max-h-[500px] opacity-100 translate-y-0'
+        : 'max-h-0 opacity-0 -translate-y-2'
+    }
+  `}
+                >
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600 ">Trạng thái hoàn trả: </span>
+                    <span className={`${PAYMENT_STATUS_MAP[data.payment_status]?.color} text-sm  `}>
+                      {PAYMENT_STATUS_MAP[data.payment_status]?.label}
+                    </span>{' '}
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600 ">Người tạo đơn: </span>
+                    <span className="text-sm text-gray-900 ">{data?.creator?.email} </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600 ">Nhà cung cấp: </span>
+                    <span className="text-sm text-gray-900 ">{data.supplier_name} </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600 ">Tổng giá trị: </span>
+                    <span className="text-sm text-gray-900 ">{formatCurrency(data?.total)} </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600 ">Ghi chú: </span>
+                    <span className="text-sm text-gray-900 ">{data.notes || 'N/A'} </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600 ">Lý do: </span>
+                    <span className="text-sm text-gray-900 ">{data.reason || 'N/A'} </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+        </div>
         {/* THONG TIN  */}
         <div className="bg-white p-4 rounded-md space-y-6">
           {/* THONG TIN CHI TIET */}
@@ -277,15 +378,15 @@ export function PurchaseOrdersDetailView({ purchaseId }: { purchaseId: string })
             purchaseOrder?.payments.map((payment) => (
               <div
                 key={payment.id}
-                className="py-4 border-y border-y-gray-300 flex items-center justify-between"
+                className="py-4 px-2 bg-pos-blue-50 flex items-center justify-between font-semibold"
               >
-                <p className="text-sm text-gray-900 ">
+                <p className="text-sm text-pos-blue-500 ">
                   Tiền cần trả nhà cung cấp: {formatCurrency(purchaseOrder?.total || 0)}
                 </p>
-                <p className="text-sm text-gray-900 ">
+                <p className="text-sm text-pos-blue-500 ">
                   Đã trả: {formatCurrency(payment?.unit_cost || 0)}
                 </p>
-                <p className="text-sm text-gray-900 ">
+                <p className="text-sm text-pos-blue-500 ">
                   Còn phải trả:{' '}
                   {formatCurrency(Number(purchaseOrder?.total) - Number(payment?.unit_cost) || 0)}
                 </p>

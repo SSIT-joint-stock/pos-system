@@ -1,10 +1,14 @@
+import { PurchaseReturn } from '@repo/design-system/types/purchase-return';
+
 export interface PurchaseOrderItem {
+  id: string;
   product_id: string;
   item_name: string;
   unit: string;
   applied_factor: string;
   total_base_qty: string;
   quantity: string;
+  quantity_returned: string;
   unit_cost: string;
   total: string;
   notes: string | null;
@@ -16,7 +20,11 @@ export interface PurchaseOrderItem {
 
 export interface Supplier {
   name: string;
+  tax_code: string;
+  email: string;
   code: string;
+  phone: string;
+  address: string;
 }
 
 export interface Creator {
@@ -61,6 +69,7 @@ export interface PurchaseOrder {
   updatedAt: string;
   supplier: Supplier;
   items: PurchaseOrderItem[];
+  purchase_returns: PurchaseReturn[];
   payments: Payments[];
   creator: Creator;
 }

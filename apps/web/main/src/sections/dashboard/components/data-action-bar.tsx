@@ -8,12 +8,15 @@ interface DataActionBarProps {
   onExport?: () => void;
   onUpload?: (file: File) => void;
   onDownloadTemplate?: () => void;
+  hasBg?: boolean;
   statusOptions?: DynamicFilter[];
   dataComplete?: string[];
   loading?: boolean;
   placeholderSearch?: string;
   isHaveUpload?: boolean;
+  isHaveExport?: boolean;
   openUploadOption?: boolean;
+  setWidth?: string;
   setOpenUploadOption?: (value: boolean) => void;
 }
 
@@ -23,9 +26,12 @@ export function DataActionBar({
   onUpload,
   onDownloadTemplate,
   onExport,
+  setWidth,
+  hasBg,
   statusOptions,
   dataComplete,
   isHaveUpload,
+  isHaveExport,
   loading = false,
   placeholderSearch = 'Tìm kiếm...',
 }: DataActionBarProps) {
@@ -34,6 +40,8 @@ export function DataActionBar({
 
   return (
     <FilterBar
+      hasBg={hasBg}
+      setWidth={setWidth}
       onSearch={onSearch}
       onFilterChange={onFilterChange}
       dataComplete={dataComplete}
@@ -51,6 +59,7 @@ export function DataActionBar({
             menuRef={uploadMenuRef}
             isHaveUpload={isHaveUpload}
             onExport={onExport}
+            isHaveExport={isHaveExport}
           />
         </>
       }

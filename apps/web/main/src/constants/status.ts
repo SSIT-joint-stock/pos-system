@@ -175,6 +175,35 @@ export const paymentMethods = [
   },
 ];
 
+export const PURCHASE_RETURN_STATUS = {
+  draft: {
+    label: 'Đang chờ duyệt',
+    color: 'text-yellow-500',
+    bgColor: 'bg-yellow-50',
+    value: 'DRAFT',
+  },
+  completed: {
+    label: 'Đã hoàn trả',
+    color: 'text-green-500',
+    bgColor: 'bg-green-50',
+    value: 'COMPLETED',
+  },
+  cancelled: {
+    label: 'Đã hoàn trả',
+    color: 'text-red-500',
+    bgColor: 'bg-red-50',
+    value: 'CANCELLED',
+  },
+};
+
+export const PURCHASE_RETURN_STATUS_MAP = Object.values(PURCHASE_RETURN_STATUS).reduce(
+  (acc, item) => {
+    acc[item.value] = item;
+    return acc;
+  },
+  {} as Record<string, { label: string; color: string; bgColor: string; value: string }>
+);
+
 export type OrderStatus = keyof typeof ORDER_STATUS;
 export type SupplierStatus = keyof typeof SUPPLIER_STATUS;
 export type StockMovementStatus = (typeof STOCK_MOVEMENT_STATUS)[number]['value'];
@@ -185,6 +214,9 @@ export type PurchaseStatus = keyof typeof PURCHASE_STATUS;
 export function getPurchaseStatusLabel(status: string) {
   return PURCHASE_STATUS_MAP[status]?.label;
 }
+export function getPurchaseReturnStatusLabel(status: string) {
+  return PURCHASE_RETURN_STATUS_MAP[status]?.label;
+}
 
 export function getPurchasePaymentStatusLabel(status: string) {
   return PAYMENT_STATUS_MAP[status]?.label;
@@ -193,3 +225,24 @@ export function getPurchasePaymentStatusLabel(status: string) {
 export function getOrderStatusLabel(status: string) {
   return ORDER_STATUS_MAP[status]?.label;
 }
+export function getPaymentMethodLabel(method: string) {
+  const methodObj = paymentMethods.find((m) => m.value === method);
+  return methodObj ? methodObj.label : 'N/A';
+}
+export function getStockMovementStatusLabel(status: string) {
+  const statusObj = STOCK_MOVEMENT_STATUS.find((s) => s.value === status);
+  return statusObj ? statusObj.label : 'N/A';
+}
+
+export const purchaseStatusOptions = Object.entries(PURCHASE_STATUS).map(([key, item]) => ({
+  label: item.label,
+  value: item.value,
+  color: item.color,
+  key, // optional
+}));
+export const paymentStatusOptions = Object.entries(PAYMENT_STATUS).map(([key, item]) => ({
+  label: item.label,
+  value: item.value,
+  color: item.color,
+  key, // optional
+}));

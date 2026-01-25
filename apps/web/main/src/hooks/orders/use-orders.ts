@@ -47,7 +47,7 @@ export function useOrders() {
   // STATE
   const currentStore = useAtomValue(currentStoreAtom);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [order, setOrder] = useState<Order>();
+  const [order, setOrder] = useState<Order | null>(null);
 
   // FORM
   const createOrderForm = useForm<CreateOrderInput>({
@@ -70,6 +70,15 @@ export function useOrders() {
 
   const getOrderById = async (orderId: string) => {
     const res = await requestWrapper(() => api.get(`/orders/${orderId}`));
+
+    if (res?.data.success) {
+      setOrder(res.data.data);
+      return res.data.data;
+    }
+  };
+
+  const getOrderByCode = async (code: string) => {
+    const res = await requestWrapper(() => api.get(`/orders/code/${code}`));
 
     if (res?.data.success) {
       setOrder(res.data.data);
@@ -163,6 +172,7 @@ export function useOrders() {
     // Actions
     getOrders,
     getOrderById,
+    getOrderByCode,
 
     createOrder,
     deleteOrder,
@@ -174,5 +184,6 @@ export function useOrders() {
     setPaginationParams,
     setSortBy,
     setSort,
+    setOrder,
   };
 }

@@ -1,11 +1,10 @@
 'use client';
 import { Button, Loading, Table } from '@repo/design-system/components/ui';
-import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 import { Order } from '@repo/design-system/types';
-import { MoveLeft, Package, Printer } from 'lucide-react';
+import { ChevronRight, MoveLeft, Package, Printer } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-import { formatPaymentMethod, payment_method } from '../../../constants/method';
+import { useEffect, useState } from 'react';
+import { ORDER_RETURN_STATUS_MAP, ORDER_RETURN_TYPE_MAP } from '../../../constants/reason-return';
 import { ORDER_STATUS, ORDER_STATUS_MAP } from '../../../constants/status';
 import { useOrders } from '../../../hooks/orders/use-orders';
 import { usePrint } from '../../../hooks/use-print';
@@ -15,8 +14,9 @@ import { formatCurrency, formatDate } from '../../../utils';
 
 export function OrderDetailView({ orderId }: { orderId: string }) {
   const router = useRouter();
-  const { showInfoToast } = useToast();
   const { getOrderById, order, loading } = useOrders();
+  const [currentIdx, setCurrentIdx] = useState<number | null>();
+
   const { handlePrint, printing, printRef } = usePrint({
     title: `hoa_don_ban_${order?.code || ''}`,
   });
@@ -26,6 +26,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
   }, [orderId]);
 
   const status = ORDER_STATUS_MAP[order?.status ?? ''];
+  console.log(order);
 
   return (
     <DetailLayout>
@@ -66,12 +67,15 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                 title="Trả hàng"
                 icon={<Package size={18} />}
                 variant="outline"
-                onClick={() => {
-                  showInfoToast('Chức năng đang được cập nhật. Xin lỗi vì sự bất tiện này!');
-                }}
+                onClick={() =>
+                  router.push(
+                    `/dashboard/store/${order?.store_id}/returned-orders?order_number=${order?.code}`
+                  )
+                }
                 size="sm"
                 radius="sm"
               />
+
               <div className="hidden">
                 <InvoicePrintContent ref={printRef} order={order as Order} />
               </div>
@@ -90,50 +94,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
           </div>
 
           <div className="bg-white px-3 py-5 rounded-md">
-            <h1 className="text-xl font-semibold mb-5">Thông tin tổng quan </h1>
-            <div className="border border-gray-200 rounded-md overflow-hidden">
-              <div className="flex divide-x divide-gray-200 text-sm">
-                {/* Mã đơn hàng */}
-                <div className="flex-1 p-2">
-                  <div className="text-gray-500">Mã đơn hàng</div>
-                  <div className="text-pos-blue-500 font-semibold truncate">{order?.code}</div>
-                </div>
-
-                {/* Thông tin KH */}
-                <div className="flex-1 p-2">
-                  <div className="text-gray-500">Thông tin KH</div>
-                  <div className="text-gray-900 font-medium">
-                    {order?.customer_name || 'Khách lẻ'}
-                  </div>
-                </div>
-                <div className="flex-1 p-2">
-                  <div className="text-gray-500">Nhân viên tạo đơn</div>
-                  <div className="text-gray-900 font-medium">
-                    {order?.cashier?.email || order?.cashier?.username || 'Nhân viên'}
-                  </div>
-                </div>
-
-                {/* Hình thức TT */}
-                <div className="flex-1 p-2">
-                  <div className="text-gray-500">Hình thức TT</div>
-                  <div className="text-gray-900 font-medium">
-                    {formatPaymentMethod(order?.payment_method as payment_method)}
-                  </div>
-                </div>
-
-                {/* Ngày tạo */}
-                <div className="flex-1 p-2">
-                  <div className="text-gray-500">Ngày đặt hàng</div>
-                  <div className="text-gray-900 font-medium">
-                    {formatDate(order?.createdAt ?? '', { showTime: true })}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white px-3 py-5 rounded-md">
-            <h1 className="text-xl font-semibold mb-5">Danh sách sản phẩm</h1>
+            <h1 className="text-lg font-semibold mb-5">Danh sách sản phẩm</h1>
 
             <Table
               hasPagination={false}
@@ -171,9 +132,96 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
               )}
             />
           </div>
+
+          {/* History order return */}
+          <div className="bg-white p-4 rounded-md h-fit">
+            <h2 className="text-lg font-semibold flex items-center justify-between">
+              Lịch sử trả hàng
+            </h2>
+            {order?.order_return.length === 0 && (
+              <p className="text-sm text-gray-500 font-semibold text-center mt-5">
+                Không có lịch sử trả hàng
+              </p>
+            )}
+            {order &&
+              order?.order_return.length > 0 &&
+              order?.order_return.map((data, index) => (
+                <div
+                  key={data.id}
+                  className={` space-y-3 mt-5 pl-3 ${order?.order_return?.length - 1 !== index && 'border-b border-b-gray-200 pb-3'} `}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-3.5 h-3.5 bg-pos-blue-500 p-1 border border-pos-blue-100 rounded-full"></div>
+                    <span
+                      onClick={() =>
+                        router.push(
+                          `/dashboard/store/${order?.store_id}/returned-invoices/detail/${data?.id}`
+                        )
+                      }
+                      className="text-sm text-pos-blue-500 font-semibold hover:underline cursor-pointer"
+                    >
+                      {data.order_return_number}
+                    </span>
+                    <div
+                      className="flex items-center gap-4 cursor-pointer group"
+                      onClick={() => {
+                        setCurrentIdx((prev) => (prev === index ? null : index));
+                      }}
+                    >
+                      <span className="text-sm text-gray-500">
+                        {formatDate(data.createdAt, {
+                          showTime: true,
+                        }) || 'N/A'}
+                      </span>
+                      <ChevronRight
+                        size={16}
+                        className={`
+    text-gray-500 group-hover:text-gray-900 transition-transform duration-300
+    ${index === currentIdx ? 'rotate-90' : ''}
+  `}
+                      />
+                    </div>
+                  </div>
+                  <div
+                    className={`
+    space-y-2.5 w-[60%]
+    overflow-hidden
+    transition-all duration-300 ease-in-out  ${
+      index === currentIdx
+        ? 'max-h-[500px] opacity-100 translate-y-0'
+        : 'max-h-0 opacity-0 -translate-y-2'
+    }
+   
+  `}
+                  >
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600 ">Trạng thái hoàn trả: </span>
+                      <span
+                        className={`${ORDER_RETURN_STATUS_MAP[data.return_status]?.color} text-sm  `}
+                      >
+                        {ORDER_RETURN_STATUS_MAP[data.return_status]?.label}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600 ">Trạng thái nhận hàng: </span>
+                      <span
+                        className={`${ORDER_RETURN_TYPE_MAP[data.return_type]?.color} text-sm  `}
+                      >
+                        {ORDER_RETURN_TYPE_MAP[data.return_type]?.label}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600 ">Khách hàng: </span>
+                      <span className={`text-sm  `}>{data.customer_name || 'N/A'}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+          </div>
+
           <div className="bg-white px-3 py-5 rounded-md flex flex-col">
             <div className="flex items-center justify-between w-full   mb-5">
-              <h1 className="text-xl font-semibold">Tổng quan thanh toán</h1>
+              <h1 className="text-lg font-semibold">Tổng quan thanh toán</h1>
               {order && order.change_amount && (
                 <p>
                   {order.change_amount > 0 && (

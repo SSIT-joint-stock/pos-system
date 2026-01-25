@@ -1,6 +1,6 @@
-import { NumberInput } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
-import { Button, Input, Modal, Select } from '@repo/design-system/components/ui';
+import { Button, Input, Modal, NumberInput, Select } from '@repo/design-system/components/ui';
+import { PurchaseReturn } from '@repo/design-system/types';
 import { PurchaseOrder } from '@repo/design-system/types/purchase';
 import { Calendar } from 'lucide-react';
 import React, { useRef, useState } from 'react';
@@ -16,9 +16,11 @@ export default function FormAccpetImportPayment({
   purchaseOrder,
 }: {
   setIsOpenModalAcceptPayment: React.Dispatch<React.SetStateAction<boolean>>;
-  getPurchaseOrder: (id: string) => void;
+  getPurchaseOrder?: (id: string) => void;
+  getPurchaseReturn?: (id: string) => void;
   isOpenModalAcceptPayment: boolean;
-  purchaseOrder: PurchaseOrder;
+  purchaseOrder?: PurchaseOrder;
+  purchaseReturn?: PurchaseReturn;
 }) {
   const [isFocusInput, setIsFocusInput] = useState<boolean>(true);
   const ref = useRef<HTMLDivElement>(null);
@@ -45,10 +47,12 @@ export default function FormAccpetImportPayment({
     >
       <form
         onSubmit={handleSubmit(async (data) => {
-          const success = await acceptPaymentPurchase(purchaseOrder.id, data);
-          if (success) {
-            setIsOpenModalAcceptPayment(false);
-            getPurchaseOrder?.(purchaseOrder.id);
+          if (purchaseOrder) {
+            const success = await acceptPaymentPurchase?.(purchaseOrder?.id, data);
+            if (success) {
+              setIsOpenModalAcceptPayment(false);
+              getPurchaseOrder?.(purchaseOrder?.id);
+            }
           }
         })}
       >

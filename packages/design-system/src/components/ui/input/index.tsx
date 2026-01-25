@@ -1,7 +1,7 @@
 'use client';
+import { Input as MantineInput, PasswordInput } from '@mantine/core';
+import type { CSSProperties, ForwardedRef, HTMLInputTypeAttribute, ReactNode } from 'react';
 import * as React from 'react';
-import { PasswordInput, Input as MantineInput } from '@mantine/core';
-import type { CSSProperties, HTMLInputTypeAttribute, ReactNode, ForwardedRef } from 'react';
 
 type SizeInput = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 type SizeRadius = 'xs' | 'sm' | 'md' | 'lg' | 'xl';

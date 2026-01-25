@@ -1,7 +1,7 @@
 'use client';
 
-import * as React from 'react';
 import { Button as MantineButton } from '@mantine/core';
+import * as React from 'react';
 
 type SizeVariant =
   | 'default'
@@ -22,6 +22,7 @@ export type ButtonProps = React.PropsWithChildren & {
   size?: SizeButton;
   type?: TypeButton;
   icon?: React.ReactNode;
+  rightSection?: React.ReactNode;
   className?: string;
   style?: React.CSSProperties;
   color?: string;
@@ -39,7 +40,9 @@ export function Button({
   radius = 'md',
   size = 'md',
   type = 'button',
+
   icon,
+  rightSection,
   className,
   style,
   children,
@@ -58,6 +61,7 @@ export function Button({
       variant={variant}
       radius={radius}
       size={size}
+      rightSection={rightSection}
       type={type}
       leftSection={icon}
       className={className}

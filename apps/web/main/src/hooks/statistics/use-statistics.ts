@@ -3,15 +3,26 @@ import { useState } from 'react';
 import api from '../../../../main/src/libs/axios';
 import { useRequestHelper } from '../use-request-helper';
 export interface Notification {
-  title: string;
-  time: string;
+  type: 'stock' | 'order';
+  data: {
+    quantity?: number;
+    variantName?: string;
+    stockType?: string;
+
+    amount: number;
+    code?: string;
+    payment_method?: string;
+  };
+  createdAt: string;
 }
+
 export type TypeTime = {
   day: 'day';
   week: 'week';
   month: 'month';
 };
 export type TypeNotification = 'all' | 'order' | 'product';
+
 interface CacheItem {
   key: string;
   type: string;

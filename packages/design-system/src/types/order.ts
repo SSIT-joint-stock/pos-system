@@ -1,3 +1,4 @@
+import { IOrderReturn } from '@repo/design-system/types/order-return';
 import { Product, Variant } from './product';
 
 // enums
@@ -11,6 +12,7 @@ export interface OrderItem {
   product_id: string;
   variant_id: string;
   quantity: number;
+  quantity_return: number;
   tax_rate: number;
   discount_rate: number;
   price: number;
@@ -65,4 +67,5 @@ export interface Order {
   cashier?: Cashier;
   customer?: Customer;
   order_item: OrderItem[];
+  order_return: IOrderReturn[];
 }

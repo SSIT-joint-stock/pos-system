@@ -1,7 +1,15 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client';
-import { Burger, NumberInput, Tooltip } from '@mantine/core';
-import { Button, Input, Loading, Modal, Select, Table } from '@repo/design-system/components/ui';
+import { Burger, Tooltip } from '@mantine/core';
+import {
+  Button,
+  Input,
+  Loading,
+  Modal,
+  NumberInput,
+  Select,
+  Table,
+} from '@repo/design-system/components/ui';
 import { useClickOutside } from '@repo/design-system/hooks/client';
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
@@ -110,41 +118,44 @@ export function SalesView() {
       updateCurrentInvoice([...selectedVariants, { ...product, selectedQuantity: 1 }]);
     }
   };
-
   const handleIncreaseQuantity = (id: string) => {
-    setSelectedVariants((prev) =>
-      prev.map((p) => {
-        if (p.id === id) {
-          const newQuantity = (p.selectedQuantity || 1) + 1;
-          return {
-            ...p,
-            selectedQuantity: newQuantity > p.onHand ? p.onHand : newQuantity,
-          };
-        }
-        return p;
-      })
-    );
+    const updated = selectedVariants.map((p) => {
+      if (p.id === id) {
+        const newQty = Math.min((p.selectedQuantity || 1) + 1, p.onHand);
+        return { ...p, selectedQuantity: newQty };
+      }
+      return p;
+    });
+
+    updateCurrentInvoice(updated);
   };
 
   const handleDecreaseQuantity = (id: string) => {
-    setSelectedVariants((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, selectedQuantity: (p.selectedQuantity || 1) - 1 } : p))
-    );
+    const updated = selectedVariants.map((p) => {
+      if (p.id === id) {
+        return {
+          ...p,
+          selectedQuantity: Math.max(1, (p.selectedQuantity || 1) - 1),
+        };
+      }
+      return p;
+    });
+
+    updateCurrentInvoice(updated);
   };
 
   const handleChangQuantity = (id: string, value: number) => {
-    setSelectedVariants((prev) =>
-      prev.map((p) => {
-        if (p.id === id) {
-          let safeValue = value;
-          if (value > p.onHand) {
-            safeValue = p.onHand;
-          }
-          return { ...p, selectedQuantity: safeValue };
-        }
-        return p;
-      })
-    );
+    if (Number.isNaN(value)) return;
+
+    const updated = selectedVariants.map((p) => {
+      if (p.id === id) {
+        const safeValue = Math.min(Math.max(1, value), p.onHand);
+        return { ...p, selectedQuantity: safeValue };
+      }
+      return p;
+    });
+
+    updateCurrentInvoice(updated);
   };
 
   const handleRemoveSelectedProduct = (id: string) => {
@@ -308,6 +319,7 @@ export function SalesView() {
     }));
   };
   useClickOutside(openMenuSettingsRef, () => setIsOpenMenuSettings(false));
+  console.log(selectedVariants);
   return (
     <>
       <div className="h-screen flex flex-col gap-2 overflow-hidden p-4">
@@ -503,7 +515,7 @@ export function SalesView() {
                           radius="sm"
                           value={variant.tax_rate ?? 0}
                           onChange={(value) => {
-                            handleUpdateVariantTaxRate(variant.id, value as number);
+                            handleUpdateVariantTaxRate(variant.id, Number(value));
                           }}
                           min={0}
                           className="w-28"
@@ -681,24 +693,30 @@ export function SalesView() {
           opened={openModalChangePrice}
           onClose={() => setOpenModalChangePrice(false)}
           size="md"
-          title="Thay đổi giá"
+          title={<p className="text-base font-semibold">Thay đổi giá</p>}
         >
           <form
-            className="flex flex-col gap-2.5"
+            className="flex flex-col gap-2"
             onSubmit={(e) => {
               e.preventDefault();
               handleApplyChangePrice();
             }}
           >
-            <Input
+            <NumberInput
               name="price"
-              value={String(newPrice)}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => setNewPrice(Number(e.target.value))}
+              value={newPrice}
+              onChange={(value) => setNewPrice(Number(value))}
               size="sm"
-              type="number"
+              radius="sm"
               placeholder="Giá"
             />
-            <Button size="sm" title="Thay đổi" style={{ width: '100%' }} type="submit" />
+            <Button
+              radius="sm"
+              size="sm"
+              title="Thay đổi"
+              style={{ width: '100%' }}
+              type="submit"
+            />
           </form>
         </Modal>
         {/* MODAL FOR ORDER */}

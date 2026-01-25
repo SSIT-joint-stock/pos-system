@@ -8,22 +8,47 @@ import { useDebounceCallback } from 'usehooks-ts';
 import { useVariant } from '../../../../hooks/variant/use-variant';
 import { formatCurrency } from '../../../../utils';
 
-import { Variant } from '@repo/design-system/types';
-import { useRouter } from 'next/navigation';
+import { Order, Variant } from '@repo/design-system/types';
+import { PurchaseOrder } from '@repo/design-system/types/purchase';
+import { usePathname, useRouter } from 'next/navigation';
 import { useProduct } from '../../../../hooks/product/use-product';
+import { PurchaseReturnItem } from '../../../../schemas/purchase-return/purchase-return.schema';
 import { CreatePurchaseOrderItem } from '../../../../schemas/purchase/purchase.schema';
 
 export default function Header({
   setSelectedVariants,
   append,
+  appendPurchaseReturnWithoutPO,
+  setIsOpenModalSelectPurchase,
+  setIsOpenSearch,
+  setPurchaseOrder,
+  setOrder,
+  isOpenSearch,
+  selectedVariants,
   fields,
+  fieldsWithoutPO,
+  purchaseOrder,
+  title,
+  haveSearch = true,
 }: {
-  setSelectedVariants: React.Dispatch<React.SetStateAction<Variant[]>>;
-  append: (selectedVariant: CreatePurchaseOrderItem) => void;
-  fields: CreatePurchaseOrderItem[];
+  setSelectedVariants?: React.Dispatch<React.SetStateAction<Variant[]>>;
+  setPurchaseOrder?: (purchaseOrder: PurchaseOrder | null) => void;
+  setOrder?: (order: Order | null) => void;
+  append?: (selectedVariant: CreatePurchaseOrderItem) => void;
+  appendPurchaseReturnWithoutPO?: (selectedVariant: PurchaseReturnItem) => void;
+  setIsOpenModalSelectPurchase?: (isOpen: boolean) => void;
+  setIsOpenSearch?: (isOpen: boolean) => void;
+  isOpenSearch?: boolean;
+  selectedVariants?: Variant[];
+  fields?: CreatePurchaseOrderItem[];
+  fieldsWithoutPO?: PurchaseReturnItem[];
+  purchaseOrder?: PurchaseOrder | null;
+  title?: string | React.ReactNode;
+  haveSearch?: boolean;
 }) {
   // HOOK
   const ref = useRef<HTMLDivElement>(null);
+  const pathName = usePathname();
   const router = useRouter();
   const [isFocusInputSearch, setIsFocusInputSearch] = useState<boolean>(false);
   const [isOpenModalQuickCreateProduct, setIsOpenModalQuickCreateProduct] =
@@ -49,7 +74,10 @@ export default function Header({
   }, 500);
 
   // FUNCTION
-  useClickOutside(ref, () => setIsFocusInputSearch(false));
+  useClickOutside(ref, () => {
+    setIsFocusInputSearch(false);
+    setIsOpenSearch?.(false);
+  });
   useEffect(() => {
     getVariantsInStore();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -57,129 +85,169 @@ export default function Header({
 
   return (
     <>
-      <div className="w-full bg-white mb-3 p-4 rounded-lg flex items-center justify-between">
-        <div className="flex items-center gap-8  lg:w-2/3 w-full">
+      <div className="w-full bg-white mb-3 p-4 rounded-md flex items-center justify-between">
+        <div className={`flex items-center gap-8  lg:w-3/4 w-full`}>
           <div className="flex items-center gap-3">
             <button
-              onClick={() => router.back()}
+              onClick={() => {
+                router.back();
+                setPurchaseOrder?.(null);
+                setOrder?.(null);
+              }}
               className="w-9 h-9 flex items-center hover:bg-gray-50 hover:text-gray-900 transition-colors duration-200 cursor-pointer justify-center border border-gray-200 bg-white text-gray-500 rounded-md"
             >
               <MoveLeft size={18} />
             </button>
-            <h1 className="text-xl font-semibold text-pos-blue-500 text-nowrap">Phiếu nhập hàng</h1>
+            <h1 className="text-xl font-semibold text-pos-blue-500 text-nowrap">{title}</h1>
           </div>
 
-          <div className="relative w-fit flex items-center gap-2 flex-1" ref={ref}>
-            <Input
-              type="search"
-              radius="sm"
-              leftSection={<Search size={16} />}
-              size="sm"
-              onChange={(e) => {
-                debouncedSearch(e.target.value);
-              }}
-              onFocus={() => setIsFocusInputSearch(true)}
-              className="flex-1"
-              placeholder="Tìm kiếm theo tên, mã SKU, mã vạch Barcode... "
-              rightSection={
-                <>
-                  {loading ? (
-                    <Loading color="#3b82f6" size="xs" />
-                  ) : (
-                    <button
-                      onClick={() => setIsOpenModalQuickCreateProduct(true)}
-                      type="button"
-                      className="p-2 rounded hover:bg-gray-200 transition duration-200 hover:cursor-pointer"
-                      style={{ pointerEvents: 'auto' }}
-                    >
-                      <Plus size={16} />
-                    </button>
-                  )}
-                </>
-              }
-            />
-            <Button title="Mở rộng" variant="outline" size="sm" radius="sm" />
+          {!purchaseOrder && (
             <div
-              className={`absolute top-full mt-1 left-0 w-full border border-gray-200  bg-white z-50 shadow-md rounded-md  p-3   ${isFocusInputSearch ? 'opacity-100 visible' : 'opacity-0 invisible'}   transition-all max-h-[400px] overflow-x-scroll`}
+              className={`relative w-fit flex items-center gap-2 flex-1 ${haveSearch ? 'block' : 'hidden'}`}
+              ref={ref}
             >
-              {variants.length === 0 ? (
-                <div className="text-center items-center flex flex-col gap-2 p-4">
-                  <SearchX size={68} color="#3b82f6" />
-                  <span className="text-xl font-semibold w-full">
-                    Không tìm thấy dữ liệu phù hợp với kết quả tìm kiếm
-                  </span>
-                  <span className="text-sm text-gray-500 w-full">
-                    Thử thay đổi điều kiện lọc hoặc từ khóa tìm kiếm
-                  </span>
-                </div>
-              ) : (
-                <>
-                  {variants?.map((variant) => (
-                    <div
-                      key={variant.id}
-                      onClick={() => {
-                        const existed = fields.some((item) => item.variant_id === variant.id);
+              <Input
+                type="search"
+                radius="sm"
+                leftSection={<Search size={16} />}
+                size="sm"
+                onChange={(e) => {
+                  debouncedSearch(e.target.value);
+                }}
+                onFocus={() => {
+                  setIsFocusInputSearch(true);
+                  setIsOpenSearch?.(true);
+                }}
+                autoFocus={isFocusInputSearch || isOpenSearch}
+                className="flex-1"
+                placeholder="Tìm kiếm theo tên, mã SKU, mã vạch Barcode... "
+                rightSection={
+                  <>
+                    {loading ? (
+                      <Loading color="#3b82f6" size="xs" />
+                    ) : (
+                      <>
+                        {pathName?.includes('purchase-order') && !selectedVariants?.length && (
+                          <button
+                            onClick={() => {
+                              setIsFocusInputSearch?.(false);
+                              setIsOpenModalQuickCreateProduct(true);
+                            }}
+                            type="button"
+                            className="p-2 rounded hover:bg-gray-200 transition duration-200 hover:cursor-pointer"
+                            style={{ pointerEvents: 'auto' }}
+                          >
+                            <Plus size={16} />
+                          </button>
+                        )}
+                      </>
+                    )}
+                  </>
+                }
+              />
+              <Button title="Mở rộng" variant="outline" size="sm" radius="sm" />
+              <div
+                className={`absolute top-full mt-1 left-0 w-full border border-gray-200  bg-white z-50 shadow-md rounded-md  p-3   ${isFocusInputSearch || isOpenSearch ? 'opacity-100 visible' : 'opacity-0 invisible'}   transition-all max-h-[400px] overflow-x-scroll`}
+              >
+                {pathName?.includes('outbound-orders') && !selectedVariants?.length && (
+                  <button
+                    onClick={() => {
+                      setIsFocusInputSearch?.(false);
+                      setIsOpenModalSelectPurchase?.(true);
+                    }}
+                    className="text-pos-blue-500 hover:underline cursor-pointer mb-3 px-2 py-1"
+                  >
+                    <span className="text-sm font-semibold">Trả hàng nhập theo đơn</span>
+                  </button>
+                )}
+                {variants.length === 0 ? (
+                  <div className="text-center items-center flex flex-col gap-2 p-4">
+                    <SearchX size={68} color="#3b82f6" />
+                    <span className="text-xl font-semibold w-full">
+                      Không tìm thấy dữ liệu phù hợp với kết quả tìm kiếm
+                    </span>
+                    <span className="text-sm text-gray-500 w-full">
+                      Thử thay đổi điều kiện lọc hoặc từ khóa tìm kiếm
+                    </span>
+                  </div>
+                ) : (
+                  <>
+                    {variants?.map((variant) => (
+                      <div
+                        key={variant.id}
+                        onClick={() => {
+                          const existed =
+                            fields?.some((item) => item.variant_id === variant.id) ||
+                            fieldsWithoutPO?.some((item) => item.variant_id === variant.id);
+                          if (existed) {
+                            setIsFocusInputSearch(false);
+                            setIsOpenSearch?.(false);
+                            return;
+                          }
 
-                        if (existed) {
+                          append?.({
+                            variant_id: variant.id,
+                            product_id: variant.product_id,
+                            quantity: 1,
+                            unit_cost: variant.cost || 0,
+                            tax_rate: 0,
+                            discount_rate: 0,
+                            unit: variant.product.baseUnit,
+                          });
+                          appendPurchaseReturnWithoutPO?.({
+                            variant_id: variant.id,
+                            product_id: variant.product_id,
+                            quantity: 0,
+                            unit_cost: variant.cost || 0,
+                          });
+
+                          setSelectedVariants?.((prev) => [...prev, variant]);
                           setIsFocusInputSearch(false);
-                          return;
-                        }
-
-                        append({
-                          variant_id: variant.id,
-                          product_id: variant.product_id,
-                          quantity: 1,
-                          unit_cost: variant.cost || 0,
-                          tax_rate: 0,
-                          discount_rate: 0,
-                          unit: variant.product.baseUnit,
-                        });
-
-                        setSelectedVariants((prev) => [...prev, variant]);
-                        setIsFocusInputSearch(false);
-                      }}
-                      className="border-b cursor-pointer border-b-gray-200 flex items-center justify-between py-3 px-2 hover:bg-gray-50 transition-colors duration-200"
-                    >
-                      <div className="space-y-1">
-                        <h3 className="text-base text-gray-900 font-semibold">{variant.name}</h3>
-                        <p className="text-xs text-gray-500">{variant.sku}</p>
+                          setIsOpenSearch?.(false);
+                        }}
+                        className="border-b cursor-pointer border-b-gray-200 flex items-center justify-between py-3 px-2 hover:bg-gray-50 transition-colors duration-200"
+                      >
+                        <div className="space-y-1">
+                          <h3 className="text-base text-gray-900 font-semibold">{variant.name}</h3>
+                          <p className="text-xs text-gray-500">{variant.sku}</p>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-sm text-gray-500">
+                            Giá nhập:{' '}
+                            <span className="font-semibold text-pos-blue-500 text-right w-full">
+                              {formatCurrency(variant?.cost || 0)}
+                            </span>
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            Tồn kho:{' '}
+                            <span className="font-semibold text-gray-900 text-right w-full">
+                              {variant?.onHand}
+                            </span>
+                          </p>
+                        </div>
                       </div>
-                      <div className="space-y-1">
-                        <p className="text-sm text-gray-500">
-                          Giá nhập:{' '}
-                          <span className="font-semibold text-pos-blue-500 text-right w-full">
-                            {formatCurrency(variant?.cost || 0)}
-                          </span>
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          Tồn kho:{' '}
-                          <span className="font-semibold text-gray-900 text-right w-full">
-                            {variant?.onHand}
-                          </span>
-                        </p>
+                    ))}
+                    {pagination?.hasNext && (
+                      <div className="mt-4 flex items-center justify-center">
+                        <Button
+                          onClick={() =>
+                            setPaginationParams((prev) => ({
+                              ...prev,
+                              limit: prev.limit + 10,
+                            }))
+                          }
+                          title="Tải thêm"
+                          variant="outline"
+                          size="sm"
+                          radius="sm"
+                        />
                       </div>
-                    </div>
-                  ))}
-                  {pagination?.hasNext && (
-                    <div className="mt-4 flex items-center justify-center">
-                      <Button
-                        onClick={() =>
-                          setPaginationParams((prev) => ({
-                            ...prev,
-                            limit: prev.limit + 10,
-                          }))
-                        }
-                        title="Tải thêm"
-                        variant="outline"
-                        size="sm"
-                        radius="sm"
-                      />
-                    </div>
-                  )}
-                </>
-              )}
+                    )}
+                  </>
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
         <ActionButton />
       </div>
@@ -195,18 +263,23 @@ export default function Header({
 }
 
 function ActionButton() {
+  const pathName = usePathname();
   return (
     <div className="lg:flex items-center gap-2 hidden ">
-      <Tooltip label="Quét mã vạch" position="bottom" withArrow>
-        <button className="w-8 h-8 flex items-center justify-center text-gray-800 rounded-md border border-gray-300 hover:bg-gray-50  transition duration-200 cursor-pointer">
-          <ScanBarcode size={16} />
-        </button>
-      </Tooltip>
-      <Tooltip label="Tải file" position="bottom" withArrow>
-        <button className="w-8 h-8 flex items-center justify-center text-gray-800 rounded-md border border-gray-300 hover:bg-gray-50  transition duration-200 cursor-pointer">
-          <SaveAll size={16} />
-        </button>
-      </Tooltip>
+      {pathName?.includes('purchase-order') && (
+        <>
+          <Tooltip label="Quét mã vạch" position="bottom" withArrow>
+            <button className="w-8 h-8 flex items-center justify-center text-gray-800 rounded-md border border-gray-300 hover:bg-gray-50  transition duration-200 cursor-pointer">
+              <ScanBarcode size={16} />
+            </button>
+          </Tooltip>
+          <Tooltip label="Tải file" position="bottom" withArrow>
+            <button className="w-8 h-8 flex items-center justify-center text-gray-800 rounded-md border border-gray-300 hover:bg-gray-50  transition duration-200 cursor-pointer">
+              <SaveAll size={16} />
+            </button>
+          </Tooltip>
+        </>
+      )}
 
       <Tooltip label="Hướng dẫn" position="bottom" withArrow>
         <button className="w-8 h-8 flex items-center justify-center text-gray-800 rounded-md border border-gray-300 hover:bg-gray-50  transition duration-200 cursor-pointer">
@@ -225,10 +298,10 @@ function FormQuickCreateProduct({
   append,
 }: {
   opened: boolean;
-  setSelectedVariants: React.Dispatch<React.SetStateAction<Variant[]>>;
+  setSelectedVariants?: React.Dispatch<React.SetStateAction<Variant[]>>;
   onClose: () => void;
   getVariantsInStore?: () => void;
-  append: (selectedVariant: CreatePurchaseOrderItem) => void;
+  append?: (selectedVariant: CreatePurchaseOrderItem) => void;
 }) {
   const {
     createProduct,
@@ -263,7 +336,7 @@ function FormQuickCreateProduct({
         onSubmit={handleSubmit(async (data) => {
           const success = await createProduct(data);
           if (success?.success) {
-            append({
+            append?.({
               variant_id: success?.data.id,
               product_id: success?.data.product_id,
               quantity: 1,
@@ -272,7 +345,7 @@ function FormQuickCreateProduct({
               discount_rate: 0,
               unit: success?.data?.baseUnit,
             });
-            setSelectedVariants((prev) => [...prev, success.data]);
+            setSelectedVariants?.((prev) => [...prev, success.data]);
             reset();
             onClose();
             getVariantsInStore?.();

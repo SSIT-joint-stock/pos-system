@@ -1,6 +1,6 @@
 'use client';
-import { NumberInput, Popover, Tooltip } from '@mantine/core';
-import { Button, Input, Table } from '@repo/design-system/components/ui';
+import { Popover, Tooltip } from '@mantine/core';
+import { Button, Input, NumberInput, Table } from '@repo/design-system/components/ui';
 import { Variant } from '@repo/design-system/types';
 import { Percent, Upload, X } from 'lucide-react';
 import { useRef, useState } from 'react';
@@ -9,6 +9,7 @@ import { usePurchase } from '../../../hooks/purchase/use-purchase';
 import { formatCurrency, truncateText } from '../../../utils';
 import Header from '../components/purchase-order/header';
 
+import ReturnProductLayout from '../../../layouts/return-product-layout';
 import { CreatePurchaseOrderItem } from '../../../schemas/purchase/purchase.schema';
 import SidebarPurchase from '../components/purchase-order/sidebar';
 
@@ -84,223 +85,228 @@ export function CreatePurchaseOrders() {
 
   return (
     <>
-      <div className="grid lg:grid-cols-[1fr_0.4fr] grid-cols-1  h-full overflow-hidden gap-3 ">
-        {/* Main Content - Left Side */}
-        <div className="flex-1 flex flex-col  overflow-hidden">
-          <Header setSelectedVariants={setSelectedVariants} append={append} fields={fields} />
-          {/* Content Area */}
-          <div className="flex-1 overflow-auto md:h-full h-screen  bg-white ">
-            {fields.length === 0 ? (
-              <div className="flex flex-col items-center  justify-center gap-4 h-full rounded-lg">
-                <div className="text-center">
-                  <h2 className="text-xl font-semibold text-gray-700 mb-2">
-                    Thêm sản phẩm từ file excel
-                  </h2>
-                  <p className="text-gray-500 text-sm">
-                    Xử lý dữ liệu (Tải lại file mẫu: Excel 2003 hoặc bản cũ hơn)
-                  </p>
-                </div>
-                <Button radius="sm" title="Tải file mẫu" icon={<Upload size={16} />} />
-              </div>
-            ) : (
-              <Table
-                hasPagination={false}
-                data={fields}
-                className="md:h-full h-screen overflow-scroll"
-                tableHeaders={tableHeaders}
-                renderRow={(data, index) => {
-                  const variant = selectedVariants.find((p) => p.id === data.variant_id);
-                  const item = watchedItems[index];
-                  const cost = item?.unit_cost || 0;
-                  if (!variant) return null;
-                  return (
-                    <>
-                      <td className="px-4 py-2 text-sm text-gray-700">{variant?.sku || 'N/A'}</td>
-                      <Tooltip label={variant?.name || 'N/A'} position="bottom" withArrow>
-                        <td className="px-4 py-2 text-sm text-gray-700 text-nowrap">
-                          {truncateText(variant?.name || 'N/A', 18)}
-                        </td>
-                      </Tooltip>
-                      <Popover
-                        width={140}
-                        withArrow
-                        shadow="md "
-                        offset={-20}
-                        position="bottom-start"
-                        arrowPosition="side"
-                      >
-                        <Popover.Target>
-                          <td className="px-4 py-2 text-sm text-pos-blue-500 font-semibold hover:underline cursor-pointer text-nowrap">
-                            <span>{fields[index].unit || variant.product.baseUnit}</span>
-                            <Popover.Dropdown className="p-0" p={8}>
-                              <>
-                                {data &&
-                                variant?.conversions &&
-                                variant?.conversions?.length === 0 ? (
-                                  <div className="w-full  text-gray-500 text-sm">
-                                    {variant.product.baseUnit} (cơ bản)
-                                  </div>
-                                ) : (
-                                  <>
-                                    {variant &&
-                                      variant?.conversions?.length > 0 &&
-                                      variant?.conversions?.map((unit) => (
-                                        <div
-                                          onClick={() => handleChangeUnit(index, unit.name)}
-                                          key={unit.id}
-                                          className="space-y-2"
-                                        >
-                                          <div className=" text-gray-600 text-xs font-semibold pl-1 w-full py-2 hover:bg-gray-50 transition-colors duration-200 cursor-pointer line-clamp-1">
-                                            {unit.name} (x{unit.factor})
-                                          </div>
-                                        </div>
-                                      ))}
-                                    <div
-                                      onClick={() =>
-                                        handleChangeUnit(index, variant.product.baseUnit)
-                                      }
-                                      className=" text-gray-600 text-xs font-semibold pl-1 w-full py-2 hover:bg-gray-50 transition-colors duration-200 cursor-pointer line-clamp-1"
-                                    >
-                                      {variant?.product?.baseUnit} (cơ bản)
-                                    </div>
-                                  </>
-                                )}
-                              </>
-                            </Popover.Dropdown>
-                          </td>
-                        </Popover.Target>
-                      </Popover>
-                      <td className="px-4 py-2 text-sm text-gray-700 ">
-                        <div className="flex items-center gap-1">
-                          <Input
-                            type="number"
-                            min={1}
-                            {...register(`items.${index}.quantity`, {
-                              valueAsNumber: true,
-                            })}
-                            size="sm"
-                            autoFocus
-                            radius="sm"
-                            className="w-20 text-right"
-                          />
-                          <span className="text-xs text-gray-500 text-nowrap">
-                            {' '}
-                            = {caculateTotalPerItem(item, variant).qty} {variant.product.baseUnit}
-                          </span>
-                        </div>
-                      </td>
-
-                      <td className="px-4 py-2 text-sm text-gray-700">
-                        <div ref={inputRef} className="flex items-center gap-1">
-                          {editingVariantId === data.variant_id ? (
-                            <Controller
-                              name={`items.${index}.unit_cost`}
-                              control={control}
-                              render={({ field }) => (
-                                <NumberInput
-                                  {...field}
-                                  type="text"
-                                  onBlur={() => setEditingVariantId(null)}
-                                  autoFocus
-                                  min={0}
-                                  size="sm"
-                                  defaultValue={variant?.cost || 0}
-                                  radius="sm"
-                                  className="w-28 text-right"
-                                />
-                              )}
-                            />
-                          ) : (
-                            <Input
-                              type="text"
-                              size="sm"
-                              radius="sm"
-                              className="w-28 text-right"
-                              onFocus={() => setEditingVariantId(data.variant_id)}
-                              defaultValue={
-                                cost ? formatCurrency(cost) : formatCurrency(data?.unit_cost)
-                              }
-                            />
-                          )}
-                          <span className="text-xs text-gray-500 text-nowrap line-clamp-1 ">
-                            / {variant.product.baseUnit}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-2 text-sm text-gray-700  ">
-                        <div className="flex items-center gap-1">
-                          <Input
-                            {...register(`items.${index}.discount_rate`, { valueAsNumber: true })}
-                            type="number"
-                            size="sm"
-                            defaultValue={0}
-                            radius="sm"
-                            className="w-20 text-right"
-                            rightSection={<Percent size={14} />}
-                          />
-                          <span className="text-xs text-gray-500 text-nowrap">
-                            {data
-                              ? formatCurrency(caculateTotalPerItem(item, variant).discount_amount)
-                              : 0}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-2 text-sm text-gray-700 ">
-                        <div className="flex items-center gap-1">
-                          <Input
-                            {...register(`items.${index}.tax_rate`, { valueAsNumber: true })}
-                            type="number"
-                            size="sm"
-                            radius="sm"
-                            defaultValue={0}
-                            className="w-20 text-right"
-                            rightSection={<Percent size={14} />}
-                          />
-                          <span className="text-xs text-gray-500 text-nowrap">
-                            {data
-                              ? formatCurrency(caculateTotalPerItem(item, variant).tax_amount)
-                              : 0}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-2 text-sm text-gray-700">
-                        {data
-                          ? formatCurrency(Number(caculateTotalPerItem(item, variant).total_price))
-                          : 0}
-                      </td>
-                      <td className="px-4 py-2 text-center">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleRemoveProduct(data.id || '', index);
-                          }}
-                          className="text-gray-500 hover:text-red-500 cursor-pointer"
-                        >
-                          <X size={18} />
-                        </button>
-                      </td>
-                    </>
-                  );
-                }}
-              />
-            )}
-          </div>
-        </div>
-
-        {/* Sidebar - Right Side */}
-        <SidebarPurchase
-          register={register}
-          control={control}
-          errors={errors}
-          reset={reset}
-          createPurchaseOrder={createPurchaseOrder}
-          handleSubmit={handleSubmit}
-          loading={loading}
-          watchedItems={watchedItems}
-          caculateTotalPerItem={caculateTotalPerItem}
-          selectedVariants={selectedVariants}
+      <ReturnProductLayout
+        sidebar={
+          <SidebarPurchase
+            register={register}
+            control={control}
+            errors={errors}
+            reset={reset}
+            createPurchaseOrder={createPurchaseOrder}
+            handleSubmit={handleSubmit}
+            loading={loading}
+            watchedItems={watchedItems}
+            caculateTotalPerItem={caculateTotalPerItem}
+            selectedVariants={selectedVariants}
+          />
+        }
+      >
+        <Header
+          setSelectedVariants={setSelectedVariants}
+          append={append}
+          fields={fields}
+          title="Tạo đơn nhập hàng"
         />
-      </div>
+        {/* Content Area */}
+        <div className="flex-1 bg-white rounded-md shadow   h-full p-2 ">
+          {fields.length === 0 ? (
+            <div className="flex flex-col items-center  justify-center gap-4 h-full rounded-lg">
+              <div className="text-center">
+                <h2 className="text-xl font-semibold text-gray-700 mb-2">
+                  Thêm sản phẩm từ file excel
+                </h2>
+                <p className="text-gray-500 text-sm">
+                  Xử lý dữ liệu (Tải lại file mẫu: Excel 2003 hoặc bản cũ hơn)
+                </p>
+              </div>
+              <Button radius="sm" title="Tải file mẫu" icon={<Upload size={16} />} />
+            </div>
+          ) : (
+            <Table
+              hasPagination={false}
+              className="w-full"
+              hasMarginTop={false}
+              hasPadding={false}
+              data={fields}
+              tableHeaders={tableHeaders}
+              renderRow={(data, index) => {
+                const variant = selectedVariants.find((p) => p.id === data.variant_id);
+                const item = watchedItems[index];
+                const cost = item?.unit_cost || 0;
+                if (!variant) return null;
+                return (
+                  <>
+                    <td className="px-4 py-2 text-sm text-gray-700">{variant?.sku || 'N/A'}</td>
+                    <Tooltip label={variant?.name || 'N/A'} position="bottom" withArrow>
+                      <td className="px-4 py-2 text-sm text-gray-700 text-nowrap">
+                        {truncateText(variant?.name || 'N/A', 18)}
+                      </td>
+                    </Tooltip>
+                    <Popover
+                      width={140}
+                      withArrow
+                      shadow="md "
+                      offset={-20}
+                      position="bottom-start"
+                      arrowPosition="side"
+                    >
+                      <Popover.Target>
+                        <td className="px-4 py-2 text-sm text-pos-blue-500 font-semibold hover:underline cursor-pointer text-nowrap">
+                          <span>{fields[index].unit || variant.product.baseUnit}</span>
+                          <Popover.Dropdown className="p-0" p={8}>
+                            <>
+                              {data &&
+                              variant?.conversions &&
+                              variant?.conversions?.length === 0 ? (
+                                <div className="w-full  text-gray-500 text-sm">
+                                  {variant.product.baseUnit} (cơ bản)
+                                </div>
+                              ) : (
+                                <>
+                                  {variant &&
+                                    variant?.conversions?.length > 0 &&
+                                    variant?.conversions?.map((unit) => (
+                                      <div
+                                        onClick={() => handleChangeUnit(index, unit.name)}
+                                        key={unit.id}
+                                        className="space-y-2"
+                                      >
+                                        <div className=" text-gray-600 text-xs font-semibold pl-1 w-full py-2 hover:bg-gray-50 transition-colors duration-200 cursor-pointer line-clamp-1">
+                                          {unit.name} (x{unit.factor})
+                                        </div>
+                                      </div>
+                                    ))}
+                                  <div
+                                    onClick={() =>
+                                      handleChangeUnit(index, variant.product.baseUnit)
+                                    }
+                                    className=" text-gray-600 text-xs font-semibold pl-1 w-full py-2 hover:bg-gray-50 transition-colors duration-200 cursor-pointer line-clamp-1"
+                                  >
+                                    {variant?.product?.baseUnit} (cơ bản)
+                                  </div>
+                                </>
+                              )}
+                            </>
+                          </Popover.Dropdown>
+                        </td>
+                      </Popover.Target>
+                    </Popover>
+                    <td className="px-4 py-2 text-sm text-gray-700 ">
+                      <div className="flex items-center gap-1">
+                        <Input
+                          type="number"
+                          min={1}
+                          {...register(`items.${index}.quantity`, {
+                            valueAsNumber: true,
+                          })}
+                          size="sm"
+                          autoFocus
+                          radius="sm"
+                          className="w-20 text-right"
+                        />
+                        <span className="text-xs text-gray-500 text-nowrap">
+                          {' '}
+                          = {caculateTotalPerItem(item, variant).qty} {variant.product.baseUnit}
+                        </span>
+                      </div>
+                    </td>
+
+                    <td className="px-4 py-2 text-sm text-gray-700">
+                      <div ref={inputRef} className="flex items-center gap-1">
+                        {editingVariantId === data.variant_id ? (
+                          <Controller
+                            name={`items.${index}.unit_cost`}
+                            control={control}
+                            render={({ field }) => (
+                              <NumberInput
+                                {...field}
+                                type="text"
+                                onBlur={() => setEditingVariantId(null)}
+                                autoFocus
+                                min={0}
+                                size="sm"
+                                defaultValue={variant?.cost || 0}
+                                radius="sm"
+                                className="w-28 text-right"
+                              />
+                            )}
+                          />
+                        ) : (
+                          <Input
+                            type="text"
+                            size="sm"
+                            radius="sm"
+                            className="w-28 text-right"
+                            onFocus={() => setEditingVariantId(data.variant_id)}
+                            defaultValue={
+                              cost ? formatCurrency(cost) : formatCurrency(data?.unit_cost)
+                            }
+                          />
+                        )}
+                        <span className="text-xs text-gray-500 text-nowrap line-clamp-1 ">
+                          / {variant.product.baseUnit}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-700  ">
+                      <div className="flex items-center gap-1">
+                        <Input
+                          {...register(`items.${index}.discount_rate`, { valueAsNumber: true })}
+                          type="number"
+                          size="sm"
+                          defaultValue={0}
+                          radius="sm"
+                          className="w-20 text-right"
+                          rightSection={<Percent size={14} />}
+                        />
+                        <span className="text-xs text-gray-500 text-nowrap">
+                          {data
+                            ? formatCurrency(caculateTotalPerItem(item, variant).discount_amount)
+                            : 0}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-700 ">
+                      <div className="flex items-center gap-1">
+                        <Input
+                          {...register(`items.${index}.tax_rate`, { valueAsNumber: true })}
+                          type="number"
+                          size="sm"
+                          radius="sm"
+                          defaultValue={0}
+                          className="w-20 text-right"
+                          rightSection={<Percent size={14} />}
+                        />
+                        <span className="text-xs text-gray-500 text-nowrap">
+                          {data
+                            ? formatCurrency(caculateTotalPerItem(item, variant).tax_amount)
+                            : 0}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-700">
+                      {data
+                        ? formatCurrency(Number(caculateTotalPerItem(item, variant).total_price))
+                        : 0}
+                    </td>
+                    <td className="px-4 py-2 text-center">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemoveProduct(data.id || '', index);
+                        }}
+                        className="text-gray-500 hover:text-red-500 cursor-pointer"
+                      >
+                        <X size={18} />
+                      </button>
+                    </td>
+                  </>
+                );
+              }}
+            />
+          )}
+        </div>
+      </ReturnProductLayout>
     </>
   );
 }
