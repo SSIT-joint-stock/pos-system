@@ -1,4 +1,5 @@
-import { z } from "zod";
+/* eslint-disable filenames/match-regex */
+import { z } from 'zod';
 
 /**
  * Validate email khi add member đã tồn tại
@@ -6,8 +7,8 @@ import { z } from "zod";
 export const AddMemberByEmailSchema = z.object({
   email: z
     .string()
-    .nonempty({ message: "Vui lòng nhập email" })
-    .email({ message: "Email không hợp lệ" }),
+    .nonempty({ message: 'Vui lòng nhập email' })
+    .email({ message: 'Email không hợp lệ' }),
 });
 
 /**
@@ -15,31 +16,27 @@ export const AddMemberByEmailSchema = z.object({
  */
 export const CreateMemberSchema = z
   .object({
-    username: z.string().nonempty({ message: "Vui lòng nhập username" }),
+    username: z.string().nonempty({ message: 'Vui lòng nhập username' }),
 
     email: z
       .string()
-      .nonempty({ message: "Vui lòng nhập email" })
-      .email({ message: "Email không hợp lệ" }),
+      .nonempty({ message: 'Vui lòng nhập email' })
+      .email({ message: 'Email không hợp lệ' }),
 
-    password: z
-      .string()
-      .min(6, { message: "Mật khẩu phải có ít nhất 6 ký tự" }),
+    password: z.string().min(6, { message: 'Mật khẩu phải có ít nhất 6 ký tự' }),
 
-    confirmPassword: z
-      .string()
-      .min(6, { message: "Mật khẩu xác nhận phải có ít nhất 6 ký tự" }),
+    confirmPassword: z.string().min(6, { message: 'Mật khẩu xác nhận phải có ít nhất 6 ký tự' }),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Mật khẩu xác nhận không khớp",
-    path: ["confirmPassword"],
+    message: 'Mật khẩu xác nhận không khớp',
+    path: ['confirmPassword'],
   });
 
 /**
  * Validate update role
  */
 export const UpdateMemberRoleSchema = z.object({
-  role: z.string().nonempty({ message: "Role không hợp lệ" }),
+  role: z.string().nonempty({ message: 'Role không hợp lệ' }),
 });
 
 /* -------- TYPES -------- */

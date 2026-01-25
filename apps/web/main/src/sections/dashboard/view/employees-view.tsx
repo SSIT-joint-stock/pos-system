@@ -1,47 +1,38 @@
-"use client";
-import React, { FormEvent, useEffect, useState, useRef } from "react";
-import { Button, Input, Modal, Table } from "@repo/design-system/components/ui";
-import { Plus, UserPlus } from "lucide-react";
+'use client';
+import { Button, Input, Modal, Table } from '@repo/design-system/components/ui';
+import { Plus, UserPlus } from 'lucide-react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
 
 // import useStore from '../../../../../main/src/hooks/store/use-store'; // hook cũ
 
-import { useAtomValue } from "jotai";
-import { currentStoreAtom } from "@repo/design-system/stores/auth";
-import { formatDate } from "../../../../../main/src/utils/index";
-import DashboardViewLayout from "../../../../../main/src/layouts/dashboard-view-layout";
-import { DisplayField } from "../components/display-field";
-import { DataActionBar } from "../components/data-action-bar";
-import { ActionButtons } from "../components/action-buttons";
-import { DeleteConfirmationModal } from "../components/delete-confirmation-modal";
+import { currentStoreAtom } from '@repo/design-system/stores/auth';
+import { useAtomValue } from 'jotai';
+import DashboardViewLayout from '../../../../../main/src/layouts/dashboard-view-layout';
+import { formatDate } from '../../../../../main/src/utils/index';
+import { ActionButtons } from '../components/action-buttons';
+import { DataActionBar } from '../components/data-action-bar';
+import { DeleteConfirmationModal } from '../components/delete-confirmation-modal';
+import { DisplayField } from '../components/display-field';
 
-import { useStoreMember } from "../../../../../main/src/hooks/store-member/use-store-member";
+import { useStoreMember } from '../../../../../main/src/hooks/store-member/use-store-member';
 
-const tableHeaders = [
-  "Mã NV",
-  "Họ và Tên",
-  "Email",
-  "Vai trò",
-  "Ngay tham gia",
-  "Hành động",
-];
+const tableHeaders = ['Mã NV', 'Họ và Tên', 'Email', 'Vai trò', 'Ngay tham gia', 'Hành động'];
 const roleColors: Record<string, string> = {
-  MEMBER: "bg-green-100 text-green-800 px-2 py-1",
+  MEMBER: 'bg-green-100 text-green-800 px-2 py-1',
 };
 export default function EmployeesView() {
-  const isUpdated = true;
   const currentStore = useAtomValue(currentStoreAtom);
 
   // const { members, getMembersInStore, addMemberToStore, deleteMemberFromStore } = useStore();
 
-  const { members, getMembers, addMemberByEmail, removeMember } =
-    useStoreMember(currentStore?.id);
+  const { members, getMembers, addMemberByEmail, removeMember } = useStoreMember(currentStore?.id);
 
   const [openEditModal, setOpenEditModal] = useState(false);
   const [openViewModal, setOpenViewModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
   const [selectedMember, setSelectedMember] = useState<any>(null);
   const [openModalAdd, setOpenModalAdd] = useState(false);
-  const [email, setEmail] = useState<string>("");
+  const [email, setEmail] = useState<string>('');
   const fetchedRef = useRef(false);
   useEffect(() => {
     if (!currentStore?.id || fetchedRef.current) return;
@@ -84,26 +75,16 @@ export default function EmployeesView() {
         data={members}
         renderRow={(member) => (
           <>
-            <td className="px-4 py-3 text-sm font-medium text-gray-900">
-              {member.user.id}
-            </td>
-            <td className="px-4 py-3 text-sm text-gray-500 font-medium">
-              {member.user.username}
-            </td>
-            <td className="px-4 py-3 text-sm text-gray-500">
-              {member.user.email}
-            </td>
+            <td className="px-4 py-3 text-sm font-medium text-gray-900">{member.user.id}</td>
+            <td className="px-4 py-3 text-sm text-gray-500 font-medium">{member.user.username}</td>
+            <td className="px-4 py-3 text-sm text-gray-500">{member.user.email}</td>
 
             <td className="px-4 py-3">
-              <span
-                className={`text-xs font-medium rounded-xl ${roleColors[member.role]}`}
-              >
+              <span className={`text-xs font-medium rounded-xl ${roleColors[member.role]}`}>
                 {member.role}
               </span>
             </td>
-            <td className="px-4 py-3 text-sm text-gray-500">
-              {formatDate(member.createdAt)}
-            </td>
+            <td className="px-4 py-3 text-sm text-gray-500">{formatDate(member.createdAt)}</td>
             <td>
               <ActionButtons
                 onView={() => {
@@ -112,22 +93,18 @@ export default function EmployeesView() {
                   setOpenViewModal(true);
                 }}
                 onEdit={() => {
-                  if (member.role === "OWNER") return;
+                  if (member.role === 'OWNER') return;
                   setOpenEditModal(true);
                   setOpenViewModal(false);
                   setSelectedMember(member);
                 }}
                 onDelete={() => {
-                  if (member.role === "OWNER") return;
+                  if (member.role === 'OWNER') return;
                   setDeleteModal(true);
                   setSelectedMember(member);
                   setOpenEditModal(false);
                   setOpenViewModal(false);
                 }}
-                title="Thêm nhân viên mới"
-                icon={<Plus size={16} />}
-                size="sm"
-                radius="sm"
               />
             </td>
           </>
@@ -151,7 +128,7 @@ export default function EmployeesView() {
               await addMemberByEmail(email);
               getMembers();
               setOpenModalAdd(false);
-              setEmail("");
+              setEmail('');
             } catch (err: any) {
               // TODO: show toast từ backend
               console.error(err);
@@ -173,25 +150,30 @@ export default function EmployeesView() {
             tableHeaders={tableHeaders}
             data={members}
             renderRow={(member) => (
-              <>
+              <Modal opened={openViewModal} onClose={() => setOpenViewModal(false)}>
                 <td className="px-4 py-3 text-sm font-medium text-gray-900">{member.user.id}</td>
                 <td className="px-4 py-3 text-sm text-gray-500 font-medium">
                   {member.user.username}
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-500">{member.user.email}</td>
 
-      {/* DELETE MODAL */}
-      <DeleteConfirmationModal
-        opened={deleteModal}
-        onClose={() => setDeleteModal(false)}
-        onConfirm={async () => {
-          if (!selectedMember?.user?.id) return;
-          await removeMember(selectedMember.user.id);
-          setDeleteModal(false);
-          getMembers();
-        }}
-        itemName={selectedMember?.user?.username}
-      />
+                {/* DELETE MODAL */}
+                <DeleteConfirmationModal
+                  opened={deleteModal}
+                  onClose={() => setDeleteModal(false)}
+                  onConfirm={async () => {
+                    if (!selectedMember?.user?.id) return;
+                    await removeMember(selectedMember.user.id);
+                    setDeleteModal(false);
+                    getMembers();
+                  }}
+                  itemName={selectedMember?.user?.username}
+                />
+              </Modal>
+            )}
+          />
+        </form>
+      </Modal>
     </DashboardViewLayout>
   );
 }
