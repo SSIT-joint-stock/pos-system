@@ -5,10 +5,11 @@ import {
   BookUser,
   ChartSpline,
   ChevronRight,
+  HandCoins,
   LayoutDashboard,
   Package,
   PackageSearch,
-  Receipt,
+  PiggyBank,
   ShoppingCart,
   Store,
   Truck,
@@ -106,7 +107,7 @@ export default function MenuSidebar({
       items: [
         {
           title: 'Hóa đơn',
-          icon: <Receipt size={20} className="shrink-0" />,
+          icon: <HandCoins size={20} className="shrink-0" />,
           id: 3,
           children: [
             {
@@ -126,6 +127,11 @@ export default function MenuSidebar({
               path: `/dashboard/store/${currentStore?.id}/returned-invoices`,
             },
           ],
+        },
+        {
+          title: 'Sổ quỹ',
+          path: `/dashboard/store/${currentStore?.id}/cash-book`,
+          icon: <PiggyBank size={20} className="shrink-0" />,
         },
         {
           title: 'Danh bạ',

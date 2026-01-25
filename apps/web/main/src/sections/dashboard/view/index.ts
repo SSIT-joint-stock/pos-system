@@ -26,3 +26,5 @@ export * from './report';
 
 export * from './return-order-detail-view';
 export * from './return-order-view';
+
+export * from './cash-book-view';
