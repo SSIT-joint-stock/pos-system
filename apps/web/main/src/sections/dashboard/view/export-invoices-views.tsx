@@ -68,7 +68,7 @@ export function ExportInvoicesViews() {
         <DisplayField label="Quản lý xuất nhập kho">
           <div className="flex items-center gap-3">
             <Button
-              title="Tạo phiếu trả hàng"
+              title="Tạo phiếu trả hàng nhập"
               onClick={() => router.push('outbound-orders')}
               icon={<Plus size={16} />}
               size="sm"

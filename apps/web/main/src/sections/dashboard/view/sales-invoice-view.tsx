@@ -86,7 +86,13 @@ export function SalesInvoicesView() {
     <>
       <DashboardViewLayout>
         <DisplayField label="Quản lý danh sách đơn hàng bán">
-          <Button title="Tạo phiếu trả hàng bán" icon={<Plus size={16} />} size="sm" radius="sm" />
+          <Button
+            title="Tạo phiếu trả hàng bán"
+            onClick={() => router.push('returned-orders')}
+            icon={<Plus size={16} />}
+            size="sm"
+            radius="sm"
+          />
         </DisplayField>
 
         {/* ACTION */}

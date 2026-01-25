@@ -1,7 +1,5 @@
 'use client';
 import { Button, Table } from '@repo/design-system/components/ui';
-import { currentStoreAtom } from '@repo/design-system/stores/auth';
-import { useAtomValue } from 'jotai';
 import { Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -28,7 +26,6 @@ export const tableHeaders = [
 
 export function ReturnedInvoicesView() {
   const router = useRouter();
-  const currentStore = useAtomValue(currentStoreAtom);
   const {
     filters,
     orderReturns,
@@ -50,8 +47,8 @@ export function ReturnedInvoicesView() {
 
         <DisplayField label="Quản lý danh sách đơn trả hàng">
           <Button
-            onClick={() => router.push(`/dashboard/store/${currentStore?.id}/returned-orders`)}
-            title="Tạo phiếu trả hàng"
+            onClick={() => router.push('returned-orders')}
+            title="Tạo phiếu trả hàng bán"
             icon={<Plus size={16} />}
             size="sm"
             radius="sm"

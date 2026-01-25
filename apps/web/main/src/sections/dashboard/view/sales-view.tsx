@@ -58,6 +58,7 @@ export function SalesView() {
     setSort,
     setSortBy,
     paginationParams,
+    pagination,
     filters,
     variants,
     sort,
@@ -319,7 +320,8 @@ export function SalesView() {
     }));
   };
   useClickOutside(openMenuSettingsRef, () => setIsOpenMenuSettings(false));
-  console.log(selectedVariants);
+  console.log('parms', paginationParams.limit);
+  console.log('len', variants.length);
   return (
     <>
       <div className="h-screen flex flex-col gap-2 overflow-hidden p-4">
@@ -672,9 +674,12 @@ export function SalesView() {
                       ))}
                     </div>
 
-                    {variants.length >= paginationParams.limit && (
+                    {pagination?.hasNext && (
                       <div className="flex items-center justify-center mt-4">
                         <Button
+                          size="sm"
+                          loading={loadingVariants}
+                          radius="sm"
                           onClick={handleLoadMore}
                           title="Tải thêm"
                           style={{ width: '54%' }}

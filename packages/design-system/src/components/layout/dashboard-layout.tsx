@@ -15,7 +15,7 @@ import { Loading } from '../ui';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   // state
-  const [isExpand, setIsExpand] = useState(false);
+  const [isExpand, setIsExpand] = useState(true);
   const [hydrated, setHydrated] = useState(false);
   const [isSyncing, setIsSyncing] = useState(true);
   const [accessToken, setAccessToken] = useAtom(accessTokenAtom);
