@@ -1,11 +1,11 @@
 'use client';
-import * as React from 'react';
 import { Stepper as MantineStepper } from '@mantine/core';
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
+import * as React from 'react';
 
 type StepItem = {
   label: string;
-  description: string;
+  description?: string;
   icon: React.ReactNode;
 };
 type SizeStepper = 'xs' | 'sm' | 'md' | 'lg' | 'xl';

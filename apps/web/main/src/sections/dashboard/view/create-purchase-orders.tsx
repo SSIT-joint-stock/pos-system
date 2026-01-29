@@ -2,7 +2,7 @@
 import { Popover, Tooltip } from '@mantine/core';
 import { Button, Input, NumberInput, Table } from '@repo/design-system/components/ui';
 import { Variant } from '@repo/design-system/types';
-import { Percent, Upload, X } from 'lucide-react';
+import { Download, Percent, Upload, X } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { Controller, useFieldArray } from 'react-hook-form';
 import { usePurchase } from '../../../hooks/purchase/use-purchase';
@@ -11,6 +11,7 @@ import Header from '../components/purchase-order/header';
 
 import ReturnProductLayout from '../../../layouts/return-product-layout';
 import { CreatePurchaseOrderItem } from '../../../schemas/purchase/purchase.schema';
+import FormStepUploadPurchase from '../../../sections/dashboard/components/purchase-order/form-step-upload-purchase';
 import SidebarPurchase from '../components/purchase-order/sidebar';
 
 const tableHeaders = [
@@ -30,6 +31,7 @@ export function CreatePurchaseOrders() {
 
   const [selectedVariants, setSelectedVariants] = useState<Variant[]>([] as Variant[]);
   const [editingVariantId, setEditingVariantId] = useState<string | null>(null);
+  const [isOpenModalFormUpload, setIsOpenModalFormUpload] = useState<boolean>(false);
 
   const inputRef = useRef<HTMLDivElement>(null);
   // CUSTOM HOOK
@@ -119,7 +121,21 @@ export function CreatePurchaseOrders() {
                   Xử lý dữ liệu (Tải lại file mẫu: Excel 2003 hoặc bản cũ hơn)
                 </p>
               </div>
-              <Button radius="sm" title="Tải file mẫu" icon={<Upload size={16} />} />
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={() => setIsOpenModalFormUpload(true)}
+                  radius="sm"
+                  title="Nhập file excel"
+                  icon={<Upload size={16} />}
+                />
+
+                <Button
+                  radius="sm"
+                  title="Tải file mẫu"
+                  icon={<Download size={16} />}
+                  variant="outline"
+                />
+              </div>
             </div>
           ) : (
             <Table
@@ -307,6 +323,10 @@ export function CreatePurchaseOrders() {
           )}
         </div>
       </ReturnProductLayout>
+      <FormStepUploadPurchase
+        opened={isOpenModalFormUpload}
+        onClose={() => setIsOpenModalFormUpload(false)}
+      />
     </>
   );
 }
