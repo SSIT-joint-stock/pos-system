@@ -71,7 +71,22 @@ export interface PurchaseOrder {
   items: PurchaseOrderItem[];
   purchase_returns: PurchaseReturn[];
   payments: Payments[];
+
   creator: Creator;
+}
+
+export interface ValidationPurchaseOrderRes {
+  name: string;
+  base_unit: string;
+  category: string;
+  sku: string;
+  barcode: string;
+  cost: string;
+  price: string;
+  quantity: string;
+  vat: string;
+  discount: string;
+  import_date: string;
 }
 
 export interface PurchaseOrderResponse {
