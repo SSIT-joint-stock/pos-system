@@ -47,6 +47,7 @@ export function CreatePurchaseOrders() {
     },
     loading,
     createPurchaseOrder,
+    downloadPurchaseOrderTemplate,
   } = usePurchase();
   const { fields, append, remove, update } = useFieldArray({
     control,
@@ -130,6 +131,7 @@ export function CreatePurchaseOrders() {
                 />
 
                 <Button
+                  onClick={() => downloadPurchaseOrderTemplate()}
                   radius="sm"
                   title="Tải file mẫu"
                   icon={<Download size={16} />}

@@ -7,7 +7,7 @@ import {
   Select,
   Stepper,
 } from '@repo/design-system/components/ui';
-import { Check, CloudUpload, Shield, Upload } from 'lucide-react';
+import { Check, CloudUpload, Image, Shield, Upload } from 'lucide-react';
 import { useState } from 'react';
 const steps = [
   {
@@ -31,6 +31,11 @@ export default function FormStepUploadPurchase({
   onClose: () => void;
 }) {
   const [isActive, setIsActive] = useState<number>(0);
+  const [files, setFiles] = useState<File[] | null>(null);
+  const handleUpload = (file: File[]) => {
+    setFiles(file);
+  };
+  console.log(files);
 
   return (
     <Modal
@@ -61,15 +66,38 @@ export default function FormStepUploadPurchase({
           />
         </div>
         <DropFileZone
+          disabled={files ? true : false}
           title="Kéo thả file vào đây hoặc tải lên từ thiết bị"
           description="Tối đa 5MB, theo định dạng .xlsx"
           idleIcon={<CloudUpload size={28} color="#3b82f6" />}
-          accept={['application/excel']}
+          accept={{
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+            'application/vnd.ms-excel': ['.xls'],
+          }}
           maxSizeMb={10}
-          //   onDrop={(files) => uploadPdf(files)}
+          onDrop={handleUpload}
         />
+        {files && (
+          <div className="p-2 rounded-md bg-gray-100 flex items-center gap-4">
+            <Image size={30} />
+            <div className="space-y-1">
+              <p className="text-sm ">{files[0].name}</p>
+              <p className="text-xs ">{files[0].size} bytes</p>
+            </div>
+          </div>
+        )}
+
         <div className="flex items-center gap-2 justify-end">
-          <Button size="sm" radius="sm" variant="outline" onClick={onClose} title={'Hủy'} />
+          <Button
+            size="sm"
+            radius="sm"
+            variant="outline"
+            onClick={() => {
+              setFiles(null);
+              onClose();
+            }}
+            title={'Hủy'}
+          />
           <Button size="sm" radius="sm" title="Nhập file " />
         </div>
       </form>
