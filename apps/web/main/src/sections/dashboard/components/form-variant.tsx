@@ -88,9 +88,6 @@ export function FormVariant({
     }
   }, [reset, variant, isEdit]);
   useClickOutside(ref, () => setOpenedPopover(false));
-  console.log(isEdit);
-  console.log(variantId);
-  console.log(product?.id);
   return (
     <Modal
       title={
@@ -103,14 +100,16 @@ export function FormVariant({
       onClose={onClose}
     >
       <form
-        action=""
         onSubmit={handleSubmit(async (data) => {
           if (isEdit && variant) {
             const success = await updateVariant(variant?.id, product?.id, data);
+            if (!success || !variantId) return;
             if (success) {
               onClose();
               reset();
               getProductById?.(product?.id);
+              getVariant?.(variantId, product?.id);
+
               getVariants?.();
               setIsEdit?.(false);
             }
@@ -144,29 +143,36 @@ export function FormVariant({
               placeholder="Nhập tên biến thể"
             />
             <div className="flex gap-2">
-              <Input
-                size="sm"
-                {...register('price', {
-                  valueAsNumber: true,
-                })}
-                className="flex-1"
-                radius="sm"
-                error={errors.price?.message}
-                defaultValue={0}
-                label="Giá bán biến thể "
-                placeholder="Nhập giá bán biến thể"
+              <Controller
+                name="price"
+                control={control}
+                render={({ field }) => (
+                  <NumberInput
+                    {...field}
+                    size="sm"
+                    error={errors.price?.message}
+                    radius="sm"
+                    className="flex-1"
+                    label="Giá bán"
+                    placeholder="Nhập giá bán sản phẩm"
+                  />
+                )}
               />
-              <Input
-                size="sm"
-                {...register('cost', {
-                  valueAsNumber: true,
-                })}
-                className="flex-1"
-                radius="sm"
-                error={errors.cost?.message}
-                defaultValue={0}
-                label="Giá nhập biến thể "
-                placeholder="Nhập giá nhập biến thể"
+              <Controller
+                name="cost"
+                control={control}
+                render={({ field }) => (
+                  <NumberInput
+                    size="sm"
+                    {...field}
+                    className="flex-1"
+                    radius="sm"
+                    error={errors.cost?.message}
+                    defaultValue={0}
+                    label="Giá nhập biến thể "
+                    placeholder="Nhập giá nhập biến thể"
+                  />
+                )}
               />
             </div>
             <div className="flex gap-2">

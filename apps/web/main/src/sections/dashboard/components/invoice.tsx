@@ -311,6 +311,8 @@ export default function Invoice({
                 setOpenModalInvoice(false);
                 setSelectedVariants([]);
               }}
+              radius="sm"
+              size="sm"
               title="Hủy bỏ"
               variant="outline"
             />
@@ -318,7 +320,13 @@ export default function Invoice({
             <div className="hidden">
               <InvoicePrintContent ref={printRef} order={order as Order} store={store as Store} />
             </div>
-            <Button loading={printing} onClick={() => handlePrint()} title="In hóa đơn" />
+            <Button
+              radius="sm"
+              size="sm"
+              loading={printing}
+              onClick={() => handlePrint()}
+              title="In hóa đơn"
+            />
           </div>
         </div>
       </Drawer>

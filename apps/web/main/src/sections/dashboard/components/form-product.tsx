@@ -1,22 +1,29 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client';
-import ReactQuill from 'react-quill-new';
-import 'react-quill-new/dist/quill.snow.css';
-import { Button, Checkbox, Input, Loading, Select } from '@repo/design-system/components/ui';
+import { MultiSelect } from '@mantine/core';
+import {
+  Button,
+  Checkbox,
+  Input,
+  Loading,
+  NumberInput,
+  Select,
+} from '@repo/design-system/components/ui';
+import { useAttributes } from '@repo/design-system/hooks/client';
+import { currentStoreAtom } from '@repo/design-system/stores/auth';
+import { Category, Product, Tag, Variant } from '@repo/design-system/types';
+import { useAtomValue } from 'jotai';
+import { Plus, Trash, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Control, Controller } from 'react-hook-form';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 import { useProduct } from '../../../hooks/product/use-product';
-import { useAttributes } from '@repo/design-system/hooks/client';
-import { Plus, Trash, X } from 'lucide-react';
-import { Category, Product, Tag, Variant } from '@repo/design-system/types';
-import { MultiSelect } from '@mantine/core';
+import { useVariant } from '../../../hooks/variant/use-variant';
 import { CreateProductInput, UpdateProductInput } from '../../../schemas/product/product.schema';
 import { formatCurrency, formatDate } from '../../../utils';
-import { FormVariant } from './form-variant';
-import { useAtomValue } from 'jotai';
-import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { DeleteConfirmationModal } from './delete-confirmation-modal';
-import { useVariant } from '../../../hooks/variant/use-variant';
+import { FormVariant } from './form-variant';
 export function FormProduct({
   categories,
   tags,
@@ -237,28 +244,42 @@ export function FormProduct({
                   </h2>
                   <div className="space-y-5 mt-4">
                     <div className="flex gap-2">
-                      <Input
-                        {...register('price', {
-                          setValueAs: (v) => (v === '' || v === null ? undefined : Number(v)),
-                        })}
-                        size="sm"
-                        error={productId ? updateErrors.price?.message : errors.price?.message}
-                        radius="sm"
-                        className="flex-1"
-                        label="Giá bán"
-                        placeholder="Nhập giá bán sản phẩm"
-                        rightSection={<span className="text-gray-500 text-sm">VND</span>}
+                      <Controller
+                        name="price"
+                        control={
+                          (productId ? updateControl : control) as Control<
+                            CreateProductInput | UpdateProductInput
+                          >
+                        }
+                        render={({ field }) => (
+                          <NumberInput
+                            {...field}
+                            size="sm"
+                            error={productId ? updateErrors.price?.message : errors.price?.message}
+                            radius="sm"
+                            className="flex-1"
+                            label="Giá bán"
+                            placeholder="Nhập giá bán sản phẩm"
+                          />
+                        )}
                       />
-                      <Input
-                        {...register('cost', {
-                          setValueAs: (v) => (v === '' || v === null ? undefined : Number(v)),
-                        })}
-                        size="sm"
-                        radius="sm"
-                        className="flex-1"
-                        label="Giá nhập"
-                        placeholder="Nhập giá nhập sản phẩm"
-                        rightSection={<span className="text-gray-500 text-sm">VND</span>}
+                      <Controller
+                        name="cost"
+                        control={
+                          (productId ? updateControl : control) as Control<
+                            CreateProductInput | UpdateProductInput
+                          >
+                        }
+                        render={({ field }) => (
+                          <NumberInput
+                            {...field}
+                            size="sm"
+                            radius="sm"
+                            className="flex-1"
+                            label="Giá nhập"
+                            placeholder="Nhập giá nhập sản phẩm"
+                          />
+                        )}
                       />
                     </div>
                   </div>

@@ -164,6 +164,10 @@ export default function MenuSidebar({
           id: 5,
           children: [
             {
+              title: 'Tổng quan báo cáo',
+              path: `/dashboard/store/${currentStore?.id}/report-customers`,
+            },
+            {
               title: 'Báo cáo khách hàng',
               path: `/dashboard/store/${currentStore?.id}/report-customers`,
             },
@@ -173,6 +177,18 @@ export default function MenuSidebar({
             },
             {
               title: 'Báo cáo nhân viên',
+              path: `/dashboard/store/${currentStore?.id}/report-employees`,
+            },
+            {
+              title: 'Báo cáo bán hàng',
+              path: `/dashboard/store/${currentStore?.id}/report-employees`,
+            },
+            {
+              title: 'Báo cáo kho',
+              path: `/dashboard/store/${currentStore?.id}/report-employees`,
+            },
+            {
+              title: 'Báo cáo cuối ngày',
               path: `/dashboard/store/${currentStore?.id}/report-employees`,
             },
           ],

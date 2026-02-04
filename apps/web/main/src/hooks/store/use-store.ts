@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -5,7 +6,7 @@ import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { Store, StoreMember } from '@repo/design-system/types/store';
 import { useAtom, useAtomValue } from 'jotai';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import api from '../../libs/axios';
 import {
@@ -59,7 +60,7 @@ export default function useStore() {
     }
   };
 
-  const getStoreDetail = async () => {
+  const getStoreDetail = useCallback(async () => {
     if (!currentStore?.id) return;
     // Fetch store info
     const storeRes = await requestWrapper(() => api.get(`stores/${currentStore?.id}`));
@@ -78,7 +79,7 @@ export default function useStore() {
     //   averageRating: 0, // Will be 0 until you have an endpoint for this
     //   totalOrders: 0, // Will be 0 until you have an endpoint for this
     // });
-  };
+  }, [currentStore?.id, requestWrapper]);
 
   const updateStore = async (data: UpdateStoreInput) => {
     if (!currentStore?.id) return;

@@ -1,18 +1,18 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client';
-import { useCategories } from '../../../../../main/src/hooks/categories/use-categories';
-import { useProduct } from '../../../../../main/src/hooks/product/use-product';
 import { MultiSelect } from '@mantine/core';
 import { Button, Input, Loading, Select } from '@repo/design-system/components/ui';
 import { useClickOutside } from '@repo/design-system/hooks/client';
+import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
+import { Product } from '@repo/design-system/types';
 import { useAtomValue } from 'jotai';
 import { ChevronRight, Plus, Trash } from 'lucide-react';
 import Image from 'next/image';
 import React, { useEffect, useRef, useState } from 'react';
 import { Controller } from 'react-hook-form';
-import { Product } from '@repo/design-system/types';
-import useToast from '@repo/design-system/hooks/client/use-toast-notification';
+import { useCategories } from '../../../../../main/src/hooks/categories/use-categories';
+import { useProduct } from '../../../../../main/src/hooks/product/use-product';
 
 export default function FormCreateProduct({
   setOpenAddProduct,
