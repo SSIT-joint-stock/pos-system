@@ -9,6 +9,7 @@ import {
   AcceptPaymentImportSChema,
   CreatePurchaseOrder,
   CreatePurchaseOrderSchema,
+  ImportExcelPurchase,
 } from '../../schemas/purchase/purchase.schema';
 import { exportExcel } from '../../utils/export-excel/export';
 import { FilterValue, useQueryParams } from '../query/use-query-params';
@@ -46,7 +47,12 @@ export function usePurchase() {
   });
 
   const [purchaseOrders, setPurchaseOrders] = useState<PurchaseOrder[]>([]);
-  const [validationPOs, setValidationPOs] = useState<ValidationPurchaseOrderRes[]>([]);
+  const [validationPOs, setValidationPOs] = useState<ValidationPurchaseOrderRes>({
+    itemLength: 0,
+    itemErrorLength: 0,
+    itemValidLength: 0,
+    result: [],
+  });
   const [purchaseOrder, setPurchaseOrder] = useState<PurchaseOrder | null>(null);
   const [totalPurchase, setTotalPurchase] = useState<string>('');
   const formPurchase = useForm<CreatePurchaseOrder>({
@@ -187,9 +193,24 @@ export function usePurchase() {
           },
         })
       );
+      console.log(res);
       if (res?.data.success) {
         showSuccessToast(res.data.message as string);
-        setValidationPOs(res.data.data as ValidationPurchaseOrderRes[]);
+        setValidationPOs(res.data.data as ValidationPurchaseOrderRes);
+        return true;
+      }
+      return false;
+    },
+    [requestWrapper, showSuccessToast]
+  );
+
+  const importPurchaseOrders = useCallback(
+    async (data: ImportExcelPurchase) => {
+      const res = await requestWrapper(() =>
+        api.post<ApiResponse>('/purchase-order/excel/import/save', data)
+      );
+      if (res?.data.success) {
+        showSuccessToast(res.data.message as string);
         return true;
       }
       return false;
@@ -229,5 +250,6 @@ export function usePurchase() {
     exportPurchaseOrdersExcel,
     downloadPurchaseOrderTemplate,
     validationImportPO,
+    importPurchaseOrders,
   };
 }

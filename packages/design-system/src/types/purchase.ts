@@ -74,19 +74,27 @@ export interface PurchaseOrder {
 
   creator: Creator;
 }
-
 export interface ValidationPurchaseOrderRes {
-  name: string;
+  itemLength: number;
+  itemErrorLength: number;
+  itemValidLength: number;
+  result: ValidationPurchaseOrderResItem[];
+}
+export interface ValidationPurchaseOrderResItem {
+  item_name: string;
   base_unit: string;
   category: string;
   sku: string;
   barcode: string;
-  cost: string;
+  unit_cost: string;
   price: string;
   quantity: string;
-  vat: string;
-  discount: string;
-  import_date: string;
+  tax_rate: string;
+  discount_rate: string;
+  isStatus: boolean;
+  msg: string;
+  product_id: string | null;
+  variant_id: string | null;
 }
 
 export interface PurchaseOrderResponse {
