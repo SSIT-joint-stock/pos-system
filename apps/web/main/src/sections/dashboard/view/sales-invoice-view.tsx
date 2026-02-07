@@ -136,6 +136,7 @@ export function SalesInvoicesView() {
             setFilters((prev) => ({ ...prev, q: value }));
           }}
           loading={loading}
+          isHaveUpload={false}
           onDownloadTemplate={downloadExcelTemplate}
           onExport={exportExcelOrders}
           placeholderSearch="Nhập mã hóa đơn, tên khách hàng"

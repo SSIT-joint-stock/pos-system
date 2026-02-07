@@ -3,14 +3,14 @@
 import { Button, Table } from '@repo/design-system/components/ui';
 import { Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import * as XLSX from 'xlsx';
-import { useProduct } from '../../../../../main/src/hooks/product/use-product';
-import { formatDate } from '../../../../../main/src/utils/index';
+import { useProduct } from '../../../hooks/product/use-product';
+import { formatDate } from '../../../utils/index';
 
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { useAtomValue } from 'jotai';
 import { useRouter } from 'next/navigation';
-import DashboardViewLayout from '../../../../../main/src/layouts/dashboard-view-layout';
+import DashboardViewLayout from '../../../layouts/dashboard-view-layout';
+import FormStepUploadProduct from '../../../sections/dashboard/components/form-step-upload-product';
 import { ActionButtons } from '../components/action-buttons';
 import { DataActionBar } from '../components/data-action-bar';
 import { DeleteConfirmationModal } from '../components/delete-confirmation-modal';
@@ -41,6 +41,7 @@ const formatProductStatus = (status: string) => {
 
 export function ManageView() {
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
+  const [openModalUpload, setOpenModalUpload] = useState<boolean>(false);
 
   const router = useRouter();
   const {
@@ -50,12 +51,12 @@ export function ManageView() {
     pagination,
     paginationParams,
     filters,
-    uploadProductByExcel,
+    downloadProductTemplate,
+    exportProductExcel,
     setPaginationParams,
     setFilters,
     deleteProduct,
     getProductById,
-    exampleProductExcel,
     getProducts,
   } = useProduct();
   const currentStore = useAtomValue(currentStoreAtom);
@@ -65,27 +66,6 @@ export function ManageView() {
     getProducts();
   }, [currentStore?.id, paginationParams, filters]);
 
-  const handleExportExcel = () => {
-    {
-      if (!products || products.length === 0) {
-        alert('Không có dữ liệu để xuất');
-        return;
-      }
-
-      const formatted = products.map((p) => ({
-        'Sản phẩm': p.name,
-        'Mã sản phẩm': p.sku,
-        'Trạng thái': formatProductStatus(p.product_status),
-        'Ngày tạo': formatDate(p.createdAt),
-      }));
-
-      const worksheet = XLSX.utils.json_to_sheet(formatted);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'Sản phẩm');
-
-      XLSX.writeFile(workbook, 'products.xlsx');
-    }
-  };
   return (
     <>
       <DashboardViewLayout>
@@ -123,9 +103,10 @@ export function ManageView() {
           onSearch={(value) => {
             setFilters((prev) => ({ ...prev, q: value }));
           }}
-          onExport={handleExportExcel}
-          onUpload={uploadProductByExcel}
-          onDownloadTemplate={exampleProductExcel}
+          onExport={exportProductExcel}
+          uploadOption={true}
+          isUploadOption={setOpenModalUpload}
+          onDownloadTemplate={downloadProductTemplate}
           loading={loading}
           placeholderSearch="Nhập tên sản phẩm, mã sản phẩm, barcode..."
         />
@@ -206,6 +187,7 @@ export function ManageView() {
         loading={loading}
         itemName={product?.name}
       />
+      <FormStepUploadProduct opened={openModalUpload} onClose={() => setOpenModalUpload(false)} />
     </>
   );
 }

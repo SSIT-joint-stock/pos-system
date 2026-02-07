@@ -9,11 +9,13 @@ interface UploadMenuProps {
   onFileSelect: (file: File) => void;
   onDownloadTemplate: () => void;
   onExport?: () => void;
+  isUploadOption?: (upload: boolean) => void;
   isOpen: boolean;
   loading?: boolean;
   menuRef: React.RefObject<HTMLDivElement>;
   isHaveUpload?: boolean;
   isHaveExport?: boolean;
+  uploadOption?: boolean;
 }
 
 export function UploadMenu({
@@ -22,11 +24,13 @@ export function UploadMenu({
   menuRef,
   isHaveUpload = true,
   isHaveExport = true,
+  uploadOption = false,
   onClose,
   onOpen,
   onFileSelect,
   onDownloadTemplate,
   onExport,
+  isUploadOption,
 }: UploadMenuProps) {
   useClickOutside(menuRef, () => onClose());
   const ref = useRef<HTMLInputElement>(null);
@@ -47,28 +51,38 @@ export function UploadMenu({
           <div
             className={`absolute top-full left-0 mt-1 z-50 flex flex-col  rounded-md shadow-md shadow-gray-100 ${isOpen ? 'opacity-100 visible' : 'opacity-0 invisible'} transition-all duration-150 ease-in-out origin-top-left`}
           >
-            <button
-              disabled={loading}
-              onClick={() => {
-                ref.current?.click();
-              }}
-              className={`bg-white  text-nowrap  py-2 px-4 text-left hover:bg-gray-50 rounded-t-md  cursor-pointer  disabled:opacity-50 disabled:cursor-not-allowed`}
-            >
-              <span className="text-gray-800 font-medium text-sm">Tải lên dữ liệu (Excel)</span>
-              <input
-                ref={ref}
-                hidden
-                type="file"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    onFileSelect(file);
-                    onClose();
-                  }
+            {uploadOption ? (
+              <button
+                onClick={() => isUploadOption?.(true)}
+                disabled={loading}
+                className={`bg-white  text-nowrap  py-2 px-4 text-left hover:bg-gray-50 rounded-t-md  cursor-pointer  disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                <span className="text-gray-800 font-medium text-sm">Tải lên dữ liệu (Excel)</span>
+              </button>
+            ) : (
+              <button
+                disabled={loading}
+                onClick={() => {
+                  ref.current?.click();
                 }}
-                accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-              />
-            </button>
+                className={`bg-white  text-nowrap  py-2 px-4 text-left hover:bg-gray-50 rounded-t-md  cursor-pointer  disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                <span className="text-gray-800 font-medium text-sm">Tải lên dữ liệu (Excel)</span>
+                <input
+                  ref={ref}
+                  hidden
+                  type="file"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      onFileSelect(file);
+                      onClose();
+                    }
+                  }}
+                  accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                />
+              </button>
+            )}
             <button
               disabled={loading}
               onClick={() => {

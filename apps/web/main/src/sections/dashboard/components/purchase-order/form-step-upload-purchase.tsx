@@ -87,12 +87,12 @@ export default function FormStepUploadPurchase({
   return (
     <Modal
       title={<p className="text-lg font-semibold"> Nhập sản phẩm từ excel </p>}
-      size={isActive === 0 ? '60%' : '80%'}
+      size={isActive === 0 ? 'xl' : '80%'}
       opened={opened}
       closeOnClickOutside={false}
       onClose={onClose}
     >
-      <div className={`flex flex-col ${isActive === 0 ? 'h-[46vh]' : 'h-[75vh]'}`}>
+      <div className={`flex flex-col ${isActive === 0 ? 'h-[42h]' : 'h-[75vh]'}`}>
         <div className="flex-1 overflow-y-auto pr-2">
           <Stepper active={isActive} setActive={setIsActive} steps={steps} size="sm" />
           <Divider my={'lg'} />

@@ -145,16 +145,17 @@ export function FormProduct({
                   Thông tin sản phẩm
                 </h2>
                 <div className="space-y-5 mt-4">
-                  <Input
-                    {...(productId ? updateRegister('name') : register('name'))}
-                    error={productId ? updateErrors.name?.message : errors.name?.message}
-                    size="sm"
-                    withAsterisk
-                    radius="sm"
-                    label="Tên sản phẩm"
-                    placeholder="Nhập tên sản phẩm"
-                  />
                   <div className="flex gap-2">
+                    <Input
+                      {...(productId ? updateRegister('name') : register('name'))}
+                      error={productId ? updateErrors.name?.message : errors.name?.message}
+                      size="sm"
+                      withAsterisk
+                      radius="sm"
+                      className="flex-1"
+                      label="Tên sản phẩm"
+                      placeholder="Nhập tên sản phẩm"
+                    />
                     <Input
                       {...(productId ? updateRegister('sku') : register('sku'))}
                       error={productId ? updateErrors.sku?.message : errors.sku?.message}
@@ -163,14 +164,6 @@ export function FormProduct({
                       className="flex-1"
                       label="Mã SKU"
                       placeholder="Nhập mã SKU (tự động tạo khi để trống)"
-                    />
-                    <Input
-                      {...(productId ? updateRegister('barcode') : register('barcode'))}
-                      size="sm"
-                      radius="sm"
-                      className="flex-1"
-                      label="Mã vạch/ Barcode"
-                      placeholder="Nhập mã vạch/ Barcode"
                     />
                   </div>
                   <div className="flex gap-2">

@@ -65,3 +65,25 @@ export interface Conversions {
   factor: number;
   variantId: string;
 }
+
+export interface ValidationProductRes {
+  itemLength: number;
+  itemErrorLength: number;
+  itemValidLength: number;
+  result: ValidationProductResItem[];
+}
+export interface ValidationProductResItem {
+  barcode: string;
+  base_unit: string;
+  category_name: string;
+  cost: string;
+  description: string;
+  isStatus: boolean;
+  msg: string;
+  price: string;
+  product_name: string;
+  product_sku: string;
+  quantity: string;
+  variant_name: string;
+  variant_sku: string;
+}

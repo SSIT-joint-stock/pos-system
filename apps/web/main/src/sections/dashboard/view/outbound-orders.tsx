@@ -173,33 +173,43 @@ export function OutboundOrders() {
               <h2 className="text-xl font-semibold text-gray-700 mb-2 text-center ">
                 Bạn chưa thêm sản phẩm nào
               </h2>
-              <Menu shadow="lg" width={300} withinPortal={false} position="bottom" offset={5}>
-                <Menu.Target>
-                  <div>
-                    <Button
-                      radius="sm"
-                      title="Tạo đơn trả hàng nhập"
-                      size="md"
-                      rightSection={<ChevronDown size={16} />}
-                    />
-                  </div>
-                </Menu.Target>
+              <div className="flex items-center gap-2">
+                <Menu shadow="lg" width={300} withinPortal={false} position="bottom" offset={5}>
+                  <Menu.Target>
+                    <div>
+                      <Button
+                        radius="sm"
+                        title="Tạo đơn trả hàng nhập"
+                        size="md"
+                        rightSection={<ChevronDown size={16} />}
+                      />
+                    </div>
+                  </Menu.Target>
 
-                <Menu.Dropdown>
-                  <Menu.Item
-                    onClick={() => setIsOpenModalSelectPurchase(true)}
-                    className="hover:bg-gray-50 rounded-md p-2 text-sm font-medium text-gray-900  cursor-pointer"
-                  >
-                    Trả hàng theo đơn nhập
-                  </Menu.Item>
-                  <Menu.Item
-                    onClick={() => setIsOpenSearch(true)}
-                    className="hover:bg-gray-50 rounded-md p-2 text-sm font-medium text-gray-900 cursor-pointer"
-                  >
-                    Trả hàng không theo đơn nhập
-                  </Menu.Item>
-                </Menu.Dropdown>
-              </Menu>
+                  <Menu.Dropdown>
+                    <Menu.Item
+                      onClick={() => setIsOpenModalSelectPurchase(true)}
+                      className="hover:bg-gray-50 rounded-md p-2 text-sm font-medium text-gray-900  cursor-pointer"
+                    >
+                      Trả hàng theo đơn nhập
+                    </Menu.Item>
+                    <Menu.Item
+                      onClick={() => setIsOpenSearch(true)}
+                      className="hover:bg-gray-50 rounded-md p-2 text-sm font-medium text-gray-900 cursor-pointer"
+                    >
+                      Trả hàng không theo đơn nhập
+                    </Menu.Item>
+                  </Menu.Dropdown>
+                </Menu>
+                <Button
+                  radius="sm"
+                  title="Nhập file excel"
+                  size="md"
+                  // rightSection={<ChevronDown size={16} />}
+                  // icon={<Upload size={16} />}
+                  variant="outline"
+                />
+              </div>
             </div>
           ) : (
             <>
