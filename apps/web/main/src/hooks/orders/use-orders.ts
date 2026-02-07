@@ -141,7 +141,7 @@ export function useOrders() {
   }, []);
 
   const exportExcelOrders = useCallback(async () => {
-    const res = await api.get(`/excel/export`, {
+    const res = await api.get(`/orders/excel/export`, {
       responseType: 'blob',
     });
     exportExcel(

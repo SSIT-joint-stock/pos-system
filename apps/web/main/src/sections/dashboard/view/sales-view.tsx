@@ -35,7 +35,6 @@ import React, { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react'
 import { useDebounceCallback } from 'usehooks-ts';
 import Logo from '../../../components/common/Logo';
 import { payment_method } from '../../../constants/method';
-import { paymentMethods } from '../../../constants/status';
 import { useCustomer } from '../../../hooks/customers/use-customer';
 import { useOrders } from '../../../hooks/orders/use-orders';
 import { useVariant } from '../../../hooks/variant/use-variant';
@@ -602,10 +601,17 @@ export function SalesView() {
               </div>
 
               {variants.length === 0 && !loadingVariants && (
-                <div className="flex items-center justify-center flex-1">
+                <div className="flex flex-col gap-2.5 items-center justify-center flex-1 h-full w-full">
                   <span className="text-xl font-semibold text-pos-blue-500">
                     Không tìm thấy sản phẩm
                   </span>
+                  <Button
+                    onClick={() => router.push('manage-products/create')}
+                    size="sm"
+                    radius="sm"
+                    variant="outline"
+                    title="Thêm sản phẩm"
+                  />
                 </div>
               )}
               {loadingVariants && variants.length === 0 ? (
@@ -614,79 +620,81 @@ export function SalesView() {
                 </div>
               ) : (
                 <>
-                  <div className="flex-1 min-h-0 overflow-y-auto pb-4">
-                    <div className="grid grid-cols-3 gap-4">
-                      {variants?.map((variant) => (
-                        <div
-                          key={variant?.id}
-                          onClick={() => {
-                            const existing = selectedVariants.find((p) => p.id === variant.id);
-                            if (!existing) {
-                              if (variant.onHand > 0) handleSelectProduct(variant);
-                            } else {
-                              if (existing.selectedQuantity < variant.onHand)
-                                handleSelectProduct(variant);
-                            }
-                          }}
-                          className="bg-white p-3 rounded-xl border border-gray-100 hover:border-pos-blue-400 cursor-pointer duration-300 transition-all hover:shadow-md group hover:shadow-pos-blue-100"
-                        >
-                          <div className="relative w-full h-fit">
-                            <Image
-                              src={'/placeholder.jpg'}
-                              alt="sản phẩm"
-                              width={500}
-                              height={500}
-                              className="rounded-xl object-cover h-32 w-full"
-                              unoptimized
-                            />
-                            <div className="absolute bottom-2 left-2 py-1 px-2 bg-pos-blue-50 text-pos-blue-500 rounded-md">
-                              <div className="text-base  font-medium">
-                                {formatCurrency(variant.price)}
+                  {variants.length && (
+                    <div className="flex-1 min-h-0 overflow-y-auto pb-4">
+                      <div className="grid grid-cols-3 gap-4">
+                        {variants?.map((variant) => (
+                          <div
+                            key={variant?.id}
+                            onClick={() => {
+                              const existing = selectedVariants.find((p) => p.id === variant.id);
+                              if (!existing) {
+                                if (variant.onHand > 0) handleSelectProduct(variant);
+                              } else {
+                                if (existing.selectedQuantity < variant.onHand)
+                                  handleSelectProduct(variant);
+                              }
+                            }}
+                            className="bg-white p-3 rounded-xl border border-gray-100 hover:border-pos-blue-400 cursor-pointer duration-300 transition-all hover:shadow-md group hover:shadow-pos-blue-100"
+                          >
+                            <div className="relative w-full h-fit">
+                              <Image
+                                src={'/placeholder.jpg'}
+                                alt="sản phẩm"
+                                width={500}
+                                height={500}
+                                className="rounded-xl object-cover h-32 w-full"
+                                unoptimized
+                              />
+                              <div className="absolute bottom-2 left-2 py-1 px-2 bg-pos-blue-50 text-pos-blue-500 rounded-md">
+                                <div className="text-base  font-medium">
+                                  {formatCurrency(variant.price)}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="mt-4 flex flex-col gap-2">
+                              <div className="flex items-center justify-between">
+                                <Tooltip position="top" label={variant.name} withArrow>
+                                  <h2 className="text-sm font-semibold text-gray-800 truncate group-hover:text-pos-blue-500 line-clamp-1">
+                                    {truncateText(variant.name, 22)}
+                                  </h2>
+                                </Tooltip>
+                                <span className="text-xs text-gray-500 font-semibold">
+                                  {variant?.product?.baseUnit}
+                                </span>
+                              </div>
+                              <div className="flex items-center justify-between ">
+                                {variant.onHand > 0 ? (
+                                  <span className="text-sm font-medium text-gray-500">
+                                    Số lượng: {variant.onHand}
+                                  </span>
+                                ) : (
+                                  <span className="text-sm text-red-500">Hết hàng</span>
+                                )}
+                                <span className="text-sm font-semibold text-gray-600">
+                                  {variant.sku}
+                                </span>
                               </div>
                             </div>
                           </div>
-
-                          <div className="mt-4 flex flex-col gap-2">
-                            <div className="flex items-center justify-between">
-                              <Tooltip position="top" label={variant.name} withArrow>
-                                <h2 className="text-sm font-semibold text-gray-800 truncate group-hover:text-pos-blue-500 line-clamp-1">
-                                  {truncateText(variant.name, 22)}
-                                </h2>
-                              </Tooltip>
-                              <span className="text-xs text-gray-500 font-semibold">
-                                {variant?.product?.baseUnit}
-                              </span>
-                            </div>
-                            <div className="flex items-center justify-between ">
-                              {variant.onHand > 0 ? (
-                                <span className="text-sm font-medium text-gray-500">
-                                  Số lượng: {variant.onHand}
-                                </span>
-                              ) : (
-                                <span className="text-sm text-red-500">Hết hàng</span>
-                              )}
-                              <span className="text-sm font-semibold text-gray-600">
-                                {variant.sku}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {pagination?.hasNext && (
-                      <div className="flex items-center justify-center mt-4">
-                        <Button
-                          size="sm"
-                          loading={loadingVariants}
-                          radius="sm"
-                          onClick={handleLoadMore}
-                          title="Tải thêm"
-                          style={{ width: '54%' }}
-                        />
+                        ))}
                       </div>
-                    )}
-                  </div>
+
+                      {pagination?.hasNext && (
+                        <div className="flex items-center justify-center mt-4">
+                          <Button
+                            size="sm"
+                            loading={loadingVariants}
+                            radius="sm"
+                            onClick={handleLoadMore}
+                            title="Tải thêm"
+                            style={{ width: '54%' }}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </>
               )}
             </div>
@@ -726,6 +734,7 @@ export function SalesView() {
         </Modal>
         {/* MODAL FOR ORDER */}
         <BillOrder
+          selectedPaymentMethod={changPaymentMethods}
           setChangePaymentMethods={setChangePaymentMethods}
           setOpenModalOrder={setOpenModalOrder}
           setPriceCustomerPay={setPriceCustomerPay}
@@ -735,7 +744,6 @@ export function SalesView() {
           setIsFocusedInputPriceCustomerPay={setIsFocusedInputPriceCustomerPay}
           setOpenModalInvoice={setOpenModalInvoice}
           openModalOrder={openModalOrder}
-          paymentMethods={paymentMethods}
           priceCustomerPay={priceCustomerPay}
           isCustomerPayFull={isCustomerPayFull}
           summary={summary}

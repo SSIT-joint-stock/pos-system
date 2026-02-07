@@ -42,6 +42,26 @@ export const AcceptPaymentImportSChema = z.object({
   notes: z.string().optional().nullable(),
 });
 
+/**
+ * Import Excel Purchase Order (after validation)
+ */
+export const ImportExcelPurchaseSchema = z.object({
+  supplier_id: z.string().uuid().nonempty({ message: 'Vui lòng chọn nhà cung cấp' }),
+  order_date: z.coerce.date().optional(),
+  items: z.array(
+    z.object({
+      variant_id: z.string().uuid(),
+      quantity: z.number(),
+      unit_cost: z.number(),
+      unit: z.string().optional().nullable(),
+      discount_rate: z.number().optional(),
+      tax_rate: z.number().optional(),
+      isStatus: z.boolean(),
+    })
+  ),
+});
+
 export type CreatePurchaseOrder = z.infer<typeof CreatePurchaseOrderSchema>;
 export type CreatePurchaseOrderItem = z.infer<typeof PurchaseOrderItemSchema>;
 export type AcceptPaymentImport = z.infer<typeof AcceptPaymentImportSChema>;
+export type ImportExcelPurchase = z.infer<typeof ImportExcelPurchaseSchema>;

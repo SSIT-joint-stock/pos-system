@@ -2,6 +2,7 @@ export * from './autocomplete';
 export * from './button';
 export * from './checkbox';
 export * from './datepicker';
+export * from './drop-file-zone';
 export * from './input';
 export * from './input-number';
 export * from './loading';

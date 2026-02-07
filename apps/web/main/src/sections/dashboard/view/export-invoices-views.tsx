@@ -103,6 +103,8 @@ export function ExportInvoicesViews() {
           onSearch={(value) => {
             setFilters((prev) => ({ ...prev, q: value }));
           }}
+          isHaveUpload={false}
+
           // onExport={exportPurchaseOrdersExcel}
           // onDownloadTemplate={downloadPurchaseOrderTemplate}
         />

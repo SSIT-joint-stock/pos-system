@@ -1,6 +1,6 @@
 'use client';
 import { Tooltip } from '@mantine/core';
-import { Button, Input, Loading, Modal } from '@repo/design-system/components/ui';
+import { Button, Input, Loading, Modal, NumberInput } from '@repo/design-system/components/ui';
 import { useClickOutside } from '@repo/design-system/hooks/client';
 import { Ellipsis, MoveLeft, Plus, SaveAll, ScanBarcode, Search, SearchX } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
@@ -11,6 +11,7 @@ import { formatCurrency } from '../../../../utils';
 import { Order, Variant } from '@repo/design-system/types';
 import { PurchaseOrder } from '@repo/design-system/types/purchase';
 import { usePathname, useRouter } from 'next/navigation';
+import { Controller } from 'react-hook-form';
 import { useProduct } from '../../../../hooks/product/use-product';
 import { PurchaseReturnItem } from '../../../../schemas/purchase-return/purchase-return.schema';
 import { CreatePurchaseOrderItem } from '../../../../schemas/purchase/purchase.schema';
@@ -309,10 +310,12 @@ function FormQuickCreateProduct({
       register,
       handleSubmit,
       reset,
+      control,
       formState: { errors },
     },
     loading,
   } = useProduct();
+  const [quantityPurchase, setQuantityPurchase] = useState<number>(1);
   return (
     <Modal
       title={
@@ -339,7 +342,7 @@ function FormQuickCreateProduct({
             append?.({
               variant_id: success?.data.id,
               product_id: success?.data.product_id,
-              quantity: 1,
+              quantity: quantityPurchase || 1,
               unit_cost: success.data.cost || 0,
               tax_rate: 0,
               discount_rate: 0,
@@ -382,32 +385,39 @@ function FormQuickCreateProduct({
             placeholder="Nhập mã barcode"
           />
         </div>
-        <div className="flex gap-2.5">
-          <Input
-            {...register('cost', {
-              valueAsNumber: true,
-            })}
-            label="Giá nhập"
-            className="flex-1"
-            error={errors.cost?.message}
-            size="sm"
-            radius="sm"
-            type="number"
-            defaultValue={0}
-            placeholder="Nhập giá nhập"
+        <div className="flex gap-2.5 w-full">
+          <Controller
+            control={control}
+            name="cost"
+            render={({ field }) => (
+              <NumberInput
+                {...field}
+                label="Giá nhập"
+                className="flex-1"
+                style={{ width: '100%' }}
+                error={errors.cost?.message}
+                size="sm"
+                radius="sm"
+                placeholder="Nhập giá nhập"
+              />
+            )}
           />
-          <Input
-            {...register('price', {
-              valueAsNumber: true,
-            })}
-            error={errors.price?.message}
-            label="Giá bán"
-            className="flex-1"
-            size="sm"
-            radius="sm"
-            type="number"
-            defaultValue={0}
-            placeholder="Nhập giá bán"
+
+          <Controller
+            control={control}
+            name="price"
+            render={({ field }) => (
+              <NumberInput
+                {...field}
+                label="Giá bán"
+                className="flex-1"
+                style={{ width: '100%' }}
+                error={errors.price?.message}
+                size="sm"
+                radius="sm"
+                placeholder="Nhập giá bán"
+              />
+            )}
           />
         </div>
         <div className="flex gap-2.5">
@@ -422,16 +432,18 @@ function FormQuickCreateProduct({
             type="text"
             radius="sm"
           />
-          <Input
+          <NumberInput
             label="Số lượng đặt"
             size="sm"
             defaultValue={1}
+            min={1}
+            onChange={(value) => setQuantityPurchase(Number(value))}
             className="flex-1"
-            type="number"
             radius="sm"
             placeholder="Nhập số lượng đặt"
           />
         </div>
+
         <div className="flex items-center gap-4 justify-end">
           <Button
             type="button"

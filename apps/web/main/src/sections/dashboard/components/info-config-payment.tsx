@@ -9,6 +9,7 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { QrCode as QrCodeIC } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import useStore from '../../../hooks/store/use-store';
 import api from '../../../libs/axios';
 import {
   ConfigInfoPayment,
@@ -42,6 +43,7 @@ export function InfoConfigPayment({
     reset,
     formState: { errors },
   } = configInfoPaymentForm;
+  const { getStoreDetail } = useStore();
 
   const handleConfigInfo = async (data: ConfigInfoPaymentInput) => {
     if (!currentStore?.id) return;
@@ -53,6 +55,7 @@ export function InfoConfigPayment({
         ...currentStore,
         qrPayment: res.data?.data?.bank_qr_image_url as string,
       });
+      getStoreDetail();
       setIsOpenSettingBank?.(false);
       setLoading(false);
     }

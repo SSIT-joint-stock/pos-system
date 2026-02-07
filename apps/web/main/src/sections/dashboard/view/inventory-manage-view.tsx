@@ -37,6 +37,7 @@ export function InventoryManageView() {
     removeVariant,
     setFilters,
     setPaginationParams,
+    exportInventoryExcel,
     filters,
     variants,
     loading,
@@ -51,7 +52,6 @@ export function InventoryManageView() {
   useClickOutside(refVariantSelect, () => {
     setIsOpenMoreUnit(false);
   });
-  console.log(selectedVariant?.product);
 
   return (
     <>
@@ -61,6 +61,7 @@ export function InventoryManageView() {
         </DisplayField>
 
         <DataActionBar
+          isHaveUpload={false}
           dataComplete={[...new Set(variants?.map((p) => p.name) || [])]}
           onFilterChange={(newFilters) => {
             setFilters((prev) => ({
@@ -71,7 +72,7 @@ export function InventoryManageView() {
           onSearch={(value) => {
             setFilters((prev) => ({ ...prev, q: value }));
           }}
-          // onExport={handleExportExcel}
+          onExport={exportInventoryExcel}
           // onUpload={uploadProductByExcel}
           // onDownloadTemplate={exampleProductExcel}
           loading={loading}

@@ -9,11 +9,15 @@ import {
   AcceptPaymentImportSChema,
   CreatePurchaseOrder,
   CreatePurchaseOrderSchema,
+  ImportExcelPurchase,
 } from '../../schemas/purchase/purchase.schema';
 import { exportExcel } from '../../utils/export-excel/export';
 import { FilterValue, useQueryParams } from '../query/use-query-params';
 import { useRequestHelper } from '../use-request-helper';
-import { PurchaseOrder } from './../../../../../../packages/design-system/src/types/purchase';
+import {
+  PurchaseOrder,
+  ValidationPurchaseOrderRes,
+} from './../../../../../../packages/design-system/src/types/purchase';
 export interface PurchaseOrderFilters extends Record<string, FilterValue> {
   q?: string;
   payment_status?: string;
@@ -43,6 +47,12 @@ export function usePurchase() {
   });
 
   const [purchaseOrders, setPurchaseOrders] = useState<PurchaseOrder[]>([]);
+  const [validationPOs, setValidationPOs] = useState<ValidationPurchaseOrderRes>({
+    itemLength: 0,
+    itemErrorLength: 0,
+    itemValidLength: 0,
+    result: [],
+  });
   const [purchaseOrder, setPurchaseOrder] = useState<PurchaseOrder | null>(null);
   const [totalPurchase, setTotalPurchase] = useState<string>('');
   const formPurchase = useForm<CreatePurchaseOrder>({
@@ -172,6 +182,42 @@ export function usePurchase() {
     });
   }, [requestWrapper]);
 
+  const validationImportPO = useCallback(
+    async (file: File) => {
+      const formData = new FormData();
+      formData.append('po_validation', file);
+      const res = await requestWrapper(() =>
+        api.post<ApiResponse>(`/purchase-order/excel/import/validation`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+      );
+      console.log(res);
+      if (res?.data.success) {
+        showSuccessToast(res.data.message as string);
+        setValidationPOs(res.data.data as ValidationPurchaseOrderRes);
+        return true;
+      }
+      return false;
+    },
+    [requestWrapper, showSuccessToast]
+  );
+
+  const importPurchaseOrders = useCallback(
+    async (data: ImportExcelPurchase) => {
+      const res = await requestWrapper(() =>
+        api.post<ApiResponse>('/purchase-order/excel/import/save', data)
+      );
+      if (res?.data.success) {
+        showSuccessToast(res.data.message as string);
+        return true;
+      }
+      return false;
+    },
+    [requestWrapper, showSuccessToast]
+  );
+
   return {
     loading,
     formPurchase,
@@ -184,6 +230,8 @@ export function usePurchase() {
     totalPurchase,
     purchaseOrder,
     formAcceptPayment,
+    validationPOs,
+
     acceptPaymentPurchase,
     acceptImportPurchase,
     setPaginationParams,
@@ -201,5 +249,7 @@ export function usePurchase() {
     //export, template
     exportPurchaseOrdersExcel,
     downloadPurchaseOrderTemplate,
+    validationImportPO,
+    importPurchaseOrders,
   };
 }

@@ -104,6 +104,7 @@ export function ImportInvoicesView() {
           onSearch={(value) => {
             setFilters((prev) => ({ ...prev, q: value }));
           }}
+          isHaveUpload={false}
           onExport={exportPurchaseOrdersExcel}
           onDownloadTemplate={downloadPurchaseOrderTemplate}
         />

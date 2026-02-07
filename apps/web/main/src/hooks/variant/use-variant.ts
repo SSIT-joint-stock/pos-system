@@ -1,18 +1,19 @@
-import api from '../../libs/axios';
-import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRequestHelper } from '../use-request-helper';
+import useToast from '@repo/design-system/hooks/client/use-toast-notification';
+import { Variant } from '@repo/design-system/types';
+import { ApiResponse } from '@repo/types/response';
+import { useCallback, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
+import { STOCK_MOVEMENT_STATUS } from '../../constants/status';
+import api from '../../libs/axios';
 import {
   CreateVariantInput,
   CreateVariantSchema,
   UpdateVariantInput,
 } from '../../schemas/variant/variant.schema';
-import { useCallback, useState } from 'react';
-import { ApiResponse } from '@repo/types/response';
-import { Variant } from '@repo/design-system/types';
-import { STOCK_MOVEMENT_STATUS } from '../../constants/status';
+import { exportExcel } from '../../utils/export-excel/export';
 import { FilterValue, useQueryParams } from '../query/use-query-params';
+import { useRequestHelper } from '../use-request-helper';
 export interface VariantFilter extends Record<string, FilterValue> {
   q?: string;
 }
@@ -128,6 +129,21 @@ export function useVariant() {
     },
     [requestWrapper, showSuccessToast]
   );
+
+  // EXCEL
+  const exportInventoryExcel = useCallback(async () => {
+    await requestWrapper(async () => {
+      const res = await api.get('/variant/excel/export/', {
+        responseType: 'blob',
+      });
+
+      exportExcel(
+        res,
+        `ton_kho_${new Date().toLocaleDateString()}.xlsx`,
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      );
+    });
+  }, [requestWrapper]);
   return {
     formVariant,
     loading,
@@ -157,5 +173,6 @@ export function useVariant() {
     updateVariant,
     removeVariant,
     getVariantsInStore,
+    exportInventoryExcel,
   };
 }

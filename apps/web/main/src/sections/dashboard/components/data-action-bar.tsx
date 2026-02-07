@@ -17,7 +17,9 @@ interface DataActionBarProps {
   isHaveExport?: boolean;
   openUploadOption?: boolean;
   setWidth?: string;
+  uploadOption?: boolean;
   setOpenUploadOption?: (value: boolean) => void;
+  isUploadOption?: (upload: boolean) => void;
 }
 
 export function DataActionBar({
@@ -34,6 +36,8 @@ export function DataActionBar({
   isHaveExport,
   loading = false,
   placeholderSearch = 'Tìm kiếm...',
+  uploadOption = false,
+  isUploadOption,
 }: DataActionBarProps) {
   const uploadMenuRef = useRef<HTMLDivElement>(null);
   const [openUploadOption, setOpenUploadOption] = useState<boolean>(false);
@@ -50,6 +54,7 @@ export function DataActionBar({
       actions={
         <>
           <UploadMenu
+            uploadOption={uploadOption}
             onOpen={() => setOpenUploadOption?.(true as boolean)}
             isOpen={openUploadOption}
             onClose={() => setOpenUploadOption?.(false as boolean)}
@@ -60,6 +65,7 @@ export function DataActionBar({
             isHaveUpload={isHaveUpload}
             onExport={onExport}
             isHaveExport={isHaveExport}
+            isUploadOption={isUploadOption}
           />
         </>
       }

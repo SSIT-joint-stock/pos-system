@@ -20,6 +20,7 @@ export type NumberInputProps = React.PropsWithChildren & {
   variant?: SizeVariant;
   error?: string;
   rightSection?: React.ReactNode;
+  className?: string;
 } & Omit<React.ComponentProps<'input'>, 'onChange' | 'value' | 'size'>;
 
 export function NumberInput({
@@ -35,12 +36,14 @@ export function NumberInput({
   error,
   hideControls,
   rightSection,
+  className,
   onChange,
   ...rest
 }: NumberInputProps) {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 flex-1">
       <MantineNumberInput
+        className={className}
         error={!!error}
         length={length}
         value={value}

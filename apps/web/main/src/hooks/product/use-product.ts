@@ -1,24 +1,23 @@
 'use client';
 
-import api from '../../../../main/src/libs/axios';
+import { zodResolver } from '@hookform/resolvers/zod';
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
-import { Product } from '@repo/design-system/types';
-import { useCallback, useState } from 'react';
-import { useRequestHelper } from '../use-request-helper';
-import { useAtomValue } from 'jotai';
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
+import { Product, ValidationProductRes } from '@repo/design-system/types';
+import { ApiResponse } from '@repo/types/response';
+import { useAtomValue } from 'jotai';
+import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import api from '../../libs/axios';
 import {
-  CreateInvoiceProductInput,
-  CreateInvoiceProductSchema,
   CreateProductInput,
   CreateProductSchema,
   UpdateProductInput,
   UpdateProductSchema,
-} from '../../../../main/src/schemas/product/product.schema';
-import { zodResolver } from '@hookform/resolvers/zod';
+} from '../../schemas/product/product.schema';
+import { exportExcel } from '../../utils/export-excel/export';
 import { FilterValue, useQueryParams } from '../query/use-query-params';
-import { ApiResponse } from '@repo/types/response';
+import { useRequestHelper } from '../use-request-helper';
 export interface ProductFilters extends Record<string, FilterValue> {
   q?: string;
   product_status?: string;
@@ -50,6 +49,12 @@ export function useProduct() {
   const currentStore = useAtomValue(currentStoreAtom);
   const [products, setProducts] = useState<Product[]>([]);
   const [product, setProduct] = useState<Product>();
+  const [validationProducts, setValidationProducts] = useState<ValidationProductRes>({
+    itemLength: 0,
+    itemErrorLength: 0,
+    itemValidLength: 0,
+    result: [],
+  });
   // FORM
   const createProductForm = useForm<CreateProductInput>({
     resolver: zodResolver(CreateProductSchema),
@@ -57,25 +62,21 @@ export function useProduct() {
   const updateProductForm = useForm<UpdateProductInput>({
     resolver: zodResolver(UpdateProductSchema),
   });
-  const createInvoiceProductForm = useForm<CreateInvoiceProductInput>({
-    resolver: zodResolver(CreateInvoiceProductSchema),
-  });
+
   // ACTION FUNCTION
   const getProducts = useCallback(async () => {
     const res = await requestWrapper(() =>
-      api.get(`/stores/${currentStore?.id}/products/filter-product?${buildParams().toString()}`)
+      api.get(`/products/filter-product?${buildParams().toString()}`)
     );
     if (res?.data.success) {
       setProducts(res.data.data);
       setPagination(res.data.pagination);
     }
-  }, [buildParams, requestWrapper, setPagination, currentStore?.id]);
+  }, [buildParams, requestWrapper, setPagination]);
   const createProduct = useCallback(
     async (data: CreateProductInput) => {
       if (!currentStore?.id) return;
-      const res = await requestWrapper(() =>
-        api.post<ApiResponse>(`/stores/${currentStore?.id}/products`, data)
-      );
+      const res = await requestWrapper(() => api.post<ApiResponse>(`/products`, data));
       if (res?.data.success) {
         getProducts();
         showSuccessToast(res.data.message as string);
@@ -92,9 +93,7 @@ export function useProduct() {
   );
   const deleteProduct = async (productId: string) => {
     if (!currentStore?.id) return;
-    const res = await requestWrapper(() =>
-      api.delete(`/stores/${currentStore?.id}/products/${productId}`)
-    );
+    const res = await requestWrapper(() => api.delete(`/products/${productId}`));
     if (res?.data.success) {
       showSuccessToast(res.data.message);
       getProducts();
@@ -102,9 +101,7 @@ export function useProduct() {
   };
   const updateProduct = async (productId: string, updateProductForm: UpdateProductInput) => {
     if (!currentStore?.id) return;
-    const res = await requestWrapper(() =>
-      api.patch(`/stores/${currentStore?.id}/products/${productId}`, updateProductForm)
-    );
+    const res = await requestWrapper(() => api.patch(`/products/${productId}`, updateProductForm));
     if (res?.data.success) {
       showSuccessToast(res.data.message);
       getProducts();
@@ -115,7 +112,7 @@ export function useProduct() {
   const getProductById = useCallback(
     async (productId: string) => {
       if (!currentStore?.id) return;
-      const res = await api.get(`/stores/${currentStore?.id}/products/${productId}`);
+      const res = await api.get(`/products/${productId}`);
 
       if (res?.data.success) {
         setProduct(res.data.data);
@@ -123,68 +120,73 @@ export function useProduct() {
     },
     [currentStore?.id]
   );
-  const applyStockMovement = async (productId: string, delta: number, type: string) => {
-    if (!currentStore?.id) return;
-    const storeId = currentStore?.id ?? '';
+
+  // EXCEL
+  const downloadProductTemplate = useCallback(async () => {
+    await requestWrapper(async () => {
+      const res = await api.get('/products/excel/template', {
+        responseType: 'blob',
+      });
+
+      exportExcel(
+        res,
+        `mau_phieu_san_pham_${new Date().toLocaleDateString()}.xlsx`,
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      );
+    });
+  }, [requestWrapper]);
+
+  const exportProductExcel = useCallback(async () => {
+    await requestWrapper(async () => {
+      const res = await api.get('/products/excel/export', {
+        responseType: 'blob',
+      });
+
+      exportExcel(
+        res,
+        `danh_sach_san_pham_${new Date().toLocaleDateString()}.xlsx`,
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      );
+    });
+  }, [requestWrapper]);
+
+  const validationImportProduct = useCallback(
+    async (file: File) => {
+      const formData = new FormData();
+      formData.append('product_validation', file);
+      const res = await requestWrapper(() =>
+        api.post<ApiResponse>(`/products/excel/import/validation`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+      );
+      if (res?.data.success) {
+        showSuccessToast(res.data.message as string);
+        setValidationProducts(res.data.data as ValidationProductRes);
+        return true;
+      }
+      return false;
+    },
+    [requestWrapper, showSuccessToast]
+  );
+  const importProduct = useCallback(async () => {
     const res = await requestWrapper(() =>
-      api.put(`stores/${storeId}/inventories/applyStockMovement/${productId}`, {
-        delta,
-        type,
+      api.post<ApiResponse>(`/products/excel/import/save`, {
+        items: validationProducts.result.map((item) => ({
+          ...item,
+          price: item.price ? Number(item.price) : 0,
+          cost: item.cost ? Number(item.cost) : 0,
+          quantity: item.quantity ? Number(item.quantity) : 0,
+        })),
       })
     );
     if (res?.data.success) {
-      getProducts();
-      showSuccessToast(res.data.message);
+      showSuccessToast(res.data.message as string);
+      return true;
     }
-  };
-  const uploadProductByExcel = async (file: File) => {
-    if (!currentStore?.id) return;
-    const formData = new FormData();
-    formData.append('file', file);
-    const res = await requestWrapper(() =>
-      api.post(`/stores/${currentStore?.id}/products/import-excel`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      })
-    );
-    if (res?.data.success) {
-      getProducts();
-      showSuccessToast(res.data.message);
-    }
-  };
-  const exampleProductExcel = async () => {
-    if (!currentStore?.id) return;
-    const res = await requestWrapper(() =>
-      api.post(
-        `/stores/${currentStore?.id}/products/example-product-excel`,
-        {},
-        {
-          responseType: 'blob',
-        }
-      )
-    );
-    const url = window.URL.createObjectURL(new Blob([res?.data]));
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'example-product-excel.xlsx';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    link.click();
-    link.remove();
-    window.URL.revokeObjectURL(url);
-    showSuccessToast('Download successfully!!');
-  };
-  const createInvoiceProduct = async (data: CreateInvoiceProductInput) => {
-    if (!currentStore?.id) return;
-    const res = await requestWrapper(() =>
-      api.post(`/stores/${currentStore?.id}/products/invoice-create-product`, data)
-    );
-    if (res?.data.success) {
-      showSuccessToast(res.data.message);
-    }
-  };
+    return false;
+  }, [validationProducts.result, requestWrapper, showSuccessToast]);
 
   return {
     getProducts,
@@ -192,15 +194,16 @@ export function useProduct() {
     createProduct,
     deleteProduct,
     updateProduct,
-    applyStockMovement,
     setFilters,
     setPaginationParams,
     setSortBy,
     setSort,
-    uploadProductByExcel,
-    exampleProductExcel,
     setProducts,
-    createInvoiceProduct,
+    downloadProductTemplate,
+    exportProductExcel,
+    validationImportProduct,
+    importProduct,
+    validationProducts,
     pagination,
     paginationParams,
     filters,
@@ -208,7 +211,6 @@ export function useProduct() {
     loading,
     createProductForm,
     updateProductForm,
-    createInvoiceProductForm,
     product,
     sort,
     sortBy,

@@ -73,6 +73,7 @@ export function ReturnedInvoicesView() {
           onSearch={(value) => {
             setFilters((prev) => ({ ...prev, q: value }));
           }}
+          isHaveUpload={false}
         />
         <Table
           hasMarginTop={false}
