@@ -1,6 +1,6 @@
 'use client';
 import { Popover, Tooltip } from '@mantine/core';
-import { Button, Input, NumberInput, Table } from '@repo/design-system/components/ui';
+import { Button, NumberInput, Table } from '@repo/design-system/components/ui';
 import { Variant } from '@repo/design-system/types';
 import { Download, Percent, Upload, X } from 'lucide-react';
 import { useRef, useState } from 'react';
@@ -31,7 +31,6 @@ export function CreatePurchaseOrders() {
   // HOOK
 
   const [selectedVariants, setSelectedVariants] = useState<Variant[]>([] as Variant[]);
-  const [editingVariantId, setEditingVariantId] = useState<string | null>(null);
   const [isOpenModalFormUpload, setIsOpenModalFormUpload] = useState<boolean>(false);
 
   const inputRef = useRef<HTMLDivElement>(null);
@@ -199,7 +198,6 @@ export function CreatePurchaseOrders() {
               renderRow={(data, index) => {
                 const variant = selectedVariants.find((p) => p.id === data.variant_id);
                 const item = watchedItems[index];
-                const cost = item?.unit_cost || 0;
                 if (!variant) return null;
                 return (
                   <>
@@ -283,35 +281,22 @@ export function CreatePurchaseOrders() {
 
                     <td className="px-4 py-2 text-sm text-gray-700">
                       <div ref={inputRef} className="flex items-center gap-1">
-                        {editingVariantId === data.variant_id ? (
-                          <Controller
-                            name={`items.${index}.unit_cost`}
-                            control={control}
-                            render={({ field }) => (
-                              <NumberInput
-                                {...field}
-                                type="text"
-                                onBlur={() => setEditingVariantId(null)}
-                                min={0}
-                                size="sm"
-                                defaultValue={variant?.cost || 0}
-                                radius="sm"
-                                className="w-28 text-right"
-                              />
-                            )}
-                          />
-                        ) : (
-                          <Input
-                            type="text"
-                            size="sm"
-                            radius="sm"
-                            className="w-28 text-right"
-                            onFocus={() => setEditingVariantId(data.variant_id)}
-                            defaultValue={
-                              cost ? formatCurrency(cost) : formatCurrency(item?.unit_cost)
-                            }
-                          />
-                        )}
+                        <Controller
+                          name={`items.${index}.unit_cost`}
+                          control={control}
+                          render={({ field }) => (
+                            <NumberInput
+                              {...field}
+                              type="text"
+                              min={0}
+                              size="sm"
+                              defaultValue={variant?.cost || 0}
+                              radius="sm"
+                              className="w-28 text-right"
+                            />
+                          )}
+                        />
+
                         <span className="text-xs text-gray-500 text-nowrap line-clamp-1 ">
                           / {variant.product.baseUnit}
                         </span>
