@@ -61,9 +61,9 @@ export function useBarcodeScanner({ onScan, enabled = true }: BarcodeScannerOpti
       } else if (e.key.length === 1) {
         bufferRef.current += e.key;
         // Block characters if they are fast OR if we are already in a sequence
-        if (isFast || bufferRef.current.length > 1) {
-          e.preventDefault();
-        }
+        // if (isFast || bufferRef.current.length > 1) {
+        //   e.preventDefault();
+        // }
       }
 
       lastKeyTimeRef.current = currentTime;
@@ -78,30 +78,34 @@ export function useCatalog() {
   const { showSuccessToast } = useToast();
   const { loading, requestWrapper } = useRequestHelper();
   const [scannedResult, setScannedResult] = useState<Variant | null>(null);
-
+  const [isScanMode, setIsScanMode] = useState<boolean>(false);
   const scanBarcode = useCallback(
     async (barcode: string) => {
-      const res = await requestWrapper(() =>
-        api.get<ApiResponse<Variant>>('/catalog/scan', {
-          params: { barcode },
-        })
-      );
+      if (isScanMode) {
+        const res = await requestWrapper(() =>
+          api.get<ApiResponse<Variant>>('/catalog/scan', {
+            params: { barcode },
+          })
+        );
 
-      if (res?.data.success) {
-        showSuccessToast('Lấy dữ liệu từ barcode thành công');
-        setScannedResult(res.data.data as Variant);
-        return res.data.data;
+        if (res?.data.success) {
+          showSuccessToast('Lấy dữ liệu từ barcode thành công');
+          setScannedResult(res.data.data as Variant);
+          return res.data.data;
+        }
+
+        return null;
       }
-
-      return null;
     },
-    [requestWrapper, showSuccessToast]
+    [requestWrapper, showSuccessToast, isScanMode]
   );
 
   return {
     loading,
-    scanBarcode,
     scannedResult,
+    isScanMode,
+    scanBarcode,
+    setIsScanMode,
     setScannedResult,
   };
 }

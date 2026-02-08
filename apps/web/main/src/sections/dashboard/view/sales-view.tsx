@@ -21,6 +21,7 @@ import {
   Minus,
   Percent,
   Plus,
+  ScanSearch,
   Search,
   Settings,
   SlidersHorizontal,
@@ -66,7 +67,7 @@ export function SalesView() {
     loading: loadingVariants,
   } = useVariant();
   const { createOrder, loading } = useOrders();
-  const { scanBarcode } = useCatalog();
+  const { scanBarcode, setIsScanMode, isScanMode } = useCatalog();
   const {
     customers,
     filters: customersFilters,
@@ -166,9 +167,11 @@ export function SalesView() {
 
   useBarcodeScanner({
     onScan: async (barcode) => {
-      const result = await scanBarcode(barcode);
-      if (result) {
-        handleSelectProduct(result);
+      if (isScanMode) {
+        const result = await scanBarcode(barcode);
+        if (result) {
+          handleSelectProduct(result);
+        }
       }
     },
     enabled:
@@ -597,6 +600,23 @@ export function SalesView() {
                 <Input
                   size="sm"
                   radius="sm"
+                  rightSection={
+                    <button
+                      onClick={() => {
+                        setIsScanMode(!isScanMode);
+                        if (isScanMode) {
+                          showSuccessToast('Tắt chế độ tìm kiếm mã vạch');
+                        } else {
+                          showSuccessToast('Bật chế độ tìm kiếm mã vạch');
+                        }
+                      }}
+                      type="button"
+                      className={`text-gray-500 hover:text-pos-blue-500 transition-colors duration-200 cursor-pointer ${isScanMode ? 'text-pos-blue-500' : 'text-gray-500'}`}
+                      style={{ pointerEvents: 'auto' }}
+                    >
+                      <ScanSearch size={22} />
+                    </button>
+                  }
                   leftSection={<Search size={20} />}
                   onChange={(e: ChangeEvent<HTMLInputElement>) => debounced(e.target.value)}
                   type="text"

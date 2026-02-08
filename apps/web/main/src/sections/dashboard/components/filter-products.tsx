@@ -1,9 +1,9 @@
 'use client';
-import { ProductFilters } from '../../../../../main/src/hooks/product/use-product';
 import { Drawer } from '@mantine/core';
 import { Select } from '@repo/design-system/components/ui';
-import React from 'react';
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
+import React from 'react';
+import { ProductFilters } from '../../../../../main/src/hooks/product/use-product';
 
 export default function FiltersProducts({
   isOpenFilterProducts,
@@ -62,6 +62,7 @@ export default function FiltersProducts({
               className="mt-1"
               position="bottom"
               size="sm"
+              radius="sm"
               data={[
                 {
                   label: 'Thời gian tạo giảm dần',
