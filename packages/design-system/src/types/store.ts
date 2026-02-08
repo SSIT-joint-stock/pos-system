@@ -1,4 +1,4 @@
-enum StoreRole {
+export enum StoreRole {
   OWNER = 'OWNER',
   MEMBER = 'MEMBER',
 }
@@ -18,6 +18,9 @@ export interface StoreMember {
   storeId: string;
   userId: string;
   role: StoreRole;
+  name: string;
+  total_order: string;
+  email: string;
   createdAt: string; // ISO datetime
   user: StoreMemberUser;
 }

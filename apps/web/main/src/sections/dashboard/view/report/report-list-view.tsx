@@ -88,6 +88,14 @@ export function ReportListView() {
             Báo cáo sổ kho
           </Link>
         </div>
+        <div className="bg-white rounded-sm p-6">
+          <Link
+            href={`/dashboard/store/${currentStore?.id}/report-book-stock`}
+            className="text-pos-blue-500 hover:underline cursor-pointer text-xl font-semibold text-center"
+          >
+            Báo cáo sổ quỹ
+          </Link>
+        </div>
       </div>
     </DashboardViewLayout>
   );

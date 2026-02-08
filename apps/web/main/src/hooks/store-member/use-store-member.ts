@@ -1,102 +1,143 @@
-import { useCallback, useState } from "react";
-import api from "../../../../main/src/libs/axios";
-import { useRequestHelper } from "../use-request-helper";
+import { zodResolver } from '@hookform/resolvers/zod';
+import useToast from '@repo/design-system/hooks/client/use-toast-notification';
+import { StoreMember } from '@repo/design-system/types/store';
+import { ApiResponse } from '@repo/types';
+import { useCallback, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { FilterValue, useQueryParams } from '../../hooks/query/use-query-params';
+import api from '../../libs/axios';
 import {
+  AddMemberByEmailInput,
   AddMemberByEmailSchema,
+  CreateMemberInput,
   CreateMemberSchema,
   UpdateMemberRoleSchema,
-} from "../../../../main/src/schemas/store-member/store-member.schema";
-
-export function useStoreMember(storeId?: string) {
+} from '../../schemas/store-member/store-member.schema';
+import { exportExcel } from '../../utils/export-excel/export';
+import { useRequestHelper } from '../use-request-helper';
+export interface StoreMemberFilters extends Record<string, FilterValue> {
+  q?: string;
+}
+export function useStoreMember() {
+  const { showSuccessToast } = useToast();
   const { requestWrapper, loading } = useRequestHelper();
-  const [members, setMembers] = useState<any[]>([]);
+  const {
+    paginationParams,
+    filters,
+    pagination,
+
+    setPaginationParams,
+    setFilters,
+    setPagination,
+    buildParams,
+  } = useQueryParams<StoreMemberFilters>({
+    q: 'q',
+  });
+  const formCreateMember = useForm<CreateMemberInput>({
+    resolver: zodResolver(CreateMemberSchema),
+  });
+  const formAddMemberByEmail = useForm<AddMemberByEmailInput>({
+    resolver: zodResolver(AddMemberByEmailSchema),
+  });
+  const [members, setMembers] = useState<StoreMember[]>([]);
   const [selectedMember, setSelectedMember] = useState<any | null>(null);
 
   // 1. Get members
   const getMembers = useCallback(async () => {
-    if (!storeId) return;
     const res = await requestWrapper(() =>
-      api.get(`/store-member/members/${storeId}`)
+      api.get(`/store-member/members?${buildParams().toString()}`)
     );
     if (res?.data?.success) {
       setMembers(res.data.data);
+      setPagination(res.data.pagination);
     }
-  }, [storeId, requestWrapper]);
+  }, [requestWrapper, setPagination, buildParams]);
 
   // 2. Add existing member
-  const addMemberByEmail = useCallback(
-    async (email: string) => {
-      if (!storeId) return;
-      AddMemberByEmailSchema.parse({ email });
-      return requestWrapper(() =>
-        api.post(`/store-member/add-member/${storeId}`, { email })
-      );
-    },
-    [storeId, requestWrapper]
-  );
+  const addMemberByEmail = async (data: AddMemberByEmailInput) => {
+    const res = await requestWrapper(() => api.post(`/store-member/add-member`, data));
+    if (res?.data?.success) {
+      showSuccessToast(res.data.message || 'Thêm nhân viên mới thành công!');
+      return true;
+    }
+    return false;
+  };
 
   // 3. Create + add new member
-  const createMember = useCallback(
-    async (payload: {
-      username: string;
-      email: string;
-      password: string;
-      confirmPassword: string;
-    }) => {
-      if (!storeId) return;
-      CreateMemberSchema.parse(payload);
-      return requestWrapper(() =>
-        api.post(`/store-member/${storeId}/members/create`, payload)
-      );
-    },
-    [storeId, requestWrapper]
-  );
+  const createMember = async (data: CreateMemberInput) => {
+    const res = await requestWrapper(() => api.post(`/store-member/create`, data));
+    if (res?.data?.success) {
+      showSuccessToast(res.data.message || 'Thêm nhân viên mới thành công!');
+      return true;
+    }
+    return false;
+  };
 
   // 4. Get member detail
   const getMemberDetail = useCallback(
     async (memberUserId: string) => {
-      if (!storeId) return;
-      const res = await requestWrapper(() =>
-        api.get(`/store-member/${storeId}/members/${memberUserId}`)
-      );
+      const res = await requestWrapper(() => api.get(`/store-member/members/${memberUserId}`));
       if (res?.data?.success) {
         setSelectedMember(res.data.data);
       }
     },
-    [storeId, requestWrapper]
+    [requestWrapper]
   );
 
   // 5. Update role
   const updateMemberRole = useCallback(
     async (memberUserId: string, role: string) => {
-      if (!storeId) return;
       UpdateMemberRoleSchema.parse({ role });
       return requestWrapper(() =>
-        api.patch(`/store-member/${storeId}/members/${memberUserId}/role`, {
-          role,
-        })
+        api.patch(`/store-member/members/${memberUserId}/role`, { role })
       );
     },
-    [storeId, requestWrapper]
+    [requestWrapper]
   );
 
   // 6. Remove member
   const removeMember = useCallback(
-    async (memberUserId: string) => {
-      if (!storeId) return;
-      return requestWrapper(() =>
-        api.delete(`/store-member/delete-member/${storeId}`, {
-          data: { memberUserId },
-        })
+    async (userId: string) => {
+      const res = await requestWrapper(() =>
+        api.delete<ApiResponse>(`/store-member/delete-member?userId=${userId}`)
       );
+      if (res?.data.success) {
+        showSuccessToast(res.data.message as string);
+        return true;
+      }
+      return false;
     },
-    [storeId, requestWrapper]
+    [requestWrapper, showSuccessToast]
   );
+
+  // Excel
+  const exportMembersExcel = useCallback(async () => {
+    await requestWrapper(async () => {
+      const res = await api.get('/store-member/excel/export', {
+        responseType: 'blob',
+      });
+
+      exportExcel(
+        res,
+        `danh_sach_nhan_vien_${new Date().toLocaleDateString()}.xlsx`,
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      );
+    });
+  }, [requestWrapper]);
 
   return {
     loading,
     members,
     selectedMember,
+    formCreateMember,
+    formAddMemberByEmail,
+    pagination,
+    paginationParams,
+    filters,
+
+    setPagination,
+    setFilters,
+    setPaginationParams,
 
     getMembers,
     getMemberDetail,
@@ -104,5 +145,6 @@ export function useStoreMember(storeId?: string) {
     createMember,
     updateMemberRole,
     removeMember,
+    exportMembersExcel,
   };
 }
