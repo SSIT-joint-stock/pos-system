@@ -22,8 +22,19 @@ export function useReportExport() {
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     );
   };
+  const exportReportOrders = async () => {
+    const res = await api.get(`/report/excel/order-items`, {
+      responseType: 'blob',
+    });
+    exportExcel(
+      res,
+      `bao_cao_mua_hang_${new Date().toLocaleDateString()}.xlsx`,
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+  };
   return {
     exportReportSuppliers,
     exportReportCustomer,
+    exportReportOrders,
   };
 }

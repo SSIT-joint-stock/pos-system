@@ -8,6 +8,7 @@ import { useDebounceCallback } from 'usehooks-ts';
 import { useVariant } from '../../../../hooks/variant/use-variant';
 import { formatCurrency } from '../../../../utils';
 
+import useToast from '@repo/design-system/hooks/client/use-toast-notification';
 import { Order, Variant } from '@repo/design-system/types';
 import { PurchaseOrder } from '@repo/design-system/types/purchase';
 import { usePathname, useRouter } from 'next/navigation';
@@ -24,6 +25,8 @@ export default function Header({
   setIsOpenSearch,
   setPurchaseOrder,
   setOrder,
+  setIsScanMode,
+  isScanMode,
   isOpenSearch,
   selectedVariants,
   fields,
@@ -35,10 +38,15 @@ export default function Header({
   setSelectedVariants?: React.Dispatch<React.SetStateAction<Variant[]>>;
   setPurchaseOrder?: (purchaseOrder: PurchaseOrder | null) => void;
   setOrder?: (order: Order | null) => void;
-  append?: (selectedVariant: CreatePurchaseOrderItem) => void;
-  appendPurchaseReturnWithoutPO?: (selectedVariant: PurchaseReturnItem) => void;
+  append?: (selectedVariant: CreatePurchaseOrderItem, options?: { shouldFocus: boolean }) => void;
+  appendPurchaseReturnWithoutPO?: (
+    selectedVariant: PurchaseReturnItem,
+    options?: { shouldFocus: boolean }
+  ) => void;
   setIsOpenModalSelectPurchase?: (isOpen: boolean) => void;
   setIsOpenSearch?: (isOpen: boolean) => void;
+  isScanMode?: boolean;
+  setIsScanMode?: React.Dispatch<React.SetStateAction<boolean>>;
   isOpenSearch?: boolean;
   selectedVariants?: Variant[];
   fields?: CreatePurchaseOrderItem[];
@@ -186,21 +194,27 @@ export default function Header({
                             return;
                           }
 
-                          append?.({
-                            variant_id: variant.id,
-                            product_id: variant.product_id,
-                            quantity: 1,
-                            unit_cost: variant.cost || 0,
-                            tax_rate: 0,
-                            discount_rate: 0,
-                            unit: variant.product.baseUnit,
-                          });
-                          appendPurchaseReturnWithoutPO?.({
-                            variant_id: variant.id,
-                            product_id: variant.product_id,
-                            quantity: 0,
-                            unit_cost: variant.cost || 0,
-                          });
+                          append?.(
+                            {
+                              variant_id: variant.id,
+                              product_id: variant.product_id,
+                              quantity: 1,
+                              unit_cost: variant.cost || 0,
+                              tax_rate: 0,
+                              discount_rate: 0,
+                              unit: variant.product.baseUnit,
+                            },
+                            { shouldFocus: false }
+                          );
+                          appendPurchaseReturnWithoutPO?.(
+                            {
+                              variant_id: variant.id,
+                              product_id: variant.product_id,
+                              quantity: 0,
+                              unit_cost: variant.cost || 0,
+                            },
+                            { shouldFocus: false }
+                          );
 
                           setSelectedVariants?.((prev) => [...prev, variant]);
                           setIsFocusInputSearch(false);
@@ -250,7 +264,7 @@ export default function Header({
             </div>
           )}
         </div>
-        <ActionButton />
+        <ActionButton isScanMode={isScanMode} setIsScanMode={setIsScanMode} />
       </div>
       <FormQuickCreateProduct
         opened={isOpenModalQuickCreateProduct}
@@ -263,24 +277,38 @@ export default function Header({
   );
 }
 
-function ActionButton() {
-  const pathName = usePathname();
+function ActionButton({
+  setIsScanMode,
+  isScanMode,
+}: {
+  isScanMode?: boolean;
+  setIsScanMode?: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
+  const { showSuccessToast } = useToast();
   return (
     <div className="lg:flex items-center gap-2 hidden ">
-      {pathName?.includes('purchase-order') && (
-        <>
-          <Tooltip label="Quét mã vạch" position="bottom" withArrow>
-            <button className="w-8 h-8 flex items-center justify-center text-gray-800 rounded-md border border-gray-300 hover:bg-gray-50  transition duration-200 cursor-pointer">
-              <ScanBarcode size={16} />
-            </button>
-          </Tooltip>
-          <Tooltip label="Tải file" position="bottom" withArrow>
-            <button className="w-8 h-8 flex items-center justify-center text-gray-800 rounded-md border border-gray-300 hover:bg-gray-50  transition duration-200 cursor-pointer">
-              <SaveAll size={16} />
-            </button>
-          </Tooltip>
-        </>
-      )}
+      <>
+        <Tooltip label="Quét mã vạch" position="bottom" withArrow>
+          <button
+            onClick={() => {
+              setIsScanMode?.(!isScanMode);
+              if (isScanMode) {
+                showSuccessToast('Tắt chế độ tìm kiếm mã vạch');
+              } else {
+                showSuccessToast('Bật chế độ tìm kiếm mã vạch');
+              }
+            }}
+            className={`w-8 h-8 flex items-center justify-center text-gray-800 rounded-md border border-gray-300 hover:bg-gray-50  transition duration-200 cursor-pointer ${isScanMode && 'border-pos-blue-500 text-pos-blue-500'}`}
+          >
+            <ScanBarcode size={16} />
+          </button>
+        </Tooltip>
+        <Tooltip label="Tải file" position="bottom" withArrow>
+          <button className="w-8 h-8 flex items-center justify-center text-gray-800 rounded-md border border-gray-300 hover:bg-gray-50  transition duration-200 cursor-pointer">
+            <SaveAll size={16} />
+          </button>
+        </Tooltip>
+      </>
 
       <Tooltip label="Hướng dẫn" position="bottom" withArrow>
         <button className="w-8 h-8 flex items-center justify-center text-gray-800 rounded-md border border-gray-300 hover:bg-gray-50  transition duration-200 cursor-pointer">
@@ -302,7 +330,7 @@ function FormQuickCreateProduct({
   setSelectedVariants?: React.Dispatch<React.SetStateAction<Variant[]>>;
   onClose: () => void;
   getVariantsInStore?: () => void;
-  append?: (selectedVariant: CreatePurchaseOrderItem) => void;
+  append?: (selectedVariant: CreatePurchaseOrderItem, options?: { shouldFocus: boolean }) => void;
 }) {
   const {
     createProduct,
@@ -339,15 +367,18 @@ function FormQuickCreateProduct({
         onSubmit={handleSubmit(async (data) => {
           const success = await createProduct(data);
           if (success?.success) {
-            append?.({
-              variant_id: success?.data.id,
-              product_id: success?.data.product_id,
-              quantity: quantityPurchase || 1,
-              unit_cost: success.data.cost || 0,
-              tax_rate: 0,
-              discount_rate: 0,
-              unit: success?.data?.baseUnit,
-            });
+            append?.(
+              {
+                variant_id: success?.data.id,
+                product_id: success?.data.product_id,
+                quantity: quantityPurchase || 1,
+                unit_cost: success.data.cost || 0,
+                tax_rate: 0,
+                discount_rate: 0,
+                unit: success?.data?.baseUnit,
+              },
+              { shouldFocus: false }
+            );
             setSelectedVariants?.((prev) => [...prev, success.data]);
             reset();
             onClose();

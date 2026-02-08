@@ -1,7 +1,6 @@
 'use client';
 
 import { Menu } from '@mantine/core';
-import { ItemBoxChart } from '@repo/design-system/components/shared/item';
 import { Button, Table } from '@repo/design-system/components/ui';
 import { Plus } from 'lucide-react';
 import DashboardViewLayout from '../../../layouts/dashboard-view-layout';
@@ -75,10 +74,10 @@ export function CashBookView() {
   return (
     <DashboardViewLayout>
       <DisplayField label="Danh sách thu/chi">
-        <Menu shadow="lg" width={300} withinPortal={false} position="bottom" offset={5}>
+        <Menu shadow="lg" width={200} withinPortal={false} position="bottom" offset={5}>
           <Menu.Target>
             <div>
-              <Button icon={<Plus size={'16'} />} radius="sm" title={'Tạo phiếu'} size="md" />
+              <Button icon={<Plus size={'16'} />} radius="sm" title={'Tạo phiếu'} size="sm" />
             </div>
           </Menu.Target>
 
@@ -98,11 +97,11 @@ export function CashBookView() {
           </Menu.Dropdown>
         </Menu>
       </DisplayField>
-      <div className="grid grid-cols-3 items-center justify-between gap-4">
+      {/* <div className="grid grid-cols-3 items-center justify-between gap-4">
         <ItemBoxChart title={'Tổng thu'} value={100.0} />
         <ItemBoxChart value={formatCurrency(10000000)} title={'Tổng chi'} />
         <ItemBoxChart title={`Tồn quỹ`} value={formatCurrency(10000000)} />
-      </div>
+      </div> */}
 
       <DataActionBar
         // dataComplete={[...new Set(products?.map((p) => p.name) || [])]}
@@ -133,6 +132,7 @@ export function CashBookView() {
         // onDownloadTemplate={exampleProductExcel}
         // loading={loading}
         placeholderSearch="Nhập tên sản phẩm, mã sản phẩm, barcode..."
+        isHaveUpload={false}
       />
 
       {/* TABLE AND PAGINATION */}

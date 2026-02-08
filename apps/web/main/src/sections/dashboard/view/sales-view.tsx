@@ -21,6 +21,7 @@ import {
   Minus,
   Percent,
   Plus,
+  ScanSearch,
   Search,
   Settings,
   SlidersHorizontal,
@@ -35,6 +36,7 @@ import React, { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react'
 import { useDebounceCallback } from 'usehooks-ts';
 import Logo from '../../../components/common/Logo';
 import { payment_method } from '../../../constants/method';
+import { useBarcodeScanner, useCatalog } from '../../../hooks/catalog/use-catalog';
 import { useCustomer } from '../../../hooks/customers/use-customer';
 import { useOrders } from '../../../hooks/orders/use-orders';
 import { useVariant } from '../../../hooks/variant/use-variant';
@@ -65,6 +67,7 @@ export function SalesView() {
     loading: loadingVariants,
   } = useVariant();
   const { createOrder, loading } = useOrders();
+  const { scanBarcode, setIsScanMode, isScanMode } = useCatalog();
   const {
     customers,
     filters: customersFilters,
@@ -161,6 +164,17 @@ export function SalesView() {
   const handleRemoveSelectedProduct = (id: string) => {
     setSelectedVariants((prev) => prev.filter((p) => p.id !== id));
   };
+
+  useBarcodeScanner({
+    onScan: async (barcode) => {
+      const result = await scanBarcode(barcode);
+      if (result) {
+        handleSelectProduct(result);
+      }
+    },
+    enabled:
+      !openModalOrder && !openModalInvoice && !openModalCreateCustomer && !openModalChangePrice,
+  });
 
   const handleAddInvoices = () => {
     // Lưu hóa đơn hiện tại
@@ -319,8 +333,6 @@ export function SalesView() {
     }));
   };
   useClickOutside(openMenuSettingsRef, () => setIsOpenMenuSettings(false));
-  console.log('parms', paginationParams.limit);
-  console.log('len', variants.length);
   return (
     <>
       <div className="h-screen flex flex-col gap-2 overflow-hidden p-4">
@@ -567,6 +579,7 @@ export function SalesView() {
 
                 <div className="flex-1">
                   <Button
+                    radius="sm"
                     disabled={!selectedVariants.length}
                     title="Thanh toán"
                     style={{ width: '100%' }}
@@ -585,6 +598,23 @@ export function SalesView() {
                 <Input
                   size="sm"
                   radius="sm"
+                  rightSection={
+                    <button
+                      onClick={() => {
+                        setIsScanMode(!isScanMode);
+                        if (isScanMode) {
+                          showSuccessToast('Tắt chế độ tìm kiếm mã vạch');
+                        } else {
+                          showSuccessToast('Bật chế độ tìm kiếm mã vạch');
+                        }
+                      }}
+                      type="button"
+                      className={`text-gray-500 hover:text-pos-blue-500 transition-colors duration-200 cursor-pointer ${isScanMode ? 'text-pos-blue-500' : 'text-gray-500'}`}
+                      style={{ pointerEvents: 'auto' }}
+                    >
+                      <ScanSearch size={22} />
+                    </button>
+                  }
                   leftSection={<Search size={20} />}
                   onChange={(e: ChangeEvent<HTMLInputElement>) => debounced(e.target.value)}
                   type="text"
@@ -751,7 +781,7 @@ export function SalesView() {
         />
         {/* MODAL FOR ADD CUSTOMER */}
         <Modal
-          title={'Thêm khách hàng mới'}
+          title={<p className="text-base font-semibold text-gray-900">Thêm khách hàng mới</p>}
           opened={openModalCreateCustomer}
           size="xl"
           onClose={() => setOpenModalCreateCustomer(false)}
