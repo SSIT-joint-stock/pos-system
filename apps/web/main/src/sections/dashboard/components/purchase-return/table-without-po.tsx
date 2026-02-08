@@ -161,7 +161,7 @@ export default function TableWithoutPO({
         onClose={() => setIsOpenModalChangePrice(false)}
         size="md"
       >
-        <div className="space-y-6 mt-2 ">
+        <div className="space-y-6  ">
           <NumberInput
             onChange={(value) => setPriceChange(Number(value))}
             label="Giá trị hàng"

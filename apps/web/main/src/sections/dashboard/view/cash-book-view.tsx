@@ -1,8 +1,9 @@
 'use client';
 
 import { Menu } from '@mantine/core';
-import { Button, Table } from '@repo/design-system/components/ui';
+import { Button, Modal, Table } from '@repo/design-system/components/ui';
 import { Plus } from 'lucide-react';
+import { useState } from 'react';
 import DashboardViewLayout from '../../../layouts/dashboard-view-layout';
 import { DataActionBar } from '../../../sections/dashboard/components/data-action-bar';
 import { DisplayField } from '../../../sections/dashboard/components/display-field';
@@ -71,6 +72,8 @@ export const cashBookData: CashBookItem[] = [
 ];
 
 export function CashBookView() {
+  const [isOpenCreateReceipt, setIsOpenCreateReceipt] = useState<boolean>(false);
+  const [isOpenCreatePayment, setIsOpenCreatePayment] = useState<boolean>(false);
   return (
     <DashboardViewLayout>
       <DisplayField label="Danh sách thu/chi">
@@ -83,13 +86,13 @@ export function CashBookView() {
 
           <Menu.Dropdown>
             <Menu.Item
-              // onClick={() => setIsOpenModalSelectPurchase(true)}
+              onClick={() => setIsOpenCreateReceipt(true)}
               className="hover:bg-gray-50 rounded-md p-2 text-sm font-medium text-gray-900  cursor-pointer"
             >
               Tạo phiếu thu
             </Menu.Item>
             <Menu.Item
-              // onClick={() => setIsOpenSearch(true)}
+              onClick={() => setIsOpenCreatePayment(true)}
               className="hover:bg-gray-50 rounded-md p-2 text-sm font-medium text-gray-900 cursor-pointer"
             >
               Tạo phiếu chi
@@ -177,6 +180,22 @@ export function CashBookView() {
           </>
         )}
       />
+      <Modal
+        opened={isOpenCreateReceipt}
+        onClose={() => setIsOpenCreateReceipt(false)}
+        size="xl"
+        title={<p className="text-base font-semibold">Tạo phiếu thu</p>}
+      >
+        <form action=""></form>
+      </Modal>
+      <Modal
+        opened={isOpenCreatePayment}
+        onClose={() => setIsOpenCreatePayment(false)}
+        size="xl"
+        title={<p className="text-base font-semibold">Tạo phiếu chi</p>}
+      >
+        <form action=""></form>
+      </Modal>
     </DashboardViewLayout>
   );
 }
