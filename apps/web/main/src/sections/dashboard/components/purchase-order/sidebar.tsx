@@ -220,13 +220,13 @@ export default function SidebarPurchase({
                           )
                         }
                       />
-                      <Button
+                      {/* <Button
                         onClick={() => setIsOpenModalCreateSupplier(true)}
                         title="Thêm"
                         size="sm"
                         radius="sm"
                         variant="outline"
-                      />
+                      /> */}
                     </div>
                   </div>
                 )}

@@ -44,13 +44,15 @@ export function CreatePurchaseOrders() {
       register,
       reset,
       handleSubmit,
+      getValues,
+      setValue,
       formState: { errors },
     },
     loading,
     createPurchaseOrder,
     downloadPurchaseOrderTemplate,
   } = usePurchase();
-  const { scanBarcode } = useCatalog();
+  const { scanBarcode, setIsScanMode, isScanMode } = useCatalog();
   const { fields, append, remove, update } = useFieldArray({
     control,
     name: 'items',
@@ -66,25 +68,27 @@ export function CreatePurchaseOrders() {
     try {
       const variant = await scanBarcode(barcode);
       if (variant) {
-        const index = watchedItems.findIndex((item) => item.variant_id === variant.id);
+        const items = getValues('items') || [];
+        const index = items.findIndex((item) => item.variant_id === variant.id);
         if (index !== -1) {
-          const currentItem = watchedItems[index];
-          update(index, {
-            ...currentItem,
-            quantity: (Number(currentItem?.quantity) || 0) + 1,
-          });
+          const currentItem = items[index];
+          const newQuantity = (Number(currentItem?.quantity) || 0) + 1;
+          setValue(`items.${index}.quantity`, newQuantity);
           return;
         }
 
-        append?.({
-          variant_id: variant.id,
-          product_id: variant.product_id,
-          quantity: 1,
-          unit_cost: variant.cost || 0,
-          tax_rate: 0,
-          discount_rate: 0,
-          unit: variant.product.baseUnit,
-        });
+        append?.(
+          {
+            variant_id: variant.id,
+            product_id: variant.product_id,
+            quantity: 1,
+            unit_cost: variant.cost || 0,
+            tax_rate: 0,
+            discount_rate: 0,
+            unit: variant.product.baseUnit,
+          },
+          { shouldFocus: false }
+        );
 
         setSelectedVariants((prev) => [...prev, variant]);
       }
@@ -150,6 +154,8 @@ export function CreatePurchaseOrders() {
           setSelectedVariants={setSelectedVariants}
           append={append}
           // onScan={handleScan}
+          setIsScanMode={setIsScanMode}
+          isScanMode={isScanMode}
           fields={fields}
           title="Tạo đơn nhập hàng"
         />
@@ -213,10 +219,10 @@ export function CreatePurchaseOrders() {
                     >
                       <Popover.Target>
                         <td className="px-4 py-2 text-sm text-pos-blue-500 font-semibold hover:underline cursor-pointer text-nowrap">
-                          <span>{fields[index].unit || variant.product.baseUnit}</span>
+                          <span>{item?.unit || variant.product.baseUnit}</span>
                           <Popover.Dropdown className="p-0" p={8}>
                             <>
-                              {data &&
+                              {item &&
                               variant?.conversions &&
                               variant?.conversions?.length === 0 ? (
                                 <div className="w-full  text-gray-500 text-sm">
@@ -254,16 +260,19 @@ export function CreatePurchaseOrders() {
                     </Popover>
                     <td className="px-4 py-2 text-sm text-gray-700 ">
                       <div className="flex items-center gap-1">
-                        <Input
-                          type="number"
-                          min={1}
-                          {...register(`items.${index}.quantity`, {
-                            valueAsNumber: true,
-                          })}
-                          size="sm"
-                          autoFocus
-                          radius="sm"
-                          className="w-20 text-right"
+                        <Controller
+                          name={`items.${index}.quantity`}
+                          control={control}
+                          render={({ field }) => (
+                            <NumberInput
+                              {...field}
+                              min={1}
+                              onChange={(e) => field.onChange(Number(e))}
+                              size="sm"
+                              radius="sm"
+                              className="w-20 text-right"
+                            />
+                          )}
                         />
                         <span className="text-xs text-gray-500 text-nowrap">
                           {' '}
@@ -283,7 +292,6 @@ export function CreatePurchaseOrders() {
                                 {...field}
                                 type="text"
                                 onBlur={() => setEditingVariantId(null)}
-                                autoFocus
                                 min={0}
                                 size="sm"
                                 defaultValue={variant?.cost || 0}
@@ -300,7 +308,7 @@ export function CreatePurchaseOrders() {
                             className="w-28 text-right"
                             onFocus={() => setEditingVariantId(data.variant_id)}
                             defaultValue={
-                              cost ? formatCurrency(cost) : formatCurrency(data?.unit_cost)
+                              cost ? formatCurrency(cost) : formatCurrency(item?.unit_cost)
                             }
                           />
                         )}
@@ -311,14 +319,19 @@ export function CreatePurchaseOrders() {
                     </td>
                     <td className="px-4 py-2 text-sm text-gray-700  ">
                       <div className="flex items-center gap-1">
-                        <Input
-                          {...register(`items.${index}.discount_rate`, { valueAsNumber: true })}
-                          type="number"
-                          size="sm"
-                          defaultValue={0}
-                          radius="sm"
-                          className="w-20 text-right"
-                          rightSection={<Percent size={14} />}
+                        <Controller
+                          name={`items.${index}.discount_rate`}
+                          control={control}
+                          render={({ field }) => (
+                            <NumberInput
+                              {...field}
+                              onChange={(e) => field.onChange(Number(e))}
+                              size="sm"
+                              radius="sm"
+                              className="w-20 text-right"
+                              rightSection={<Percent size={14} />}
+                            />
+                          )}
                         />
                         <span className="text-xs text-gray-500 text-nowrap">
                           {data
@@ -329,14 +342,19 @@ export function CreatePurchaseOrders() {
                     </td>
                     <td className="px-4 py-2 text-sm text-gray-700 ">
                       <div className="flex items-center gap-1">
-                        <Input
-                          {...register(`items.${index}.tax_rate`, { valueAsNumber: true })}
-                          type="number"
-                          size="sm"
-                          radius="sm"
-                          defaultValue={0}
-                          className="w-20 text-right"
-                          rightSection={<Percent size={14} />}
+                        <Controller
+                          name={`items.${index}.tax_rate`}
+                          control={control}
+                          render={({ field }) => (
+                            <NumberInput
+                              {...field}
+                              onChange={(e) => field.onChange(Number(e))}
+                              size="sm"
+                              radius="sm"
+                              className="w-20 text-right"
+                              rightSection={<Percent size={14} />}
+                            />
+                          )}
                         />
                         <span className="text-xs text-gray-500 text-nowrap">
                           {data

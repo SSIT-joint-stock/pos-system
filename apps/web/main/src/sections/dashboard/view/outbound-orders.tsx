@@ -44,7 +44,7 @@ export function OutboundOrders() {
     },
     loading: loadingCreate,
   } = usePurchaseReturn();
-  const { scanBarcode } = useCatalog();
+  const { scanBarcode, setIsScanMode, isScanMode } = useCatalog();
 
   // filed for with po
   const { fields, append } = useFieldArray({
@@ -81,12 +81,15 @@ export function OutboundOrders() {
         const index = watchedItemsWithoutPO.findIndex((item) => item.variant_id === variant.id);
         if (index !== -1) return;
 
-        appendWithoutPO?.({
-          variant_id: variant.id,
-          product_id: variant.product_id,
-          quantity: 0,
-          unit_cost: variant.cost || 0,
-        });
+        appendWithoutPO?.(
+          {
+            variant_id: variant.id,
+            product_id: variant.product_id,
+            quantity: 0,
+            unit_cost: variant.cost || 0,
+          },
+          { shouldFocus: false }
+        );
 
         setSelectedVariants((prev) => [...prev, variant]);
       }
@@ -110,12 +113,15 @@ export function OutboundOrders() {
       items: [],
     });
     purchaseOrder.items.forEach((item) => {
-      append({
-        purchase_order_item_id: item.id,
-        quantity: 0,
-        unit_cost: Number(item.unit_cost),
-        reason: null,
-      });
+      append(
+        {
+          purchase_order_item_id: item.id,
+          quantity: 0,
+          unit_cost: Number(item.unit_cost),
+          reason: null,
+        },
+        { shouldFocus: false }
+      );
     });
     // purchaseOrder.items
     //   .filter((item) => Number(item.quantity) - Number(item.quantity_returned) > 0)
@@ -194,11 +200,13 @@ export function OutboundOrders() {
           isOpenSearch={isOpenSearch}
           selectedVariants={selectedVariants}
           purchaseOrder={purchaseOrder || null}
+          fieldsWithoutPO={fieldsWithoutPO}
+          isScanMode={isScanMode}
+          setIsScanMode={setIsScanMode}
           setPurchaseOrder={setPurchaseOrder}
           setIsOpenSearch={setIsOpenSearch}
           setSelectedVariants={setSelectedVariants}
           setIsOpenModalSelectPurchase={setIsOpenModalSelectPurchase}
-          fieldsWithoutPO={fieldsWithoutPO}
           appendPurchaseReturnWithoutPO={appendWithoutPO}
         />
         {/* Content Area */}

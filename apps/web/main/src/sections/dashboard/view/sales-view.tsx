@@ -167,11 +167,9 @@ export function SalesView() {
 
   useBarcodeScanner({
     onScan: async (barcode) => {
-      if (isScanMode) {
-        const result = await scanBarcode(barcode);
-        if (result) {
-          handleSelectProduct(result);
-        }
+      const result = await scanBarcode(barcode);
+      if (result) {
+        handleSelectProduct(result);
       }
     },
     enabled:
