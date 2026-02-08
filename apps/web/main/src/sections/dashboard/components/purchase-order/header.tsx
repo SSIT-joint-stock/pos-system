@@ -24,6 +24,7 @@ export default function Header({
   setIsOpenSearch,
   setPurchaseOrder,
   setOrder,
+  // onScan,
   isOpenSearch,
   selectedVariants,
   fields,
@@ -46,6 +47,7 @@ export default function Header({
   purchaseOrder?: PurchaseOrder | null;
   title?: string | React.ReactNode;
   haveSearch?: boolean;
+  // onScan?: (barcode: string) => void;
 }) {
   // HOOK
   const ref = useRef<HTMLDivElement>(null);
@@ -250,7 +252,7 @@ export default function Header({
             </div>
           )}
         </div>
-        <ActionButton />
+        <ActionButton onScan={() => ref.current?.querySelector('input')?.focus()} />
       </div>
       <FormQuickCreateProduct
         opened={isOpenModalQuickCreateProduct}
@@ -263,14 +265,17 @@ export default function Header({
   );
 }
 
-function ActionButton() {
+function ActionButton({ onScan }: { onScan?: () => void }) {
   const pathName = usePathname();
   return (
     <div className="lg:flex items-center gap-2 hidden ">
       {pathName?.includes('purchase-order') && (
         <>
           <Tooltip label="Quét mã vạch" position="bottom" withArrow>
-            <button className="w-8 h-8 flex items-center justify-center text-gray-800 rounded-md border border-gray-300 hover:bg-gray-50  transition duration-200 cursor-pointer">
+            <button
+              onClick={onScan}
+              className="w-8 h-8 flex items-center justify-center text-gray-800 rounded-md border border-gray-300 hover:bg-gray-50  transition duration-200 cursor-pointer"
+            >
               <ScanBarcode size={16} />
             </button>
           </Tooltip>

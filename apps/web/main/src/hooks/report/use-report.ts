@@ -1,6 +1,7 @@
 import {
   ApiResponse,
   ReportCustomer,
+  ReportOrders,
   ReportSupplier,
   ReportSupplierDetailResponse,
 } from '@repo/design-system/types';
@@ -17,6 +18,7 @@ export function useReport() {
   const [reportSuppliers, setReportSuppliers] = useState<ReportSupplier[]>([]);
   const [reportSupplier, setReportSupplier] = useState<ReportSupplierDetailResponse>();
   const [reportCustomers, setReportCustomers] = useState<ReportCustomer[]>([]);
+  const [reportOrders, setReportOrders] = useState<ReportOrders[]>([]);
   const { loading, requestWrapper } = useRequestHelper();
   const {
     paginationParams,
@@ -67,10 +69,22 @@ export function useReport() {
       setPagination(res?.data?.pagination);
     }
   }, [requestWrapper, buildParams, setPagination]);
+
+  const getReportOrders = useCallback(async () => {
+    const res = await requestWrapper(() =>
+      api.get<ApiResponse>(`/report/order-items?${buildParams().toString()}`)
+    );
+    if (res?.data.success) {
+      setReportOrders(res?.data?.data as ReportOrders[]);
+      setPagination(res?.data?.pagination);
+    }
+  }, [requestWrapper, buildParams, setPagination]);
+
   return {
     getReportSuppliers,
     getReportSupplier,
     getReportCustomers,
+    getReportOrders,
     setPaginationParams,
     setFilters,
     setPagination,
@@ -85,5 +99,6 @@ export function useReport() {
     reportSuppliers,
     reportSupplier,
     reportCustomers,
+    reportOrders,
   };
 }

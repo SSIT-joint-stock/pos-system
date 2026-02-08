@@ -132,7 +132,7 @@ export default function FormStepUploadPurchase({
           )}
           {isActive === 1 && (
             <div className="space-y-6 ">
-              <div className="flex items-center gap-2 ">
+              <div className="flex  gap-3 ">
                 <Controller
                   name="supplier_id"
                   control={control}

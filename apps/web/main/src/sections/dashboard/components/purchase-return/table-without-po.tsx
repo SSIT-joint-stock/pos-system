@@ -40,11 +40,11 @@ export default function TableWithoutPO({
   const [isOpenModalChangePrice, setIsOpenModalChangePrice] = useState(false);
   const [indexChangePrice, setIndexChangePrice] = useState(0);
   const [priceChange, setPriceChange] = useState(0);
-  console.log(selectedVariants);
 
   return (
     <>
       <Table
+        className="overflow-auto"
         hasPadding={false}
         isLoading={loading}
         tableHeaders={tableHeaders}
@@ -53,6 +53,7 @@ export default function TableWithoutPO({
         hasMarginTop={false}
         renderRow={(data, index) => {
           const variant = selectedVariants.find((p) => p.id === data.variant_id);
+          console.log(variant);
           const item = watchWithoutPO[index];
           const cost = item?.unit_cost || 0;
           if (!variant) return null;
@@ -95,7 +96,7 @@ export default function TableWithoutPO({
                         }}
                         onBlur={() => {
                           if (field.value === null || field.value === undefined) {
-                            field.onChange(0);
+                            field.onChange(null);
                           }
                         }}
                         min={0}

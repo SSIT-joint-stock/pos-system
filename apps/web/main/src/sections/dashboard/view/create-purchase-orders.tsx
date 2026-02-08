@@ -9,6 +9,7 @@ import { usePurchase } from '../../../hooks/purchase/use-purchase';
 import { formatCurrency, truncateText } from '../../../utils';
 import Header from '../components/purchase-order/header';
 
+import { useBarcodeScanner, useCatalog } from '../../../hooks/catalog/use-catalog';
 import ReturnProductLayout from '../../../layouts/return-product-layout';
 import { CreatePurchaseOrderItem } from '../../../schemas/purchase/purchase.schema';
 import FormStepUploadPurchase from '../../../sections/dashboard/components/purchase-order/form-step-upload-purchase';
@@ -49,12 +50,52 @@ export function CreatePurchaseOrders() {
     createPurchaseOrder,
     downloadPurchaseOrderTemplate,
   } = usePurchase();
+  const { scanBarcode } = useCatalog();
   const { fields, append, remove, update } = useFieldArray({
     control,
     name: 'items',
   });
 
   const watchedItems = watch('items');
+  const processingBarcodesRef = useRef<Set<string>>(new Set());
+
+  const handleScan = async (barcode: string) => {
+    if (processingBarcodesRef.current.has(barcode)) return;
+    processingBarcodesRef.current.add(barcode);
+
+    try {
+      const variant = await scanBarcode(barcode);
+      if (variant) {
+        const index = watchedItems.findIndex((item) => item.variant_id === variant.id);
+        if (index !== -1) {
+          const currentItem = watchedItems[index];
+          update(index, {
+            ...currentItem,
+            quantity: (Number(currentItem?.quantity) || 0) + 1,
+          });
+          return;
+        }
+
+        append?.({
+          variant_id: variant.id,
+          product_id: variant.product_id,
+          quantity: 1,
+          unit_cost: variant.cost || 0,
+          tax_rate: 0,
+          discount_rate: 0,
+          unit: variant.product.baseUnit,
+        });
+
+        setSelectedVariants((prev) => [...prev, variant]);
+      }
+    } finally {
+      setTimeout(() => {
+        processingBarcodesRef.current.delete(barcode);
+      }, 500);
+    }
+  };
+
+  useBarcodeScanner({ onScan: handleScan });
   // Xóa sản phẩm
   const handleRemoveProduct = (id: string, index: number) => {
     setSelectedVariants(selectedVariants.filter((p) => p.id !== id));
@@ -66,14 +107,15 @@ export function CreatePurchaseOrders() {
       unit,
     });
   };
+
   const caculateTotalPerItem = (item: CreatePurchaseOrderItem, variant: Variant) => {
-    const quantity = Number(item.quantity) || 0;
-    const unitCost = Number(item.unit_cost) || 0;
-    const taxRate = Number(item.tax_rate) || 0;
-    const discountRate = Number(item.discount_rate) || 0;
+    const quantity = Number(item?.quantity) || 0;
+    const unitCost = Number(item?.unit_cost) || 0;
+    const taxRate = Number(item?.tax_rate) || 0;
+    const discountRate = Number(item?.discount_rate) || 0;
 
     let factor = 1;
-    if (item.unit && variant.conversions.length > 0) {
+    if (item?.unit && variant?.conversions && variant?.conversions?.length > 0) {
       const conversions = variant.conversions.find((c) => c.name === item.unit);
       if (conversions) factor = conversions.factor;
     }
@@ -107,6 +149,7 @@ export function CreatePurchaseOrders() {
         <Header
           setSelectedVariants={setSelectedVariants}
           append={append}
+          // onScan={handleScan}
           fields={fields}
           title="Tạo đơn nhập hàng"
         />
@@ -142,7 +185,7 @@ export function CreatePurchaseOrders() {
           ) : (
             <Table
               hasPagination={false}
-              className="w-full"
+              className="w-full overflow-auto scrollbar-none"
               hasMarginTop={false}
               hasPadding={false}
               data={fields}

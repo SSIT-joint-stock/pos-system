@@ -50,3 +50,16 @@ export interface ReportCustomer {
   total_paid: number;
   total_unpaid_amount: number;
 }
+
+export interface ReportOrders {
+  order_created_at: string;
+  order_code: string;
+  customer_name: string;
+  order_total_amount: string;
+  variant_name: string;
+  product_name: string;
+  base_unit: string;
+  quantity: string;
+  price: string;
+  line_total: string;
+}

@@ -165,31 +165,39 @@ export default function MenuSidebar({
           children: [
             {
               title: 'Tổng quan báo cáo',
-              path: `/dashboard/store/${currentStore?.id}/report-customers`,
+              path: `/dashboard/store/${currentStore?.id}/report-overview`,
             },
+            // {
+            //   title: 'Báo cáo khách hàng',
+            //   path: `/dashboard/store/${currentStore?.id}/report-customers`,
+            // },
+            // {
+            //   title: 'Báo cáo nhà cung cấp',
+            //   path: `/dashboard/store/${currentStore?.id}/report-suppliers`,
+            // },
+            // {
+            //   title: 'Báo cáo nhân viên',
+            //   path: `/dashboard/store/${currentStore?.id}/report-employees`,
+            // },
+            // {
+            //   title: 'Báo cáo bán hàng',
+            //   path: `/dashboard/store/${currentStore?.id}/report-orders`,
+            // },
+            // {
+            //   title: 'Báo cáo trả hàng',
+            //   path: `/dashboard/store/${currentStore?.id}/report-order-return`,
+            // },
+            // {
+            //   title: 'Báo cáo tồn kho',
+            //   path: `/dashboard/store/${currentStore?.id}/report-stock`,
+            // },
+            // {
+            //   title: 'Báo cáo sổ kho',
+            //   path: `/dashboard/store/${currentStore?.id}/report-book-stock`,
+            // },
             {
-              title: 'Báo cáo khách hàng',
-              path: `/dashboard/store/${currentStore?.id}/report-customers`,
-            },
-            {
-              title: 'Báo cáo nhà cung cấp',
-              path: `/dashboard/store/${currentStore?.id}/report-suppliers`,
-            },
-            {
-              title: 'Báo cáo nhân viên',
-              path: `/dashboard/store/${currentStore?.id}/report-employees`,
-            },
-            {
-              title: 'Báo cáo bán hàng',
-              path: `/dashboard/store/${currentStore?.id}/report-employees`,
-            },
-            {
-              title: 'Báo cáo kho',
-              path: `/dashboard/store/${currentStore?.id}/report-employees`,
-            },
-            {
-              title: 'Báo cáo cuối ngày',
-              path: `/dashboard/store/${currentStore?.id}/report-employees`,
+              title: 'Danh sách báo cáo',
+              path: `/dashboard/store/${currentStore?.id}/report-list`,
             },
           ],
         },

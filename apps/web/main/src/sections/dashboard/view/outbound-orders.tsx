@@ -5,9 +5,10 @@ import { Button, Modal, Table } from '@repo/design-system/components/ui';
 import { Variant } from '@repo/design-system/types';
 import { ChevronDown } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useFieldArray } from 'react-hook-form';
 import { PAYMENT_STATUS_MAP, paymentStatusOptions } from '../../../constants/status';
+import { useBarcodeScanner, useCatalog } from '../../../hooks/catalog/use-catalog';
 import { usePurchaseReturn } from '../../../hooks/purchase-return/use-purchase-return';
 import { usePurchase } from '../../../hooks/purchase/use-purchase';
 import ReturnProductLayout from '../../../layouts/return-product-layout';
@@ -43,11 +44,15 @@ export function OutboundOrders() {
     },
     loading: loadingCreate,
   } = usePurchaseReturn();
+  const { scanBarcode } = useCatalog();
+
+  // filed for with po
   const { fields, append } = useFieldArray({
     control,
     name: 'items',
   });
 
+  // field for without po
   const {
     fields: fieldsWithoutPO,
     append: appendWithoutPO,
@@ -60,9 +65,39 @@ export function OutboundOrders() {
 
   const watchedItems = watch('items') ?? [];
   const watchedItemsWithoutPO = watchWithoutPO('items') ?? [];
+  const processingBarcodesRef = useRef<Set<string>>(new Set());
+
   const itemsLength = watchedItems.reduce((acc, item) => acc + item.quantity, 0) || 0;
   const itemsLengthWithoutPO =
     watchedItemsWithoutPO.reduce((acc, item) => acc + item.quantity, 0) || 0;
+
+  const handleScan = async (barcode: string) => {
+    if (processingBarcodesRef.current.has(barcode)) return;
+    processingBarcodesRef.current.add(barcode);
+
+    try {
+      const variant = await scanBarcode(barcode);
+      if (variant) {
+        const index = watchedItemsWithoutPO.findIndex((item) => item.variant_id === variant.id);
+        if (index !== -1) return;
+
+        appendWithoutPO?.({
+          variant_id: variant.id,
+          product_id: variant.product_id,
+          quantity: 0,
+          unit_cost: variant.cost || 0,
+        });
+
+        setSelectedVariants((prev) => [...prev, variant]);
+      }
+    } finally {
+      setTimeout(() => {
+        processingBarcodesRef.current.delete(barcode);
+      }, 500);
+    }
+  };
+
+  useBarcodeScanner({ onScan: handleScan });
 
   useEffect(() => {
     if (!search) return;

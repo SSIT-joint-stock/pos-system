@@ -33,6 +33,7 @@ export default function TableWithPo({
 }: TableWithPoProps) {
   return (
     <Table
+      className="overflow-auto"
       hasPadding={false}
       isLoading={loading}
       tableHeaders={tableHeaders}

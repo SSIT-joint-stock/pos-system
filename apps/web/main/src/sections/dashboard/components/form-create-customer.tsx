@@ -1,12 +1,12 @@
 'use client';
-import {
-  CreateCustomerInput,
-  UpdateCustomerInput,
-} from '../../../schemas/customer/customer.schema';
 import { Button, Input } from '@repo/design-system/components/ui';
 import { Customer } from '@repo/design-system/types';
 import React, { useEffect } from 'react';
 import { UseFormReturn } from 'react-hook-form';
+import {
+  CreateCustomerInput,
+  UpdateCustomerInput,
+} from '../../../schemas/customer/customer.schema';
 
 interface FormCreateCustomerProps {
   createCustomer?: (data: CreateCustomerInput) => Promise<any>;
@@ -80,6 +80,8 @@ export default function FormCreateCustomer({
           name="name"
           placeholder="Nhập tên khách hàng"
           className="flex-1"
+          size="sm"
+          radius="sm"
         />
         <Input
           label="Số điện thoại"
@@ -102,6 +104,8 @@ export default function FormCreateCustomer({
               createCustomerForm?.setValue('phone', onlyNums);
             }
           }}
+          size="sm"
+          radius="sm"
         />
       </div>
       <div className="flex items-center gap-3">
@@ -113,6 +117,8 @@ export default function FormCreateCustomer({
           name="email"
           placeholder="Nhập email khách hàng"
           className="flex-1"
+          size="sm"
+          radius="sm"
         />
         <Input
           label="Địa chỉ"
@@ -122,6 +128,8 @@ export default function FormCreateCustomer({
           name="address"
           placeholder="Nhập địa chỉ khách hàng"
           className="flex-1"
+          size="sm"
+          radius="sm"
         />
       </div>
       <div className="flex items-center gap-3">
@@ -133,6 +141,8 @@ export default function FormCreateCustomer({
           name="city"
           placeholder="Nhập thành phố"
           className="flex-1"
+          size="sm"
+          radius="sm"
         />
         <Input
           label="Mã zip"
@@ -152,11 +162,15 @@ export default function FormCreateCustomer({
               createCustomerForm?.setValue('zip', onlyNums);
             }
           }}
+          size="sm"
+          radius="sm"
         />
       </div>
 
-      <div className="flex items-center ">
+      <div className="flex items-center justify-end">
         <Button
+          size="sm"
+          radius="sm"
           disabled={
             isEditForm
               ? updateCustomerForm?.formState.isSubmitting
@@ -164,7 +178,6 @@ export default function FormCreateCustomer({
           }
           type="submit"
           title={isEditForm ? 'Sửa khách hàng' : 'Tạo khách hàng'}
-          style={{ flex: 1 }}
         />
       </div>
     </form>
