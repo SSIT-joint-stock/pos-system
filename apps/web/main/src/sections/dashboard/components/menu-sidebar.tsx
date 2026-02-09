@@ -1,5 +1,5 @@
 import { Tooltip } from '@mantine/core';
-import { currentStoreAtom } from '@repo/design-system/stores/auth';
+import { currentStoreAtom, currentUserAtom } from '@repo/design-system/stores/auth';
 import { useAtom } from 'jotai';
 import {
   BookUser,
@@ -32,6 +32,9 @@ export default function MenuSidebar({
 }) {
   const pathName = usePathname();
   const [currentStore] = useAtom(currentStoreAtom);
+  const [currentUser] = useAtom(currentUserAtom);
+  const isOwner = currentUser?.id === currentStore?.owner_id;
+  console.log(currentUser);
 
   // Định nghĩa cấu trúc Group
   const menuGroups = [
@@ -149,6 +152,7 @@ export default function MenuSidebar({
           ],
         },
         {
+          isOwnerLook: true,
           title: 'Nhân viên',
           path: `/dashboard/store/${currentStore?.id}/employees`,
           icon: <Users size={20} className="shrink-0" />,
@@ -156,7 +160,7 @@ export default function MenuSidebar({
       ],
     },
     {
-      groupLabel: 'Hệ thống',
+      groupLabel: 'Báo cáo',
       items: [
         {
           title: 'Báo cáo',
@@ -167,34 +171,6 @@ export default function MenuSidebar({
               title: 'Tổng quan báo cáo',
               path: `/dashboard/store/${currentStore?.id}/report-overview`,
             },
-            // {
-            //   title: 'Báo cáo khách hàng',
-            //   path: `/dashboard/store/${currentStore?.id}/report-customers`,
-            // },
-            // {
-            //   title: 'Báo cáo nhà cung cấp',
-            //   path: `/dashboard/store/${currentStore?.id}/report-suppliers`,
-            // },
-            // {
-            //   title: 'Báo cáo nhân viên',
-            //   path: `/dashboard/store/${currentStore?.id}/report-employees`,
-            // },
-            // {
-            //   title: 'Báo cáo bán hàng',
-            //   path: `/dashboard/store/${currentStore?.id}/report-orders`,
-            // },
-            // {
-            //   title: 'Báo cáo trả hàng',
-            //   path: `/dashboard/store/${currentStore?.id}/report-order-return`,
-            // },
-            // {
-            //   title: 'Báo cáo tồn kho',
-            //   path: `/dashboard/store/${currentStore?.id}/report-stock`,
-            // },
-            // {
-            //   title: 'Báo cáo sổ kho',
-            //   path: `/dashboard/store/${currentStore?.id}/report-book-stock`,
-            // },
             {
               title: 'Danh sách báo cáo',
               path: `/dashboard/store/${currentStore?.id}/report-list`,
@@ -226,127 +202,134 @@ export default function MenuSidebar({
 
   return (
     <div className="flex-1 flex flex-col items-start gap-2 overflow-x-hidden overflow-y-scroll scrollbar-none w-full py-2">
-      {menuGroups.map((group, groupIdx) => (
-        <React.Fragment key={groupIdx}>
-          {/* Group Title - Chỉ hiện khi mở rộng sidebar */}
-          {isExpand && (
-            <div className={`px-4 mt-4 mb-2 first:mt-0 w-full`}>
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider text-nowrap">
-                {group.groupLabel}
-              </p>
-            </div>
-          )}
+      {menuGroups
+        // .filter((group) => {
+        //   if (!isOwner) return false;
+        //   return true;
+        // })
+        .map((group, groupIdx) => (
+          <React.Fragment key={groupIdx}>
+            {/* Group Title - Chỉ hiện khi mở rộng sidebar */}
+            {isExpand && (
+              <div className={`px-4 mt-4 mb-2 first:mt-0 w-full`}>
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider text-nowrap">
+                  {group.groupLabel}
+                </p>
+              </div>
+            )}
 
-          {/* Group Divider - Hiện khi thu nhỏ sidebar để ngăn cách các nhóm icon */}
-          {!isExpand && groupIdx !== 0 && (
-            <div className="w-8 h-[1px] bg-gray-200 mx-auto my-1 rounded-full" />
-          )}
+            {/* Group Divider - Hiện khi thu nhỏ sidebar để ngăn cách các nhóm icon */}
+            {!isExpand && groupIdx !== 0 && (
+              <div className="w-8 h-[1px] bg-gray-200 mx-auto my-1 rounded-full" />
+            )}
 
-          {/* Render Items trong Group */}
-          {group.items.map((item, idx) => {
-            // Unique key cho map, kết hợp index nhóm và index item
-            const uniqueKey = `${groupIdx}-${idx}`;
-            // Sử dụng item.id nếu có cho submenu, nếu không thì dùng index tạm (lưu ý logic id)
-            const itemId = item.id || -1;
+            {/* Render Items trong Group */}
+            {group.items
+              .filter((item) => !item.isOwnerLook || isOwner)
+              .map((item, idx) => {
+                // Unique key cho map, kết hợp index nhóm và index item
+                const uniqueKey = `${groupIdx}-${idx}`;
+                // Sử dụng item.id nếu có cho submenu, nếu không thì dùng index tạm (lưu ý logic id)
+                const itemId = item.id || -1;
 
-            if (item.children) {
-              return (
-                <div key={uniqueKey} className="flex flex-col w-full">
-                  <Tooltip
-                    color="rgba(125, 124, 124, 1)"
-                    withArrow
-                    transitionProps={{ transition: 'fade-right', duration: 300 }}
-                    label={item.title}
-                    position="right"
-                    disabled={isExpand}
-                  >
-                    <button
-                      onClick={() => {
-                        setIsExpand(true);
-                        setOpenSubmenu(openSubmenu === itemId ? null : itemId);
-                      }}
-                      className={`flex cursor-pointer items-center gap-5 p-2 rounded-sm transition-all duration-300 w-full font-medium
+                if (item.children) {
+                  return (
+                    <div key={uniqueKey} className="flex flex-col w-full">
+                      <Tooltip
+                        color="rgba(125, 124, 124, 1)"
+                        withArrow
+                        transitionProps={{ transition: 'fade-right', duration: 300 }}
+                        label={item.title}
+                        position="right"
+                        disabled={isExpand}
+                      >
+                        <button
+                          onClick={() => {
+                            setIsExpand(true);
+                            setOpenSubmenu(openSubmenu === itemId ? null : itemId);
+                          }}
+                          className={`flex cursor-pointer items-center gap-5 p-2 rounded-sm transition-all duration-300 w-full font-medium
                         ${!isExpand ? 'justify-center' : ''}
                         ${
                           item.children.some((child) => pathName?.startsWith(child.path))
                             ? 'bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white shadow-sm'
                             : 'text-gray-800 hover:bg-pos-blue-50 hover:text-pos-blue-600'
                         }`}
-                    >
-                      <span className="shrink-0">{item.icon}</span>
-                      {isExpand && (
-                        <>
-                          <p className="truncate font-medium text-sm flex-1 text-left">
-                            {item.title}
-                          </p>
-                          <ChevronRight
-                            size={16}
-                            className={`transition-transform duration-300 ${
-                              openSubmenu === itemId ? 'rotate-90' : ''
-                            }`}
-                          />
-                        </>
-                      )}
-                    </button>
-                  </Tooltip>
+                        >
+                          <span className="shrink-0">{item.icon}</span>
+                          {isExpand && (
+                            <>
+                              <p className="truncate font-medium text-sm flex-1 text-left">
+                                {item.title}
+                              </p>
+                              <ChevronRight
+                                size={16}
+                                className={`transition-transform duration-300 ${
+                                  openSubmenu === itemId ? 'rotate-90' : ''
+                                }`}
+                              />
+                            </>
+                          )}
+                        </button>
+                      </Tooltip>
 
-                  {/* Submenu Dropdown */}
-                  <div
-                    className={`flex flex-col gap-1 transition-all duration-300 overflow-hidden
+                      {/* Submenu Dropdown */}
+                      <div
+                        className={`flex flex-col gap-1 transition-all duration-300 overflow-hidden
                       ${
                         isExpand && openSubmenu === itemId
                           ? 'max-h-[500px] opacity-100 mt-1 border-l border-gray-300 pl-2'
                           : 'max-h-0 opacity-0'
                       }`}
-                  >
-                    {item.children.map((child, cIdx) => (
-                      <Link
-                        key={cIdx}
-                        href={child.path}
-                        className={`text-sm font-medium rounded-sm py-2 px-3 block transition-colors
+                      >
+                        {item.children.map((child, cIdx) => (
+                          <Link
+                            key={cIdx}
+                            href={child.path}
+                            className={`text-sm font-medium rounded-sm py-2 px-3 block transition-colors
                           ${
                             child.path === pathName || pathName?.startsWith(child.path)
                               ? 'text-pos-blue-600 bg-pos-blue-50'
                               : 'text-gray-800 hover:text-pos-blue-500 hover:bg-gray-50'
                           }`}
-                      >
-                        {child.title}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              );
-            }
+                          >
+                            {child.title}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                }
 
-            // Item không có con (Single Item)
-            return (
-              <Tooltip
-                withArrow
-                color="rgba(125, 124, 124, 1)"
-                transitionProps={{ transition: 'fade-right', duration: 300 }}
-                label={item.title}
-                position="right"
-                disabled={isExpand}
-                key={uniqueKey}
-              >
-                <Link
-                  href={item.path!}
-                  className={`flex items-center gap-5 p-2 rounded-sm transition-all duration-300 w-full font-medium
+                // Item không có con (Single Item)
+                return (
+                  <Tooltip
+                    withArrow
+                    color="rgba(125, 124, 124, 1)"
+                    transitionProps={{ transition: 'fade-right', duration: 300 }}
+                    label={item.title}
+                    position="right"
+                    disabled={isExpand}
+                    key={uniqueKey}
+                  >
+                    <Link
+                      href={item.path!}
+                      className={`flex items-center gap-5 p-2 rounded-sm transition-all duration-300 w-full font-medium
                     ${!isExpand ? 'justify-center' : ''}
                     ${
                       item.path === pathName
                         ? 'bg-gradient-to-r from-pos-blue-500 to-pos-blue-700 text-white shadow-sm'
                         : 'text-gray-800 hover:bg-pos-blue-50 hover:text-pos-blue-600'
                     }`}
-                >
-                  <span className="shrink-0">{item.icon}</span>
-                  {isExpand && <p className="truncate text-sm">{item.title}</p>}
-                </Link>
-              </Tooltip>
-            );
-          })}
-        </React.Fragment>
-      ))}
+                    >
+                      <span className="shrink-0">{item.icon}</span>
+                      {isExpand && <p className="truncate text-sm">{item.title}</p>}
+                    </Link>
+                  </Tooltip>
+                );
+              })}
+          </React.Fragment>
+        ))}
     </div>
   );
 }
