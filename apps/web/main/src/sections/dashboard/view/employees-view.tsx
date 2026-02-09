@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 import { Button, Input, Modal, Table } from '@repo/design-system/components/ui';
 import { Plus, UserPlus } from 'lucide-react';
@@ -18,8 +19,8 @@ import { useStoreMember } from '../../../hooks/store-member/use-store-member';
 import { DeleteConfirmationModal } from '../../../sections/dashboard/components/delete-confirmation-modal';
 
 const tableHeaders = [
-  'Họ và Tên',
   'Email',
+  'Tên đăng nhập',
   'Vai trò',
   'Tổng doanh thu',
   'Ngay tham gia',
@@ -34,13 +35,22 @@ export default function EmployeesView() {
     pagination,
     paginationParams,
     filters,
+    member,
     exportMembersExcel,
+    getMemberDetail,
     setFilters,
     setPaginationParams,
     getMembers,
     addMemberByEmail,
     removeMember,
     createMember,
+    updateMember,
+    formUpdateMember: {
+      register: registerUpdateMember,
+      formState: { errors: errorsUpdateMember },
+      handleSubmit: handleSubmitUpdateMember,
+      reset: resetUpdateMember,
+    },
     formAddMemberByEmail: {
       register: registerAddMemberByEmail,
       formState: { errors: errorsAddMemberByEmail },
@@ -58,12 +68,25 @@ export default function EmployeesView() {
   } = useStoreMember();
 
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
+  const [editModal, setEditModal] = useState<boolean>(false);
   const [openModalAdd, setOpenModalAdd] = useState<boolean>(false);
   const [selectedMember, setSelectedMember] = useState<StoreMember | null>(null);
   useEffect(() => {
     getMembers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters, paginationParams]);
+  useEffect(() => {
+    if (!selectedMember?.userId) return;
+    getMemberDetail(selectedMember?.userId || '');
+  }, [selectedMember?.userId]);
+  useEffect(() => {
+    if (!member || !selectedMember) return;
+    if (member) {
+      resetUpdateMember({
+        email: member.user.email,
+        username: member.user.username,
+      });
+    }
+  }, [member, selectedMember, resetUpdateMember]);
   return (
     <DashboardViewLayout>
       <DisplayField label="Danh sách nhân viên ">
@@ -120,10 +143,10 @@ export default function EmployeesView() {
         renderRow={(member) => (
           <>
             <td className="px-4 py-3 text-sm text-zinc-800 font-semibold">
-              {member.user.username || member.name}
+              {member.user.email || member.email}
             </td>
             <td className="px-4 py-3 text-sm text-zinc-800 font-semibold">
-              {member.user.email || member.email}
+              {member.user.username || member.name}
             </td>
 
             <td className="px-4 py-3">
@@ -139,14 +162,11 @@ export default function EmployeesView() {
             </td>
             <td>
               <ActionButtons
-                // onEdit={() => {
-                //   if (member.role === 'OWNER') return;
-                //   setOpenEditModal(true);
-                //   setOpenViewModal(false);
-                //   setSelectedMember(member);
-                // }}
+                onEdit={() => {
+                  setEditModal(true);
+                  setSelectedMember(member);
+                }}
                 onDelete={() => {
-                  if (member.role === 'OWNER') return;
                   setDeleteModal(true);
                   setSelectedMember(member);
                 }}
@@ -156,6 +176,7 @@ export default function EmployeesView() {
         )}
       />
       <DeleteConfirmationModal
+        loading={loading}
         itemName={selectedMember?.user.username || selectedMember?.name}
         opened={deleteModal}
         onClose={() => setDeleteModal(false)}
@@ -276,6 +297,56 @@ export default function EmployeesView() {
             </form>
           </Tabs.Panel>
         </Tabs>
+      </Modal>
+      <Modal
+        opened={editModal}
+        onClose={() => setEditModal(false)}
+        size="xl"
+        title={<p className="text-base font-semibold">Sửa thông tin nhân viên</p>}
+      >
+        <form
+          onSubmit={handleSubmitUpdateMember(async (data) => {
+            if (!selectedMember?.userId) return;
+            const success = await updateMember(selectedMember?.userId, data);
+            if (success) {
+              setEditModal(false);
+              getMembers();
+              getMemberDetail(selectedMember?.userId);
+              // reset();
+            }
+          })}
+          className="space-y-6"
+        >
+          <div className="flex  gap-2">
+            <Input
+              {...registerUpdateMember('email')}
+              error={errorsUpdateMember.email?.message}
+              size="sm"
+              className="flex-1"
+              radius="sm"
+              placeholder="Nhập email cho tài khoản nhân viên"
+              label="Email"
+            />
+            <Input
+              {...registerUpdateMember('username')}
+              error={errorsUpdateMember.username?.message}
+              className="flex-1"
+              size="sm"
+              radius="sm"
+              placeholder="Nhập tên đăng nhập cho tài khoản nhân viên"
+              label="Tên đăng nhập"
+            />
+          </div>
+          <div className="flex justify-end">
+            <Button
+              loading={loading}
+              type="submit"
+              size="sm"
+              radius="sm"
+              title="Cập nhật thông tin"
+            />
+          </div>
+        </form>
       </Modal>
     </DashboardViewLayout>
   );

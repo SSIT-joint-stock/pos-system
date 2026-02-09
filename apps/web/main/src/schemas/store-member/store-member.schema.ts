@@ -32,6 +32,11 @@ export const CreateMemberSchema = z
     path: ['confirmPassword'],
   });
 
+export const UpdateMemberSchema = z.object({
+  username: z.string().trim().min(1).optional(),
+  email: z.string().trim().email().optional(),
+});
+
 /**
  * Validate update role
  */
@@ -44,3 +49,4 @@ export const UpdateMemberRoleSchema = z.object({
 export type AddMemberByEmailInput = z.infer<typeof AddMemberByEmailSchema>;
 export type CreateMemberInput = z.infer<typeof CreateMemberSchema>;
 export type UpdateMemberRoleInput = z.infer<typeof UpdateMemberRoleSchema>;
+export type UpdateMemberInput = z.infer<typeof UpdateMemberSchema>;

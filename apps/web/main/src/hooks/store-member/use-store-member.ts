@@ -11,7 +11,9 @@ import {
   AddMemberByEmailSchema,
   CreateMemberInput,
   CreateMemberSchema,
+  UpdateMemberInput,
   UpdateMemberRoleSchema,
+  UpdateMemberSchema,
 } from '../../schemas/store-member/store-member.schema';
 import { exportExcel } from '../../utils/export-excel/export';
 import { useRequestHelper } from '../use-request-helper';
@@ -39,8 +41,11 @@ export function useStoreMember() {
   const formAddMemberByEmail = useForm<AddMemberByEmailInput>({
     resolver: zodResolver(AddMemberByEmailSchema),
   });
+  const formUpdateMember = useForm<UpdateMemberInput>({
+    resolver: zodResolver(UpdateMemberSchema),
+  });
   const [members, setMembers] = useState<StoreMember[]>([]);
-  const [selectedMember, setSelectedMember] = useState<any | null>(null);
+  const [member, setMember] = useState<StoreMember | null>(null);
 
   // 1. Get members
   const getMembers = useCallback(async () => {
@@ -78,7 +83,7 @@ export function useStoreMember() {
     async (memberUserId: string) => {
       const res = await requestWrapper(() => api.get(`/store-member/members/${memberUserId}`));
       if (res?.data?.success) {
-        setSelectedMember(res.data.data);
+        setMember(res.data.data);
       }
     },
     [requestWrapper]
@@ -99,7 +104,7 @@ export function useStoreMember() {
   const removeMember = useCallback(
     async (userId: string) => {
       const res = await requestWrapper(() =>
-        api.delete<ApiResponse>(`/store-member/delete-member?userId=${userId}`)
+        api.delete<ApiResponse>(`/store-member/delete-member/${userId}`)
       );
       if (res?.data.success) {
         showSuccessToast(res.data.message as string);
@@ -108,6 +113,21 @@ export function useStoreMember() {
       return false;
     },
     [requestWrapper, showSuccessToast]
+  );
+
+  // 7. Update Info Member
+  const updateMember = useCallback(
+    async (userId: string, data: UpdateMemberInput) => {
+      const res = await requestWrapper(() =>
+        api.patch<ApiResponse>(`/store-member/update/${userId}`, data)
+      );
+      if (res?.data.success) {
+        showSuccessToast(res.data.message as string);
+        return true;
+      }
+      return false;
+    },
+    [showSuccessToast, requestWrapper]
   );
 
   // Excel
@@ -128,8 +148,9 @@ export function useStoreMember() {
   return {
     loading,
     members,
-    selectedMember,
+    member,
     formCreateMember,
+    formUpdateMember,
     formAddMemberByEmail,
     pagination,
     paginationParams,
@@ -145,6 +166,7 @@ export function useStoreMember() {
     createMember,
     updateMemberRole,
     removeMember,
+    updateMember,
     exportMembersExcel,
   };
 }
