@@ -32,9 +32,20 @@ export function useReportExport() {
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     );
   };
+  const exportReportStoreMembers = async () => {
+    const res = await api.get(`/report/excel/store-members`, {
+      responseType: 'blob',
+    });
+    exportExcel(
+      res,
+      `bao_cao_nhan_vien_${new Date().toLocaleDateString()}.xlsx`,
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+  };
   return {
     exportReportSuppliers,
     exportReportCustomer,
     exportReportOrders,
+    exportReportStoreMembers,
   };
 }

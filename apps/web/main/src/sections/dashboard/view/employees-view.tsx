@@ -104,7 +104,7 @@ export default function EmployeesView() {
       </DisplayField>
       <DataActionBar
         dataComplete={[...new Set(members?.map((p) => p.user.username) || [])]}
-        placeholderSearch="Tìm kiếm tên nhân viên"
+        placeholderSearch="Tìm kiếm tên, email nhân viên"
         onFilterChange={(newFilters) => {
           setFilters((prev) => ({
             ...prev,

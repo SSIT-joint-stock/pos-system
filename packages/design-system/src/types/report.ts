@@ -63,3 +63,43 @@ export interface ReportOrders {
   price: string;
   line_total: string;
 }
+
+export interface ReportStoreMembers {
+  created_at: string;
+  member_email: string;
+  member_id: string;
+  member_name: string;
+  total_order_price: number;
+  total_order_success: number;
+  total_orders: number;
+  total_price_amount: number;
+}
+export interface ReportCustomerMember {
+  createdAt: string;
+  email: string;
+  name: string;
+  role: string;
+  storeId: string;
+  total_order: number;
+  user: {
+    orders_cashier: ReportCashierMember[];
+  };
+}
+export interface ReportCashierMember {
+  cashier_id: string;
+  change_amount: number;
+  code: string;
+  createdAt: string;
+  customer_id: string;
+  customer_name: string;
+  customer_pay_amount: number;
+  discount_amount: number;
+  id: string;
+  payment_method: string;
+  status: string;
+  store_id: string;
+  subtotal_amount: number;
+  tax_amount: number;
+  total_amount: number;
+  updatedAt: string;
+}

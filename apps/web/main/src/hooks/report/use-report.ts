@@ -1,7 +1,9 @@
 import {
   ApiResponse,
   ReportCustomer,
+  ReportCustomerMember,
   ReportOrders,
+  ReportStoreMembers,
   ReportSupplier,
   ReportSupplierDetailResponse,
 } from '@repo/design-system/types';
@@ -18,6 +20,9 @@ export function useReport() {
   const [reportSuppliers, setReportSuppliers] = useState<ReportSupplier[]>([]);
   const [reportSupplier, setReportSupplier] = useState<ReportSupplierDetailResponse>();
   const [reportCustomers, setReportCustomers] = useState<ReportCustomer[]>([]);
+  const [reportStoreMembers, setReportStoreMembers] = useState<ReportStoreMembers[]>([]);
+  const [reportStoreMember, setReportStoreMember] = useState<ReportCustomerMember | null>(null);
+
   const [reportOrders, setReportOrders] = useState<ReportOrders[]>([]);
   const { loading, requestWrapper } = useRequestHelper();
   const {
@@ -80,11 +85,36 @@ export function useReport() {
     }
   }, [requestWrapper, buildParams, setPagination]);
 
+  const getReportStoreMembers = useCallback(async () => {
+    const res = await requestWrapper(() =>
+      api.get<ApiResponse>(`/report/store-members?${buildParams().toString()}`)
+    );
+    if (res?.data.success) {
+      setReportStoreMembers(res?.data?.data as ReportStoreMembers[]);
+      setPagination(res?.data?.pagination);
+    }
+  }, [requestWrapper, buildParams, setPagination]);
+
+  const getReportStoreMember = useCallback(
+    async (memberId: string) => {
+      const res = await requestWrapper(() =>
+        api.get<ApiResponse>(`/report/store-member/${memberId}`)
+      );
+      if (res?.data.success) {
+        setReportStoreMember(res?.data?.data as ReportCustomerMember);
+      }
+    },
+    [requestWrapper]
+  );
+
   return {
     getReportSuppliers,
     getReportSupplier,
     getReportCustomers,
     getReportOrders,
+    getReportStoreMembers,
+    getReportStoreMember,
+    reportStoreMember,
     setPaginationParams,
     setFilters,
     setPagination,
@@ -100,5 +130,6 @@ export function useReport() {
     reportSupplier,
     reportCustomers,
     reportOrders,
+    reportStoreMembers,
   };
 }
