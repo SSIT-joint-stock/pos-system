@@ -279,6 +279,7 @@ export default function BillOrder({
               onClick={() => {
                 handleCreateOrder();
               }}
+              radius="sm"
               title="Thanh toán"
               style={{ flex: 1 }}
             />

@@ -68,6 +68,7 @@ export function ReturnedInvoicesView() {
             setFilters((prev) => ({
               ...prev,
               ...newFilters,
+              return_status: newFilters.return_status,
             }));
           }}
           onSearch={(value) => {

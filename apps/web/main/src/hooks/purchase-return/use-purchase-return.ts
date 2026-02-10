@@ -70,10 +70,12 @@ export function usePurchaseReturn() {
         showSuccessToast(res?.data?.message as string);
         return {
           success: true,
+          data: res.data.data as PurchaseReturn,
         };
       }
       return {
         success: false,
+        data: null,
       };
     },
     [requestWrapper, showSuccessToast]
@@ -86,10 +88,12 @@ export function usePurchaseReturn() {
         showSuccessToast(res?.data?.message as string);
         return {
           success: true,
+          data: res.data.data as PurchaseReturn,
         };
       }
       return {
         success: false,
+        data: null,
       };
     },
     [requestWrapper, showSuccessToast]

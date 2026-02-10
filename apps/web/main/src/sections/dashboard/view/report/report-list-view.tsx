@@ -26,7 +26,7 @@ export function ReportListView() {
       <div className="grid grid-cols-2 gap-4 items-center">
         <div className="bg-white rounded-sm p-6">
           <Link
-            href={`/dashboard/store/${currentStore?.id}/report-customers`}
+            href={`/dashboard/store/${currentStore?.id}/report-list/report-customers`}
             className="text-pos-blue-500 hover:underline cursor-pointer text-xl font-semibold text-center"
           >
             Báo cáo khách hàng
@@ -34,7 +34,7 @@ export function ReportListView() {
         </div>
         <div className="bg-white rounded-sm p-6">
           <Link
-            href={`/dashboard/store/${currentStore?.id}/report-suppliers`}
+            href={`/dashboard/store/${currentStore?.id}/report-list/report-suppliers`}
             className="text-pos-blue-500 hover:underline cursor-pointer text-xl font-semibold text-center"
           >
             Báo cáo nhà cung cấp
@@ -45,7 +45,7 @@ export function ReportListView() {
       <div className="grid grid-cols-2 gap-4 items-center">
         <div className="bg-white rounded-sm p-6">
           <Link
-            href={`/dashboard/store/${currentStore?.id}/report-employees`}
+            href={`/dashboard/store/${currentStore?.id}/report-list/report-employees`}
             className="text-pos-blue-500 hover:underline cursor-pointer text-xl font-semibold text-center"
           >
             Báo cáo nhân viên
@@ -53,7 +53,7 @@ export function ReportListView() {
         </div>
         <div className="bg-white rounded-sm p-6">
           <Link
-            href={`/dashboard/store/${currentStore?.id}/report-orders`}
+            href={`/dashboard/store/${currentStore?.id}/report-list/report-orders`}
             className="text-pos-blue-500 hover:underline cursor-pointer text-xl font-semibold text-center"
           >
             Báo cáo bán hàng
@@ -64,7 +64,7 @@ export function ReportListView() {
       <div className="grid grid-cols-2 gap-4 items-center">
         <div className="bg-white rounded-sm p-6">
           <Link
-            href={`/dashboard/store/${currentStore?.id}/report-order-return`}
+            href={`/dashboard/store/${currentStore?.id}/report-list/report-order-return`}
             className="text-pos-blue-500 hover:underline cursor-pointer text-xl font-semibold text-center"
           >
             Báo cáo trả hàng
@@ -72,7 +72,7 @@ export function ReportListView() {
         </div>
         <div className="bg-white rounded-sm p-6">
           <Link
-            href={`/dashboard/store/${currentStore?.id}/report-stock`}
+            href={`/dashboard/store/${currentStore?.id}/report-list/report-stock`}
             className="text-pos-blue-500 hover:underline cursor-pointer text-xl font-semibold text-center"
           >
             Báo cáo tồn kho
@@ -82,20 +82,20 @@ export function ReportListView() {
       <div className="grid grid-cols-2 gap-4 items-center">
         <div className="bg-white rounded-sm p-6">
           <Link
-            href={`/dashboard/store/${currentStore?.id}/report-book-stock`}
+            href={`/dashboard/store/${currentStore?.id}/report-list/report-book-stock`}
             className="text-pos-blue-500 hover:underline cursor-pointer text-xl font-semibold text-center"
           >
             Báo cáo sổ kho
           </Link>
         </div>
-        <div className="bg-white rounded-sm p-6">
+        {/* <div className="bg-white rounded-sm p-6">
           <Link
-            href={`/dashboard/store/${currentStore?.id}/report-book-stock`}
+            href={`/dashboard/store/${currentStore?.id}/report-list/report-book-stock`}
             className="text-pos-blue-500 hover:underline cursor-pointer text-xl font-semibold text-center"
           >
             Báo cáo sổ quỹ
           </Link>
-        </div>
+        </div> */}
       </div>
     </DashboardViewLayout>
   );
