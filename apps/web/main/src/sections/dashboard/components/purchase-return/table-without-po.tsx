@@ -53,7 +53,6 @@ export default function TableWithoutPO({
         hasMarginTop={false}
         renderRow={(data, index) => {
           const variant = selectedVariants.find((p) => p.id === data.variant_id);
-          console.log(variant);
           const item = watchWithoutPO[index];
           const cost = item?.unit_cost || 0;
           if (!variant) return null;

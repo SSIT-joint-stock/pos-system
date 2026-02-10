@@ -125,3 +125,7 @@ export const orderReturnStatusOptions = Object.entries(ORDER_RETURN_STATUS).map(
 export function getOrderItemReturnReasonLabel(reason: OrderItemReturnReason) {
   return ORDER_ITEM_RETURN_REASON_LABEL[reason];
 }
+
+export function getOrderReturnStatusLabel(status: string) {
+  return ORDER_RETURN_STATUS_MAP[status]?.label;
+}

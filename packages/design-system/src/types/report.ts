@@ -103,3 +103,48 @@ export interface ReportCashierMember {
   total_amount: number;
   updatedAt: string;
 }
+export interface ReportOrderReturns {
+  stt: number;
+  return_date: string;
+  return_number: string;
+  order_number: string;
+  customer_name: string;
+  return_status: string;
+  return_type: string;
+  total_return: number;
+  variant_name: string;
+  product_name: string;
+  base_unit: string;
+  quantity: number;
+  line_total: number;
+  reason_status: string;
+  condition: string;
+}
+
+export interface ReportStocks {
+  stt: number;
+  product_name: string;
+  variant_name: string;
+  sku: string;
+  base_unit: string;
+  on_hand: number;
+  reserved: number;
+  damaged: number;
+  price: number;
+  cost: number;
+  stock_value: number;
+}
+
+export interface ReportPurchaseInvoices {
+  stt: number;
+  date: string;
+  invoice_type: string;
+  invoice_code: string;
+  supplier_name: string;
+  supplier_code: string;
+  status: string;
+  payment_status: string;
+  payment_method: string;
+  total_amount: number;
+  note: string;
+}

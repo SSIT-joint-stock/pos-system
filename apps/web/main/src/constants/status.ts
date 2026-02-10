@@ -229,6 +229,25 @@ export function getPaymentMethodLabel(method: string) {
   const methodObj = paymentMethods.find((m) => m.value === method);
   return methodObj ? methodObj.label : 'N/A';
 }
+
+export const RETURN_TYPE_LABELS: Record<string, string> = {
+  RETURN_FOR_CREDIT: 'Hoàn tiền',
+  RETURN_FOR_EXCHANGE: 'Đổi hàng',
+  'N/A': 'Không xác định',
+};
+
+export function getReturnTypeLabel(type: string) {
+  return RETURN_TYPE_LABELS[type] || type || 'N/A';
+}
+
+export function getOrderReturnStatusLabel(status: string) {
+  const map: Record<string, string> = {
+    DRAFT: 'Đang chờ duyệt',
+    COMPLETED: 'Đã hoàn thành',
+    CANCELLED: 'Đã hủy',
+  };
+  return map[status] || status;
+}
 export function getStockMovementStatusLabel(status: string) {
   const statusObj = STOCK_MOVEMENT_STATUS.find((s) => s.value === status);
   return statusObj ? statusObj.label : 'N/A';

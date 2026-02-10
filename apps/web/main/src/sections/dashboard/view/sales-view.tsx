@@ -702,9 +702,9 @@ export function SalesView() {
                                 ) : (
                                   <span className="text-sm text-red-500">Hết hàng</span>
                                 )}
-                                <span className="text-sm font-semibold text-gray-600">
+                                {/* <span className="text-sm font-semibold text-gray-600">
                                   {variant.sku}
-                                </span>
+                                </span> */}
                               </div>
                             </div>
                           </div>

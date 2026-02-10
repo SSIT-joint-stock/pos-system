@@ -1,11 +1,20 @@
 // import { Textarea } from '@mantine/core';
 import { Textarea } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
-import { Button, DatePickerInput, Loading, Modal, Select } from '@repo/design-system/components/ui';
+import {
+  Button,
+  DatePickerInput,
+  Loading,
+  LoadingCreatedToDetail,
+  Modal,
+  Select,
+} from '@repo/design-system/components/ui';
+import { PurchaseReturn } from '@repo/design-system/types';
 import { PurchaseOrder } from '@repo/design-system/types/purchase';
 import { Check, Menu, Plus, User } from 'lucide-react';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState, useTransition } from 'react';
 import { Controller, UseFormHandleSubmit, UseFormRegister } from 'react-hook-form';
 import { useSupplier } from '../../../../hooks/suplier/use-supplier';
 import {
@@ -25,13 +34,15 @@ export interface SidebarProps {
   ) =>
     | {
         success: boolean;
+        data: PurchaseReturn | null;
       }
-    | Promise<{ success: boolean }>;
+    | Promise<{ success: boolean; data: PurchaseReturn | null }>;
   createPurchaseReturnWithoutPO: (data: PurchaseReturnWithoutPO) =>
     | {
         success: boolean;
+        data: PurchaseReturn | null;
       }
-    | Promise<{ success: boolean }>;
+    | Promise<{ success: boolean; data: PurchaseReturn | null }>;
   loadingCreate: boolean;
   control: any;
 
@@ -64,9 +75,11 @@ export function Sidebar({
   handleSubmitWithoutPO,
   handleSuccess,
 }: SidebarProps) {
+  const router = useRouter();
   const [isOpenModalCreateSupplier, setIsOpenModalCreateSupplier] = useState<boolean>(false);
   const [searchSupplier, setSearchSupplier] = useState<string>('');
   const [debouncedSearch] = useDebouncedValue(searchSupplier, 500);
+  const [isPendingForCreated, startTransition] = useTransition();
 
   const {
     getSuppliers,
@@ -97,12 +110,26 @@ export function Sidebar({
         onSubmit={
           purchaseOrder
             ? handleSubmitWithPO(async (data) => {
-                const { success } = await createPurchaseReturnWithPO(purchaseOrder.id, data);
-                if (success) handleSuccess();
+                const response = await createPurchaseReturnWithPO(purchaseOrder.id, data);
+                if (response.success) {
+                  handleSuccess();
+                  startTransition(() => {
+                    router.push(
+                      `/dashboard/store/${currentStore?.id}/export-invoices/detail/${response?.data?.id}`
+                    );
+                  });
+                }
               })
             : handleSubmitWithoutPO(async (data) => {
-                const { success } = await createPurchaseReturnWithoutPO(data);
-                if (success) handleSuccess();
+                const response = await createPurchaseReturnWithoutPO(data);
+                if (response.success) {
+                  handleSuccess();
+                  startTransition(() => {
+                    router.push(
+                      `/dashboard/store/${currentStore?.id}/export-invoices/detail/${response?.data?.id}`
+                    );
+                  });
+                }
               })
         }
         className="p-6 flex flex-col justify-between h-full"
@@ -283,6 +310,7 @@ export function Sidebar({
           isEditForm={false}
         />
       </Modal>
+      {isPendingForCreated && <LoadingCreatedToDetail />}
     </>
   );
 }

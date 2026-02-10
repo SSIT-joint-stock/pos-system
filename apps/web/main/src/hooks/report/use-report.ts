@@ -2,7 +2,10 @@ import {
   ApiResponse,
   ReportCustomer,
   ReportCustomerMember,
+  ReportOrderReturns,
   ReportOrders,
+  ReportPurchaseInvoices,
+  ReportStocks,
   ReportStoreMembers,
   ReportSupplier,
   ReportSupplierDetailResponse,
@@ -24,6 +27,11 @@ export function useReport() {
   const [reportStoreMember, setReportStoreMember] = useState<ReportCustomerMember | null>(null);
 
   const [reportOrders, setReportOrders] = useState<ReportOrders[]>([]);
+  const [reportOrderReturns, setReportOrderReturns] = useState<ReportOrderReturns[]>([]);
+  const [reportStocks, setReportStocks] = useState<ReportStocks[]>([]);
+  const [reportPurchaseInvoices, setReportPurchaseInvoices] = useState<ReportPurchaseInvoices[]>(
+    []
+  );
   const { loading, requestWrapper } = useRequestHelper();
   const {
     paginationParams,
@@ -107,6 +115,36 @@ export function useReport() {
     [requestWrapper]
   );
 
+  const getReportOrderReturns = useCallback(async () => {
+    const res = await requestWrapper(() =>
+      api.get<ApiResponse>(`/report/order-returns?${buildParams().toString()}`)
+    );
+    if (res?.data.success) {
+      setReportOrderReturns(res?.data?.data as ReportOrderReturns[]);
+      setPagination(res?.data?.pagination);
+    }
+  }, [requestWrapper, buildParams, setPagination]);
+
+  const getReportStocks = useCallback(async () => {
+    const res = await requestWrapper(() =>
+      api.get<ApiResponse>(`/report/stocks?${buildParams().toString()}`)
+    );
+    if (res?.data.success) {
+      setReportStocks(res?.data?.data as ReportStocks[]);
+      setPagination(res?.data?.pagination);
+    }
+  }, [requestWrapper, buildParams, setPagination]);
+
+  const getReportPurchaseInvoices = useCallback(async () => {
+    const res = await requestWrapper(() =>
+      api.get<ApiResponse>(`/report/purchase-invoices?${buildParams().toString()}`)
+    );
+    if (res?.data.success) {
+      setReportPurchaseInvoices(res?.data?.data as ReportPurchaseInvoices[]);
+      setPagination(res?.data?.pagination);
+    }
+  }, [requestWrapper, buildParams, setPagination]);
+
   return {
     getReportSuppliers,
     getReportSupplier,
@@ -114,6 +152,9 @@ export function useReport() {
     getReportOrders,
     getReportStoreMembers,
     getReportStoreMember,
+    getReportOrderReturns,
+    getReportStocks,
+    getReportPurchaseInvoices,
     reportStoreMember,
     setPaginationParams,
     setFilters,
@@ -131,5 +172,8 @@ export function useReport() {
     reportCustomers,
     reportOrders,
     reportStoreMembers,
+    reportOrderReturns,
+    reportStocks,
+    reportPurchaseInvoices,
   };
 }

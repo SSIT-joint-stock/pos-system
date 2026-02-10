@@ -26,6 +26,7 @@ export function OutboundOrders() {
 
   const search = searchParams?.get('purchase_order_id');
   const [selectedVariants, setSelectedVariants] = useState<Variant[]>([] as Variant[]);
+
   const [isOpenModalSelectPurchase, setIsOpenModalSelectPurchase] = useState<boolean>(false);
   const [isOpenSearch, setIsOpenSearch] = useState<boolean>(false);
 
