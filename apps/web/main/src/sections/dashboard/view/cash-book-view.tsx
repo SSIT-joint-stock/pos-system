@@ -1,8 +1,9 @@
 'use client';
-import { Menu } from '@mantine/core';
+import { ActionIcon, Menu, Tooltip } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 import { Button, Modal, Table } from '@repo/design-system/components/ui';
 import { CashTransaction } from '@repo/design-system/types';
-import { Plus } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { formatPaymentMethod, payment_method } from '../../../constants/method';
 import { getOrderItemReturnReasonLabel, ReasonCash } from '../../../constants/reason-cash';
@@ -21,6 +22,7 @@ const tableHeaders = [
   'Mã chứng từ gốc',
   'Phương thức thanh toán',
   'Số tiền',
+  'Thao tác',
 ];
 
 export function CashBookView() {
@@ -35,7 +37,16 @@ export function CashBookView() {
     getTransactions,
     getDashboard,
     exportTransactions,
+    cancelTransaction,
   } = useFinance();
+
+  const [openedDetail, { open: openDetail, close: closeDetail }] = useDisclosure(false);
+  const [selectedTransaction, setSelectedTransaction] = useState<CashTransaction | null>(null);
+
+  const handleRowClick = (item: CashTransaction) => {
+    setSelectedTransaction(item);
+    openDetail();
+  };
 
   const [isOpenCreateReceipt, setIsOpenCreateReceipt] = useState<boolean>(false);
   const [isOpenCreatePayment, setIsOpenCreatePayment] = useState<boolean>(false);
@@ -45,7 +56,6 @@ export function CashBookView() {
     getDashboard();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters, paginationParams]);
-  console.log(transactions);
 
   return (
     <DashboardViewLayout>
@@ -144,7 +154,10 @@ export function CashBookView() {
         isLoading={loading}
         renderRow={(item: CashTransaction) => (
           <>
-            <td className="px-4 py-3 text-sm font-semibold text-pos-blue-500 hover:underline cursor-pointer">
+            <td
+              onClick={() => handleRowClick(item)}
+              className="px-4 py-3 text-sm font-semibold text-pos-blue-500 hover:underline cursor-pointer"
+            >
               {item.code}
             </td>
             <td className="px-4 py-3 text-sm text-gray-800 font-medium">
@@ -183,25 +196,56 @@ export function CashBookView() {
               {item.transaction_type === 'RECEIPT' ? '+' : '-'}
               {formatCurrency(item.amount)}
             </td>
-            {/* <td className="px-4 py-3 text-sm">
-              {item.status !== 'CANCELLED' && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => cancelTransaction(item.id)}
-                  title="Hủy phiếu"
-                  icon={<Trash2 size={16} className="text-red-500" />}
-                />
-              )}
-              {item.status === 'CANCELLED' && (
-                <span className="text-xs text-red-400 font-medium bg-red-50 px-2 py-1 rounded">
-                  Đã hủy
-                </span>
-              )}
-            </td> */}
+            <td className="px-4 py-3 text-sm">
+              <div className="flex items-center gap-2">
+                {item.status !== 'CANCELLED' ? (
+                  <Tooltip label="Hủy phiếu" withArrow position="bottom">
+                    <ActionIcon
+                      variant="subtle"
+                      color="red"
+                      onClick={() => {
+                        if (confirm('Bạn có chắc chắn muốn hủy phiếu này?')) {
+                          cancelTransaction(item.id);
+                        }
+                      }}
+                    >
+                      <Trash2 size={16} />
+                    </ActionIcon>
+                  </Tooltip>
+                ) : (
+                  <span className="text-xs text-red-500 font-medium bg-red-50 px-2 py-1 rounded">
+                    Đã hủy
+                  </span>
+                )}
+              </div>
+            </td>
           </>
         )}
       />
+
+      <Modal
+        opened={openedDetail}
+        onClose={closeDetail}
+        title={
+          <p className="text-base font-semibold">
+            Chi tiết{' '}
+            {selectedTransaction?.transaction_type === 'RECEIPT' ? 'phiếu thu' : 'phiếu chi'} -{' '}
+            {selectedTransaction?.code}
+          </p>
+        }
+        size="lg"
+        radius="sm"
+      >
+        {selectedTransaction && (
+          <FormFinanceTransaction
+            type={selectedTransaction.transaction_type}
+            initialData={selectedTransaction}
+            isReadOnly={true}
+            onSuccess={() => {}}
+            onCancel={closeDetail}
+          />
+        )}
+      </Modal>
 
       <Modal
         opened={isOpenCreateReceipt}

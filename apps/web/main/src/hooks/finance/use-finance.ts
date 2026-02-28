@@ -24,6 +24,7 @@ interface FinanceFilters extends Record<string, FilterValue> {
 
 export function useFinance() {
   const [transactions, setTransactions] = useState<CashTransaction[]>([]);
+  const [transaction, setTransaction] = useState<CashTransaction | null>(null);
   const [cashBookReport, setCashBookReport] = useState<CashBookReport | null>(null);
   const [currentBalance, setCurrentBalance] = useState<number>(0);
   const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
@@ -87,6 +88,16 @@ export function useFinance() {
     }
   }, [requestWrapper]);
 
+  const getTransactionDetail = useCallback(
+    async (id: string) => {
+      const res = await requestWrapper(() => api.get(`/finance/transactions/${id}`));
+      if (res?.data.success) {
+        setTransaction(res?.data?.data);
+      }
+    },
+    [requestWrapper]
+  );
+
   const createReceipt = async (data: CreateReceiptInput): Promise<boolean> => {
     const res = await requestWrapper(() => api.post(`/finance/receipts`, data));
     console.log(res?.data);
@@ -139,6 +150,7 @@ export function useFinance() {
 
   return {
     transactions,
+    transaction,
     cashBookReport,
     currentBalance,
     dashboardStats,
@@ -149,6 +161,7 @@ export function useFinance() {
     setFilters,
     setPaginationParams,
     getTransactions,
+    getTransactionDetail,
     getCashBookReport,
     getCurrentBalance,
     getDashboard,

@@ -33,6 +33,8 @@ export interface CashTransaction {
   contact_name: string;
   contact_id: string;
   contact_type: ContactType;
+  contact_phone?: string;
+  contact_address?: string;
   description: string;
   reference_code?: string | null;
   notes?: string | null;

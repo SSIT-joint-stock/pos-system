@@ -1,5 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Input, NumberInput, Select } from '@repo/design-system/components/ui';
+import { TextInput } from '@mantine/core';
+import { Button, NumberInput, Select } from '@repo/design-system/components/ui';
+import { CashTransaction } from '@repo/design-system/types';
 import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { REASON_PAYMENT_OPTIONS, REASON_RECEIPT_OPTIONS } from '../../../constants/reason-cash';
@@ -17,9 +19,17 @@ interface FormFinanceTransactionProps {
   type: 'RECEIPT' | 'PAYMENT';
   onSuccess: () => void;
   onCancel: () => void;
+  initialData?: CashTransaction;
+  isReadOnly?: boolean;
 }
 
-export function FormFinanceTransaction({ type, onSuccess, onCancel }: FormFinanceTransactionProps) {
+export function FormFinanceTransaction({
+  type,
+  onSuccess,
+  onCancel,
+  initialData,
+  isReadOnly = false,
+}: FormFinanceTransactionProps) {
   const { createReceipt, createPayment, loading } = useFinance();
   const { customers, getCustomers } = useCustomer();
   const { suppliers, getSuppliers } = useSupplier();
@@ -27,15 +37,19 @@ export function FormFinanceTransaction({ type, onSuccess, onCancel }: FormFinanc
   const isReceipt = type === 'RECEIPT';
 
   const form = useForm<CreateReceiptInput | CreatePaymentInput>({
-    resolver: zodResolver(isReceipt ? CreateReceiptSchema : CreatePaymentSchema),
+    resolver: isReadOnly
+      ? undefined
+      : zodResolver(isReceipt ? CreateReceiptSchema : CreatePaymentSchema),
     defaultValues: {
-      amount: 0,
-      payment_method: 'CASH',
-      transaction_source: isReceipt ? 'OTHER_INCOME' : ('OTHER_EXPENSE' as any),
-      contact_type: isReceipt ? 'CUSTOMER' : 'SUPPLIER',
-      contact_id: '',
-      description: '',
-      notes: '',
+      amount: initialData?.amount || 0,
+      payment_method: (initialData?.payment_method as any) || 'CASH',
+      transaction_source:
+        (initialData?.transaction_source as any) || (isReceipt ? 'OTHER_INCOME' : 'OTHER_EXPENSE'),
+      contact_type:
+        (initialData?.contact_type?.toUpperCase() as any) || (isReceipt ? 'CUSTOMER' : 'SUPPLIER'),
+      contact_id: initialData?.contact_id || '',
+      description: initialData?.description || '',
+      notes: initialData?.notes || '',
     },
   });
 
@@ -94,6 +108,8 @@ export function FormFinanceTransaction({ type, onSuccess, onCancel }: FormFinanc
                 label="Số tiền"
                 placeholder="Nhập số tiền..."
                 {...field}
+                readOnly={isReadOnly}
+                variant={isReadOnly ? 'filled' : 'default'}
                 error={form.formState.errors.amount?.message}
                 required
               />
@@ -112,6 +128,8 @@ export function FormFinanceTransaction({ type, onSuccess, onCancel }: FormFinanc
                 data={paymentMethodOptions}
                 value={field.value}
                 onChange={field.onChange}
+                readOnly={isReadOnly}
+                variant={isReadOnly ? 'filled' : 'default'}
                 error={form.formState.errors.payment_method?.message}
                 size="sm"
                 radius="sm"
@@ -137,6 +155,8 @@ export function FormFinanceTransaction({ type, onSuccess, onCancel }: FormFinanc
                 ]}
                 value={field.value}
                 onChange={field.onChange}
+                readOnly={isReadOnly}
+                variant={isReadOnly ? 'filled' : 'default'}
                 error={form.formState.errors.contact_type?.message}
                 size="sm"
                 radius="sm"
@@ -156,7 +176,9 @@ export function FormFinanceTransaction({ type, onSuccess, onCancel }: FormFinanc
                 data={contactOptions}
                 value={field.value}
                 onChange={field.onChange}
-                disabled={contactType === 'OTHER'}
+                disabled={isReadOnly || contactType === 'OTHER'}
+                readOnly={isReadOnly}
+                variant={isReadOnly ? 'filled' : 'default'}
                 error={form.formState.errors.contact_id?.message}
                 size="sm"
                 radius="sm"
@@ -177,6 +199,8 @@ export function FormFinanceTransaction({ type, onSuccess, onCancel }: FormFinanc
             data={sourceOptions}
             value={field.value}
             onChange={field.onChange}
+            readOnly={isReadOnly}
+            variant={isReadOnly ? 'filled' : 'default'}
             error={form.formState.errors.transaction_source?.message}
             size="sm"
             radius="sm"
@@ -184,10 +208,12 @@ export function FormFinanceTransaction({ type, onSuccess, onCancel }: FormFinanc
         )}
       />
 
-      <Input
+      <TextInput
         label="Mô tả"
         placeholder="Nhập mô tả lý do"
         {...form.register('description')}
+        readOnly={isReadOnly}
+        variant={isReadOnly ? 'filled' : 'default'}
         error={form.formState.errors.description?.message}
         size="sm"
         radius="sm"
@@ -195,8 +221,9 @@ export function FormFinanceTransaction({ type, onSuccess, onCancel }: FormFinanc
 
       <label className="block text-sm font-medium text-gray-500 mb-1">Ghi chú</label>
       <textarea
-        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-sm focus:outline-none focus:ring-1 focus:ring-blue-500 min-h-[80px] placeholder:text-sm placeholder:text-gray-500 placeholder:font-medium"
+        className={`w-full px-3 py-2 text-sm border border-gray-200 rounded-sm focus:outline-none focus:ring-1 focus:ring-blue-500 min-h-[80px] placeholder:text-sm placeholder:text-gray-500 placeholder:font-medium ${isReadOnly ? 'bg-gray-50 cursor-not-allowed' : ''}`}
         placeholder="Ghi chú thêm"
+        readOnly={isReadOnly}
         {...form.register('notes')}
       />
       {form.formState.errors.notes && (
@@ -208,17 +235,19 @@ export function FormFinanceTransaction({ type, onSuccess, onCancel }: FormFinanc
           variant="outline"
           onClick={onCancel}
           type="button"
-          title="Hủy"
+          title={isReadOnly ? 'Đóng' : 'Hủy'}
           size="sm"
           radius="sm"
         />
-        <Button
-          type="submit"
-          loading={loading}
-          title={isReceipt ? 'Tạo phiếu thu' : 'Tạo phiếu chi'}
-          size="sm"
-          radius="sm"
-        />
+        {!isReadOnly && (
+          <Button
+            type="submit"
+            loading={loading}
+            title={isReceipt ? 'Tạo phiếu thu' : 'Tạo phiếu chi'}
+            size="sm"
+            radius="sm"
+          />
+        )}
       </div>
     </form>
   );
