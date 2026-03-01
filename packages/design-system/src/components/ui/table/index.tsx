@@ -45,11 +45,11 @@ export function Table<T>({
   const finalHeader = ['STT', ...tableHeaders];
   return (
     <div
-      className={`bg-white  ${hasPadding ? 'p-4' : ''}  ${hasMarginTop ? 'mt-0' : ''} flex-col flex overflow-y-auto  rounded-lg ${className} h-full`}
+      className={`bg-white text-nowrap  ${hasPadding ? 'p-4' : ''}  ${hasMarginTop ? 'mt-0' : ''} flex-col flex overflow-y-auto  rounded-lg ${className} h-full`}
     >
       {/* TABLE */}
       <div
-        className={`overflow-y-auto flex-1 scrollbar-thin scrollbar-thumb-gray-50 scrollbar-track-transparent `}
+        className={`overflow-auto flex-1 scrollbar-thin scrollbar-thumb-gray-50 scrollbar-track-transparent `}
       >
         <table className={`table-auto w-full border-collapse ${data.length === 0 ? 'h-full' : ''}`}>
           <thead className="sticky top-0 z-20 bg-gray-50">

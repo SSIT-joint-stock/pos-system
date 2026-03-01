@@ -126,7 +126,7 @@ export default function FilterBar({
           })}
           {/* DATE FILTER */}
           {hasDatePicker && (
-            <div className="w-[26ch] rounded-md">
+            <div className="w-[26ch] rounded-md text-nowrap">
               <DatePickerInput
                 type="range"
                 label="Tìm theo thời gian"

@@ -167,11 +167,13 @@ export function InventoryManageView() {
                 </div>
               </td>
               <td className="px-4 py-2 text-sm text-gray-700 font-semibold">
-                {variant?.onHand} / {variant?.product?.baseUnit}
+                <span className="text-pos-blue-500"> {variant?.onHand}</span> /{' '}
+                {variant?.product?.baseUnit}
               </td>
               <td className="px-4 py-2 text-sm text-gray-700 font-semibold">
                 {' '}
-                {variant?.reserved} / {variant?.product?.baseUnit}
+                <span className="text-pos-blue-500"> {variant?.reserved}</span> /{' '}
+                {variant?.product?.baseUnit}
               </td>
               <td className="px-4 py-2 text-sm text-gray-700 font-semibold">
                 {formatCurrency(variant?.price)}
