@@ -69,7 +69,7 @@ export function Table<T>({
               <tr>
                 <td colSpan={finalHeader.length} className="text-center py-6 space-y-3">
                   <h4 className="text-2xl font-semibold text-pos-blue-500">Không có dữ liệu</h4>
-                  <p className="text-sm text-gray-500 max-w-sm mx-auto">
+                  <p className="text-sm text-gray-500 max-w-sm mx-auto text-wrap">
                     Danh sách hiện đang trống. Thử thay đổi bộ lọc hoặc thêm mới dữ liệu để bắt đầu
                     quản lý.
                   </p>
