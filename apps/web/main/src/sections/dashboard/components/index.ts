@@ -1,5 +1,6 @@
 export * from './form-create-supplier';
 export * from './form-product';
+export * from './form-product-combo';
 export * from './form-variant';
 export * from './info-config-payment';
 export * from './info-reward-point';

@@ -1,3 +1,4 @@
+'use client';
 // import { Textarea } from '@mantine/core';
 import { Textarea } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
