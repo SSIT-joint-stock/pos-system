@@ -24,13 +24,13 @@ export enum UserRole {
   OWNER = 'OWNER',
   ADMIN = 'ADMIN',
   MANAGER = 'MANAGER',
-  STAFF = 'STAFF'
+  STAFF = 'STAFF',
 }
 
 export enum UserStatus {
   ACTIVE = 'ACTIVE',
   INACTIVE = 'INACTIVE',
-  SUSPENDED = 'SUSPENDED'
+  SUSPENDED = 'SUSPENDED',
 }
 
 // Tenant Types
@@ -49,14 +49,18 @@ export interface Tenant {
 
 export enum BusinessType {
   RESTAURANT = 'RESTAURANT',
-  RETAIL = 'RETAIL'
+  RETAIL = 'RETAIL',
+  CAFE = 'CAFE',
+  SPA = 'SPA',
+  SALON = 'SALON',
+  HOTEL = 'HOTEL',
 }
 
 export enum TenantStatus {
   ACTIVE = 'ACTIVE',
   INACTIVE = 'INACTIVE',
   SUSPENDED = 'SUSPENDED',
-  TRIAL = 'TRIAL'
+  TRIAL = 'TRIAL',
 }
 
 // Product Types (Retail)
@@ -96,7 +100,7 @@ export interface ProductVariant {
 export enum ProductStatus {
   ACTIVE = 'ACTIVE',
   INACTIVE = 'INACTIVE',
-  DISCONTINUED = 'DISCONTINUED'
+  DISCONTINUED = 'DISCONTINUED',
 }
 
 export interface ProductCategory {
@@ -175,7 +179,7 @@ export enum ModifierType {
   SIZE = 'SIZE',
   OPTION = 'OPTION',
   ADDON = 'ADDON',
-  SUBSTITUTION = 'SUBSTITUTION'
+  SUBSTITUTION = 'SUBSTITUTION',
 }
 
 export interface ModifierOption {
@@ -203,7 +207,7 @@ export enum PaymentStatus {
   PAID = 'PAID',
   PARTIAL = 'PARTIAL',
   FAILED = 'FAILED',
-  REFUNDED = 'REFUNDED'
+  REFUNDED = 'REFUNDED',
 }
 
 export enum OrderStatus {
@@ -213,7 +217,7 @@ export enum OrderStatus {
   READY = 'READY',
   SERVED = 'SERVED',
   COMPLETED = 'COMPLETED',
-  CANCELLED = 'CANCELLED'
+  CANCELLED = 'CANCELLED',
 }
 
 // Customer Types
@@ -235,7 +239,7 @@ export interface Customer {
 export enum Gender {
   MALE = 'MALE',
   FEMALE = 'FEMALE',
-  OTHER = 'OTHER'
+  OTHER = 'OTHER',
 }
 
 export interface Address {
@@ -253,7 +257,7 @@ export enum PaymentMethod {
   BANK_TRANSFER = 'BANK_TRANSFER',
   E_WALLET = 'E_WALLET',
   STORE_CREDIT = 'STORE_CREDIT',
-  OTHER = 'OTHER'
+  OTHER = 'OTHER',
 }
 
 // Table Types (Restaurant)
@@ -274,5 +278,5 @@ export enum TableStatus {
   OCCUPIED = 'OCCUPIED',
   RESERVED = 'RESERVED',
   CLEANING = 'CLEANING',
-  OUT_OF_SERVICE = 'OUT_OF_SERVICE'
+  OUT_OF_SERVICE = 'OUT_OF_SERVICE',
 }

@@ -1,4 +1,4 @@
-import DashboardLayout from '@repo/design-system/components/layout/retail/dashboard-layout';
+import DashboardLayout from '@repo/design-system/components/layout/fnb/dashboard-layout';
 export default function DashLayout({
   children,
 }: Readonly<{

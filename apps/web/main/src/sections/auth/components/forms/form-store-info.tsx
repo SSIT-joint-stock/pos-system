@@ -1,9 +1,12 @@
 'use client';
 import Logo from '@main/components/common/Logo';
 import { AuthOnboardingStep } from '@main/sections/auth/view';
-import { Button, Input } from '@repo/design-system/components/ui';
+import { Button, Input, Select } from '@repo/design-system/components/ui';
+import { BusinessType } from '@repo/types';
 import { Info, MoveLeft, Phone, Warehouse } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
+import { Controller } from 'react-hook-form';
+import { businessModelOptions } from '../../../../constants/config-bussines-model';
 import useAuth from '../../../../hooks/auth/use-auth';
 export function FormBusinessInfo({ setStep }: { setStep?: (step: AuthOnboardingStep) => void }) {
   const { storeInfoForm, loading, createStoreInfo } = useAuth();
@@ -31,9 +34,12 @@ export function FormBusinessInfo({ setStep }: { setStep?: (step: AuthOnboardingS
         onSubmit={storeInfoForm.handleSubmit(async (data) => {
           const result = await createStoreInfo(data);
           if (result.success && result.autoSet) {
-            router.push(
-              `${process.env.NEXT_PUBLIC_RETAIL_BASE_URL}/dashboard/store/${result.store?.id}/overview`
-            );
+            const isRetail = data.business_type === BusinessType.RETAIL;
+            const baseUrl = isRetail
+              ? process.env.NEXT_PUBLIC_RETAIL_BASE_URL
+              : process.env.NEXT_PUBLIC_FNB_BASE_URL;
+
+            router.push(`${baseUrl}/dashboard/store/${result.store?.id}/overview`);
           }
         })}
         className="space-y-4 w-full h-fit"
@@ -45,10 +51,27 @@ export function FormBusinessInfo({ setStep }: { setStep?: (step: AuthOnboardingS
           radius="sm"
           type="text"
           name="name"
-          label="Tên doanh nghiệp"
+          label="Tên cửa hàng"
           withAsterisk
-          placeholder="Doanh nghiệp ABC"
+          placeholder="Cửa hàng ABC"
           leftSection={<Warehouse size={16} />}
+        />
+        <Controller
+          name="business_type"
+          control={storeInfoForm.control}
+          render={({ field, fieldState }) => (
+            <Select
+              {...field}
+              label="Loại hình kinh doanh"
+              placeholder="Chọn loại hình kinh doanh"
+              withAsterisk
+              error={fieldState.error?.message}
+              size="sm"
+              radius="sm"
+              data={businessModelOptions}
+              onChange={(value) => field.onChange(value)}
+            />
+          )}
         />
         <Input
           {...storeInfoForm.register('phone_number')}

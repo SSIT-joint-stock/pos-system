@@ -3,10 +3,12 @@ import { AuthOnboardingStep } from '@main/sections/auth/view';
 import { Button, Select } from '@repo/design-system/components/ui';
 import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { Store } from '@repo/design-system/types/store';
+import { BusinessType } from '@repo/types';
 import { useAtom } from 'jotai';
 import { MoveLeft, Warehouse } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { FormEvent, useState } from 'react';
+import { BUSINESS_MODEL_CONFIG } from '../../../../constants/config-bussines-model';
 
 export default function FormSelectStore({
   handleStoreSubmit,
@@ -58,9 +60,14 @@ export default function FormSelectStore({
             await handleStoreSubmit(storeId);
 
             // Chuyển hướng sau khi API đã hoàn tất
-            router.push(
-              `${process.env.NEXT_PUBLIC_RETAIL_BASE_URL}/dashboard/store/${storeId}/overview`
-            );
+            const selectedStore = stores.find((store) => store.id === storeId);
+            const isRetail = selectedStore?.business_type === BusinessType.RETAIL;
+
+            const baseUrl = isRetail
+              ? process.env.NEXT_PUBLIC_RETAIL_BASE_URL
+              : process.env.NEXT_PUBLIC_FNB_BASE_URL;
+
+            router.push(`${baseUrl}/dashboard/store/${storeId}/overview`);
           }
         }}
       >
@@ -71,10 +78,11 @@ export default function FormSelectStore({
           placeholder="Chọn cửa hàng của bạn"
           searchable
           label="Chọn cửa hàng"
-          data={stores.map((store: any) => ({
+          data={stores.map((store) => ({
             label: store.name,
             value: store.id,
-            description: store.description || 'Cửa hàng không có mô tả',
+            description:
+              BUSINESS_MODEL_CONFIG[store.business_type]?.description || 'Cửa hàng không có mô tả',
             member: store.members?.length || 0,
           }))}
           onChange={(value) => {

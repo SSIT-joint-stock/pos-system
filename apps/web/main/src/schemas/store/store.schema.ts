@@ -1,9 +1,13 @@
 // eslint-disable-next-line filenames/match-regex
+import { BusinessType } from '@repo/types';
 import { z } from 'zod';
 
 export const StoreSchema = z.object({
   id: z.string().uuid(),
   name: z.string().nonempty({ message: 'Vui lòng nhập tên doanh nghiệp' }),
+  business_type: z.nativeEnum(BusinessType, {
+    errorMap: () => ({ message: 'Vui lòng chọn loại hình kinh doanh' }),
+  }),
   description: z.string().optional(),
   phone_number: z.string().optional(),
   business_hour: z.string().optional(),

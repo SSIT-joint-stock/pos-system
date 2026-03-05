@@ -1,3 +1,5 @@
+import { BusinessType } from '@repo/types';
+
 export enum StoreRole {
   OWNER = 'OWNER',
   MEMBER = 'MEMBER',
@@ -37,6 +39,7 @@ export interface StorePayment {
 export interface Store {
   id: string;
   owner_id: string;
+  business_type: BusinessType;
   name: string;
   description: string | null;
   phone_number: string | null;

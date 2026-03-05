@@ -15,6 +15,7 @@ export type SelectDataItem = {
   sortBy?: string;
   description?: string;
   member?: number;
+  leftSection?: ReactNode;
 };
 type PositionOptions = 'top' | 'bottom';
 export type SelectProps = {
@@ -113,15 +114,20 @@ export const Select = React.forwardRef<HTMLInputElement, SelectProps>(
           styles={{ input: { color } }}
           renderOption={({ option, checked }) => (
             <Group justify="space-between" className="w-full">
-              <div className="flex flex-col">
-                <Text size="sm" fw={500}>
-                  {option.label}
-                </Text>
-                {(option as SelectDataItem).description && (
-                  <Text size="xs" c="dimmed">
-                    {(option as SelectDataItem).description}
-                  </Text>
+              <div className="flex gap-3 items-center">
+                {(option as SelectDataItem).leftSection && (
+                  <div className="text-gray-400">{(option as SelectDataItem).leftSection}</div>
                 )}
+                <div className="flex flex-col">
+                  <Text size="sm" fw={500}>
+                    {option.label}
+                  </Text>
+                  {(option as SelectDataItem).description && (
+                    <Text size="xs" c="dimmed">
+                      {(option as SelectDataItem).description}
+                    </Text>
+                  )}
+                </div>
               </div>
               <div className="flex items-center gap-2">
                 {(option as SelectDataItem).member && (
