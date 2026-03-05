@@ -43,7 +43,7 @@ export function BundleItemSelection({
     if (isFocusInputSearch) {
       getVariantsInStore();
     }
-  }, [filters, isFocusInputSearch, getVariantsInStore]);
+  }, [filters, isFocusInputSearch]);
 
   return (
     <div className="space-y-4">
@@ -115,32 +115,36 @@ export function BundleItemSelection({
                 </td>
               </tr>
             ) : (
-              items.map((item) => (
-                <tr key={item.variantId} className="hover:bg-gray-50/50">
-                  <td className="px-4 py-3">
-                    <div className="font-medium text-gray-900">{item.variant_name}</div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <NumberInput
-                      size="sm"
-                      min={1}
-                      value={item.quantity}
-                      onChange={(val) => onUpdateQuantity(item.variantId, Number(val))}
-                    />
-                  </td>
-                  <td className="px-4 py-3 text-right text-gray-600">
-                    {/* Note: Price info should be passed or fetched if needed for display */}-
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <button
-                      onClick={() => onRemove(item.variantId)}
-                      className="text-red-400 hover:text-red-600 p-1"
-                    >
-                      <Trash size={16} />
-                    </button>
-                  </td>
-                </tr>
-              ))
+              items.map((item) => {
+                if (!item.variantId || !variants) return null;
+                const variant = variants?.find((v) => v.id === item.variantId);
+                return (
+                  <tr key={item.variantId} className="hover:bg-gray-50/50">
+                    <td className="px-4 py-3">
+                      <div className="font-medium text-gray-900">{item.variant_name}</div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <NumberInput
+                        size="sm"
+                        min={1}
+                        value={item.quantity}
+                        onChange={(val) => onUpdateQuantity(item.variantId, Number(val))}
+                      />
+                    </td>
+                    <td className="px-4 py-3 text-right text-gray-600">
+                      {formatCurrency(item.quantity * (variant?.price || 0))}
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <button
+                        onClick={() => onRemove(item.variantId)}
+                        className="text-red-400 hover:text-red-600 p-1 hover:cursor-pointer transition-colors"
+                      >
+                        <Trash size={16} />
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>

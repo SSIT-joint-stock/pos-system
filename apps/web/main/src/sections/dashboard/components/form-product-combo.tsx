@@ -2,10 +2,12 @@
 
 import { Button, Input, Loading, NumberInput } from '@repo/design-system/components/ui';
 import { Variant } from '@repo/design-system/types';
+import { MoveLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { Controller, useFieldArray } from 'react-hook-form';
 import { useBundles } from '../../../hooks/catalog/use-bundles';
+import DetailLayout from '../../../layouts/detail-layout';
 import { CreateBundleInput, UpdateBundleInput } from '../../../schemas/product/bundle.schema';
 import { BundleItemSelection } from './bundle-item-selection';
 
@@ -89,120 +91,133 @@ export function FormProductCombo({ bundleId }: { bundleId?: string }) {
   }
 
   const currentRegister = isEdit ? updateBundleForm.register : createBundleForm.register;
-  const currentErrors = isEdit ? updateBundleForm.formState.errors : createBundleForm.formState.errors;
+  const currentErrors = isEdit
+    ? updateBundleForm.formState.errors
+    : createBundleForm.formState.errors;
   const currentControl = isEdit ? updateBundleForm.control : createBundleForm.control;
-  const currentHandleSubmit = isEdit 
-    ? updateBundleForm.handleSubmit(handleUpdate) 
+  const currentHandleSubmit = isEdit
+    ? updateBundleForm.handleSubmit(handleUpdate)
     : createBundleForm.handleSubmit(handleCreate);
 
   return (
-    <form
-      onSubmit={currentHandleSubmit}
-      className="space-y-6 mt-8"
-    >
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column: Basic Info */}
-        <div className="lg:col-span-1 space-y-4">
-          <div className="bg-white p-6 rounded-md border border-gray-100 shadow-sm space-y-4">
-            <h2 className="text-lg font-semibold text-gray-900 border-b border-gray-100 pb-2">
-              Thông tin Combo
-            </h2>
-            
-            <Input
-              {...currentRegister('name')}
-              label="Tên nhóm sản phẩm (Combo)"
-              placeholder="Nhập tên combo"
-              error={currentErrors.name?.message}
-              withAsterisk
-              size="sm"
-              radius="sm"
-            />
+    <DetailLayout>
+      <div className="flex items-center gap-4 mt-6">
+        <button
+          onClick={() => router.back()}
+          className="w-9 h-9 flex items-center hover:bg-gray-50 hover:text-gray-900 transition-colors duration-200 cursor-pointer justify-center border border-gray-200 bg-white text-gray-500 rounded-md"
+        >
+          <MoveLeft size={18} />
+        </button>
+        <h1 className="text-2xl text-gray-900 font-semibold">
+          {isEdit ? 'Cập nhật Combo' : 'Thêm Combo'}
+        </h1>
+      </div>
+      <form onSubmit={currentHandleSubmit} className="space-y-6 ">
+        <div className="flex flex-col gap-6">
+          {/* Left Column: Basic Info */}
+          <div className="lg:col-span-1 space-y-4">
+            <div className="bg-white p-6 rounded-md border border-gray-100 shadow-sm space-y-4">
+              <h2 className="text-lg font-semibold text-gray-900 border-b border-gray-100 pb-2">
+                Thông tin Combo
+              </h2>
 
-            <Input
-              {...currentRegister('sku')}
-              label="Mã SKU"
-              placeholder="Nhập mã SKU"
-              error={currentErrors.sku?.message}
-              withAsterisk
-              size="sm"
-              radius="sm"
-            />
+              <div className="flex gap-2.5">
+                <Input
+                  {...currentRegister('name')}
+                  label="Tên nhóm sản phẩm (Combo)"
+                  placeholder="Nhập tên combo"
+                  error={currentErrors.name?.message}
+                  withAsterisk
+                  className="flex-1"
+                  size="sm"
+                  radius="sm"
+                />
 
-            <div className="space-y-4 pt-2">
-              <Controller
-                control={currentControl as any}
-                name="price"
-                render={({ field }) => (
-                  <NumberInput
-                    {...(field as any)}
-                    label="Giá bán combo"
-                    placeholder="0"
-                    error={currentErrors.price?.message}
-                    size="sm"
-                    radius="sm"
-                  />
-                )}
-              />
-              
-              <Controller
-                control={currentControl as any}
-                name="quantity"
-                render={({ field }) => (
-                  <NumberInput
-                    {...(field as any)}
-                    label="Số lượng tồn kho"
-                    placeholder="0"
-                    error={currentErrors.quantity?.message}
-                    size="sm"
-                    radius="sm"
-                  />
-                )}
-              />
+                <Input
+                  {...currentRegister('sku')}
+                  label="Mã SKU"
+                  placeholder="Nhập mã SKU"
+                  error={currentErrors.sku?.message}
+                  className="flex-1"
+                  size="sm"
+                  radius="sm"
+                />
+              </div>
+
+              <div className="flex gap-2.5">
+                <Controller
+                  control={currentControl as any}
+                  name="price"
+                  render={({ field }) => (
+                    <NumberInput
+                      {...(field as any)}
+                      label="Giá bán combo"
+                      placeholder="0"
+                      error={currentErrors.price?.message}
+                      size="sm"
+                      radius="sm"
+                    />
+                  )}
+                />
+
+                <Controller
+                  control={currentControl as any}
+                  name="quantity"
+                  render={({ field }) => (
+                    <NumberInput
+                      {...(field as any)}
+                      label="Số lượng tồn kho"
+                      placeholder="0"
+                      error={currentErrors.quantity?.message}
+                      size="sm"
+                      radius="sm"
+                    />
+                  )}
+                />
+              </div>
             </div>
           </div>
 
-          <div className="flex gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              title="Quay lại"
-              className="flex-1"
-              onClick={() => router.back()}
-              radius="sm"
-            />
-            <Button
-              loading={loading}
-              type="submit"
-              title={isEdit ? 'Cập nhật Combo' : 'Tạo Combo'}
-              className="flex-1"
-              radius="sm"
-            />
+          {/* Right Column: Item Selection */}
+          <div className="lg:col-span-2 space-y-4">
+            <div className="bg-white p-6 rounded-md border border-gray-100 shadow-sm">
+              <h2 className="text-lg font-semibold text-gray-900 border-b border-gray-100 pb-2 mb-4">
+                Thành phần Combo
+              </h2>
+
+              <BundleItemSelection
+                items={fields as any}
+                onAdd={onAddVariant}
+                onRemove={(id) => {
+                  const idx = fields.findIndex((f: any) => f.variantId === id);
+                  if (idx > -1) remove(idx);
+                }}
+                onUpdateQuantity={onUpdateQuantity}
+              />
+
+              {currentErrors.items?.message && (
+                <p className="text-xs text-red-500 mt-2">{currentErrors.items.message}</p>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Right Column: Item Selection */}
-        <div className="lg:col-span-2 space-y-4">
-          <div className="bg-white p-6 rounded-md border border-gray-100 shadow-sm">
-            <h2 className="text-lg font-semibold text-gray-900 border-b border-gray-100 pb-2 mb-4">
-              Thành phần Combo
-            </h2>
-            
-            <BundleItemSelection
-              items={fields as any}
-              onAdd={onAddVariant}
-              onRemove={(id) => {
-                const idx = fields.findIndex((f: any) => f.variantId === id);
-                if (idx > -1) remove(idx);
-              }}
-              onUpdateQuantity={onUpdateQuantity}
-            />
-            
-            {currentErrors.items?.message && (
-              <p className="text-xs text-red-500 mt-2">{currentErrors.items.message}</p>
-            )}
-          </div>
+        <div className="flex items-center justify-end gap-4">
+          <Button
+            type="button"
+            variant="outline"
+            title="Quay lại"
+            onClick={() => router.back()}
+            radius="sm"
+          />
+          <Button
+            loading={loading}
+            type="submit"
+            title={isEdit ? 'Cập nhật Combo' : 'Tạo Combo'}
+            radius="sm"
+          />
         </div>
-      </div>
-    </form>
+      </form>
+    </DetailLayout>
   );
 }
