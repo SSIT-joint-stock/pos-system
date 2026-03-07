@@ -1,4 +1,4 @@
-# Feature Breakdown & Dependencies - F&B Module POS System
+# Feature - F&B Module POS System
 
 > **Version:** 2.0  
 > **Ngày tạo:** 06/03/2026  
