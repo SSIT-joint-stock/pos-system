@@ -74,9 +74,15 @@ export function useProduct() {
     }
   }, [buildParams, requestWrapper, setPagination]);
   const createProduct = useCallback(
-    async (data: CreateProductInput) => {
+    async (data: CreateProductInput | FormData) => {
       if (!currentStore?.id) return;
-      const res = await requestWrapper(() => api.post<ApiResponse>(`/products`, data));
+      const res = await requestWrapper(() =>
+        api.post<ApiResponse>(`/products`, data, {
+          headers: {
+            'Content-Type': data instanceof FormData ? 'multipart/form-data' : 'application/json',
+          },
+        })
+      );
       if (res?.data.success) {
         getProducts();
         showSuccessToast(res.data.message as string);
@@ -99,9 +105,19 @@ export function useProduct() {
       getProducts();
     }
   };
-  const updateProduct = async (productId: string, updateProductForm: UpdateProductInput) => {
+  const updateProduct = async (
+    productId: string,
+    updateProductForm: UpdateProductInput | FormData
+  ) => {
     if (!currentStore?.id) return;
-    const res = await requestWrapper(() => api.patch(`/products/${productId}`, updateProductForm));
+    const res = await requestWrapper(() =>
+      api.patch(`/products/${productId}`, updateProductForm, {
+        headers: {
+          'Content-Type':
+            updateProductForm instanceof FormData ? 'multipart/form-data' : 'application/json',
+        },
+      })
+    );
     if (res?.data.success) {
       showSuccessToast(res.data.message);
       getProducts();
