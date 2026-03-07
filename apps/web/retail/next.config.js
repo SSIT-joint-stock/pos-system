@@ -26,6 +26,15 @@ const nextConfig = {
         hostname: 'img.vietqr.io',
         protocol: 'https',
       },
+      {
+        hostname: 'be-pos-mvp.ssit.company',
+        protocol: 'https',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        pathname: '/**',
+      },
     ],
   },
 };

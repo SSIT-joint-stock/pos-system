@@ -503,7 +503,7 @@ export function SalesView() {
                             onChange={(e: ChangeEvent<HTMLInputElement>) => {
                               handleChangQuantity(variant.id, Number(e.target.value));
                             }}
-                            className="w-[34px] text-center outline-none text-xs font-medium text-gray-600"
+                            className="w-8.5 text-center outline-none text-xs font-medium text-gray-600"
                           />
                           <button
                             className="cursor-pointer disabled:cursor-not-allowed"
@@ -551,7 +551,7 @@ export function SalesView() {
                       <td className="">
                         <button
                           onClick={() => handleRemoveSelectedProduct(variant.id)}
-                          className="cursor-pointer w-[36px] h-[36px] flex items-center justify-center bg-red-50 text-red-500 rounded-md hover:opacity-100 hover:bg-red-500 hover:text-white opacity-70 transition-opacity duration-200"
+                          className="cursor-pointer w-9 h-9 flex items-center justify-center bg-red-50 text-red-500 rounded-md hover:opacity-100 hover:bg-red-500 hover:text-white opacity-70 transition-opacity duration-200"
                         >
                           <Trash2 size={16} />
                         </button>
@@ -561,7 +561,7 @@ export function SalesView() {
                 />
               </div>
 
-              <div className="flex-shrink-0 space-y-2 w-full">
+              <div className="shrink-0 space-y-2 w-full">
                 <div className="bg-white flex items-center justify-between p-2 rounded-md">
                   <span className="text-base font-medium text-gray-800">Ngày tạo</span>
                   <span className="text-lg text-pos-blue-500 font-semibold">
@@ -594,7 +594,7 @@ export function SalesView() {
 
             {/* RIGHT */}
             <div className="w-full bg-white px-3 rounded-md flex flex-col h-full overflow-hidden">
-              <div className="flex flex-shrink-0  sticky top-0 bg-white z-10 pt-4 pb-2 items-center gap-4">
+              <div className="flex shrink-0  sticky top-0 bg-white z-10 pt-4 pb-2 items-center gap-4">
                 <Input
                   size="sm"
                   radius="sm"
@@ -669,11 +669,11 @@ export function SalesView() {
                           >
                             <div className="relative w-full h-fit">
                               <Image
-                                src={'/placeholder.jpg'}
+                                src={`${variant?.product?.image_url || '/placeholder.jpg'}`}
                                 alt="sản phẩm"
                                 width={500}
                                 height={500}
-                                className="rounded-xl object-cover h-32 w-full"
+                                className="rounded-xl object-cover h-33 w-full"
                                 unoptimized
                               />
                               <div className="absolute bottom-2 left-2 py-1 px-2 bg-pos-blue-50 text-pos-blue-500 rounded-md">

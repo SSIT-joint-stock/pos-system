@@ -4,6 +4,7 @@ import { MultiSelect } from '@mantine/core';
 import {
   Button,
   Checkbox,
+  DropFileZone,
   Input,
   Loading,
   NumberInput,
@@ -14,6 +15,7 @@ import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { Category, Product, Tag, Variant } from '@repo/design-system/types';
 import { useAtomValue } from 'jotai';
 import { Plus, Trash, X } from 'lucide-react';
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { Control, Controller } from 'react-hook-form';
 import ReactQuill from 'react-quill-new';
@@ -40,6 +42,9 @@ export function FormProduct({
   const [openModalVariant, setOpenModalVariant] = useState<boolean>(false);
   const [selectedVariant, setSelectedVariant] = useState<Variant | null>(null);
 
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [openModalDeleteVariant, setOpenModalDeleteVariant] = useState<boolean>(false);
   const currentStore = useAtomValue(currentStoreAtom);
@@ -53,6 +58,8 @@ export function FormProduct({
       handleSubmit: handleSubmitCreate,
       reset,
       control,
+      watch,
+      setValue,
       formState: { errors },
     },
     updateProductForm: {
@@ -61,6 +68,8 @@ export function FormProduct({
 
       formState: { errors: updateErrors },
       reset: updateReset,
+      watch: updateWatch,
+      setValue: updateSetValue,
       handleSubmit: handleSubmitUpdate,
     },
     product,
@@ -80,6 +89,15 @@ export function FormProduct({
 
     getProductById(productId);
   }, [productId, currentStore?.id]);
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
   useEffect(() => {
     if (!productId || !product) return;
 
@@ -98,29 +116,78 @@ export function FormProduct({
       setAttributesFromMeta(product.meta);
     }
   }, [productId, product, updateReset, setAttributesFromMeta]);
+
   const handleCreateProduct = async (data: CreateProductInput) => {
     const payload = {
       ...data,
       meta: toMetaObject(),
     };
-    const success = await createProduct(payload);
+
+    let finalData: CreateProductInput | FormData = payload;
+
+    if (selectedFile) {
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+      Object.entries(payload).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          if (Array.isArray(value)) {
+            value.forEach((v) => formData.append(key, v));
+          } else if (typeof value === 'object') {
+            formData.append(key, JSON.stringify(value));
+          } else {
+            formData.append(key, String(value));
+          }
+        }
+      });
+      finalData = formData;
+    }
+
+    const { success } = await createProduct(finalData);
     if (success) {
       reset();
       removeAllAttributes();
+      setSelectedFile(null);
+      setPreviewUrl(null);
     }
   };
+
   const handleUpdateProduct = async (productId: string, data: UpdateProductInput) => {
     const payload = {
       ...data,
       meta: toMetaObject(),
     };
-    const success = await updateProduct(productId, payload);
+
+    let finalData: UpdateProductInput | FormData = payload;
+
+    if (selectedFile) {
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+      Object.entries(payload).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          if (Array.isArray(value)) {
+            value.forEach((v) => formData.append(key, v));
+          } else if (typeof value === 'object') {
+            formData.append(key, JSON.stringify(value));
+          } else {
+            formData.append(key, String(value));
+          }
+        }
+      });
+      finalData = formData;
+    }
+
+    const success = await updateProduct(productId, finalData);
     if (success) {
       updateReset();
       getProductById(productId);
       removeAllAttributes();
+      setSelectedFile(null);
+      setPreviewUrl(null);
     }
   };
+  const currentImageUrl = productId ? updateWatch('image_url') : watch('image_url');
+
+  console.log(product);
   return (
     <>
       {loading ? (
@@ -298,7 +365,7 @@ export function FormProduct({
                     />
                   </div>
 
-                  <div className="mt-6 max-h-[400px] overflow-y-auto">
+                  <div className="mt-6 max-h-100 overflow-y-auto">
                     {product.variant.map((variant, index) => (
                       <div
                         key={variant.id}
@@ -453,18 +520,64 @@ export function FormProduct({
                 <h2 className="text-base font-stretch-200% font-semibold text-gray-900">
                   Ảnh sản phẩm
                 </h2>
-                <div className="space-y-1">
-                  <Input
-                    {...(productId ? updateRegister('image_url') : register('image_url'))}
-                    className="mt-4"
-                    type="text"
-                    error={productId ? updateErrors.image_url?.message : errors.image_url?.message}
-                    size="sm"
-                    radius="sm"
-                    placeholder="Nhập URL hình ảnh"
-                    label="Url ảnh"
-                  />
-                  <span className="text-xs text-gray-500">Sử dụng image url</span>
+                <div className="mt-4 space-y-4">
+                  {previewUrl || currentImageUrl ? (
+                    <div className="relative group w-full aspect-square rounded-lg overflow-hidden border border-gray-200">
+                      <Image
+                        width={400}
+                        height={400}
+                        src={previewUrl || currentImageUrl || ''}
+                        alt="Product"
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedFile(null);
+                            setPreviewUrl(null);
+                            if (productId) {
+                              updateSetValue('image_url', undefined);
+                            } else {
+                              setValue('image_url', undefined);
+                            }
+                          }}
+                          className="p-2 bg-white rounded-full text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
+                        >
+                          <Trash size={20} />
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <DropFileZone
+                      title="Tải ảnh lên"
+                      description="Kéo thả ảnh vào đây hoặc nhấp để chọn"
+                      onDrop={(files) => {
+                        const file = files[0];
+                        if (file) {
+                          setSelectedFile(file);
+                          setPreviewUrl(URL.createObjectURL(file));
+                        }
+                      }}
+                    />
+                  )}
+                  <div className="space-y-1">
+                    <Input
+                      {...(productId ? updateRegister('image_url') : register('image_url'))}
+                      className="hidden"
+                      type="text"
+                      error={
+                        productId ? updateErrors.image_url?.message : errors.image_url?.message
+                      }
+                      size="sm"
+                      radius="sm"
+                      placeholder="Nhập URL hình ảnh"
+                      label="Url ảnh"
+                    />
+                    <span className="text-xs text-gray-500">
+                      Ảnh sẽ được tải lên khi bạn nhấn {productId ? 'Cập nhật' : 'Thêm'} sản phẩm.
+                    </span>
+                  </div>
                 </div>
               </div>
               <div className="flex flex-col gap-4">
