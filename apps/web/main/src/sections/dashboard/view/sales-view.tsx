@@ -336,11 +336,11 @@ export function SalesView() {
   return (
     <>
       <div className="h-screen flex flex-col gap-2 overflow-hidden p-4">
-        <header className="bg-white w-full py-2 px-3 flex-shrink-0 flex items-center justify-between ">
+        <header className="bg-white w-full py-2 px-3 shrink-0 flex items-center justify-between ">
           <div className="flex items-center gap-8">
             <Logo link={`/dashboard/store/${currentStore?.id}/overview`} />
             <div className="flex items-center text-nowrap gap-4   ">
-              <div className="max-w-[600px] overflow-y-scroll flex items-center gap-4">
+              <div className="max-w-150 overflow-y-scroll flex items-center gap-4">
                 {invoices.map((invoice, idx) => (
                   <div
                     onClick={() => handleSwitchInvoice(idx)}
@@ -414,7 +414,7 @@ export function SalesView() {
           <div className="grid grid-cols-[1fr_0.6fr] gap-3 h-full overflow-hidden">
             {/* LEFT */}
             <div className="flex flex-col gap-2  h-full overflow-hidden">
-              <div className="bg-white flex items-center justify-between p-2 rounded-md flex-shrink-0">
+              <div className="bg-white flex items-center justify-between p-2 rounded-md shrink-0">
                 <Select
                   rightSection={<User size={16} />}
                   clearable
@@ -665,7 +665,7 @@ export function SalesView() {
                                   handleSelectProduct(variant);
                               }
                             }}
-                            className="bg-white p-3 rounded-xl border border-gray-100 hover:border-pos-blue-400 cursor-pointer duration-300 transition-all hover:shadow-md group hover:shadow-pos-blue-100"
+                            className="bg-white p-3 rounded-sm border border-gray-100 hover:border-pos-blue-400 cursor-pointer duration-300 transition-all hover:shadow-md group hover:shadow-pos-blue-100"
                           >
                             <div className="relative w-full h-fit">
                               <Image
@@ -673,11 +673,11 @@ export function SalesView() {
                                 alt="sản phẩm"
                                 width={500}
                                 height={500}
-                                className="rounded-xl object-cover h-33 w-full"
+                                className="rounded-xl object-cover h-36 w-full"
                                 unoptimized
                               />
-                              <div className="absolute bottom-2 left-2 py-1 px-2 bg-pos-blue-50 text-pos-blue-500 rounded-md">
-                                <div className="text-base  font-medium">
+                              <div className="absolute bottom-2 left-2 py-1 px-2 bg-pos-blue-50 text-pos-blue-500 rounded-sm">
+                                <div className="text-sm  font-semibold">
                                   {formatCurrency(variant.price)}
                                 </div>
                               </div>

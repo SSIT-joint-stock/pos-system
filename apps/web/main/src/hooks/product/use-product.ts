@@ -2,10 +2,8 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import useToast from '@repo/design-system/hooks/client/use-toast-notification';
-import { currentStoreAtom } from '@repo/design-system/stores/auth';
 import { Product, ValidationProductRes } from '@repo/design-system/types';
 import { ApiResponse } from '@repo/types/response';
-import { useAtomValue } from 'jotai';
 import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import api from '../../libs/axios';
@@ -46,7 +44,7 @@ export function useProduct() {
     categories: 'categories',
   });
   // STATE
-  const currentStore = useAtomValue(currentStoreAtom);
+
   const [products, setProducts] = useState<Product[]>([]);
   const [product, setProduct] = useState<Product>();
   const [validationProducts, setValidationProducts] = useState<ValidationProductRes>({
@@ -75,7 +73,6 @@ export function useProduct() {
   }, [buildParams, requestWrapper, setPagination]);
   const createProduct = useCallback(
     async (data: CreateProductInput | FormData) => {
-      if (!currentStore?.id) return;
       const res = await requestWrapper(() =>
         api.post<ApiResponse>(`/products`, data, {
           headers: {
@@ -93,12 +90,12 @@ export function useProduct() {
       }
       return {
         success: false,
+        data: [],
       };
     },
-    [currentStore?.id, requestWrapper, getProducts, showSuccessToast]
+    [requestWrapper, getProducts, showSuccessToast]
   );
   const deleteProduct = async (productId: string) => {
-    if (!currentStore?.id) return;
     const res = await requestWrapper(() => api.delete(`/products/${productId}`));
     if (res?.data.success) {
       showSuccessToast(res.data.message);
@@ -109,7 +106,6 @@ export function useProduct() {
     productId: string,
     updateProductForm: UpdateProductInput | FormData
   ) => {
-    if (!currentStore?.id) return;
     const res = await requestWrapper(() =>
       api.patch(`/products/${productId}`, updateProductForm, {
         headers: {
@@ -125,17 +121,13 @@ export function useProduct() {
     }
     return false;
   };
-  const getProductById = useCallback(
-    async (productId: string) => {
-      if (!currentStore?.id) return;
-      const res = await api.get(`/products/${productId}`);
+  const getProductById = useCallback(async (productId: string) => {
+    const res = await api.get(`/products/${productId}`);
 
-      if (res?.data.success) {
-        setProduct(res.data.data);
-      }
-    },
-    [currentStore?.id]
-  );
+    if (res?.data.success) {
+      setProduct(res.data.data);
+    }
+  }, []);
 
   // EXCEL
   const downloadProductTemplate = useCallback(async () => {
