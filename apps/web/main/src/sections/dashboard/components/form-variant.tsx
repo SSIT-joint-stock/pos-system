@@ -1,3 +1,4 @@
+'use client';
 import { Table } from '@mantine/core';
 import { Button, Input, Modal, NumberInput, Select } from '@repo/design-system/components/ui';
 import { useClickOutside } from '@repo/design-system/hooks/client';

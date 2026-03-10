@@ -1,3 +1,4 @@
+'use client';
 import { DateInput } from '@mantine/dates';
 import { useDebouncedValue } from '@mantine/hooks';
 import {

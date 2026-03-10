@@ -1,214 +1,92 @@
 'use client';
 import { Button, Table } from '@repo/design-system/components/ui';
 import { Plus } from 'lucide-react';
-import React, { useState } from 'react';
-import DashboardViewLayout from '../../../../../main/src/layouts/dashboard-view-layout';
-import { DisplayField } from '../components/display-field';
-import { DataActionBar } from '../components/data-action-bar';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useBundles } from '../../../hooks/catalog/use-bundles';
+import DashboardViewLayout from '../../../layouts/dashboard-view-layout';
+import { formatCurrency } from '../../../utils';
 import { ActionButtons } from '../components/action-buttons';
-import { IsUpdated } from '../components';
+import { DataActionBar } from '../components/data-action-bar';
+import { DisplayField } from '../components/display-field';
 
 const tableHeaders = [
-  'Mã lô hàng',
-  'Ngày giao dịch',
-  'Nhà cung cấp / Khách hàng',
-  'Hình thức TT',
-  'Nhập kho',
-  'Xuất kho',
-  'Chuyển kho',
-  'Mô tả',
+  'Tên nhóm sản phẩm',
+  'Mã SKU',
+  'Số lượng thành phần',
+  'Tồn kho combo',
+  'Giá bán',
   'Thao tác',
 ];
 
-const tableData = [
-  {
-    stt: 1,
-    code: 'NK2208',
-    date: '26/11/2025',
-    customer: '',
-    method: '',
-    import: '80.000',
-    export: '-',
-    transfer: '-',
-    note: 'Tạo kho từ sản phẩm: chai rửa ch...',
-  },
-  {
-    stt: 2,
-    code: 'XK3728',
-    date: '26/11/2025',
-    customer: 'Khách Lệ',
-    method: 'Tiền mặt',
-    import: '-',
-    export: '60.000',
-    transfer: '-',
-    note: 'Đơn hàng DH8375',
-  },
-  {
-    stt: 3,
-    code: 'XK3721',
-    date: '26/11/2025',
-    customer: 'Khách Lệ',
-    method: 'Tiền mặt',
-    import: '-',
-    export: '140.000',
-    transfer: '-',
-    note: 'Đơn hàng DH8368',
-  },
-  {
-    stt: 4,
-    code: 'XK3720',
-    date: '26/11/2025',
-    customer: 'Khách Lệ',
-    method: 'Tiền mặt',
-    import: '-',
-    export: '160.000',
-    transfer: '-',
-    note: 'Đơn hàng DH8367',
-  },
-  {
-    stt: 5,
-    code: 'XK3718',
-    date: '26/11/2025',
-    customer: 'Khách Lệ',
-    method: 'Tiền mặt',
-    import: '-',
-    export: '300.000',
-    transfer: '-',
-    note: 'Đơn hàng DH8365',
-  },
-  {
-    stt: 6,
-    code: 'XK3716',
-    date: '26/11/2025',
-    customer: 'Khách Lệ',
-    method: 'Tiền mặt',
-    import: '-',
-    export: '10',
-    transfer: '-',
-    note: 'Đơn hàng DH8363',
-  },
-  {
-    stt: 7,
-    code: 'XK3713',
-    date: '26/11/2025',
-    customer: 'Khách Lệ',
-    method: 'Tiền mặt',
-    import: '-',
-    export: '20.000',
-    transfer: '-',
-    note: 'Đơn hàng DH8359',
-  },
-  {
-    stt: 8,
-    code: 'XK3711',
-    date: '26/11/2025',
-    customer: 'Khách Lệ',
-    method: 'Tiền mặt',
-    import: '-',
-    export: '20.000',
-    transfer: '-',
-    note: 'Đơn hàng DH8357',
-  },
-  {
-    stt: 9,
-    code: 'XK3701',
-    date: '26/11/2025',
-    customer: 'Khách Lệ',
-    method: 'Tiền mặt',
-    import: '-',
-    export: '10',
-    transfer: '-',
-    note: 'Đơn hàng DH8343',
-  },
-  {
-    stt: 10,
-    code: 'XK3699',
-    date: '26/11/2025',
-    customer: 'Khách Lệ',
-    method: 'TM/CK',
-    import: '-',
-    export: '10',
-    transfer: '-',
-    note: 'Đơn hàng DH8341',
-  },
-  {
-    stt: 11,
-    code: 'XK3696',
-    date: '26/11/2025',
-    customer: 'Khách Lệ',
-    method: 'Tiền mặt',
-    import: '-',
-    export: '10',
-    transfer: '-',
-    note: 'Đơn hàng DH8338',
-  },
-  {
-    stt: 12,
-    code: 'XK3695',
-    date: '26/11/2025',
-    customer: 'Khách Lệ',
-    method: 'Tiền mặt',
-    import: '-',
-    export: '10',
-    transfer: '-',
-    note: 'Đơn hàng DH8337',
-  },
-];
-
-export function ManageProductCombosView() {
+export default function ManageProductCombosView() {
+  const router = useRouter();
+  const pathName = usePathname();
   const [openUploadOption, setOpenUploadOption] = useState<boolean>(false);
-  const [isUpdated] = useState<boolean>(true);
+  const { getBundles, bundles, deleteBundle, loading, setFilters } = useBundles();
+
+  useEffect(() => {
+    getBundles();
+  }, []);
+
+  const handleAdd = () => {
+    router.push(`${pathName}/create`);
+  };
+
+  const handleEdit = (id: string) => {
+    router.push(`${pathName}/details/${id}`);
+  };
+
   return (
     <>
-      {isUpdated ? (
-        <IsUpdated />
-      ) : (
-        <DashboardViewLayout>
-          {/* Header */}
-          <DisplayField label="Danh sách nhóm sản phẩm">
-            <Button title="Thêm nhóm sản phẩm" icon={<Plus size={16} />} size="sm" radius="sm" />
-          </DisplayField>
-          <DataActionBar
-            openUploadOption={openUploadOption}
-            setOpenUploadOption={setOpenUploadOption}
-            placeholderSearch="Nhập tên đơn vị tính"
-            dataComplete={['TÊN ĐƠN VỊ TÍNH1', 'TÊN ĐƠN VỊ TÍNH2', 'TÊN ĐƠN VỊ TÍNH3']}
+      <DashboardViewLayout>
+        {/* Header */}
+        <DisplayField label="Danh sách nhóm sản phẩm">
+          <Button
+            title="Thêm nhóm sản phẩm"
+            icon={<Plus size={16} />}
+            size="sm"
+            radius="sm"
+            onClick={handleAdd}
           />
-          <Table
-            hasMarginTop={false}
-            tableHeaders={tableHeaders}
-            data={tableData}
-            renderRow={(row) => (
-              <>
-                <td className="px-4 py-3 text-sm font-semibold text-pos-blue-600">{row.code}</td>
-                <td className="px-4 py-3 text-sm text-gray-600">{row.date}</td>
-                <td className="px-4 py-3 text-sm text-gray-600">{row.customer}</td>
-                <td className="px-4 py-3 text-sm text-gray-600">{row.method}</td>
-                <td className="px-4 py-3 text-sm text-pos-blue-500 font-medium">{row.import}</td>
-                <td className="px-4 py-3 text-sm text-red-600 font-medium">{row.export}</td>
-                <td className="px-4 py-3 text-sm text-gray-600">{row.transfer}</td>
-                <td className="px-4 py-3 text-sm text-gray-600">{row.note}</td>
-                <td>
-                  <ActionButtons
-                    onView={() => {
-                      // setOpenViewModal(true);
-                      // getProductById(product.id);
-                    }}
-                    onEdit={() => {
-                      // setOpenEditModal(true);
-                      // getProductById(product.id);
-                    }}
-                    onDelete={() => {
-                      // setDeleteModal(true);
-                      // getProductById(product.id);
-                    }}
-                  />
-                </td>
-              </>
-            )}
-          />
-        </DashboardViewLayout>
-      )}
+        </DisplayField>
+        <DataActionBar
+          placeholderSearch="Nhập tên nhóm sản phẩm hoặc SKU"
+          onSearch={(val: string) => setFilters((prev) => ({ ...prev, q: val }))}
+        />
+        <Table
+          hasMarginTop={false}
+          tableHeaders={tableHeaders}
+          data={bundles}
+          loading={loading}
+          renderRow={(row) => (
+            <>
+              <td className="px-4 py-3 text-sm font-semibold text-pos-blue-600">
+                <span className="cursor-pointer hover:underline" onClick={() => handleEdit(row.id)}>
+                  {row.name}
+                </span>
+              </td>
+              <td className="px-4 py-3 text-sm text-gray-600">{row.sku}</td>
+              <td className="px-4 py-3 text-sm text-gray-600">{row.items?.length || 0} sản phẩm</td>
+              <td className="px-4 py-3 text-sm text-gray-600">{row.quantity}</td>
+              <td className="px-4 py-3 text-sm text-pos-blue-500 font-semibold ">
+                {formatCurrency(row.price)}
+              </td>
+              <td>
+                <ActionButtons
+                  onView={() => handleEdit(row.id)}
+                  onEdit={() => handleEdit(row.id)}
+                  onDelete={async () => {
+                    if (confirm('Bạn có chắc chắn muốn xóa nhóm sản phẩm này?')) {
+                      await deleteBundle(row.id);
+                    }
+                  }}
+                />
+              </td>
+            </>
+          )}
+        />
+      </DashboardViewLayout>
     </>
   );
 }

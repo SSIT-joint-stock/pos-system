@@ -1,5 +1,6 @@
 export * from './api-response';
 export * from './bank';
+export * from './bundle';
 export * from './category';
 export * from './communes';
 export * from './finance';
