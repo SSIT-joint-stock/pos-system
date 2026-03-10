@@ -198,7 +198,7 @@ export function CashBookView() {
             </td>
             <td className="px-4 py-3 text-sm">
               <div className="flex items-center gap-2">
-                {item.status !== 'CANCELLED' ? (
+                {/* {item.status !== 'CANCELLED' ? (
                   <Tooltip label="Hủy phiếu" withArrow position="bottom">
                     <ActionIcon
                       variant="subtle"
@@ -216,7 +216,7 @@ export function CashBookView() {
                   <span className="text-xs text-red-500 font-medium bg-red-50 px-2 py-1 rounded">
                     Đã hủy
                   </span>
-                )}
+                )} */}
               </div>
             </td>
           </>
